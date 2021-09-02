@@ -6,7 +6,7 @@ This is a lightweight C++ project setup for OpenGL projects. If you have any que
 
 The project is defined using [CMake](https://cmake.org/) and uses
 
-* [GLFW](https://www.glfw.org/) to create Windows
+* [GLFW](https://www.glfw.org/) to create windows and rendering surfaces
 * [Glad](https://github.com/Dav1dde/glad) for providing an OpenGL 3.3 Core profile
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
@@ -30,7 +30,7 @@ If you want to configure the CMake project with a GUI application you can option
 
 ### Windows
 
-ToDo: Install GCMake, GLFW, CMake and OpenGL.
+ToDo: Install CMake, GLFW, CMake and OpenGL.
 
 
 ## Build Instructions
