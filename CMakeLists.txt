@@ -12,19 +12,22 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # source files -----------------------------------------------------------
-# All files that will be compiled have to be listet here. The shaders variable is unused.
+# All files that will be compiled have to be listed here. The shaders variable is unused.
 
 set(HEADERS
+    src/renderer.hpp
+    src/utils.hpp
 )
 
 set(SOURCES
     src/main.cpp
+    src/renderer.cpp
+    src/utils.cpp
 )
 
 set(SHADERS
-    shaders/main.vert
-    shaders/main.frag
-    shaders/Util.glsl
+    shaders/simple.vert
+    shaders/single_color.frag
 )
 
 # define target ---------------------------------------------------------- 

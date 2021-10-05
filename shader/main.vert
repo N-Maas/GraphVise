@@ -1,5 +1,4 @@
-
-#version 150 compatibility
+#version 330
 
 // Inverse view matrix
 uniform mat4 iV;
