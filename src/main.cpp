@@ -66,6 +66,9 @@ int main()
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT);
 
+        glfwPollEvents();
+        renderer.updateCamera(window);
+
 		// Tell OpenGL a new frame is about to begin
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -74,7 +77,7 @@ int main()
 		// ImGUI elements
 		ImGui::Begin("CG Thesis Framework GUI");
 		ImGui::Text("Add your GUI elements here!");
-		ImGui::ColorEdit4("Color", renderer.mColor);
+		ImGui::ColorEdit4("Color", &renderer.mColor.r);
 		ImGui::End();
 
         // Draw frame from renderer

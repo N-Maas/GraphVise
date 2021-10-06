@@ -10,7 +10,7 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [Glad](https://github.com/Dav1dde/glad) for providing an OpenGL 3.3 Core profile
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
-
+* [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library
 
 ## Installation Instructions
 
@@ -21,7 +21,7 @@ Glad and Imgui are directly included as source files in the ext/ directory and b
 
 All libraries can be installed from the package manager. Open a terminal and install
 
-`sudo apt install build-essential cmake libgl1-mesa-dev`
+`sudo apt install build-essential cmake libgl1-mesa-dev libglm-dev`
 
 If you want to configure the CMake project with a GUI application you can optionally add
 
@@ -30,7 +30,7 @@ If you want to configure the CMake project with a GUI application you can option
 
 ### Windows
 
-ToDo: Install CMake, GLFW, CMake and OpenGL.
+ToDo: Install CMake, GLFW, CMake, glm and OpenGL.
 
 
 ## Build Instructions
