@@ -9,10 +9,6 @@
 #include "utils.hpp"
 #include "renderer.hpp"
 
-/** @TODO
- * Render indexed cube with front, backface culling to RGB textures
-**/
-
 
 int main()
 {
@@ -41,9 +37,6 @@ int main()
 
 	//Load GLAD so it configures OpenGL
 	gladLoadGL();
-	// Specify the viewport of OpenGL in the Window
-	// In this case the viewport goes from x = 0, y = 0, to x = 800, y = 800
-	glViewport(0, 0, 800, 800);
 
 
 	// Initialize ImGUI
@@ -54,20 +47,35 @@ int main()
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
+    // Query the framebuffer size, this can differ from the window size on some systems
+    int framebufferWidth, framebufferHeight;
+    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+
     // Create the renderer object
-    Renderer renderer = Renderer();
+    Renderer renderer = Renderer(framebufferWidth, framebufferHeight);
     renderer.init();
 
-	// Main while loop
+    // Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+        // Resize the renderer and viewport if the framebuffer / window size changed
+        int newFramebufferWidth, newFramebufferHeight;
+        glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
+        if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
+        {
+            framebufferWidth = newFramebufferWidth;
+            framebufferHeight = newFramebufferHeight;
+            glViewport(0, 0, framebufferWidth, framebufferHeight);
+            renderer.resize(framebufferWidth, framebufferHeight);
+        }
+
 		// Specify the color of the background
 		glClearColor(0.f, 0.14f, 0.28f, 1.0f);
 		// Clean the back buffer and assign the new color to it
 		glClear(GL_COLOR_BUFFER_BIT);
 
         glfwPollEvents();
-        renderer.updateCamera(window);
+        renderer.processEvents(window);
 
 		// Tell OpenGL a new frame is about to begin
 		ImGui_ImplOpenGL3_NewFrame();
