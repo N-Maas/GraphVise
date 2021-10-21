@@ -101,7 +101,7 @@ void Renderer::shutdown()
 
 void Renderer::processEvents(GLFWwindow* m_window)
 {
-    // alternative: use GLFW's glfwSetKeyCallback
+    // alternatively: use GLFW's glfwSetKeyCallback
 
     // F5 to reload shaders
     if (glfwGetKey(m_window, GLFW_KEY_F5) == GLFW_RELEASE)

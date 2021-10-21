@@ -1,5 +1,4 @@
-#ifndef THESIS_FRAMEWORK_RENDERER_HPP
-#define THESIS_FRAMEWORK_RENDERER_HPP
+#pragma once
 
 #include <string>
 #include <glad/glad.h>
@@ -80,5 +79,3 @@ private:
             1.0f,-1.0f, 1.0f
     };
 };
-
-#endif //THESIS_FRAMEWORK_RENDERER_HPP

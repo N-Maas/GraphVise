@@ -84,6 +84,7 @@ int main()
 
 		// ImGUI elements
 		ImGui::Begin("CG Thesis Framework GUI");
+		ImGui::Text("Control the Camera with WASD+QE + right mouse, hit F5 to reload shaders.");
 		ImGui::Text("Add your GUI elements here!");
 		ImGui::ColorEdit4("Color", &renderer.mColor.r);
 		ImGui::End();

@@ -1,5 +1,4 @@
-#ifndef THESIS_FRAMEWORK_UTILS_HPP
-#define THESIS_FRAMEWORK_UTILS_HPP
+#pragma once
 
 #include <glad/glad.h>
 #include <string>
@@ -16,5 +15,3 @@ namespace utils {
     GLuint createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
     GLuint createShaderProgramFromFile(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 }
-
-#endif //THESIS_FRAMEWORK_UTILS_HPP

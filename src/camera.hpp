@@ -2,7 +2,8 @@
 
 #include <glm/glm.hpp>
 
-/** Holds state for a first person camera that characterizes the world to
+/**
+ * Holds state for a first person camera that characterizes the world to
  * projection space transform completely, except for the aspect ratio. It also
  * provides enough information to update the camera interactively. It does not
  * store any transforms or other redundant information. Such information has
