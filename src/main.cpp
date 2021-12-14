@@ -5,6 +5,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <sstream>
 
 #include "utils.hpp"
 #include "renderer.hpp"
@@ -24,7 +25,8 @@ int main()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create GLFW window
-	GLFWwindow* window = glfwCreateWindow(800, 800, "Thesis Framework", nullptr, NULL);
+    std::string windowTitle = "Thesis Framework";
+	GLFWwindow* window = glfwCreateWindow(800, 800, windowTitle.c_str(), nullptr, NULL);
 	// Error check if the window fails to create
 	if (window == nullptr)
 	{
@@ -55,9 +57,15 @@ int main()
     Renderer renderer = Renderer(framebufferWidth, framebufferHeight);
     renderer.init();
 
+    // FPS counter
+    int frameCount = 0;
+    double accumulatedTime = 0.0;
+
     // Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+        double startTime = glfwGetTime();
+
         // Resize the renderer and viewport if the framebuffer / window size changed
         int newFramebufferWidth, newFramebufferHeight;
         glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
@@ -101,6 +109,20 @@ int main()
 		glfwSwapBuffers(window);
 		// Take care of all GLFW events
 		glfwPollEvents();
+
+
+        // FPS counter
+        double endTime = glfwGetTime();
+        accumulatedTime += endTime - startTime;
+        ++frameCount;
+        if (1.0 < accumulatedTime) {
+            assert(0 < frameCount);
+            std::ostringstream oss;
+            oss << windowTitle << " - " << frameCount / accumulatedTime << " fps";
+            glfwSetWindowTitle(window, oss.str().c_str());
+            accumulatedTime = 0.0;
+            frameCount = 0;
+        }
 	}
 
     // Deletes all ImGUI instances

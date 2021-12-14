@@ -47,7 +47,7 @@ target_compile_definitions(thesis-framework PRIVATE -DSHADERS_PATH="${CMAKE_CURR
 # include packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(GLUT REQUIRED)
+#find_package(GLUT REQUIRED)
 
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
@@ -59,6 +59,6 @@ target_link_libraries(thesis-framework PRIVATE
     glad
     glfw
     OpenGL::GL
-    GLUT::GLUT
+#    GLUT::GLUT
 )
 
