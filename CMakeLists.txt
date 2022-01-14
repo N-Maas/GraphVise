@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(thesis-framework VERSION 1.0 DESCRIPTION "CG Thesis Framework" LANGUAGES CXX)
+project(thesis-framework VERSION 1.1 DESCRIPTION "CG Thesis Framework" LANGUAGES CXX)
 
 # Require out-of-source builds (this is good practice)
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
@@ -44,21 +44,24 @@ target_compile_definitions(thesis-framework PRIVATE -DSHADERS_PATH="${CMAKE_CURR
 
 # external dependencies and libraries ------------------------------------
 
-# include packages
+# find required packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
-#find_package(GLUT REQUIRED)
+# find optional packages
+find_package(OpenMP)
 
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
 target_include_directories(thesis-framework PRIVATE ext)
 
-# link libraries
+# link required libraries
 target_link_libraries(thesis-framework PRIVATE
     imgui
     glad
     glfw
     OpenGL::GL
-#    GLUT::GLUT
 )
-
+# link optional libraries
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(thesis-framework PUBLIC OpenMP::OpenMP_CXX)
+endif()

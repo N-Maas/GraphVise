@@ -13,6 +13,9 @@
 
 int main()
 {
+    // If OpenMP is installed we can use it for parallelization
+    utils::printOpenMPVersion();
+
 	// Initialize GLFW
 	glfwInit();
 

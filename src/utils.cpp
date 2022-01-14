@@ -1,6 +1,7 @@
 #include "utils.hpp"
-#include <signal.h>
 #include <fstream>
+#include <unordered_map>
+#include <memory>
 
 using namespace utils;
 
@@ -9,6 +10,19 @@ void utils::log(const std::string& message)
     std::cout << "LOG: " << message << std::endl;
 }
 
+void utils::printOpenMPVersion() {
+#ifdef _OPENMP
+    {
+        std::unordered_map<unsigned, std::string> ver{{200505,"2.5"},{200805,"3.0"},{201107,"3.1"},{201307,"4.0"},{201511,"4.5"},{201811,"5.0"},{202011,"5.1"}};
+        if(ver.find(_OPENMP) != ver.end())
+            log("OpenMP " + ver.at(_OPENMP) + " available.");
+        else
+            log("OpenMP " + std::to_string(_OPENMP) + " available.");
+    }
+#else
+    log("OpenMP not available.");
+#endif
+}
 
 GLenum utils::glCheckError_(const char *file, int line, bool debugBreakOnError) {
     /**
@@ -152,4 +166,3 @@ GLuint utils::createShaderProgramFromFile(const std::string& vertexShaderPath, c
     // build shader
     return createShaderProgram(vertexSource.c_str(), fragmentSource.c_str());
 }
-

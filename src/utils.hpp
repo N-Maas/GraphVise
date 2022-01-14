@@ -8,6 +8,8 @@ namespace utils {
 
     void log(const std::string&);
 
+    void printOpenMPVersion();
+
     GLenum glCheckError_(const char *file, int line, bool debugBreakOnError=true);
     #define GL_CHECK_ERROR() utils::glCheckError_(__FILE__, __LINE__)
 
