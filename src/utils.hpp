@@ -16,8 +16,8 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <string>
 #include <iostream>
+#include <string>
 
 namespace utils {
 

@@ -15,11 +15,12 @@
 
 #pragma once
 
-#include <string>
+#include "camera.hpp"
+
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-
-#include "camera.hpp"
+#include <string>
+#include <vector>
 
 class GLFWwindow;
 

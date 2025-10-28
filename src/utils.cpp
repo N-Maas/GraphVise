@@ -14,9 +14,10 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "utils.hpp"
+
 #include <fstream>
-#include <unordered_map>
 #include <memory>
+#include <unordered_map>
 
 using namespace utils;
 
