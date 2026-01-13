@@ -26,6 +26,12 @@
  * store any transforms or other redundant information. Such information has
  * to be computed as needed.
  */
+
+enum CameraFocusMode {
+    CENTER_OF_MASS,
+    FREE
+};
+
 class Camera {
 public:
     // The position of the camera in world space

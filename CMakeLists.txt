@@ -28,6 +28,10 @@ set(SOURCES
     src/utils.cpp
         src/view/Window.cpp
         src/view/Window.hpp
+        src/rendering/RendererSubject.cpp
+        src/rendering/RendererSubject.hpp
+        src/controller/RendererObserver.cpp
+        src/controller/RendererObserver.hpp
 )
 
 set(SHADERS

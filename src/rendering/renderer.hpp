@@ -24,6 +24,16 @@
 
 class GLFWwindow;
 
+enum LightSourceMovementBehaviour {
+    FOLLOW_CAMERA,
+    FIXED_POSITION
+};
+
+enum PerformanceMode {
+    HIGH_PERFORMANCE,
+    HIGH_RESOLUTION
+};
+
 class Renderer
 {
 public:
@@ -37,6 +47,9 @@ public:
     void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
     void resize(int framebufferWidth, int framebufferHeight);
 
+    void render(const glm::mat4& mvp); // Render graph
+
+
     // Variables to be changed in the ImGUI windows
     glm::vec4 mColor;
 
@@ -49,13 +62,36 @@ private:
     std::string mFragmentShaderPath;
     // Reference containers for the vertex array object and the vertex buffer object
     GLuint mVAO, mVBO;
+    // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
+    GLuint vertexVAO = 0, vertexVBO = 0;
+    GLuint edgeVAO = 0, edgeVBO = 0;
+    // Sphere mesh data (icosphere)
+    std::vector<glm::vec3> sphereVertices;
+    std::vector<unsigned int> sphereIndices;
+    GLuint sphereVAO, sphereVBO, sphereEBO;
+    // generate sphere mesh data(icosphere)
+    void generateIcosphere(int subdivisions = 2);
+    void renderSphere(const glm::vec3& center, float radius, const glm::vec3& color, const glm::mat4& mvp);
+
+    // Cylinder mesh (reusable)
+    std::vector<glm::vec3> cylinderVertices;
+    std::vector<unsigned int> cylinderIndices;
+    GLuint cylinderVAO, cylinderVBO, cylinderEBO;
+
+    void generateCylinder(int segments = 16);
+    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float radius, const glm::vec3& color, const glm::mat4& mvp);
+
 
     Camera mCamera;
+    CameraFocusMode cameraFocusMode;
+    LightSourceMovementBehaviour lightSourceMovementBehaviour;
+    PerformanceMode performanceMode;
     glm::ivec2 mFramebufferSize;
 
     bool mF5Pressed;
 
-    // Vertex array for screen filling quad
+    // Vertex array for screen filling cube
+    // remove this when Graph gets represented
     static constexpr GLfloat cubeVertices[] = {
             -1.0f,-1.0f,-1.0f,
             -1.0f,-1.0f, 1.0f,
