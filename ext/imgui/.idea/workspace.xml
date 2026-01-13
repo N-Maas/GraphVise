@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="f32a517a-6a40-4a4a-91dc-a25965e97b9b" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../../.gitmodules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../../wembed" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../README.md" beforeDir="false" afterPath="$PROJECT_DIR$/../../README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE.txt" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imconfig.h" beforeDir="false" afterPath="$PROJECT_DIR$/imconfig.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui.h" beforeDir="false" afterPath="$PROJECT_DIR$/imgui.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_demo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_demo.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_draw.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_draw.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_impl_glfw.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_impl_glfw.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_internal.h" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_internal.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_tables.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_tables.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imgui_widgets.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/imgui_widgets.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imstb_rectpack.h" beforeDir="false" afterPath="$PROJECT_DIR$/imstb_rectpack.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imstb_textedit.h" beforeDir="false" afterPath="$PROJECT_DIR$/imstb_textedit.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/imstb_truetype.h" beforeDir="false" afterPath="$PROJECT_DIR$/imstb_truetype.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../src/renderer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/../../src/renderer.cpp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProjectApplicationVersion">
+    <option name="ide" value="CLion" />
+    <option name="majorVersion" value="2025" />
+    <option name="minorVersion" value="2.4" />
+    <option name="productBranch" value="Classic" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 1
+}]]></component>
+  <component name="ProjectId" id="370kBNjdNfA8X63MchQkPW3ss4C" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.RadMigrateCodeStyle": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "to.speed.mode.migration.done": "true",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="f32a517a-6a40-4a4a-91dc-a25965e97b9b" name="Changes" comment="" />
+      <created>1766047239442</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1766047239442</updated>
+      <workItem from="1766047240612" duration="937000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

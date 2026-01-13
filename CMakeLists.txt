@@ -17,7 +17,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
-    src/utils.hpp
+        src/utils.hpp
+        src/imgui-filebrowser/imfilebrowser.h
 )
 
 set(SOURCES
@@ -54,7 +55,7 @@ find_package(OpenMP)
 
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
-target_include_directories(thesis-framework PRIVATE ext)
+target_include_directories(thesis-framework PRIVATE ext src/imgui-filebrowser)
 
 # link required libraries
 target_link_libraries(thesis-framework PRIVATE
