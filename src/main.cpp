@@ -23,7 +23,7 @@
 #include <sstream>
 
 #include "utils.hpp"
-#include "renderer.hpp"
+#include "rendering/renderer.hpp"
 
 
 int main()

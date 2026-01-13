@@ -16,7 +16,7 @@
 // https://github.com/MomentsInGraphics/vulkan_renderer/
 
 
-#include "camera.hpp"
+#include "./camera.hpp"
 #include <glm/gtx/transform.hpp>
 
 glm::mat4 Camera::get_world_to_view_space() const

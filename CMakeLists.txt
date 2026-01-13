@@ -15,16 +15,18 @@ set(CMAKE_CXX_STANDARD 17)
 # All files that will be compiled have to be listed here. The shaders variable is unused.
 
 set(HEADERS
-    src/camera.hpp
-    src/renderer.hpp
+        src/rendering/camera.hpp
+        src/rendering/renderer.hpp
     src/utils.hpp
 )
 
 set(SOURCES
-    src/camera.cpp
+        src/rendering/camera.cpp
     src/main.cpp
-    src/renderer.cpp
+        src/rendering/renderer.cpp
     src/utils.cpp
+        src/view/Window.cpp
+        src/view/Window.hpp
 )
 
 set(SHADERS

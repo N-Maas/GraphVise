@@ -13,8 +13,8 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "renderer.hpp"
-#include "utils.hpp"
+#include "./renderer.hpp"
+#include "../utils.hpp"
 
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -167,7 +167,7 @@ void Renderer::processEvents(GLFWwindow* m_window)
     forward -= (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) ? step : 0.0f;
     right += (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) ? step : 0.0f;
     right -= (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) ? step : 0.0f;
-    vertical += (glfwGetKey(m_window, GLFW_KEY_E) == GLFW_PRESS) ? step : 0.0f;
+    vertical += (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) ? step : 0.0f;
     vertical -= (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) ? step : 0.0f;
     float cos_y = cosf(mCamera.rotation_y), sin_y = sinf(mCamera.rotation_y);
     mCamera.position_world_space[0] +=  sin_y * forward;
