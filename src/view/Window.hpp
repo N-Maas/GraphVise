@@ -10,6 +10,14 @@
 class Window
 {
 
+public:
+
+    Window();
+
+    int initWindow();
+
+
+
 };
 
 
