@@ -42,7 +42,7 @@ public:
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
-    void runFrame();        // Called once per Frame
+    void runFrame(GraphSaver& graphSaver);        // Called once per Frame
     void shutdown();        // Cleanup resources, called after the main loop
 
     void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
