@@ -10,5 +10,5 @@
 
 struct GraphData {
     std::vector<int> vertices;
-    std::vector<int> edges;
+    std::vector<std::vector<int>> edges;
 };
