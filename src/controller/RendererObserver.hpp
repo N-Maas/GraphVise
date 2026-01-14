@@ -6,5 +6,9 @@
 
 
 class RendererObserver {
-    virtual void update();
+public:
+    virtual ~RendererObserver() = default;
+
+private:
+    virtual void update() = 0;
 };

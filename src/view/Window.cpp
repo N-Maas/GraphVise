@@ -55,7 +55,6 @@ int Window::initWindow()
 	//Load GLAD so it configures OpenGL
 	gladLoadGL();
 
-
 	// Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
