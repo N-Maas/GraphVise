@@ -32,6 +32,31 @@ set(SOURCES
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.cpp
         src/controller/RendererObserver.hpp
+        src/controller/ButtonController.cpp
+        src/controller/ButtonController.hpp
+        src/controller/ThreadController.cpp
+        src/controller/ThreadController.hpp
+        src/controller/Parsing/ParserController.cpp
+        src/controller/Parsing/ParserController.hpp
+        src/controller/Parsing/TXTParser.cpp
+        src/controller/Parsing/TXTParser.hpp
+        src/controller/MovementController.cpp
+        src/controller/MovementController.hpp
+        src/controller/Error.cpp
+        src/controller/Error.hpp
+        src/controller/ErrorCollector.cpp
+        src/controller/ErrorCollector.hpp
+        src/controller/ErrorCollectorSubject.hpp
+        src/controller/Enums/ParseFormat.hpp
+        src/controller/Enums/ErrorType.hpp
+        src/controller/Enums/ThreadOperationType.hpp
+        src/controller/Structs/GroupData.hpp
+        src/controller/Structs/GraphData.hpp
+        src/controller/Structs/ThreadOperation.hpp
+        src/controller/Enums/ExportFormat.hpp
+        src/controller/Parsing/GraphParser.hpp
+        src/controller/Parsing/WEmbedController.hpp
+        src/view/ErrorCollectorObserver.hpp
 )
 
 set(SHADERS
