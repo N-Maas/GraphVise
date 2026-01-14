@@ -112,8 +112,9 @@ int Window::initWindow()
 		ImGui::ColorEdit4("Color", &renderer.mColor.r);
 		ImGui::End();
 
+		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
-        renderer.runFrame();
+        renderer.runFrame(graphSaver);
         GL_CHECK_ERROR();
 
 		// Renders the ImGUI elements

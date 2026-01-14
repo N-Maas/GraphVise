@@ -27,6 +27,15 @@ Renderer::Renderer(int framebufferWidth, int framebufferHeight)
 {
 }
 
+Renderer::~Renderer() {
+    // Cleanup OpenGL resources
+    if (vertexVAO) glDeleteVertexArrays(1, &vertexVAO);
+    if (vertexVBO) glDeleteBuffers(1, &vertexVBO);
+    if (edgeVAO) glDeleteVertexArrays(1, &edgeVAO);
+    if (edgeVBO) glDeleteBuffers(1, &edgeVBO);
+    if (mShaderProgram) glDeleteProgram(mShaderProgram);
+}
+
 /**
  * Initialize the renderer and all of its (OpenGL) ressources. Must be called before runFrame().
  */
@@ -73,12 +82,20 @@ void Renderer::reloadShaders()
         mShaderProgram = newProgram;
     }
     GL_CHECK_ERROR();
+
+    // Setup buffers and for visualizing graph
+    glGenVertexArrays(1, &vertexVAO);
+    glGenBuffers(1, &vertexVBO);
+    glGenVertexArrays(1, &edgeVAO);
+    glGenBuffers(1, &edgeVBO);
+
 }
 
+//todo will work properly when Model is implemented
 /**
  * Called in the main loop to render a new frame.
  */
-void Renderer::runFrame()
+void Renderer::runFrame(GraphSaver& graphSaver)
 {
     if(mShaderProgram == 0)
     {
@@ -90,16 +107,113 @@ void Renderer::runFrame()
     glUseProgram(mShaderProgram);
     GL_CHECK_ERROR();
 
-    // Set program uniforms
-    glUseProgram(mShaderProgram);
-    glUniform4f(glGetUniformLocation(mShaderProgram, "color"), mColor[0], mColor[1], mColor[2], mColor[3]);
-    glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-    glUniformMatrix4fv(glGetUniformLocation(mShaderProgram, "mvp"), 1, false, &mvp[0][0]);
-    GL_CHECK_ERROR();
+    //todo all this code is for rendering the cube and has to be thrown out when the cube is no longer needed
 
+    // 2.1 MVP matrix
+    glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
+    GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
+    if (mvpLoc != -1) {
+        glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
+        std::cout << "Set cube MVP" << std::endl;
+    }
+
+    // 2.2 Model matrix (identity for now)
+    glm::mat4 model = glm::mat4(1.0f);
+    GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
+    if (modelLoc != -1) {
+        glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
+    }
+
+    // 3.Set lighting uniforms for CUBE
+    GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
+    if (lightPosLoc != -1) {
+        glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
+        glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+        std::cout << "Set lightPos to (2,2,2)" << std::endl;
+    } else {
+        std::cout << "WARNING: lightPos uniform not found in cube shader!" << std::endl;
+    }
+
+    // 4. Set cube color (ORANGE)
+    GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
+    if (colorLoc == -1) colorLoc = glGetUniformLocation(mShaderProgram, "color");
+    if (colorLoc != -1) {
+        glUniform3f(colorLoc, mColor[0], mColor[1], mColor[2]);  // Orange
+        std::cout << "Set cube color to orange: ("
+                  << mColor[0] << "," << mColor[1] << "," << mColor[2] << ")" << std::endl;
+    } else {
+        std::cout << "WARNING: No color uniform found in cube shader!" << std::endl;
+    }
+
+
+    // todo throw test cube out when graph can be rendered
+    //Render cube
     glBindVertexArray(mVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    std::cout << "Cube drawn" << std::endl;
+
+    /* todo currently we are using the same shader program for the cube and the graph, this of course does not work and
+    * todo we are only using the graph shader program
+    * todo we need access to GraphSaver object
+     */
+    //rendering graph
+    render(mvp, graphSaver);
     GL_CHECK_ERROR();
+}
+
+// todo will work properly when Model is implemented
+// rendering Graph
+void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
+    Graph graph = graphSaver.getGraph();
+    std::vector<Vertex> vertices = graph.getVertices();
+    std::vector<Edge> edges = graph.getEdges();
+    std::cout << "=== GraphRenderer start ===" << std::endl;
+    std::cout << "Graph shader ID: " << mShaderProgram << std::endl;
+    std::cout << "vertex count: " << graph.graph.vertices.size() << std::endl;
+
+    if (mShaderProgram == 0 || graph.vertices.empty()) {
+        std::cout << "ERROR: No shader or graph.vertices" << std::endl;
+        return;
+    }
+
+    glUseProgram(mShaderProgram);
+
+    // Set MVP uniform
+    GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
+    if (mvpLoc != -1) {
+        glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
+        std::cout << "Set graph MVP" << std::endl;
+    } else {
+        std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
+    }
+
+    // Generate meshes once (if not already)
+    if (sphereVertices.empty()) {
+        std::cout << "Generating sphere mesh..." << std::endl;
+        generateIcosphere(2);  // Medium quality
+    }
+    if (cylinderVertices.empty()) {
+        std::cout << "Generating cylinder mesh..." << std::endl;
+        generateCylinder(12);  // 12 segments
+    }
+
+    std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
+              << edges.size() << " edges" << std::endl;
+
+    // ===== RENDER graph.vertices AS SPHERES =====
+    for (const auto& vertex : vertices) {
+        renderSphere(vertex.position, vertex.radius, vertex.color, mvp);
+    }
+    // ===== RENDER EDGES AS CYLINDERS =====
+    for (const auto& edge : edges) {
+        if (edge.fromIdx < vertices.size() && edge.toIdx < vertices.size()) {
+            const auto& from = vertices[edge.fromIdx];
+            const auto& to = vertices[edge.toIdx];
+            renderCylinder(from.position, to.position,
+                          edge.thickness, edge.color, mvp);
+        }
+    }
+
 }
 
 /**
@@ -181,8 +295,4 @@ void Renderer::resize(int framebufferWidth, int framebufferHeight)
 {
     mFramebufferSize.x = framebufferWidth;
     mFramebufferSize.y = framebufferHeight;
-}
-
-float Renderer::getAspectRatio() const {
-    return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
 }
