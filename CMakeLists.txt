@@ -57,6 +57,8 @@ set(SOURCES
         src/controller/Parsing/GraphParser.hpp
         src/controller/Parsing/WEmbedController.hpp
         src/view/ErrorCollectorObserver.hpp
+        src/Model/Test.cpp
+        src/Model/Test.hpp
 )
 
 set(SHADERS
