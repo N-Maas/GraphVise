@@ -40,6 +40,12 @@ set(HEADERS
         src/controller/Parsing/GraphParser.hpp
         src/controller/Parsing/WEmbedController.hpp
         src/view/ErrorCollectorObserver.hpp
+        src/model/GraphSaver.hpp
+        src/model/Graph.hpp
+        src/model/Group.hpp
+        src/model/CameraBookmark.hpp
+        src/model/Vertex.hpp
+        src/model/Edge.hpp
 )
 
 set(SOURCES
@@ -57,6 +63,12 @@ set(SOURCES
         src/controller/MovementController.cpp
         src/controller/Error.cpp
         src/controller/ErrorCollector.cpp
+        src/model/GraphSaver.cpp
+        src/model/Graph.cpp
+        src/model/Group.cpp
+        src/model/CameraBookmark.cpp
+        src/model/Vertex.cpp
+        src/model/Edge.cpp
 )
 
 set(SHADERS
