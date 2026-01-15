@@ -7,8 +7,8 @@ if(EXISTS "${LOC_PATH}")
     message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
-# Use C++17 in all targets
-set(CMAKE_CXX_STANDARD 17)
+# Use C++20 for wembed compatibility
+set(CMAKE_CXX_STANDARD 20)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # source files -----------------------------------------------------------
@@ -19,32 +19,15 @@ set(HEADERS
         src/rendering/renderer.hpp
         src/utils.hpp
         src/imgui-filebrowser/imfilebrowser.h
-)
-
-set(SOURCES
-        src/rendering/camera.cpp
-    src/main.cpp
-        src/rendering/renderer.cpp
-    src/utils.cpp
-        src/view/Window.cpp
         src/view/Window.hpp
-        src/rendering/RendererSubject.cpp
         src/rendering/RendererSubject.hpp
-        src/controller/RendererObserver.cpp
         src/controller/RendererObserver.hpp
-        src/controller/ButtonController.cpp
         src/controller/ButtonController.hpp
-        src/controller/ThreadController.cpp
         src/controller/ThreadController.hpp
-        src/controller/Parsing/ParserController.cpp
         src/controller/Parsing/ParserController.hpp
-        src/controller/Parsing/TXTParser.cpp
         src/controller/Parsing/TXTParser.hpp
-        src/controller/MovementController.cpp
         src/controller/MovementController.hpp
-        src/controller/Error.cpp
         src/controller/Error.hpp
-        src/controller/ErrorCollector.cpp
         src/controller/ErrorCollector.hpp
         src/controller/ErrorCollectorSubject.hpp
         src/controller/Enums/ParseFormat.hpp
@@ -59,16 +42,35 @@ set(SOURCES
         src/view/ErrorCollectorObserver.hpp
 )
 
+set(SOURCES
+        src/rendering/camera.cpp
+        src/main.cpp
+        src/rendering/renderer.cpp
+        src/utils.cpp
+        src/view/Window.cpp
+        src/rendering/RendererSubject.cpp
+        src/controller/RendererObserver.cpp
+        src/controller/ButtonController.cpp
+        src/controller/ThreadController.cpp
+        src/controller/Parsing/ParserController.cpp
+        src/controller/Parsing/TXTParser.cpp
+        src/controller/MovementController.cpp
+        src/controller/Error.cpp
+        src/controller/ErrorCollector.cpp
+)
+
 set(SHADERS
     shaders/simple.vert
     shaders/single_color.frag
+    shaders/graph.vert
+    shaders/graph_color.vert
 )
 
 # define target ---------------------------------------------------------- 
 
 # add executable
 # this is the build target that we create in the end and that we link all libraries to
-add_executable(thesis-framework  ${HEADERS} ${SOURCES} ${IMGUI})
+add_executable(thesis-framework ${SOURCES})
 
 # set defines that can be used in the project code
 # SHADERS_PATH points to the shader files directory
@@ -79,12 +81,27 @@ target_compile_definitions(thesis-framework PRIVATE -DSHADERS_PATH="${CMAKE_CURR
 # find required packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
+
+# wembed needs eigen
+find_package(Eigen3 3.4 REQUIRED)
+# wembed only needs the header libraries of boost but cmake can't require only the header libraries (?)
+find_package(Boost 1.74 REQUIRED COMPONENTS headers)
 # find optional packages
 find_package(OpenMP)
 
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
-target_include_directories(thesis-framework PRIVATE ext src/imgui-filebrowser)
+# minimal wembed integration for basic graph embedding
+add_subdirectory(wembed)
+
+target_include_directories(thesis-framework PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ext
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
+        ${CMAKE_CURRENT_SOURCE_DIR}/wembed/src
+        ${Eigen3_INCLUDE_DIRS}
+        ${Boost_INCLUDE_DIRS}
+        )
 
 # link required libraries
 target_link_libraries(thesis-framework PRIVATE
@@ -92,6 +109,10 @@ target_link_libraries(thesis-framework PRIVATE
     glad
     glfw
     OpenGL::GL
+    wembed_flags # compiler flags
+    embeddingLib # will be available from wembed
+    graphLib # will be available from wembed
+    utilLib # will be available from wembed
 )
 # link optional libraries
 if(OpenMP_CXX_FOUND)
