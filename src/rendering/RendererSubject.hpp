@@ -7,11 +7,9 @@
 #include "../controller/RendererObserver.hpp"
 
 class RendererSubject {
-private:
-    std::vector<std::unique_ptr<RendererObserver>> observerList;
-
 public:
-    virtual int signIn(RendererObserver& observer);
-    virtual int signOut(RendererObserver& observer);
+    std::vector<std::unique_ptr<RendererObserver>> observerList;
+    virtual void signIn(RendererObserver& observer);
+    virtual void signOut(RendererObserver& observer);
     virtual void notify();
 };

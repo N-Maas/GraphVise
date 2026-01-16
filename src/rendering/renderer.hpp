@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "camera.hpp"
 #include "../model/GraphSaver.hpp"
 
@@ -22,6 +24,8 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+
+#include "controller/RendererObserver.hpp"
 
 class GLFWwindow;
 
@@ -35,11 +39,17 @@ enum PerformanceMode {
     HIGH_RESOLUTION
 };
 
-class Renderer
+class Renderer : public RendererObserver
 {
 public:
     Renderer(int framebufferWidth, int framebufferHeight);
     ~Renderer();
+
+    // implementing methods from RendererSubject
+    std::vector<std::unique_ptr<RendererObserver>> observerList;
+    int signIn(RendererObserver& observer);
+    int signOut(RendererObserver& observer);
+    void notify();
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files

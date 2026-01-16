@@ -40,7 +40,7 @@ Renderer::~Renderer() {
 }
 
 /**
- * Initialize the renderer and all of its (OpenGL) ressources. Must be called before runFrame().
+ * Initialize the renderer and all of its (OpenGL) resources. Must be called before runFrame().
  */
 void Renderer::init()
 {
@@ -162,6 +162,7 @@ void Renderer::runFrame(GraphSaver& graphSaver)
     //rendering graph
     render(mvp, graphSaver);
     GL_CHECK_ERROR();
+    notify();
 }
 
 // todo will work properly when Model is implemented
