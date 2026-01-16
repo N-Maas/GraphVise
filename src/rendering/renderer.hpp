@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include <memory>
-
 #include "camera.hpp"
 #include "../model/GraphSaver.hpp"
 
@@ -25,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "controller/RendererObserver.hpp"
+#include "RendererSubject.hpp"
 
 class GLFWwindow;
 
@@ -39,17 +37,11 @@ enum PerformanceMode {
     HIGH_RESOLUTION
 };
 
-class Renderer : public RendererObserver
+class Renderer : public RendererSubject
 {
 public:
     Renderer(int framebufferWidth, int framebufferHeight);
-    ~Renderer();
-
-    // implementing methods from RendererSubject
-    std::vector<std::unique_ptr<RendererObserver>> observerList;
-    int signIn(RendererObserver& observer);
-    int signOut(RendererObserver& observer);
-    void notify();
+    virtual ~Renderer();
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
@@ -61,7 +53,13 @@ public:
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
 
-    void adjustPerformanceMode(PerformanceMode performanceMode);
+     int signIn(RendererObserver& observer) override;
+     int signOut(RendererObserver& observer) override;
+     void notify() override;
+
+    void adjustPerformanceMode(PerformanceMode newMode) {
+        performanceMode = newMode;
+    };
 
     // Variables to be changed in the ImGUI windows
     glm::vec4 mColor;
