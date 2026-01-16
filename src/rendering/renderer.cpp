@@ -15,6 +15,9 @@
 
 #include "./renderer.hpp"
 #include "../utils.hpp"
+#include "../model/Graph.hpp"
+#include "../model/Vertex.hpp"
+#include "../model/Edge.hpp"
 
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -165,13 +168,13 @@ void Renderer::runFrame(GraphSaver& graphSaver)
 // rendering Graph
 void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
     Graph graph = graphSaver.getGraph();
-    std::vector<Vertex> vertices = graph.getVertices();
-    std::vector<Edge> edges = graph.getEdges();
+    std::vector<Vertex>& vertices = graph.getVertices();
+    std::vector<Edge>& edges = graph.getEdges();
     std::cout << "=== GraphRenderer start ===" << std::endl;
     std::cout << "Graph shader ID: " << mShaderProgram << std::endl;
-    std::cout << "vertex count: " << graph.graph.vertices.size() << std::endl;
+    std::cout << "vertex count: " << vertices.size() << std::endl;
 
-    if (mShaderProgram == 0 || graph.vertices.empty()) {
+    if (mShaderProgram == 0 || vertices.empty()) {
         std::cout << "ERROR: No shader or graph.vertices" << std::endl;
         return;
     }
@@ -202,15 +205,19 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
 
     // ===== RENDER graph.vertices AS SPHERES =====
     for (const auto& vertex : vertices) {
-        renderSphere(vertex.position, vertex.radius, vertex.color, mvp);
+        renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
     }
     // ===== RENDER EDGES AS CYLINDERS =====
     for (const auto& edge : edges) {
-        if (edge.fromIdx < vertices.size() && edge.toIdx < vertices.size()) {
-            const auto& from = vertices[edge.fromIdx];
-            const auto& to = vertices[edge.toIdx];
-            renderCylinder(from.position, to.position,
-                          edge.thickness, edge.color, mvp);
+        uint fromIdx = edge.getConnectingVerticesIDs()[0];
+        uint toIdx = edge.getConnectingVerticesIDs()[1];
+        if (fromIdx < vertices.size() && toIdx < vertices.size()) {
+            const auto& from = vertices[fromIdx];
+            const auto& to = vertices[toIdx];
+            glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
+            glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
+            renderCylinder(fromPos, toPos,
+                          cylinderRadius, edge.getEdgeVec4(), mvp);
         }
     }
 

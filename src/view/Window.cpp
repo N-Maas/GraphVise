@@ -15,6 +15,7 @@
 
 #include "../utils.hpp"
 #include "../rendering/renderer.hpp"
+#include "../model/GraphSaver.hpp"
 
 
 
@@ -113,6 +114,7 @@ int Window::initWindow()
 
 		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
+		GraphSaver graphSaver;
         renderer.runFrame(graphSaver);
         GL_CHECK_ERROR();
 
