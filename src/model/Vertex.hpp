@@ -5,20 +5,19 @@
 #ifndef THESIS_FRAMEWORK_VERTEX_HPP
 #define THESIS_FRAMEWORK_VERTEX_HPP
 #include <optional>
-
 #include "imgui/imgui.h"
 
 
 class Vertex {
     public:
         Vertex(int vertexID, const glm::vec3& coords);
-        int getVertexID() const;
-        int getGroupID() const;
+        [[nodiscard]] int getVertexID() const;
+        [[nodiscard]] int getGroupID() const;
         void setGroup(int groupID);
-        const glm::vec3& getCoordsVector() const;
-        const ImVec4& getVertexVec4() const;
-        float getTransparency() const;
-        bool setOwnTransparency(float transparency);
+        [[nodiscard]] const glm::vec3& getCoordsVector() const;
+        [[nodiscard]] const ImVec4& getVertexVec4() const;
+        [[nodiscard]] float getTransparency() const;
+        [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
         void deleteVertex();
 

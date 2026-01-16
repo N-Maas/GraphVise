@@ -11,12 +11,12 @@
 class CameraBookmark {
     public:
         CameraBookmark(int cameraBookmarkID, const std::string& name, const glm::vec3& coords, float pitch, float yaw);
-        int getCameraBookmarkID() const;
-        const std::string& getName() const;
+        [[nodiscard]] int getCameraBookmarkID() const;
+        [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
-        const glm::vec3& getCoordsVector() const;
-        float getPitch() const;
-        float getYaw() const;
+        [[nodiscard]] const glm::vec3& getCoordsVector() const;
+        [[nodiscard]] float getPitch() const;
+        [[nodiscard]] float getYaw() const;
         void deleteCameraBookmark();
 
     private:

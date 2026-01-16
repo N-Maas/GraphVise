@@ -16,15 +16,15 @@
 class Graph {
     public:
         Graph();
-        std::vector<Vertex>& getVertices() const;
-        std::vector<Edge>& getEdges() const;
-        std::vector<Group>& getGroups() const;
-        std::vector<CameraBookmark>& getCameraBookmarks() const;
-        Vertex& getVertexByID(int ID) const;
-        Edge& getEdgeByID(int ID) const;
-        Group& getGroupByID(int ID) const;
-        CameraBookmark& getCameraBookmarkByID(int ID) const;
-        int getEdgeIDByConnectingVerticesIDs(int firstVertexID, int secondVertexID) const;
+        [[nodiscard]] std::vector<Vertex>& getVertices() const;
+        [[nodiscard]]std::vector<Edge>& getEdges() const;
+        [[nodiscard]] std::vector<Group>& getGroups() const;
+        [[nodiscard]] std::vector<CameraBookmark>& getCameraBookmarks() const;
+        [[nodiscard]] Vertex& getVertexByID(int ID) const;
+        [[nodiscard]] Edge& getEdgeByID(int ID) const;
+        [[nodiscard]] Group& getGroupByID(int ID) const;
+        [[nodiscard]] CameraBookmark& getCameraBookmarkByID(int ID) const;
+        [[nodiscard]] int getEdgeIDByConnectingVerticesIDs(int firstVertexID, int secondVertexID) const;
         bool addVertex(int vertexID, const glm::vec3& coords);
         void addEdge(int firstVertexID, int secondVertexID);
         void addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs);

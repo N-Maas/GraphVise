@@ -11,12 +11,12 @@
 class Group {
     public:
         Group(int groupID, const std::string& name, const ImVec4& groupVec4);
-        const std::string& getName() const;
+        [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
         bool setTransparency(float transparency);
-        float getTransparency() const;
+        [[nodiscard]] float getTransparency() const;
         void setGroupVec4(const ImVec4& groupVec4);
-        const ImVec4& getGroupVec4() const;
+        [[nodiscard]] const ImVec4& getGroupVec4() const;
         void deleteGroup();
 
     private:

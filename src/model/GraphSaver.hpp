@@ -10,7 +10,7 @@
 class GraphSaver {
     public:
         static GraphSaver& getGraphSaver();
-        Graph& getGraph() const;
+        [[nodiscard]] Graph& getGraph() const;
         void setGraph(const Graph& graph);
 
     private:

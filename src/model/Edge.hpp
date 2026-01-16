@@ -12,13 +12,13 @@
 class Edge {
     public:
         Edge(int edgeID, int firstVertexID, int secondVertexID);
-        int getEdgeID() const;
-        int getGroupID() const;
+        [[nodiscard]] int getEdgeID() const;
+        [[nodiscard]] int getGroupID() const;
         void setGroup(int groupID);
-        const std::vector<int>& getConnectingVerticesIDs() const;
-        const ImVec4& getEdgeVec4() const;
-        float getTransparency() const;
-        bool setOwnTransparency(float transparency);
+        [[nodiscard]] const std::vector<int>& getConnectingVerticesIDs() const;
+        [[nodiscard]] const ImVec4& getEdgeVec4() const;
+        [[nodiscard]] float getTransparency() const;
+        [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
         void deleteEdge();
 
