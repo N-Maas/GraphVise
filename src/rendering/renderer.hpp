@@ -16,6 +16,7 @@
 #pragma once
 
 #include "camera.hpp"
+#include "../model/GraphSaver.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -77,7 +78,7 @@ private:
     // generate sphere mesh data(icosphere)
     float sphereRadius;
     void generateIcosphere(int subdivisions = 2);
-    void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec3& color, const glm::mat4& mvp);
+    void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
 
     // Cylinder mesh (reusable)
     std::vector<glm::vec3> cylinderVertices;
@@ -86,7 +87,7 @@ private:
 
     float cylinderRadius;
     void generateCylinder(int segments = 16);
-    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec3& color, const glm::mat4& mvp);
+    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp);
 
 
     Camera mCamera;
