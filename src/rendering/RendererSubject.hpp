@@ -11,7 +11,9 @@ private:
     std::vector<std::unique_ptr<RendererObserver>> observerList;
 
 public:
-    virtual int signIn(RendererObserver& observer);
-    virtual int signOut(RendererObserver& observer);
-    virtual void notify();
+    virtual ~RendererSubject() = default;
+
+    virtual int signIn(RendererObserver& observer) = 0;
+    virtual int signOut(RendererObserver& observer) = 0;
+    virtual void notify() = 0;
 };

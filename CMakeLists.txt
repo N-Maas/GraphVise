@@ -54,7 +54,6 @@ set(SOURCES
         src/rendering/renderer.cpp
         src/utils.cpp
         src/view/Window.cpp
-        src/rendering/RendererSubject.cpp
         src/controller/RendererObserver.cpp
         src/controller/ButtonController.cpp
         src/controller/ThreadController.cpp

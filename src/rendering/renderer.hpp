@@ -23,6 +23,8 @@
 #include <string>
 #include <vector>
 
+#include "RendererSubject.hpp"
+
 class GLFWwindow;
 
 enum LightSourceMovementBehaviour {
@@ -35,11 +37,11 @@ enum PerformanceMode {
     HIGH_RESOLUTION
 };
 
-class Renderer
+class Renderer : public RendererSubject
 {
 public:
     Renderer(int framebufferWidth, int framebufferHeight);
-    ~Renderer();
+    ~Renderer() override;
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
@@ -50,6 +52,10 @@ public:
     void resize(int framebufferWidth, int framebufferHeight);
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
+
+     int signIn(RendererObserver& observer) override;
+     int signOut(RendererObserver& observer) override;
+     void notify() override;
 
 
     // Variables to be changed in the ImGUI windows

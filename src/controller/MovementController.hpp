@@ -4,7 +4,6 @@
 
 #ifndef THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
 #define THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
-#include <vector>
 
 #include "../rendering/camera.hpp"
 
