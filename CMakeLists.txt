@@ -82,7 +82,7 @@ set(SHADERS
 
 # add executable
 # this is the build target that we create in the end and that we link all libraries to
-add_executable(thesis-framework ${SOURCES})
+add_executable(thesis-framework ${SOURCES} ${HEADERS})
 
 # set defines that can be used in the project code
 # SHADERS_PATH points to the shader files directory
@@ -100,17 +100,26 @@ find_package(Eigen3 3.4 REQUIRED)
 find_package(Boost 1.74 REQUIRED COMPONENTS headers)
 # find optional packages
 find_package(OpenMP)
+# fetch wembed
+include(FetchContent)
+
+FetchContent_Declare(
+        wembed
+        GIT_REPOSITORY https://github.com/Vraier/wembed
+        GIT_TAG        85e11b34d7600b65cd42e4e2de0f40661afa24f9
+        GIT_SHALLOW TRUE
+)
+
+set(WEMBED_AS_LIBRARY ON)
+FetchContent_MakeAvailable(wembed)
 
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
-# minimal wembed integration for basic graph embedding
-add_subdirectory(wembed)
 
 target_include_directories(thesis-framework PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
-        ${CMAKE_CURRENT_SOURCE_DIR}/wembed/src
         ${Eigen3_INCLUDE_DIRS}
         ${Boost_INCLUDE_DIRS}
         )
@@ -121,6 +130,7 @@ target_link_libraries(thesis-framework PRIVATE
     glad
     glfw
     OpenGL::GL
+    wembedLib # main wembed library
     wembed_flags # compiler flags
     embeddingLib # will be available from wembed
     graphLib # will be available from wembed
@@ -130,3 +140,6 @@ target_link_libraries(thesis-framework PRIVATE
 if(OpenMP_CXX_FOUND)
     target_link_libraries(thesis-framework PUBLIC OpenMP::OpenMP_CXX)
 endif()
+
+# Install target (optional but good practice)
+# install(TARGETS thesis-framework RUNTIME DESTINATION bin)
