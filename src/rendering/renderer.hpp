@@ -61,6 +61,7 @@ public:
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
 
+    void adjustPerformanceMode(PerformanceMode performanceMode);
 
     // Variables to be changed in the ImGUI windows
     glm::vec4 mColor;
