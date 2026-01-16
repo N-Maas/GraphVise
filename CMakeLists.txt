@@ -94,10 +94,6 @@ target_compile_definitions(thesis-framework PRIVATE -DSHADERS_PATH="${CMAKE_CURR
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-# wembed needs eigen
-find_package(Eigen3 3.4 REQUIRED)
-# wembed only needs the header libraries of boost but cmake can't require only the header libraries (?)
-find_package(Boost 1.74 REQUIRED COMPONENTS headers)
 # find optional packages
 find_package(OpenMP)
 # fetch wembed
@@ -120,8 +116,6 @@ target_include_directories(thesis-framework PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
-        ${Eigen3_INCLUDE_DIRS}
-        ${Boost_INCLUDE_DIRS}
         )
 
 # link required libraries
