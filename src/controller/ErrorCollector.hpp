@@ -9,18 +9,17 @@
 
 class ErrorCollector : ErrorCollectorSubject {
     public:
-        static ErrorCollector getInstance();
+        static ErrorCollector& getInstance();
         void collectError(Error error);
         Error getCurrentError();
         void signIn(ErrorCollectorObserver* observer) override;
         void signOut(ErrorCollectorObserver* observer) override;
-        ~ErrorCollector() override;
-
+        ~ErrorCollector() override = default;
     private:
         static ErrorCollector instance;
 
-        ErrorCollector();
-        Error currentError;
+        ErrorCollector() = default;
+        std::optional<Error> currentError;
         std::vector<ErrorCollectorObserver> observers;
 
         void notify() override;

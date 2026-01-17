@@ -15,13 +15,13 @@ class ButtonController {
     public:
         ButtonController(Camera& camera, Renderer& renderer);
         void togglePerformanceMode(PerformanceMode mode);
-        void randomizeColoring(int group);
-        void changeColoring(int group, ImVec4 color);
+        void randomizeColoring(int groupID);
+        void changeColoring(int groupID, ImVec4 color);
         void toggleLightSourceMovement();
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
-        void setCameraMovementMode(CameraFocusMode mode);
-        void findVertex(int id);
-        void findEdge(int firstVertex, int secondVertex);
+        void setCameraFocusMode(CameraFocusMode mode);
+        void findVertex(int vertexID);
+        void findEdge(int firstVertexID, int secondVertexID);
         void highlightSubgraph(std::string filePath);
         void importGraph(std::string filePath);
         void exportGraph(std::string filePath, ExportFormat format);

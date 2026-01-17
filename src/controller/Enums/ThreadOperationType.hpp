@@ -9,5 +9,8 @@
 
 //TODO: Neue Einträge hinzufügen, wenn die entsprechenden Klassen implementiert wurden
 enum ThreadOperationType {
-    PARSE_TXT
+    PARSE_TXT,
+    PARSE_SUBGRAPH,
+    PARSE_GROUPS,
+    EXPORT_PNG
 };

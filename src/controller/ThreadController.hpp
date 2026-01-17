@@ -13,7 +13,7 @@
 class ThreadController : RendererObserver {
     public:
         explicit ThreadController(RendererSubject& renderer);
-        void notifyBackgroundThread(ThreadOperation threadOperation);
+        bool notifyBackgroundThread(ThreadOperation threadOperation);
         void update() override;
     private:
         ParserController parserController;
