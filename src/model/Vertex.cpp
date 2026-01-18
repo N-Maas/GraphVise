@@ -5,9 +5,6 @@
 #include "Vertex.hpp"
 #include "GraphSaver.hpp"
 
-Vertex::Vertex(const int vertexID, const glm::vec3 &coords) : vertexID(vertexID), connectedGroupID(0), coordsVector(coords) {
-}
-
 int Vertex::getVertexID() const {
     return vertexID;
 }
@@ -37,7 +34,7 @@ float Vertex::getTransparency() const {
 }
 
 bool Vertex::setOwnTransparency(float transparency) {
-    if (transparency >= 0 && transparency <= 1) {
+    if (transparency >= 0.0f && transparency <= 1.0f) {
         ownTransparency = transparency;
         return true;
     }

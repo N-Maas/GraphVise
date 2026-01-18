@@ -11,7 +11,11 @@
 
 class Edge {
     public:
-        Edge(int edgeID, int firstVertexID, int secondVertexID);
+        Edge(int edgeID, int firstVertexID, int secondVertexID)
+            : edgeID(edgeID), connectedGroupID(0), firstVertexID(firstVertexID),
+              secondVertexID(secondVertexID) {
+        }
+
         [[nodiscard]] int getEdgeID() const;
         [[nodiscard]] int getGroupID() const;
         void setGroup(int groupID);
@@ -22,6 +26,13 @@ class Edge {
         void deleteOwnTransparency();
         void deleteEdge();
 
+        Edge& operator=(const Edge& other) {
+            if (this == &other) return *this;
+            connectedGroupID = other.connectedGroupID;
+            ownTransparency = other.ownTransparency;
+            return *this;
+        }
+
     private:
         const int edgeID;
         int connectedGroupID;
@@ -31,4 +42,4 @@ class Edge {
 };
 
 
-#endif //THESIS_FRAMEWORK_EDGE_HPP
+#endif

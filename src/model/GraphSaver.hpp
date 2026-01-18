@@ -10,12 +10,12 @@
 class GraphSaver {
     public:
         static GraphSaver& getGraphSaver();
-        [[nodiscard]] Graph& getGraph() const;
-        void setGraph(const Graph& graph);
+        [[nodiscard]] Graph& getGraph();
+        void setGraph(const Graph& new_graph);
 
     private:
         Graph graph;
 };
 
 
-#endif //THESIS_FRAMEWORK_GRAPHSAVER_HPP
+#endif
