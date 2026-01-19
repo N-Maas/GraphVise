@@ -16,14 +16,14 @@
 class Graph {
     public:
         Graph();
-        [[nodiscard]] std::vector<Vertex>& getVertices() const;
-        [[nodiscard]]std::vector<Edge>& getEdges() const;
-        [[nodiscard]] std::vector<Group>& getGroups() const;
-        [[nodiscard]] std::vector<CameraBookmark>& getCameraBookmarks() const;
-        [[nodiscard]] Vertex& getVertexByID(int ID) const;
-        [[nodiscard]] Edge& getEdgeByID(int ID) const;
-        [[nodiscard]] Group& getGroupByID(int ID) const;
-        [[nodiscard]] CameraBookmark& getCameraBookmarkByID(int ID) const;
+        [[nodiscard]] std::vector<Vertex>& getVertices() ;
+        [[nodiscard]]std::vector<Edge>& getEdges();
+        [[nodiscard]] std::vector<Group>& getGroups();
+        [[nodiscard]] std::vector<CameraBookmark>& getCameraBookmarks();
+        [[nodiscard]] Vertex& getVertexByID(int ID);
+        [[nodiscard]] Edge& getEdgeByID(int ID);
+        [[nodiscard]] Group& getGroupByID(int ID);
+        [[nodiscard]] CameraBookmark& getCameraBookmarkByID(int ID);
         [[nodiscard]] int getEdgeIDByConnectingVerticesIDs(int firstVertexID, int secondVertexID) const;
         bool addVertex(int vertexID, const glm::vec3& coords);
         void addEdge(int firstVertexID, int secondVertexID);
@@ -43,4 +43,4 @@ class Graph {
 };
 
 
-#endif //THESIS_FRAMEWORK_GRAPH_HPP
+#endif

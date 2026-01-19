@@ -10,7 +10,10 @@
 
 class Vertex {
     public:
-        Vertex(int vertexID, const glm::vec3& coords);
+        Vertex(int vertexID, const glm::vec3& coords)
+            : vertexID(vertexID), connectedGroupID(0),
+            coordsVector(coords) {}
+
         [[nodiscard]] int getVertexID() const;
         [[nodiscard]] int getGroupID() const;
         void setGroup(int groupID);
@@ -21,6 +24,13 @@ class Vertex {
         void deleteOwnTransparency();
         void deleteVertex();
 
+        Vertex& operator=(const Vertex& other) {
+            if (this == &other) return *this;
+            connectedGroupID = other.connectedGroupID;
+            ownTransparency = other.ownTransparency;
+            return *this;
+        }
+
     private:
         const int vertexID;
         int connectedGroupID;
@@ -29,4 +39,4 @@ class Vertex {
 };
 
 
-#endif //THESIS_FRAMEWORK_VERTEX_HPP
+#endif

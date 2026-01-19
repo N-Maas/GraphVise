@@ -10,7 +10,9 @@
 
 class Group {
     public:
-        Group(int groupID, const std::string& name, const ImVec4& groupVec4);
+        Group(int groupID, const std::string& name, const ImVec4& groupVec4)
+            : groupID(groupID), name(name), groupVec4(groupVec4) {}
+
         [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
         bool setTransparency(float transparency);
@@ -19,6 +21,13 @@ class Group {
         [[nodiscard]] const ImVec4& getGroupVec4() const;
         void deleteGroup();
 
+        Group& operator=(const Group& other) {
+            if (this == &other) return *this;
+            name = other.name;
+            groupVec4 = other.groupVec4;
+            return *this;
+        }
+
     private:
         const int groupID;
         std::string name;
@@ -26,4 +35,4 @@ class Group {
 };
 
 
-#endif //THESIS_FRAMEWORK_GROUP_HPP
+#endif
