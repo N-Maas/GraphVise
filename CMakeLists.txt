@@ -26,6 +26,10 @@ set(HEADERS
         src/controller/ThreadController.hpp
         src/controller/Parsing/ParserController.hpp
         src/controller/Parsing/TXTParser.hpp
+        src/controller/Parsing/CNFParser.hpp
+        src/controller/Parsing/GraphParser.hpp
+        src/controller/Parsing/TXTParser.hpp
+        src/controller/Parsing/WEmbedController.hpp
         src/controller/MovementController.hpp
         src/controller/Error.hpp
         src/controller/ErrorCollector.hpp
@@ -33,12 +37,10 @@ set(HEADERS
         src/controller/Enums/ParseFormat.hpp
         src/controller/Enums/ErrorType.hpp
         src/controller/Enums/ThreadOperationType.hpp
+        src/controller/Enums/ExportFormat.hpp
         src/controller/Structs/GroupData.hpp
         src/controller/Structs/GraphData.hpp
         src/controller/Structs/ThreadOperation.hpp
-        src/controller/Enums/ExportFormat.hpp
-        src/controller/Parsing/GraphParser.hpp
-        src/controller/Parsing/WEmbedController.hpp
         src/view/ErrorCollectorObserver.hpp
         src/model/GraphSaver.hpp
         src/model/Graph.hpp
@@ -59,6 +61,8 @@ set(SOURCES
         src/controller/ThreadController.cpp
         src/controller/Parsing/ParserController.cpp
         src/controller/Parsing/TXTParser.cpp
+        src/controller/Parsing/CNFParser.cpp
+        src/controller/Parsing/SubgraphParser.cpp
         src/controller/MovementController.cpp
         src/controller/Error.cpp
         src/controller/ErrorCollector.cpp
