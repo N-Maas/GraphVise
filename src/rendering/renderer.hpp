@@ -17,11 +17,16 @@
 
 #include "camera.hpp"
 #include "../model/GraphSaver.hpp"
+#include "../controller/RendererObserver.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <list>
+#include <algorithm>
+#include <memory>
+
 
 #include "RendererSubject.hpp"
 
@@ -53,9 +58,25 @@ public:
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
 
-     int signIn(RendererObserver& observer) override;
-     int signOut(RendererObserver& observer) override;
-     void notify() override;
+    void signIn(std::shared_ptr<RendererObserver> observer) override {
+        this->observerList.push_back(std::move(observer));
+    };
+    void signOut(std::shared_ptr<RendererObserver> observer) override {;
+     auto it = std::find_if(observerList.begin(),
+         observerList.end(),
+         [observer](const std::shared_ptr<RendererObserver>& ptr) {
+             return ptr.get() == observer.get();
+         }
+         );
+     if (it != observerList.end()) {
+         observerList.erase(it);
+     }
+    };
+    void notify() override {
+     for (const auto& observer : observerList) {
+         observer->update();  // Call update on each observer
+     }
+    };
 
     void adjustPerformanceMode(PerformanceMode newMode) {
         performanceMode = newMode;
@@ -65,6 +86,7 @@ public:
     glm::vec4 mColor;
 
 private:
+    std::vector<std::shared_ptr<RendererObserver>> observerList;
     const float STANDARD_SPHERE_RADIUS = 0.1f;
     const float STANDARD_CYLINDER_RADIUS = 0.01f;
     float getAspectRatio() const {

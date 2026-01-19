@@ -8,10 +8,15 @@
 
 class RendererSubject {
 private:
-    std::vector<std::unique_ptr<RendererObserver>> observerList;
+    std::vector<std::shared_ptr<RendererObserver>> observerList;
 
 public:
-    virtual int signIn(RendererObserver& observer);
-    virtual int signOut(RendererObserver& observer);
+    RendererSubject() = default;
+    virtual ~RendererSubject() = default;
+
+    virtual void signIn(std::shared_ptr<RendererObserver> observer);
+    virtual void signOut(std::shared_ptr<RendererObserver> observer);
     virtual void notify();
+
+    [[nodiscard]] const auto& getObserverList() const {return observerList;}
 };
