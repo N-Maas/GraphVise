@@ -20,19 +20,19 @@ std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
     return cameraBookmarks;
 }
 
-Vertex& Graph::getVertexByID(int ID) {
+Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
     return vertices.at(ID);
 }
 
-Edge& Graph::getEdgeByID(int ID) {
+Edge& Graph::getEdgeByID(const std::uint32_t ID) {
     return edges.at(ID);
 }
 
-Group& Graph::getGroupByID(int ID) {
+Group& Graph::getGroupByID(const std::uint32_t ID) {
     return groups.at(ID);
 }
 
-CameraBookmark& Graph::getCameraBookmarkByID(int ID) {
+CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
     return cameraBookmarks.at(ID);
 }
 
@@ -44,22 +44,23 @@ CameraBookmark& Graph::getCameraBookmarkByID(int ID) {
 //
 // }
 
-void Graph::addEdge(int firstVertexID, int secondVertexID) {
-    edges.push_back(Edge(edges.size(), firstVertexID, secondVertexID));
+void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
+    edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
 }
 
-void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) {
-    groups.push_back(Group(groups.size(), name, groupVec4));
-    for (int ID : verticesIDs) {
-        vertices.at(ID).setGroup(groups.size() - 1);
+void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<uint32_t>& verticesIDs, const std::vector<uint32_t>& edgesIDs) {
+    groups.emplace_back(groups.size(), name, groupVec4);
+    const std::size_t groupID = groups.size() - 1;
+    for (const uint32_t ID : verticesIDs) {
+        vertices.at(ID).setGroup(groupID);
     }
-    for (int ID : edgesIDs) {
-        edges.at(ID).setGroup(groups.size() - 1);
+    for (const uint32_t ID : edgesIDs) {
+        edges.at(ID).setGroup(groupID);
     }
 }
 
 void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw) {
-    cameraBookmarks.push_back(CameraBookmark(cameraBookmarks.size(), name, coords, pitch, yaw));
+    cameraBookmarks.emplace_back(cameraBookmarks.size(), name, coords, pitch, yaw);
 }
 
 // void Graph::highlightByID(const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) const {
@@ -74,7 +75,7 @@ void Graph::deleteAllGroups() {
     groups.clear();
 }
 
-void Graph::deleteCameraBookmarks(int cameraBookmarkID) {
+void Graph::deleteCameraBookmarks(const uint32_t cameraBookmarkID) {
     cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
 }
 

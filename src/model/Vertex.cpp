@@ -5,15 +5,15 @@
 #include "Vertex.hpp"
 #include "GraphSaver.hpp"
 
-int Vertex::getVertexID() const {
+std::uint32_t  Vertex::getVertexID() const {
     return vertexID;
 }
 
-int Vertex::getGroupID() const {
+std::uint32_t  Vertex::getGroupID() const {
     return connectedGroupID;
 }
 
-void Vertex::setGroup(int groupID) {
+void Vertex::setGroup(const std::uint32_t groupID) {
     connectedGroupID = groupID;
 }
 
@@ -21,10 +21,11 @@ const glm::vec3& Vertex::getCoordsVector() const {
     return coordsVector;
 }
 
-//Transparency überprüfen, ob Wert hat wenn ja überschreiben
-//const ImVec4& Vertex::getVertexVec4() const {
-//    return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
-//}
+ImVec4 Vertex::getVertexVec4() const {
+    ImVec4 vertexVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    vertexVec.w = getTransparency();
+    return vertexVec;
+}
 
 float Vertex::getTransparency() const {
     if (ownTransparency.has_value()) {

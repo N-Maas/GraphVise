@@ -5,27 +5,28 @@
 #include "Edge.hpp"
 #include "GraphSaver.hpp"
 
-int Edge::getEdgeID() const {
+std::uint32_t  Edge::getEdgeID() const {
     return edgeID;
 }
 
-int Edge::getGroupID() const {
+std::uint32_t  Edge::getGroupID() const {
     return connectedGroupID;
 }
 
-void Edge::setGroup(int new_groupID) {
+void Edge::setGroup(std::uint32_t new_groupID) {
     connectedGroupID = new_groupID;
 }
 
-const std::vector<int>& Edge::getConnectingVerticesIDs() const {
+std::vector<std::uint32_t > Edge::getConnectingVerticesIDs() const {
     std::vector verticesIDs = {firstVertexID, secondVertexID};
     return verticesIDs;
 }
 
-//Transparency überprüfen, ob Wert hat wenn ja überschreiben
-//const ImVec4& Vertex::getVertexVec4() const {
-//    return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
-//}
+ImVec4 Edge::getEdgeVec4() const {
+    ImVec4 edgeVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    edgeVec.w = getTransparency();
+    return edgeVec;
+}
 
 float Edge::getTransparency() const {
     if (ownTransparency.has_value()) {

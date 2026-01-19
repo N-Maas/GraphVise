@@ -6,15 +6,16 @@
 #define THESIS_FRAMEWORK_CAMERABOOKMARK_HPP
 #include <string>
 #include <glm/vec3.hpp>
+#include <utility>
 
 
 class CameraBookmark {
     public:
-        CameraBookmark(int cameraBookmarkID, const std::string& name, const glm::vec3& coords, float pitch, float yaw)
-            : cameraBookmarkID(cameraBookmarkID), name(name),
+        CameraBookmark(const std::uint32_t  cameraBookmarkID, std::string name, const glm::vec3& coords, const float pitch, const float yaw)
+            : cameraBookmarkID(cameraBookmarkID), name(std::move(name)),
             coordsVector(coords), pitch(pitch), yaw(yaw) {}
 
-        [[nodiscard]] int getCameraBookmarkID() const;
+        [[nodiscard]] std::uint32_t  getCameraBookmarkID() const;
         [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
         [[nodiscard]] const glm::vec3& getCoordsVector() const;
@@ -29,7 +30,7 @@ class CameraBookmark {
         }
 
     private:
-        const int cameraBookmarkID;
+        const std::uint32_t  cameraBookmarkID;
         std::string name;
         const glm::vec3 coordsVector;
         const float pitch;

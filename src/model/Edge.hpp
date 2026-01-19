@@ -11,16 +11,16 @@
 
 class Edge {
     public:
-        Edge(int edgeID, int firstVertexID, int secondVertexID)
+        Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
             : edgeID(edgeID), connectedGroupID(0), firstVertexID(firstVertexID),
               secondVertexID(secondVertexID) {
         }
 
-        [[nodiscard]] int getEdgeID() const;
-        [[nodiscard]] int getGroupID() const;
-        void setGroup(int groupID);
-        [[nodiscard]] const std::vector<int>& getConnectingVerticesIDs() const;
-        [[nodiscard]] const ImVec4& getEdgeVec4() const;
+        [[nodiscard]] std::uint32_t  getEdgeID() const;
+        [[nodiscard]] std::uint32_t  getGroupID() const;
+        void setGroup(std::uint32_t  groupID);
+        [[nodiscard]] std::vector<std::uint32_t > getConnectingVerticesIDs() const;
+        [[nodiscard]] ImVec4 getEdgeVec4() const;
         [[nodiscard]] float getTransparency() const;
         [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
@@ -34,11 +34,11 @@ class Edge {
         }
 
     private:
-        const int edgeID;
-        int connectedGroupID;
+        const std::uint32_t  edgeID;
+        std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
-        const int firstVertexID;
-        const int secondVertexID;
+        const std::uint32_t  firstVertexID;
+        const std::uint32_t  secondVertexID;
 };
 
 

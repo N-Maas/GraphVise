@@ -4,7 +4,7 @@
 
 #include "CameraBookmark.hpp"
 
-int CameraBookmark::getCameraBookmarkID() const {
+std::uint32_t  CameraBookmark::getCameraBookmarkID() const {
     return cameraBookmarkID;
 }
 

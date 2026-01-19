@@ -9,11 +9,15 @@ const std::string& Group::getName() const {
     return name;
 }
 
+std::uint32_t  Group::getGroupID() const {
+    return groupID;
+}
+
 void Group::setName(const std::string& new_name) {
     name = new_name;
 }
 
-bool Group::setTransparency(float transparency) {
+bool Group::setTransparency(const float transparency) {
     if (transparency >= 0.0f && transparency <= 1.0f) {
         groupVec4.w = transparency;
         return true;

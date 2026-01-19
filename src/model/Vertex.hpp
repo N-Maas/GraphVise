@@ -10,15 +10,15 @@
 
 class Vertex {
     public:
-        Vertex(int vertexID, const glm::vec3& coords)
+        Vertex(const std::uint32_t  vertexID, const glm::vec3& coords)
             : vertexID(vertexID), connectedGroupID(0),
             coordsVector(coords) {}
 
-        [[nodiscard]] int getVertexID() const;
-        [[nodiscard]] int getGroupID() const;
-        void setGroup(int groupID);
+        [[nodiscard]] std::uint32_t  getVertexID() const;
+        [[nodiscard]] std::uint32_t  getGroupID() const;
+        void setGroup(std::uint32_t  groupID);
         [[nodiscard]] const glm::vec3& getCoordsVector() const;
-        [[nodiscard]] const ImVec4& getVertexVec4() const;
+        [[nodiscard]] ImVec4 getVertexVec4() const;
         [[nodiscard]] float getTransparency() const;
         [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
@@ -32,8 +32,8 @@ class Vertex {
         }
 
     private:
-        const int vertexID;
-        int connectedGroupID;
+        const std::uint32_t  vertexID;
+        std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
         const glm::vec3 coordsVector;
 };

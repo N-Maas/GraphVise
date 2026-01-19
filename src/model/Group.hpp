@@ -5,15 +5,17 @@
 #ifndef THESIS_FRAMEWORK_GROUP_HPP
 #define THESIS_FRAMEWORK_GROUP_HPP
 #include <string>
+#include <utility>
 #include "imgui/imgui.h"
 
 
 class Group {
     public:
-        Group(int groupID, const std::string& name, const ImVec4& groupVec4)
-            : groupID(groupID), name(name), groupVec4(groupVec4) {}
+        Group(const std::uint32_t  groupID, std::string  name, const ImVec4& groupVec4)
+            : groupID(groupID), name(std::move(name)), groupVec4(groupVec4) {}
 
         [[nodiscard]] const std::string& getName() const;
+        [[nodiscard]] std::uint32_t  getGroupID() const;
         void setName(const std::string& name);
         bool setTransparency(float transparency);
         [[nodiscard]] float getTransparency() const;
@@ -29,7 +31,7 @@ class Group {
         }
 
     private:
-        const int groupID;
+        const std::uint32_t  groupID;
         std::string name;
         ImVec4 groupVec4;
 };
