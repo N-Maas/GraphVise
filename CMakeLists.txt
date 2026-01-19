@@ -28,6 +28,10 @@ set(SOURCES
     src/utils.cpp
         src/view/Window.cpp
         src/view/Window.hpp
+        src/view/GUI.cpp
+        src/view/GUI.hpp
+        src/view/Buttons.cpp
+        src/view/Buttons.hpp
 )
 
 set(SHADERS
