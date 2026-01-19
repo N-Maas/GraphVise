@@ -4,13 +4,20 @@
 
 #include "GraphSaver.hpp"
 
+#include <iostream>
+
+GraphSaver GraphSaver::instance;
+
+GraphSaver::GraphSaver() {
+}
+
 GraphSaver& GraphSaver::getGraphSaver() {
-    static GraphSaver graphSaver;
-    return graphSaver;
+    return instance;
 }
 
 Graph& GraphSaver::getGraph() {
-    return graph;
+    //Throws exception, when no graph is loaded (program crashes)
+    return graph.value();
 }
 
 void GraphSaver::setGraph(const Graph& new_graph) {

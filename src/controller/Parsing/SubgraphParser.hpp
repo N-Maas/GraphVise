@@ -6,19 +6,16 @@
 #define THESIS_FRAMEWORK_CNFPARSER_HPP
 
 #include "../Structs/GraphData.hpp"
+#include "model/GraphSaver.hpp"
 
 #endif //THESIS_FRAMEWORK_CNFPARSER_HPP
 
 class SubgraphParser {
     public:
-        SubgraphParser() {
-            // TODO: Implement constructor
-        }
-    private:
-        GraphSaver graphSaver;
+        SubgraphParser() = default;
 
     //Destruktor
-    virtual ~GraphParser() = default;
+    virtual ~SubgraphParser() = default;
 
     virtual GraphData parseFile(std::string filePath) = 0;
 };

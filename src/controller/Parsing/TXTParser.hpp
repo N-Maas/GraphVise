@@ -7,7 +7,7 @@
 #include "GraphParser.hpp"
 
 
-class TXTParser : GraphParser{
+class TXTParser : GraphParser {
     public:
         GraphData parseFile(std::string filePath) override;
 };

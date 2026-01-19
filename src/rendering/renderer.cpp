@@ -170,7 +170,9 @@ void Renderer::runFrame(GraphSaver& graphSaver)
 // todo will work properly when Model is implemented
 // rendering Graph
 void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
-    Graph graph = graphSaver.getGraph();
+
+    //TODO: Graph is std::<optional> currently. (Greyed out, so the program runs)
+    /*Graph graph = graphSaver.getGraph();
     std::vector<Vertex>& vertices = graph.getVertices();
     std::vector<Edge>& edges = graph.getEdges();
     std::cout << "=== GraphRenderer start ===" << std::endl;
@@ -180,7 +182,7 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
     if (mShaderProgram == 0 || vertices.empty()) {
         std::cout << "ERROR: No shader or graph.vertices" << std::endl;
         return;
-    }
+    }*/
 
     glUseProgram(mShaderProgram);
 
@@ -203,6 +205,8 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
         generateCylinder(12);  // 12 segments
     }
 
+    //TODO: Uncomment, when graph can be loaded
+    /*
     std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
               << edges.size() << " edges" << std::endl;
 
@@ -221,7 +225,7 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
                           cylinderRadius, edge.getEdgeVec4(), mvp);
         }
     }
-
+    */
 }
 
 /**
@@ -590,3 +594,26 @@ void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
     glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+void RendererSubject::signIn(std::shared_ptr<RendererObserver> observer) {
+    this->observerList.push_back(std::move(observer));
+};
+
+void RendererSubject::signOut(std::shared_ptr<RendererObserver> observer) {;
+    auto it = std::ranges::find_if(observerList,
+                                   [observer](const std::shared_ptr<RendererObserver>& ptr) {
+                                       return ptr.get() == observer.get();
+                                   }
+    );
+    if (it != observerList.end()) {
+        observerList.erase(it);
+    }
+};
+
+void RendererSubject::notify() {
+    for (const auto& observer : observerList) {
+        observer->update();  // Call update on each observer
+    }
+};
+
+RendererSubject::~RendererSubject() = default;

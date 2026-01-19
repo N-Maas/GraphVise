@@ -15,7 +15,6 @@
 
 class ParserController {
     public:
-        ParserController();
         void parseFile(std::pmr::string filePath, ParseFormat format);
 
     private:
@@ -24,7 +23,7 @@ class ParserController {
 
         std::mutex dataMutex;
 
-        Error error;
+        std::optional<Error> error;
         std::vector<GroupData> groups;
         GraphData highlightingSubgraph;
 };

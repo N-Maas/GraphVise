@@ -52,7 +52,7 @@ void ButtonController::findVertex(int vertexID) {
 }
 
 void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
-    int edgeID = GraphSaver::getGraphSaver().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
+    std::optional<uint32_t>  edgeID = GraphSaver::getGraphSaver().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
     //TODO: Implement, when function for highlighting single Edge exists
 }
 

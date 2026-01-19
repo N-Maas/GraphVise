@@ -12,7 +12,7 @@
 class ErrorCollectorSubject {
     public:
     //Destruktor
-    virtual ~ErrorCollectorSubject() = default;
+    virtual ~ErrorCollectorSubject();
 
     virtual void signIn(ErrorCollectorObserver* observer) = 0;
     virtual void signOut(ErrorCollectorObserver* observer) = 0;

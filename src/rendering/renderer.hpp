@@ -56,10 +56,14 @@ public:
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
 
-    void signIn(std::shared_ptr<RendererObserver> observer) override {
+    //TODO: review
+    //Had to be implemented in renderer.cpp
+
+    /*void signIn(std::shared_ptr<RendererObserver> observer) override {
         this->observerList.push_back(std::move(observer));
-    };
-    void signOut(std::shared_ptr<RendererObserver> observer) override {;
+    };*/
+
+    /*void signOut(std::shared_ptr<RendererObserver> observer) override {;
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::shared_ptr<RendererObserver>& ptr) {
                                            return ptr.get() == observer.get();
@@ -68,12 +72,13 @@ public:
         if (it != observerList.end()) {
             observerList.erase(it);
         }
-    };
-    void notify() override {
+    };*/
+
+    /*void notify() override {
         for (const auto& observer : observerList) {
             observer->update();  // Call update on each observer
         }
-    };
+    };*/
 
     void adjustPerformanceMode(PerformanceMode newMode) {
         performanceMode = newMode;

@@ -30,3 +30,13 @@ void ErrorCollector::notify() {
         observer.update();
     }
 }
+
+void ErrorCollector::signIn(ErrorCollectorObserver *observer) {
+    //TODO: implement
+}
+
+void ErrorCollector::signOut(ErrorCollectorObserver *observer) {
+    //TODO: implement
+}
+
+ErrorCollectorSubject::~ErrorCollectorSubject() = default;

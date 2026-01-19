@@ -13,7 +13,7 @@
 class CNFParser {
     public:
     //Destruktor
-    virtual ~GraphParser() = default;
+    virtual ~CNFParser() = default;
 
     virtual GraphData parseFile(std::string filePath) = 0;
 };

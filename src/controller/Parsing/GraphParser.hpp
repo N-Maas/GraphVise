@@ -13,7 +13,7 @@
 class GraphParser {
     public:
     //Destruktor
-    virtual ~GraphParser() = default;
+    virtual ~GraphParser();
 
     virtual GraphData parseFile(std::string filePath) = 0;
 };

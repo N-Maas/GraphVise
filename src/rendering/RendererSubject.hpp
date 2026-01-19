@@ -12,7 +12,7 @@ private:
 
 public:
     RendererSubject() = default;
-    virtual ~RendererSubject() = default;
+    virtual ~RendererSubject();
 
     virtual void signIn(std::shared_ptr<RendererObserver> observer);
     virtual void signOut(std::shared_ptr<RendererObserver> observer);

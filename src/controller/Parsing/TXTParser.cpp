@@ -3,3 +3,9 @@
 //
 
 #include "TXTParser.hpp"
+
+GraphData TXTParser::parseFile(std::string filePath) {
+    //TODO: implement
+}
+
+GraphParser::~GraphParser() = default;
