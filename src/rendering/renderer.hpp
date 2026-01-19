@@ -23,7 +23,6 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <list>
 #include <algorithm>
 #include <memory>
 
@@ -42,11 +41,10 @@ enum PerformanceMode {
     HIGH_RESOLUTION
 };
 
-class Renderer : public RendererSubject
-{
+class Renderer : public RendererSubject {
 public:
     Renderer(int framebufferWidth, int framebufferHeight);
-    virtual ~Renderer();
+    ~Renderer() override;
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
@@ -62,20 +60,19 @@ public:
         this->observerList.push_back(std::move(observer));
     };
     void signOut(std::shared_ptr<RendererObserver> observer) override {;
-     auto it = std::find_if(observerList.begin(),
-         observerList.end(),
-         [observer](const std::shared_ptr<RendererObserver>& ptr) {
-             return ptr.get() == observer.get();
-         }
-         );
-     if (it != observerList.end()) {
-         observerList.erase(it);
-     }
+        auto it = std::ranges::find_if(observerList,
+                                       [observer](const std::shared_ptr<RendererObserver>& ptr) {
+                                           return ptr.get() == observer.get();
+                                       }
+        );
+        if (it != observerList.end()) {
+            observerList.erase(it);
+        }
     };
     void notify() override {
-     for (const auto& observer : observerList) {
-         observer->update();  // Call update on each observer
-     }
+        for (const auto& observer : observerList) {
+            observer->update();  // Call update on each observer
+        }
     };
 
     void adjustPerformanceMode(PerformanceMode newMode) {
@@ -89,8 +86,8 @@ private:
     std::vector<std::shared_ptr<RendererObserver>> observerList;
     const float STANDARD_SPHERE_RADIUS = 0.1f;
     const float STANDARD_CYLINDER_RADIUS = 0.01f;
-    float getAspectRatio() const {
-    return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
+    [[nodiscard]] float getAspectRatio() const {
+        return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
     }
 
     GLuint mShaderProgram;
@@ -105,20 +102,20 @@ private:
     // Sphere mesh data (icosphere)
     std::vector<glm::vec3> sphereVertices;
     std::vector<unsigned int> sphereIndices;
-    GLuint sphereVAO, sphereVBO, sphereEBO;
+    GLuint sphereVAO{}, sphereVBO{}, sphereEBO{};
     // generate sphere mesh data(icosphere)
-    float sphereRadius;
+    float sphereRadius{};
     void generateIcosphere(int subdivisions = 2);
     void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
 
     // Cylinder mesh (reusable)
     std::vector<glm::vec3> cylinderVertices;
     std::vector<unsigned int> cylinderIndices;
-    GLuint cylinderVAO, cylinderVBO, cylinderEBO;
+    GLuint cylinderVAO{}, cylinderVBO{}, cylinderEBO{};
 
-    float cylinderRadius;
+    float cylinderRadius{};
     void generateCylinder(int segments = 16);
-    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp);
+    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
 
     Camera mCamera;
@@ -132,41 +129,41 @@ private:
     // Vertex array for screen filling cube
     // remove this when Graph gets represented
     static constexpr GLfloat cubeVertices[] = {
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f
+        -1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f
     };
 };
