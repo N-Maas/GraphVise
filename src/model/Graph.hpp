@@ -4,6 +4,7 @@
 
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
+#include <array>
 #include <string>
 #include <vector>
 #include "CameraBookmark.hpp"
@@ -15,7 +16,10 @@
 
 class Graph {
     public:
-        Graph();
+        explicit Graph(const std::uint32_t quantityOfVertices) {
+            vertices.reserve(quantityOfVertices);
+        }
+
         [[nodiscard]] std::vector<Vertex>& getVertices() ;
         [[nodiscard]]std::vector<Edge>& getEdges();
         [[nodiscard]] std::vector<Group>& getGroups();
@@ -24,7 +28,7 @@ class Graph {
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t  ID);
         [[nodiscard]] Group& getGroupByID(std::uint32_t  ID);
         [[nodiscard]] CameraBookmark& getCameraBookmarkByID(std::uint32_t  ID);
-        [[nodiscard]] int getEdgeIDByConnectingVerticesIDs(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID) const;
+        [[nodiscard]] std::optional<uint32_t> getEdgeIDByConnectingVerticesIDs(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID) const;
         bool addVertex(std::uint32_t  vertexID, const glm::vec3& coords);
         void addEdge(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID);
         void addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs);

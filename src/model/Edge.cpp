@@ -13,11 +13,11 @@ std::uint32_t  Edge::getGroupID() const {
     return connectedGroupID;
 }
 
-void Edge::setGroup(std::uint32_t new_groupID) {
+void Edge::setGroup(const std::uint32_t new_groupID) {
     connectedGroupID = new_groupID;
 }
 
-std::vector<std::uint32_t > Edge::getConnectingVerticesIDs() const {
+std::vector<std::uint32_t> Edge::getConnectingVerticesIDs() const {
     std::vector verticesIDs = {firstVertexID, secondVertexID};
     return verticesIDs;
 }

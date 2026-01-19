@@ -36,13 +36,22 @@ CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
     return cameraBookmarks.at(ID);
 }
 
-// int Graph::getEdgeIDByConnectingVerticesIDs(int firstVertexID, int secondVertexID) const {
-//
-// }
+std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(std::uint32_t firstVertexID, std::uint32_t secondVertexID) const {
+    for (const Edge& edge : edges) {
+        std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
+        if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
+            if (connectingVerticesIDs.at(0) == secondVertexID || connectingVerticesIDs.at(1) == secondVertexID) {
+                return edge.getEdgeID();
+            }
+        }
+    }
+    return std::nullopt;
+}
 
-// bool Graph::addVertex(int vertexID, const glm::vec3& coords) {
-//
-// }
+ bool Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
+    vertices[vertexID] = Vertex(vertexID, coords);
+    return true; //ToDo Überprüfen, ob bereits ein Knoten mit der ID vorhanden ist, falls überhaubt nötig
+ }
 
 void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
     edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
