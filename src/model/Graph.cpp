@@ -36,7 +36,7 @@ CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
     return cameraBookmarks.at(ID);
 }
 
-std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(std::uint32_t firstVertexID, std::uint32_t secondVertexID) const {
+std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
     for (const Edge& edge : edges) {
         std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
         if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
