@@ -4,14 +4,19 @@
 
 #ifndef THESIS_FRAMEWORK_CNFPARSER_HPP
 #define THESIS_FRAMEWORK_CNFPARSER_HPP
-#include <string>
 
 #include "../Structs/GraphData.hpp"
 
 #endif //THESIS_FRAMEWORK_CNFPARSER_HPP
 
-class CNFParser {
+class SubgraphParser {
     public:
+        SubgraphParser() {
+            // TODO: Implement constructor
+        }
+    private:
+        GraphSaver graphSaver;
+
     //Destruktor
     virtual ~GraphParser() = default;
 
