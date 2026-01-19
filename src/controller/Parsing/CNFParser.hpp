@@ -1,5 +1,5 @@
 //
-// Created by tim on 19.01.26.
+// Created by tim on  19.01.26. 
 //
 
 #ifndef THESIS_FRAMEWORK_CNFPARSER_HPP
