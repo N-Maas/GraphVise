@@ -48,13 +48,13 @@ public:
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
-    void runFrame(GraphSaver& graphSaver);        // Called once per Frame
+    void runFrame();        // Called once per Frame
     void shutdown();        // Cleanup resources, called after the main loop
 
     void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
     void resize(int framebufferWidth, int framebufferHeight);
 
-    void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
+    void render(const glm::mat4& mvp); // Render graph
 
     //TODO: review
     //Had to be implemented in renderer.cpp
@@ -131,44 +131,54 @@ private:
 
     bool mF5Pressed;
 
-    // Vertex array for screen filling cube
-    // remove this when Graph gets represented
     static constexpr GLfloat cubeVertices[] = {
-        -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f,-1.0f,
-        1.0f,-1.0f,-1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f,-1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f,-1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f,-1.0f, 1.0f
+        // Position: X, Y, Z
+        // Front face
+        -1.0f, -1.0f,  1.0f,  // bottom-left
+         1.0f, -1.0f,  1.0f,  // bottom-right
+         1.0f,  1.0f,  1.0f,  // top-right
+         1.0f,  1.0f,  1.0f,  // top-right (duplicate for second triangle)
+        -1.0f,  1.0f,  1.0f,  // top-left
+        -1.0f, -1.0f,  1.0f,  // bottom-left
+
+        // Back face
+         1.0f, -1.0f, -1.0f,  // bottom-right
+        -1.0f, -1.0f, -1.0f,  // bottom-left
+        -1.0f,  1.0f, -1.0f,  // top-left
+        -1.0f,  1.0f, -1.0f,  // top-left (duplicate for second triangle)
+         1.0f,  1.0f, -1.0f,  // top-right
+         1.0f, -1.0f, -1.0f,  // bottom-right
+
+        // Left face
+        -1.0f, -1.0f, -1.0f,  // bottom-back
+        -1.0f, -1.0f,  1.0f,  // bottom-front
+        -1.0f,  1.0f,  1.0f,  // top-front
+        -1.0f,  1.0f,  1.0f,  // top-front (duplicate for second triangle)
+        -1.0f,  1.0f, -1.0f,  // top-back
+        -1.0f, -1.0f, -1.0f,  // bottom-back
+
+        // Right face
+         1.0f, -1.0f,  1.0f,  // bottom-front
+         1.0f, -1.0f, -1.0f,  // bottom-back
+         1.0f,  1.0f, -1.0f,  // top-back
+         1.0f,  1.0f, -1.0f,  // top-back (duplicate for second triangle)
+         1.0f,  1.0f,  1.0f,  // top-front
+         1.0f, -1.0f,  1.0f,  // bottom-front
+
+        // Bottom face
+        -1.0f, -1.0f, -1.0f,  // back-left
+         1.0f, -1.0f, -1.0f,  // back-right
+         1.0f, -1.0f,  1.0f,  // front-right
+         1.0f, -1.0f,  1.0f,  // front-right (duplicate for second triangle)
+        -1.0f, -1.0f,  1.0f,  // front-left
+        -1.0f, -1.0f, -1.0f,  // back-left
+
+        // Top face
+        -1.0f,  1.0f,  1.0f,  // front-left
+         1.0f,  1.0f,  1.0f,  // front-right
+         1.0f,  1.0f, -1.0f,  // back-right
+         1.0f,  1.0f, -1.0f,  // back-right (duplicate for second triangle)
+        -1.0f,  1.0f, -1.0f,  // back-left
+        -1.0f,  1.0f,  1.0f   // front-left
     };
 };

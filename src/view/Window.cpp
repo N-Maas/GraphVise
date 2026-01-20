@@ -56,6 +56,13 @@ int Window::initWindow()
 	//Load GLAD so it configures OpenGL
 	gladLoadGL();
 
+	// enable depth testing for rendering
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	// TEMPORARY: Disable depth test
+	//glDisable(GL_DEPTH_TEST);
+
 	// Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -95,7 +102,7 @@ int Window::initWindow()
 		// Specify the color of the background
 		glClearColor(0.f, 0.14f, 0.28f, 1.0f);
 		// Clean the back buffer and assign the new color to it
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glfwPollEvents();
         renderer.processEvents(window);
@@ -112,10 +119,8 @@ int Window::initWindow()
 		ImGui::ColorEdit4("Color", &renderer.mColor.r);
 		ImGui::End();
 
-		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
-		GraphSaver graphSaver;
-        renderer.runFrame(graphSaver);
+        renderer.runFrame();
         GL_CHECK_ERROR();
 
 		// Renders the ImGUI elements

@@ -100,7 +100,7 @@ void Renderer::reloadShaders()
 /**
  * Called in the main loop to render a new frame.
  */
-void Renderer::runFrame(GraphSaver& graphSaver)
+void Renderer::runFrame()
 {
     if(mShaderProgram == 0)
     {
@@ -162,14 +162,14 @@ void Renderer::runFrame(GraphSaver& graphSaver)
     * todo we need access to GraphSaver object
      */
     //rendering graph
-    render(mvp, graphSaver);
+    render(mvp);
     GL_CHECK_ERROR();
     notify();
 }
 
 // todo will work properly when Model is implemented
 // rendering Graph
-void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
+void Renderer::render(const glm::mat4& mvp) {
 
     //TODO: Graph is std::<optional> currently. (Greyed out, so the program runs)
     /*Graph graph = graphSaver.getGraph();
