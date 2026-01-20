@@ -739,7 +739,7 @@ inline void ImGui::FileBrowser::Display()
                     CloseCurrentPopup();
                 }
             }
-            else if(IsKeyPressed(ImGuiKey_GamepadFaceDown) && IsItemHovered()) 
+            else if(IsKeyPressed(ImGuiNavInput_DpadDown) && IsItemHovered())
             {
                 if(rsc.isDir)
                 {
@@ -793,8 +793,7 @@ inline void ImGui::FileBrowser::Display()
     if(!focusOnInputText && !editDir_)
     {
         const bool selectAll = (flags_ & ImGuiFileBrowserFlags_MultipleSelection) &&
-                               IsKeyPressed(ImGuiKey_A) && (IsKeyDown(ImGuiKey_LeftCtrl) ||
-                               IsKeyDown(ImGuiKey_RightCtrl));
+                               IsKeyPressed(ImGuiKey_A) && (ImGuiKeyModFlags_Ctrl);
         if(selectAll)
         {
             const bool needDir = flags_ & ImGuiFileBrowserFlags_SelectDirectory;

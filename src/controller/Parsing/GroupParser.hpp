@@ -7,7 +7,7 @@
 #include <string>
 
 #include "../Structs/GroupData.hpp"
-#include "/model/GraphSaver.hpp"
+// TODO: Include GraphSaver from model once class exists
 #include "../ThreadController.hpp"
 
 #endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP
@@ -15,11 +15,10 @@
 class GroupParser {
     public:
     //Destruktor
-    virtual ~GraphParser();
+    virtual ~GroupParser();
 
     virtual std::vector<GroupData> parseFile(std::string filePath) = 0;
 
     private:
-        GraphSaver graphSaver;
         ThreadController threadController;
 };
