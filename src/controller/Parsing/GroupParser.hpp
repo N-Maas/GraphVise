@@ -20,6 +20,5 @@ class GroupParser {
     virtual std::vector<GroupData> parseFile(std::string filePath) = 0;
 
     private:
-        GraphSaver graphSaver;
         ThreadController threadController;
 };
