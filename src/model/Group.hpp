@@ -18,15 +18,9 @@ class Group {
         void setGroupVec4(const ImVec4& groupVec4);
         [[nodiscard]] const ImVec4& getGroupVec4() const;
 
-        Group& operator=(const Group& other) {
-            if (this == &other) return *this;
-            name = other.name;
-            groupVec4 = other.groupVec4;
-            return *this;
-        }
 
     private:
-        const std::uint32_t  groupID;
+        std::uint32_t  groupID;
         std::string name;
         ImVec4 groupVec4;
 };

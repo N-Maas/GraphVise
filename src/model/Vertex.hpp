@@ -19,18 +19,12 @@ class Vertex {
         [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 
-        Vertex& operator=(const Vertex& other) {
-            if (this == &other) return *this;
-            connectedGroupID = other.connectedGroupID;
-            ownTransparency = other.ownTransparency;
-            return *this;
-        }
 
     private:
-        const std::uint32_t  vertexID;
+        std::uint32_t  vertexID;
         std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
-        const glm::vec3 coordsVector;
+        glm::vec3 coordsVector;
 };
 
 

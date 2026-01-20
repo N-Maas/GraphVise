@@ -18,18 +18,13 @@ class CameraBookmark {
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getYaw() const;
 
-        CameraBookmark& operator=(const CameraBookmark& other) {
-            if (this == &other) return *this;
-            name = other.name;
-            return *this;
-        }
 
     private:
-        const std::uint32_t  cameraBookmarkID;
+        std::uint32_t  cameraBookmarkID;
         std::string name;
-        const glm::vec3 coordsVector;
-        const float pitch;
-        const float yaw;
+        glm::vec3 coordsVector;
+        float pitch;
+        float yaw;
 
 };
 

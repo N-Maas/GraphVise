@@ -33,6 +33,7 @@ class Graph {
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
 
+
     private:
         std::vector<Vertex> vertices;
         std::vector<Edge> edges;

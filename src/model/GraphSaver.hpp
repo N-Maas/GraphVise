@@ -10,6 +10,7 @@ class GraphSaver {
         [[nodiscard]] Graph& getGraph();
         void setGraph(const Graph& new_graph);
 
+
     private:
         static GraphSaver instance;
         std::optional<Graph> graph;

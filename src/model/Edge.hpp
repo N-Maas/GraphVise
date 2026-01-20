@@ -25,19 +25,13 @@ class Edge {
         [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 
-        Edge& operator=(const Edge& other) {
-            if (this == &other) return *this;
-            connectedGroupID = other.connectedGroupID;
-            ownTransparency = other.ownTransparency;
-            return *this;
-        }
 
     private:
-        const std::uint32_t  edgeID;
+        std::uint32_t  edgeID;
         std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
-        const std::uint32_t  firstVertexID;
-        const std::uint32_t  secondVertexID;
+        std::uint32_t  firstVertexID;
+        std::uint32_t  secondVertexID;
 };
 
 
