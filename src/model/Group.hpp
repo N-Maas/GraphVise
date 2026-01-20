@@ -17,7 +17,6 @@ class Group {
         [[nodiscard]] float getTransparency() const;
         void setGroupVec4(const ImVec4& groupVec4);
         [[nodiscard]] const ImVec4& getGroupVec4() const;
-        void deleteGroup();
 
         Group& operator=(const Group& other) {
             if (this == &other) return *this;

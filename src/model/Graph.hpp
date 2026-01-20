@@ -32,7 +32,6 @@ class Graph {
         void removeHighlightByID(const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs) const;
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
-        void deleteGraph();
 
     private:
         std::vector<Vertex> vertices;

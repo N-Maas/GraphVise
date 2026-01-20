@@ -18,7 +18,6 @@ class Vertex {
         [[nodiscard]] float getTransparency() const;
         [[nodiscard]] bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
-        void deleteVertex();
 
         Vertex& operator=(const Vertex& other) {
             if (this == &other) return *this;

@@ -17,7 +17,6 @@ class CameraBookmark {
         [[nodiscard]] const glm::vec3& getCoordsVector() const;
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getYaw() const;
-        void deleteCameraBookmark();
 
         CameraBookmark& operator=(const CameraBookmark& other) {
             if (this == &other) return *this;
