@@ -30,7 +30,7 @@ class Graph {
         void addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs);
         void addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw);
         void highlightByID(const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs) const;
-        void removeHighlightByID(const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs) const;
+        void removeAllHighlights() const;
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
 

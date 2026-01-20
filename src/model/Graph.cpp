@@ -1,5 +1,5 @@
 #include "Graph.hpp"
-
+#include <algorithm>
 #include <stdexcept>
 
 std::vector<Vertex>& Graph::getVertices() {
@@ -49,17 +49,17 @@ std::uint32_t Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstV
     throw std::out_of_range("There is no edge between the specified nodes.");
 }
 
-void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
+void Graph::addEdge(std::uint32_t firstVertexID, std::uint32_t secondVertexID) {
     edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
 }
 
-void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<uint32_t>& verticesIDs, const std::vector<uint32_t>& edgesIDs) {
+void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
     groups.emplace_back(groups.size(), name, groupVec4);
     const std::size_t groupID = groups.size() - 1;
-    for (const uint32_t ID : verticesIDs) {
+    for (const std::uint32_t ID : verticesIDs) {
         vertices.at(ID).setGroup(groupID);
     }
-    for (const uint32_t ID : edgesIDs) {
+    for (const std::uint32_t ID : edgesIDs) {
         edges.at(ID).setGroup(groupID);
     }
 }
@@ -68,22 +68,36 @@ void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, 
     cameraBookmarks.emplace_back(cameraBookmarks.size(), name, coords, pitch, yaw);
 }
 
-// void Graph::highlightByID(const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) const {
-//
-// }
+void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) const {
+    for (Vertex vertex : vertices) {
+        if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
+            vertex.setOwnTransparency(0.2);
+        } else {
+            vertex.setOwnTransparency(1);
+        }
+    }
+    for (Edge edge : edges) {
+        if (std::ranges::find(edgesIDs, edge.getEdgeID()) == verticesIDs.end()) {
+            edge.setOwnTransparency(0.2);
+        } else {
+            edge.setOwnTransparency(1);
+        }
+    }
+}
 
-// void Graph::removeHighlightByID(const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) const {
-//
-// }
+void Graph::removeAllHighlights() const {
+    for (Vertex vertex : vertices) {
+        vertex.deleteOwnTransparency();
+    }
+    for (Edge edge : edges) {
+        edge.deleteOwnTransparency();
+    }
+}
 
 void Graph::deleteAllGroups() {
     groups.clear();
 }
 
-void Graph::deleteCameraBookmarks(const uint32_t cameraBookmarkID) {
+void Graph::deleteCameraBookmarks(const std::uint32_t cameraBookmarkID) {
     cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
 }
-
-// void Graph::deleteGraph() {
-//
-// }

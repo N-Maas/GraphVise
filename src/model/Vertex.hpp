@@ -15,7 +15,7 @@ class Vertex {
         [[nodiscard]] const glm::vec3& getCoordsVector() const;
         [[nodiscard]] ImVec4 getVertexVec4() const;
         [[nodiscard]] float getTransparency() const;
-        [[nodiscard]] bool setOwnTransparency(float transparency);
+        bool setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 
 
