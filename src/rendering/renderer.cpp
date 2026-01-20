@@ -26,8 +26,8 @@
 
 Renderer::Renderer(int framebufferWidth, int framebufferHeight)
         : mColor{1.f, 0.55f, 0.f, 1.0f}, mShaderProgram(0),
-        mVertexShaderPath(std::string(SHADERS_PATH) + std::string("/simple.vert")),
-        mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("/single_color.frag")),
+        mVertexShaderPath(std::string(SHADERS_PATH) + std::string("/graph.vert")),
+        mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("/graph_color.frag")),
         mVAO(0), mVBO(0), mCamera(), mFramebufferSize(framebufferWidth, framebufferHeight), mF5Pressed(false)
 {
 }
