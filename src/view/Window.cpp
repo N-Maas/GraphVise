@@ -2,6 +2,8 @@
 // Created by Emile Brückner on 1/13/26.
 //
 
+#include "../utils.hpp"
+#include "../rendering/renderer.hpp"
 #include "Window.hpp"
 
 #include "imgui/imgui.h"
@@ -9,12 +11,9 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 #include <iostream>
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-#include "../utils.hpp"
-#include "../rendering/renderer.hpp"
 #include "../model/GraphSaver.hpp"
 
 
@@ -41,9 +40,15 @@ int Window::initWindow()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create GLFW window
-    std::string windowTitle = "Thesis Framework";
-	GLFWwindow* window = glfwCreateWindow(800, 800, windowTitle.c_str(), nullptr, NULL);
+    std::string windowTitle = "GraphVise";
+
+
+	int width=1280, height=720;
+
+	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
 	// Error check if the window fails to create
+
+    std::cout << "here";
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -53,8 +58,11 @@ int Window::initWindow()
 	// Introduce the window into the current context
 	glfwMakeContextCurrent(window);
 
-	//Load GLAD so it configures OpenGL
-	gladLoadGL();
+
+    gui.initGUI(window);
+
+    //Load GLAD so it configures OpenGL
+    gladLoadGL();
 
 	// enable depth testing for rendering
 	glEnable(GL_DEPTH_TEST);
@@ -107,28 +115,20 @@ int Window::initWindow()
         glfwPollEvents();
         renderer.processEvents(window);
 
-		// Tell OpenGL a new frame is about to begin
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
 
-		// ImGUI elements
-		ImGui::Begin("CG Thesis Framework GUI");
-		ImGui::Text("Control the Camera with WASD+QE + right mouse, hit F5 to reload shaders.");
-		ImGui::Text("Add your GUI elements here!");
-		ImGui::ColorEdit4("Color", &renderer.mColor.r);
-		ImGui::End();
-
+		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
+		GL_CHECK_ERROR();
+		GraphSaver graphSaver;
         renderer.runFrame();
         GL_CHECK_ERROR();
 
-		// Renders the ImGUI elements
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//load GUI
+		gui.loadFrame();
 
-		// Swap the back buffer with the front buffer
+        // Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);
+
 		// Take care of all GLFW events
 		glfwPollEvents();
 
@@ -147,17 +147,15 @@ int Window::initWindow()
         }
 	}
 
-    // Deletes all ImGUI instances
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+	gui.shutdownGUI();
 
     // Renderer cleanup
     renderer.shutdown();
 
     // Delete window before ending the program
     glfwDestroyWindow(window);
-    // Terminate GLFW before ending the program
+
+	// Terminate GLFW before ending the program
     glfwTerminate();
     return 0;
 }
