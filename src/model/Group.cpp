@@ -1,7 +1,3 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "Group.hpp"
 #include "GraphHierarchy.hpp"
 

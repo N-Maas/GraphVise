@@ -1,10 +1,5 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
-#include <array>
 #include <string>
 #include <vector>
 #include "CameraBookmark.hpp"

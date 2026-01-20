@@ -1,7 +1,3 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #ifndef THESIS_FRAMEWORK_CAMERABOOKMARK_HPP
 #define THESIS_FRAMEWORK_CAMERABOOKMARK_HPP
 #include <string>
