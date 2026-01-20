@@ -5,6 +5,7 @@
 #ifndef THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
 #define THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
 #include "../Structs/GraphData.hpp"
+#include "wembed.h"
 
 #endif //THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
 

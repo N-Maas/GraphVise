@@ -9,6 +9,7 @@
 #include "../Structs/GroupData.hpp"
 // TODO: Include GraphSaver from model once class exists
 #include "../ThreadController.hpp"
+#include "model/GraphSaver.hpp"
 
 #endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP
 
