@@ -4,10 +4,9 @@
 #include <glm/vec3.hpp>
 #include <utility>
 
-
 class CameraBookmark {
     public:
-        CameraBookmark(const std::uint32_t  cameraBookmarkID, std::string name, const glm::vec3& coords, const float pitch, const float yaw)
+        explicit CameraBookmark(const std::uint32_t  cameraBookmarkID, std::string name, const glm::vec3& coords, const float pitch, const float yaw)
             : cameraBookmarkID(cameraBookmarkID), name(std::move(name)),
             coordsVector(coords), pitch(pitch), yaw(yaw) {}
 

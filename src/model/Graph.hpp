@@ -8,7 +8,6 @@
 #include "Vertex.hpp"
 #include "imgui/imgui.h"
 
-
 class Graph {
     public:
         explicit Graph(const std::uint32_t quantityOfVertices) {

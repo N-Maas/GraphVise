@@ -1,17 +1,12 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #ifndef THESIS_FRAMEWORK_EDGE_HPP
 #define THESIS_FRAMEWORK_EDGE_HPP
 #include <optional>
 #include <vector>
 #include "imgui/imgui.h"
 
-
 class Edge {
     public:
-        Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
+        explicit Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
             : edgeID(edgeID), connectedGroupID(0), firstVertexID(firstVertexID),
               secondVertexID(secondVertexID) {
         }

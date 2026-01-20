@@ -3,10 +3,9 @@
 #include <optional>
 #include "imgui/imgui.h"
 
-
 class Vertex {
     public:
-        Vertex(const std::uint32_t  vertexID, const glm::vec3& coords)
+        explicit Vertex(const std::uint32_t  vertexID, const glm::vec3& coords)
             : vertexID(vertexID), connectedGroupID(0),
             coordsVector(coords) {}
 

@@ -4,10 +4,9 @@
 #include <utility>
 #include "imgui/imgui.h"
 
-
 class Group {
     public:
-        Group(const std::uint32_t  groupID, std::string  name, const ImVec4& groupVec4)
+        explicit Group(const std::uint32_t  groupID, std::string  name, const ImVec4& groupVec4)
             : groupID(groupID), name(std::move(name)), groupVec4(groupVec4) {}
 
         [[nodiscard]] const std::string& getName() const;
