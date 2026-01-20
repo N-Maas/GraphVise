@@ -17,7 +17,9 @@
 
 int main()
 {
-	Window window = Window();
+
+
+	auto window = Window();
 	return window.initWindow();
 
 

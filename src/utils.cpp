@@ -16,6 +16,7 @@
 #include "utils.hpp"
 
 #include <fstream>
+#include <iomanip>
 #include <memory>
 #include <unordered_map>
 
@@ -182,3 +183,4 @@ GLuint utils::createShaderProgramFromFile(const std::string& vertexShaderPath, c
     // build shader
     return createShaderProgram(vertexSource.c_str(), fragmentSource.c_str());
 }
+

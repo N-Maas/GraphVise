@@ -4,20 +4,19 @@
 
 #ifndef THESIS_FRAMEWORK_WINDOW_HPP
 #define THESIS_FRAMEWORK_WINDOW_HPP
-
+#include "GUI.hpp"
 
 
 class Window
 {
 
-public:
+private:
+    GUI gui = GUI();
 
+public:
     Window();
 
     int initWindow();
-
-
-
 };
 
 
