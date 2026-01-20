@@ -1,5 +1,7 @@
 #include "Graph.hpp"
 
+#include <stdexcept>
+
 std::vector<Vertex>& Graph::getVertices() {
     return vertices;
 }
@@ -32,7 +34,10 @@ CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
     return cameraBookmarks.at(ID);
 }
 
-std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
+std::uint32_t Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
+    if (firstVertexID == secondVertexID) {
+        throw std::out_of_range("An edge requires two different nodes.");
+    }
     for (const Edge& edge : edges) {
         std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
         if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
@@ -41,13 +46,8 @@ std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(const std::uint3
             }
         }
     }
-    return std::nullopt;
+    throw std::out_of_range("There is no edge between the specified nodes.");
 }
-
- bool Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-    vertices[vertexID] = Vertex(vertexID, coords);
-    return true; //ToDo Überprüfen, ob bereits ein Knoten mit der ID vorhanden ist, falls überhaubt nötig
- }
 
 void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
     edges.emplace_back(edges.size(), firstVertexID, secondVertexID);

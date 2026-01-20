@@ -22,8 +22,7 @@ class Graph {
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t  ID);
         [[nodiscard]] Group& getGroupByID(std::uint32_t  ID);
         [[nodiscard]] CameraBookmark& getCameraBookmarkByID(std::uint32_t  ID);
-        [[nodiscard]] std::optional<uint32_t> getEdgeIDByConnectingVerticesIDs(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID) const;
-        bool addVertex(std::uint32_t  vertexID, const glm::vec3& coords);
+        [[nodiscard]] std::uint32_t getEdgeIDByConnectingVerticesIDs(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID) const;
         void addEdge(std::uint32_t  firstVertexID, std::uint32_t  secondVertexID);
         void addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t >& verticesIDs, const std::vector<std::uint32_t >& edgesIDs);
         void addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw);
