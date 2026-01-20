@@ -8,15 +8,23 @@
 #include "../rendering/camera.hpp"
 
 
-class MovementController {
-    public:
-        explicit MovementController(Camera& camera);
-        void moveCamera(glm::vec3 direction);
-        void rotateCamera(float pitchChange, float yawChange);
-        void zoom(float value);
+class MovementController
+{
+public:
+    explicit MovementController(Camera& camera);
 
-    private:
-        Camera& camera;
+    void moveForward();
+    void moveBackward();
+    void moveLeft();
+    void moveRight();
+    void moveUp();
+    void moveDown();
+
+    void rotateCamera(float pitchChange, float yawChange);
+    void zoom(float value);
+
+private:
+    Camera& camera;
 };
 
 

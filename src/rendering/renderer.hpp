@@ -48,7 +48,7 @@ public:
 
     void init();            // Initialize all buffers, called before the main loop
     void reloadShaders();   // Reload shader programs from source files
-    void runFrame(GraphSaver& graphSaver);        // Called once per Frame
+    void runFrame(GraphSaver& graph_saver);        // Called once per Frame
     void shutdown();        // Cleanup resources, called after the main loop
 
     void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
@@ -129,7 +129,6 @@ private:
     PerformanceMode performanceMode;
     glm::ivec2 mFramebufferSize;
 
-    bool mF5Pressed;
 
     // Vertex array for screen filling cube
     // remove this when Graph gets represented

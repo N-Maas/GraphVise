@@ -107,7 +107,6 @@ void Buttons::performanceModeToggle()
 void Buttons::randomizeColoring(int groupID)
 {
 
-
 }
 
 void Buttons::changeColoring(int groupID)

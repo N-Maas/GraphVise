@@ -9,14 +9,15 @@
 
 class Window
 {
+public:
+    Window();
+    bool initWindow();
+    void processEvents(GLFWwindow* m_window);
 
 private:
     GUI gui = GUI();
-
-public:
-    Window();
-
-    int initWindow();
+    bool mF5Pressed;
+    Renderer renderer;
 };
 
 
