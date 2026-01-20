@@ -20,9 +20,8 @@ public:
 private:
 
     int currentObjId = -1;
-    Buttons buttons = Buttons(3);
+    Buttons buttons = Buttons(0);
 
-    void initDearImGui();
     void loadGUI();
     void errorPopup();
     void currentObjInfo();

@@ -37,7 +37,7 @@ int Window::initWindow()
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Create GLFW window
-    std::string windowTitle = "Thesis Framework";
+    std::string windowTitle = "GraphVise";
 
 
 	int width=1280, height=720;

@@ -32,6 +32,7 @@ set(SOURCES
         src/view/GUI.hpp
         src/view/Buttons.cpp
         src/view/Buttons.hpp
+        src/rendering/Group.hpp
 )
 
 set(SHADERS
