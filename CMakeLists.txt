@@ -72,6 +72,8 @@ set(SOURCES
         src/model/CameraBookmark.cpp
         src/model/Vertex.cpp
         src/model/Edge.cpp
+        src/view/GUI.cpp
+        src/view/Buttons.cpp
 )
 
 set(SHADERS

@@ -6,16 +6,10 @@
 #include "../rendering/renderer.hpp"
 #include "Window.hpp"
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
-
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-#include "../utils.hpp"
-#include "../rendering/renderer.hpp"
 #include "../model/GraphSaver.hpp"
 
 
@@ -49,6 +43,8 @@ int Window::initWindow()
 
 	GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
 	// Error check if the window fails to create
+
+    std::cout << "here";
 	if (window == nullptr)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -104,16 +100,16 @@ int Window::initWindow()
 
 		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
-        renderer.runFrame();
 
-		//load GUI
-        gui.loadFrame();
+
 
 		GL_CHECK_ERROR();
 		GraphSaver graphSaver;
         renderer.runFrame(graphSaver);
         GL_CHECK_ERROR();
 
+		//load GUI
+		gui.loadFrame();
 
         // Swap the back buffer with the front buffer
 		glfwSwapBuffers(window);

@@ -20,7 +20,11 @@ int main()
 
 
 	auto window = Window();
-	return window.initWindow();
+
+	if (window.initWindow() != 0)
+	{
+		return -1;
+	}
 
 
 

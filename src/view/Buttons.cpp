@@ -9,7 +9,6 @@
 #include "imgui/imgui.h"
 
 #include "imfilebrowser.h"
-#include "../rendering/Group.hpp"
 
 Buttons::Buttons(int buttonController)
 {
@@ -28,8 +27,6 @@ void Buttons::loadButtonFrame()
 
     MenuBar();
 
-
-    ImGui::ShowDemoWindow();
 
     GroupMenu();
 
@@ -94,26 +91,10 @@ void Buttons::MenuBar()
 
 void Buttons::GroupMenu()
 {
-    static const std::vector<Group> exampleGroups = {
-        {ImVec4(0.5,0.3,0.2,1.0), "Cool Group", 1},
-        {ImVec4(0.2,0.3,0.5,1.0), "Not Cool Group", 2},
-        {ImVec4(0.3,0.5,0.2,1.0), "Main Group", 3}
-    };
+
     ImGui::Begin("Groups", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-    ImGui::BeginTabBar("Groups");
 
-    for (auto group : exampleGroups)
-    {
-        if (ImGui::BeginTabItem(group.name.c_str()))
-        {
-            ImGui::Text("Group ID: %d", group.id);
-            ImGui::ColorEdit4("Color", &group.color.x);
-            ImGui::EndTabItem();
-        }
-    }
-
-    ImGui::EndTabBar();
     ImGui::End();
 }
 

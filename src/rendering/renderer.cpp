@@ -163,7 +163,6 @@ void Renderer::runFrame(GraphSaver& graphSaver)
      */
     //rendering graph
     render(mvp, graphSaver);
-    GL_CHECK_ERROR();
     notify();
 }
 
