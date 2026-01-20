@@ -10,12 +10,15 @@
 
 class Graph {
     public:
-        explicit Graph(const std::uint32_t quantityOfVertices) {
-            vertices.reserve(quantityOfVertices);
+        explicit Graph(const std::vector<glm::vec3>& coordinates) {
+            for (glm::vec3 coord : coordinates) {
+                vertices.emplace_back(vertices.size(), coord);
+            }
+            addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         }
 
         [[nodiscard]] std::vector<Vertex>& getVertices() ;
-        [[nodiscard]]std::vector<Edge>& getEdges();
+        [[nodiscard]] std::vector<Edge>& getEdges();
         [[nodiscard]] std::vector<Group>& getGroups();
         [[nodiscard]] std::vector<CameraBookmark>& getCameraBookmarks();
         [[nodiscard]] Vertex& getVertexByID(std::uint32_t  ID);
