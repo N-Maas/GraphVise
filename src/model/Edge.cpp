@@ -1,4 +1,5 @@
 #include "Edge.hpp"
+#include <stdexcept>
 #include "GraphSaver.hpp"
 
 std::uint32_t  Edge::getEdgeID() const {
@@ -31,12 +32,12 @@ float Edge::getTransparency() const {
     return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
 }
 
-bool Edge::setOwnTransparency(float transparency) {
+void Edge::setOwnTransparency(float transparency) {
     if (transparency >= 0.0f && transparency <= 1.0f) {
         ownTransparency = transparency;
-        return true;
+        return;
     }
-    return false;
+    throw std::out_of_range("Transparency must be between 0 and 1");
 }
 
 void Edge::deleteOwnTransparency() {

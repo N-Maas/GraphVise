@@ -12,7 +12,7 @@ class Group {
         [[nodiscard]] const std::string& getName() const;
         [[nodiscard]] std::uint32_t  getGroupID() const;
         void setName(const std::string& name);
-        bool setTransparency(float transparency);
+        void setTransparency(float transparency);
         [[nodiscard]] float getTransparency() const;
         void setGroupVec4(const ImVec4& groupVec4);
         [[nodiscard]] const ImVec4& getGroupVec4() const;
