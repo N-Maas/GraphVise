@@ -57,14 +57,14 @@ void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
 }
 
 void ButtonController::highlightSubgraph(std::string filePath) {
-    ThreadOperation threadOperation = {std::move(filePath), PARSE_SUBGRAPH};
+    ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
     threadController.notifyBackgroundThread(threadOperation);
 }
 
 void ButtonController::importGraph(std::string filePath) {
-    ThreadOperation threadOperation = {std::move(filePath), PARSE_TXT};
+    ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
     if (!threadController.notifyBackgroundThread(threadOperation)) {
-        Error error(BACKGROUND_THREAD_ALREADY_BUSY);
+        Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
         ErrorCollector::getInstance().collectError(error);
     }
 }
@@ -80,16 +80,16 @@ void ButtonController::exportGraph(std::string filePath, ExportFormat exportForm
     ThreadOperation threadOperation = {std::move(filePath), operationType};
 
     if (!threadController.notifyBackgroundThread(threadOperation)) {
-        Error error(BACKGROUND_THREAD_ALREADY_BUSY);
+        Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
         ErrorCollector::getInstance().collectError(error);
     }
 }
 
 void ButtonController::importGroupConfiguration(std::string filePath) {
-    ThreadOperation threadOperation = {std::move(filePath), PARSE_GROUPS};
+    ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_GROUPS};
 
     if (!threadController.notifyBackgroundThread(threadOperation)) {
-        Error error(BACKGROUND_THREAD_ALREADY_BUSY);
+        Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
         ErrorCollector::getInstance().collectError(error);
     }
 }

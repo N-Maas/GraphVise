@@ -7,7 +7,7 @@
 
 #endif //THESIS_FRAMEWORK_PARSEFORMAT_HPP
 
-enum ParseFormat {
+enum class ParseFormat {
     TXT,
     CNF,
     GROUP,
