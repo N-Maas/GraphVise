@@ -4,6 +4,8 @@
 
 #ifndef THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
 #define THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
+
+#include "controller/Structs/GraphData.hpp"
 #include "model/Graph.hpp"
 
 class WEmbedController {

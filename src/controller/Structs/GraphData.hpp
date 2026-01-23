@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <vector>
 
-#endif //THESIS_FRAMEWORK_GRAPHDATA_HPP
-
 struct GraphData {
     uint32_t vertexCount;
     std::vector<std::vector<uint32_t>> edges;
 };
+
+#endif //THESIS_FRAMEWORK_GRAPHDATA_HPP

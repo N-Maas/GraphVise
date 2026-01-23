@@ -74,6 +74,7 @@ set(SOURCES
         src/model/Edge.cpp
         src/view/GUI.cpp
         src/view/Buttons.cpp
+        src/controller/Parsing/WEmbedController.cpp
 )
 
 set(SHADERS
