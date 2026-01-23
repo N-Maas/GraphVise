@@ -9,7 +9,6 @@
 #include <iostream>
 #include <regex>
 #include <vector>
-#include <boost/container/vector.hpp>
 
 #include "controller/Error.hpp"
 
@@ -17,7 +16,7 @@
 #define EDGE_REGEX "\\s*(\\d+)\\s+(\\d+)\\s*"
 #define EMPTY_LINE_REGEX "\\s*"
 
-std::expected<GraphData, Error> TXTParser::parseFile(std::string filePath) {
+[[nodiscard]] std::expected<GraphData, Error> TXTParser::parseFile(std::string filePath) {
     std::ifstream fileStream(filePath, std::ios::in);
     if (!fileStream.is_open()) {
         Error error(ErrorType::FILE_NOT_FOUND);

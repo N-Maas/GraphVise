@@ -4,13 +4,11 @@
 
 #ifndef THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
 #define THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
-#include "../Structs/GraphData.hpp"
-#include "wembed.h"
-
-#endif //THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
+#include "model/Graph.hpp"
 
 class WEmbedController {
     public:
-        //TODO: Return-Typ der Methode zu Graph ändern, sobald es die Klasse gibt
-        void embedGraph(GraphData graphData);
+        Graph embedGraph(GraphData graphData);
 };
+
+#endif //THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP
