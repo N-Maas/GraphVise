@@ -1,5 +1,6 @@
 #include "Graph.hpp"
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 std::vector<Vertex>& Graph::getVertices() {
@@ -68,16 +69,16 @@ void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, 
     cameraBookmarks.emplace_back(cameraBookmarks.size(), name, coords, pitch, yaw);
 }
 
-void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) const {
-    for (Vertex vertex : vertices) {
+void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
+    for (Vertex& vertex : vertices) {
         if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
             vertex.setOwnTransparency(0.2);
         } else {
             vertex.setOwnTransparency(1);
         }
     }
-    for (Edge edge : edges) {
-        if (std::ranges::find(edgesIDs, edge.getEdgeID()) == verticesIDs.end()) {
+    for (Edge& edge : edges) {
+        if (std::ranges::find(edgesIDs, edge.getEdgeID()) == edgesIDs.end()) {
             edge.setOwnTransparency(0.2);
         } else {
             edge.setOwnTransparency(1);
@@ -85,11 +86,11 @@ void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const s
     }
 }
 
-void Graph::removeAllHighlights() const {
-    for (Vertex vertex : vertices) {
+void Graph::removeAllHighlights() {
+    for (Vertex& vertex : vertices) {
         vertex.deleteOwnTransparency();
     }
-    for (Edge edge : edges) {
+    for (Edge& edge : edges) {
         edge.deleteOwnTransparency();
     }
 }
@@ -97,14 +98,18 @@ void Graph::removeAllHighlights() const {
 void Graph::deleteAllGroups() {
     groups.clear();
     addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
-    for (Vertex vertex : vertices) {
+    for (Vertex& vertex : vertices) {
         vertex.setGroup(0);
     }
-    for (Edge edge : edges) {
+    for (Edge& edge : edges) {
         edge.setGroup(0);
     }
 }
 
 void Graph::deleteCameraBookmarks(const std::uint32_t cameraBookmarkID) {
-    cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
+    if (cameraBookmarkID < cameraBookmarks.size()) {
+        cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
+    } else {
+        throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
+    }
 }
