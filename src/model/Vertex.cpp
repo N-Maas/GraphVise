@@ -1,8 +1,5 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "Vertex.hpp"
+#include <stdexcept>
 #include "GraphSaver.hpp"
 
 std::uint32_t  Vertex::getVertexID() const {
@@ -34,12 +31,12 @@ float Vertex::getTransparency() const {
     return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
 }
 
-bool Vertex::setOwnTransparency(float transparency) {
+void Vertex::setOwnTransparency(float transparency) {
     if (transparency >= 0.0f && transparency <= 1.0f) {
         ownTransparency = transparency;
-        return true;
+        return;
     }
-    return false;
+    throw std::out_of_range("Transparency must be between 0 and 1");
 }
 
 void Vertex::deleteOwnTransparency() {
