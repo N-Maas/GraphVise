@@ -15,12 +15,12 @@ model::Graph WEmbedController::embedGraph(GraphData& graphData) {
     embedder.calculateEmbedding();
     std::vector<std::vector<double>> coordinates = embedder.getCoordinates();
 
-    model::Graph embeddedGraph(graphData.vertexCount);
-
-    for (int i = 0; i < coordinates.size(); i++) {
-        glm::vec3 convertedVector(coordinates[i][0], coordinates[i][1], coordinates[i][2]);
-        embeddedGraph.addVertex(i, convertedVector);
+    std::vector<glm::vec3> vertexCoordinates;
+    for (auto coord : coordinates) {
+        vertexCoordinates.emplace_back(coord[0], coord[1], coord[2]);
     }
+
+    model::Graph embeddedGraph(vertexCoordinates);
 
     for (auto edge : graphData.edges) {
         embeddedGraph.addEdge(edge.first, edge.second);
