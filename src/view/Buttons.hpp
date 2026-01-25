@@ -15,12 +15,14 @@ class Buttons
     public:
     Buttons(int buttonController);
 
-    void loadButtonFrame();
+    void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
 private:
     const std::vector<std::string> allowedFiles = {".txt"};
     int buttonController = 0;
     int performanceMode = 0;
+    int framebufferWidth = 0;
+    int framebufferHeight = 0;
 
     int vertex = -1;
     int edge = -1;
@@ -30,7 +32,7 @@ private:
     ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
     ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
 
-    void MenuBar();
+    void MainMenuBar();
     void GroupMenu();
     void performanceModeToggle();
     void randomizeColoring(int groupID);
@@ -43,6 +45,7 @@ private:
     void highlightSubgraph();
     void importGraph();
     void exportGraph();
+    void SideBar();
     void importGroupConfiguration();
 };
 

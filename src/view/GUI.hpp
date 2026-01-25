@@ -14,7 +14,7 @@ class GUI
 public:
     GUI();
     void initGUI(GLFWwindow* window);
-    void loadFrame();
+    void loadFrame(int framebufferWidth, int framebufferHeight);
     void shutdownGUI();
 
 private:

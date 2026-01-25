@@ -2,7 +2,7 @@
 
 [imgui-filebrowser](https://github.com/AirGuanZ/imgui-filebrowser) is a header-only file browser implementation for [dear-imgui](https://github.com/ocornut/imgui). C++ 17 is required.
 
-![IMG](./screenshots/0.png)
+![IMG](screenshots/0.png)
 
 ## Getting Started
 

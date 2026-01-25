@@ -25,6 +25,7 @@
 #include <vector>
 #include <algorithm>
 #include <memory>
+#include <GLFW/glfw3.h>
 
 
 #include "RendererSubject.hpp"
@@ -51,7 +52,7 @@ public:
     void runFrame(GraphSaver& graph_saver);        // Called once per Frame
     void shutdown();        // Cleanup resources, called after the main loop
 
-    void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
+
     void resize(int framebufferWidth, int framebufferHeight);
 
     void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
@@ -83,6 +84,8 @@ public:
     void adjustPerformanceMode(PerformanceMode newMode) {
         performanceMode = newMode;
     };
+    void processEvents(GLFWwindow* m_window);
+
 
     // Variables to be changed in the ImGUI windows
     glm::vec4 mColor;
@@ -122,7 +125,7 @@ private:
     void generateCylinder(int segments = 16);
     void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
-
+    bool mF5Pressed;
     Camera mCamera;
     CameraFocusMode cameraFocusMode;
     LightSourceMovementBehaviour lightSourceMovementBehaviour;

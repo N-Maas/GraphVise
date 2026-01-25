@@ -18,7 +18,7 @@ set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
         src/utils.hpp
-        src/imgui-filebrowser/imfilebrowser.h
+        src/view/imgui-filebrowser/imfilebrowser.h
         src/view/Window.hpp
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.hpp
@@ -120,7 +120,7 @@ add_subdirectory(ext)
 target_include_directories(thesis-framework PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
+        src/view/imgui-filebrowser
         )
 
 # link required libraries

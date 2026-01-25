@@ -25,14 +25,14 @@ void GUI::initGUI(GLFWwindow* window)
 
 
 }
-void GUI::loadFrame()
+void GUI::loadFrame(int framebufferWidth,int framebufferHeight)
 {
     // Tell OpenGL a new frame is about to begin
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    buttons.loadButtonFrame();
+    buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
     currentObjInfo();
 
     errorPopup();
