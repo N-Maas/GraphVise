@@ -4,6 +4,8 @@
 
 #include "ParserController.hpp"
 
+#include <iostream>
+#include <ostream>
 #include <stdexcept>
 #include <utility>
 
@@ -20,7 +22,11 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 error = result.error();
                 return;
             }
-            parsedGraph = wembedController.embedGraph(std::move(parsedGraphData));
+            parsedGraph = wembedController.embedGraph(parsedGraphData);
             break;
     }
+}
+
+std::optional<Graph> ParserController::getGraph() {
+    return parsedGraph;
 }

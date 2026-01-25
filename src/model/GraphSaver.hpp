@@ -6,17 +6,17 @@
 #define THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #include "Graph.hpp"
 
+using namespace model;
 
 class GraphSaver {
     public:
-        GraphSaver();
         static GraphSaver& getGraphSaver();
         [[nodiscard]] Graph& getGraph();
         void setGraph(const Graph& new_graph);
 
     private:
+        GraphSaver();
         static GraphSaver instance;
-        //TODO: is optional ok here?
         std::optional<Graph> graph;
 };
 

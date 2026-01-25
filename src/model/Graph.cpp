@@ -4,6 +4,10 @@
 
 #include "Graph.hpp"
 
+#include <iostream>
+
+using namespace model;
+
 std::vector<Vertex>& Graph::getVertices() {
     return vertices;
 }

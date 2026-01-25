@@ -13,8 +13,8 @@
 #include "Vertex.hpp"
 #include "imgui/imgui.h"
 
-
-class Graph {
+namespace model {
+    class Graph {
     public:
         explicit Graph(const std::uint32_t quantityOfVertices) {
             vertices.reserve(quantityOfVertices);
@@ -44,7 +44,7 @@ class Graph {
         std::vector<Edge> edges;
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
-};
-
+    };
+}
 
 #endif

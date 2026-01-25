@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+using namespace model;
+
 GraphSaver GraphSaver::instance;
 
 GraphSaver::GraphSaver() {

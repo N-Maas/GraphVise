@@ -14,10 +14,12 @@
 #include "../Structs/GroupData.hpp"
 #include "model/Graph.hpp"
 
+using namespace model;
 
 class ParserController {
     public:
         void parseFile(std::string filePath, ParseFormat format);
+        std::optional<Graph> getGraph();
 
     private:
         //TODO: Felder deklarieren, sobald die Klassen existieren

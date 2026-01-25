@@ -165,8 +165,7 @@ void Renderer::runFrame(GraphSaver& graphSaver)
 // rendering Graph
 void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
 
-    //TODO: Graph is std::<optional> currently. (Greyed out, so the program runs)
-    /*Graph graph = graphSaver.getGraph();
+    Graph graph = graphSaver.getGraph();
     std::vector<Vertex>& vertices = graph.getVertices();
     std::vector<Edge>& edges = graph.getEdges();
     std::cout << "=== GraphRenderer start ===" << std::endl;
@@ -176,7 +175,7 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
     if (mShaderProgram == 0 || vertices.empty()) {
         std::cout << "ERROR: No shader or graph.vertices" << std::endl;
         return;
-    }*/
+    }
 
     glUseProgram(mShaderProgram);
 
@@ -198,8 +197,6 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
         generateCylinder(12);  // 12 segments
     }
 
-    //TODO: Uncomment, when graph can be loaded
-    /*
     std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
               << edges.size() << " edges" << std::endl;
 
@@ -218,7 +215,7 @@ void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
                           cylinderRadius, edge.getEdgeVec4(), mvp);
         }
     }
-    */
+
 }
 
 /**

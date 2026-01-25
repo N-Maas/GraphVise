@@ -104,7 +104,9 @@ int Window::initWindow()
 
 
 		GL_CHECK_ERROR();
-		GraphSaver graphSaver;
+		//TODO: Remove reference to graphSaver
+		GraphSaver graphSaver = GraphSaver::getGraphSaver();
+
         renderer.runFrame(graphSaver);
         GL_CHECK_ERROR();
 

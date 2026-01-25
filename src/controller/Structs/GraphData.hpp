@@ -9,7 +9,7 @@
 
 struct GraphData {
     uint32_t vertexCount;
-    std::vector<std::vector<uint32_t>> edges;
+    std::vector<std::pair<int, int>> edges;
 };
 
 #endif //THESIS_FRAMEWORK_GRAPHDATA_HPP

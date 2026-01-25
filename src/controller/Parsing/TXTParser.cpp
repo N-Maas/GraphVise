@@ -57,7 +57,7 @@
     std::regex edgeRegex(EDGE_REGEX);
     std::regex emptyLineRegex(EMPTY_LINE_REGEX);
 
-    std::vector<std::vector<uint32_t>> edges;
+    std::vector<std::pair<int, int>> edges;
     edges.reserve(edgeCount);
 
     for (std::string line; std::getline(fileStream, line);) {
@@ -94,13 +94,11 @@
             return std::unexpected(error);
         }
 
-        std::vector<uint32_t> edge;
-        edge.push_back(firstVertexID);
-        edge.push_back(secondVertexID);
+        std::pair<int, int> edge(firstVertexID, secondVertexID);
 
         //Check for duplicate edges
         for (auto & currentEdge : edges) {
-            if ((currentEdge.at(0) == firstVertexID && currentEdge.at(1) == secondVertexID) || (currentEdge.at(0) == secondVertexID && currentEdge.at(1) == firstVertexID)) {
+            if ((currentEdge.first == firstVertexID && currentEdge.second == secondVertexID) || (currentEdge.first == secondVertexID && currentEdge.second == firstVertexID)) {
                 Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
                 return std::unexpected(error);
             }
