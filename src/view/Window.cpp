@@ -76,8 +76,10 @@ int Window::initWindow()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
+
+	//TODO: These 2 lines caused the program to crash
+	//ImGui_ImplGlfw_InitForOpenGL(window, true);
+	//ImGui_ImplOpenGL3_Init("#version 330");
 
     // Query the framebuffer size, this can differ from the window size on some systems
     int framebufferWidth, framebufferHeight;
