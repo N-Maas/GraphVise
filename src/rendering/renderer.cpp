@@ -102,29 +102,6 @@ void Renderer::init()
     if (cylinderVertices.empty()) {
         generateCylinder(12);
     }
-
-    // Vertex Data -----------------------------------------------------------------------------------------------------
-    // Generate the VAO and VBO with only 1 object each
-    glGenVertexArrays(1, &mVAO);
-    glGenBuffers(1, &mVBO);
-
-    // Make the VAO the current vertex array object by binding it
-    glBindVertexArray(mVAO);
-
-    // todo we are initaling the cube rendering here, throw it out, but first check whether mVAO and mVBO are used for other purposes
-    // Bind the VBO specifying it's a GL_ARRAY_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    // Introduce the vertices into the VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-
-    // Configure the vertex attribute so that OpenGL knows how to read the VBO
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
-    // Enable the Vertex Attribute so that OpenGL knows to use it
-    glEnableVertexAttribArray(0);
-
-    // Bind both the VBO and VAO to 0 so that we don't accidentally modify the VAO and VBO we created
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
     GL_CHECK_ERROR();
 }
 
@@ -220,7 +197,6 @@ void Renderer::runFrame()
     glUseProgram(vertexShaderProgram);
     GL_CHECK_ERROR();
 
-    //todo all this code is for rendering the cube and has to be thrown out when the cube is no longer needed
 
     // 2.1 MVP matrix
     glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
@@ -230,45 +206,7 @@ void Renderer::runFrame()
         std::cout << "Set cube MVP" << std::endl;
     }
 
-    // 2.2 Model matrix (identity for now)
-    glm::mat4 model = glm::mat4(1.0f);
-    GLint modelLoc = glGetUniformLocation(vertexShaderProgram, "model");
-    if (modelLoc != -1) {
-        glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-    }
 
-    // 3.Set lighting uniforms for CUBE
-    GLint lightPosLoc = glGetUniformLocation(vertexShaderProgram, "lightPos");
-    if (lightPosLoc != -1) {
-        glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
-        glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        std::cout << "Set lightPos to (2,2,2)" << std::endl;
-    } else {
-        std::cout << "WARNING: lightPos uniform not found in cube shader!" << std::endl;
-    }
-
-    // 4. Set cube color (ORANGE)
-    GLint colorLoc = glGetUniformLocation(vertexShaderProgram, "objectColor");
-    if (colorLoc == -1) colorLoc = glGetUniformLocation(vertexShaderProgram, "color");
-    if (colorLoc != -1) {
-        glUniform4f(colorLoc, mColor[0], mColor[1], mColor[2], 1.0f);  // Orange
-        std::cout << "Set cube color to orange: ("
-                << mColor[0] << "," << mColor[1] << "," << mColor[2] << ")" << std::endl;
-    } else {
-        std::cout << "WARNING: No color uniform found in cube shader!" << std::endl;
-    }
-
-
-    // todo throw test cube out when graph can be rendered
-    //Render cube
-    glBindVertexArray(mVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    std::cout << "Cube drawn" << std::endl;
-
-    /* todo currently we are using the same shader program for the cube and the graph, this of course does not work and
-    * todo we are only using the graph shader program
-    * todo we need access to GraphSaver object
-     */
     //rendering graph
     render(mvp);
     GL_CHECK_ERROR();
@@ -374,9 +312,14 @@ void Renderer::render(const glm::mat4& mvp) {
     */
 
     // Make a larger triangle
+    /*
     graph.addVertex(0, glm::vec3(-3.0f, 0.0f, 5.0f));
     graph.addVertex(1, glm::vec3(3.0f, 0.0f, 5.0f));
     graph.addVertex(2, glm::vec3(0.0f, 3.0f, 5.0f));
+    */
+    graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
+    graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
+    graph.addVertex(2, glm::vec3(0.0f, 1.0f, 2.0f));
     std::cout << "DEBUG: Added 3 vertices" << std::endl;
     graph.addEdge(0,1);
     graph.addEdge(1, 2);
@@ -384,8 +327,12 @@ void Renderer::render(const glm::mat4& mvp) {
     std::cout << "DEBUG: Added 3 edges" << std::endl;
     std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
     std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
-    ImVec4 colorVec= ImColor(225, 183, 25, 255);
-    graph.addGroup("firstBuddies", colorVec, myVerticeIDs, myEdgeIDs);
+    ImVec4 colorVec1= ImColor(225, 183, 25, 255);
+    ImVec4 colorVec2= ImColor(225, 183, 25, 255);
+    ImVec4 colorVec3= ImColor(225, 183, 25, 255);
+    graph.addGroup("firstBuddies", colorVec1, {0}, myEdgeIDs);
+    graph.addGroup("god help us!", colorVec2, {1}, {});
+    graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
     std::cout << "DEBUG: Added group" << std::endl;
 
     /*//todo uncomment when graph can be loaded
@@ -403,6 +350,18 @@ void Renderer::render(const glm::mat4& mvp) {
         std::cerr << "DEBUG: No shader program for graph!" << std::endl;
         return;
     }
+    // Use our MRT shader
+    glUseProgram(vertexShaderProgram);
+
+    // Check if program is actually bound:
+    GLint currentProgram;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+    if (currentProgram != (GLint)vertexShaderProgram) {
+        std::cerr << "ERROR: Wrong shader bound! Current: "
+                  << currentProgram << ", Expected: " << vertexShaderProgram << std::endl;
+        glUseProgram(vertexShaderProgram);
+    }
+
 
     // Bind our MRT framebuffer
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -421,7 +380,7 @@ void Renderer::render(const glm::mat4& mvp) {
 
 
     // Use our MRT shader
-    glUseProgram(vertexShaderProgram);
+    //glUseProgram(vertexShaderProgram);
 
     // Set light uniforms
     GLint lightPosLoc = glGetUniformLocation(vertexShaderProgram, "lightPos");
@@ -431,17 +390,17 @@ void Renderer::render(const glm::mat4& mvp) {
 
     std::vector<Vertex>& vertices = graph.getVertices();
     std::vector<Edge>& edges = graph.getEdges();
-/*
-    // Generate meshes once
-    if (sphereVertices.empty()) {
-        std::cout << "Generating sphere mesh..." << std::endl;
-        generateIcosphere(2);  // Medium quality
-    }
-    if (cylinderVertices.empty()) {
-        std::cout << "Generating cylinder mesh..." << std::endl;
-        generateCylinder(12);  // 12 segments
-    }
-    */
+    /*
+        // Generate meshes once
+        if (sphereVertices.empty()) {
+            std::cout << "Generating sphere mesh..." << std::endl;
+            generateIcosphere(2);  // Medium quality
+        }
+        if (cylinderVertices.empty()) {
+            std::cout << "Generating cylinder mesh..." << std::endl;
+            generateCylinder(12);  // 12 segments
+        }
+        */
 
     /* //debugging code
      * //todo get rid of it when everything works
@@ -465,7 +424,10 @@ void Renderer::render(const glm::mat4& mvp) {
     }
 
     // Render all vertices
-    for (const auto& vertex : vertices) {
+    // for (const auto& vertex : vertices) {
+    // In your vertex rendering loop:
+    for (size_t i = 0; i < vertices.size(); i++) {
+        const auto& vertex = vertices[i];
         std::cout << "\nDEBUG: Rendering vertex ID: " << vertex.getVertexID() << std::endl;
         std::cout << "  Position: (" << vertex.getCoordsVector().x << ", "
                   << vertex.getCoordsVector().y << ", " << vertex.getCoordsVector().z << ")" << std::endl;
@@ -478,16 +440,37 @@ void Renderer::render(const glm::mat4& mvp) {
         std::cout << "Distance 1->2: " << glm::distance(pos1, pos2) << std::endl;
         std::cout << "Distance 2->0: " << glm::distance(pos2, pos0) << std::endl;
 
-        // Set object color (what user sees)
+
+
+        // Use different colors for each vertex
+        ImVec4 testColors[] = {
+            ImVec4(1.0f, 0.0f, 0.0f, 1.0f),  // Red
+            ImVec4(0.0f, 1.0f, 0.0f, 1.0f),  // Green
+            ImVec4(0.0f, 0.0f, 1.0f, 1.0f)   // Blue
+        };
+
         GLint objectColorLoc = glGetUniformLocation(vertexShaderProgram, "objectColor");
-        const ImVec4& color = vertex.getVertexVec4();
-        std::cout << "  Color: (" << color.x << ", " << color.y << ", " << color.z << ", " << color.w << ")" << std::endl;
         if (objectColorLoc != -1) {
+            ImVec4 color = testColors[i % 3];
             glUniform4f(objectColorLoc, color.x, color.y, color.z, color.w);
-            std::cout << "  Set objectColor uniform" << std::endl;
-        } else {
-            std::cerr << "  ERROR: objectColor uniform not found!" << std::endl;
+            std::cout << "Vertex " << i << " color: ("
+                      << color.x << ", " << color.y << ", " << color.z << ")" << std::endl;
         }
+
+
+
+    /*
+    // Set object color (what user sees)
+    GLint objectColorLoc = glGetUniformLocation(vertexShaderProgram, "objectColor");
+    const ImVec4& color = vertex.getVertexVec4();
+    std::cout << "  Color: (" << color.x << ", " << color.y << ", " << color.z << ", " << color.w << ")" << std::endl;
+    if (objectColorLoc != -1) {
+        glUniform4f(objectColorLoc, color.x, color.y, color.z, color.w);
+        std::cout << "  Set objectColor uniform" << std::endl;
+    } else {
+        std::cerr << "  ERROR: objectColor uniform not found!" << std::endl;
+    }
+    */
 
         // Set object ID for picking
         GLint objectIdLoc = glGetUniformLocation(vertexShaderProgram, "objectId");
@@ -500,7 +483,8 @@ void Renderer::render(const glm::mat4& mvp) {
 
         // Set model matrix
         glm::mat4 model = glm::translate(glm::mat4(1.0f), vertex.getCoordsVector());
-        model = glm::scale(model, glm::vec3(sphereRadius));
+        float visibilityScale = 1.0f;
+        model = glm::scale(model, glm::vec3(visibilityScale));
         std::cout << "  Model matrix (translation in last column):" << std::endl;
         for (int i = 0; i < 4; i++) {
             std::cout << "    ";
