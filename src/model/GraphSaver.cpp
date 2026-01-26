@@ -15,9 +15,8 @@ GraphSaver& GraphSaver::getGraphSaver() {
     return instance;
 }
 
-Graph& GraphSaver::getGraph() {
-    //Throws exception, when no graph is loaded (program crashes)
-    return graph.value();
+std::optional<Graph>& GraphSaver::getGraph() {
+    return graph;
 }
 
 void GraphSaver::setGraph(const Graph& new_graph) {

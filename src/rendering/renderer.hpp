@@ -56,49 +56,37 @@ public:
 
     void render(const glm::mat4& mvp); // Render graph
 
-    //TODO: review
-    //Had to be implemented in renderer.cpp
-
-    /*void signIn(std::shared_ptr<RendererObserver> observer) override {
-        this->observerList.push_back(std::move(observer));
-    };*/
-
-    /*void signOut(std::shared_ptr<RendererObserver> observer) override {;
-        auto it = std::ranges::find_if(observerList,
-                                       [observer](const std::shared_ptr<RendererObserver>& ptr) {
-                                           return ptr.get() == observer.get();
-                                       }
-        );
-        if (it != observerList.end()) {
-            observerList.erase(it);
-        }
-    };*/
-
-    /*void notify() override {
-        for (const auto& observer : observerList) {
-            observer->update();  // Call update on each observer
-        }
-    };*/
-
     void adjustPerformanceMode(PerformanceMode newMode) {
         performanceMode = newMode;
     };
 
+    uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
     // Variables to be changed in the ImGUI windows
     glm::vec4 mColor;
 
 private:
     std::vector<std::shared_ptr<RendererObserver>> observerList;
     const float STANDARD_SPHERE_RADIUS = 0.1f;
-    const float STANDARD_CYLINDER_RADIUS = 0.01f;
+    const float STANDARD_CYLINDER_RADIUS = 0.1f;
+    glm::ivec2 mFramebufferSize;
+
+
     [[nodiscard]] float getAspectRatio() const {
         return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
     }
 
-    GLuint mShaderProgram;
+    GLuint framebuffer;
+    GLuint colorTexture;        // Visual output (RGBA8)
+    GLuint pickingTexture;      // Picking IDs (RGBA32F or RGBA32UI)
+    GLuint depthBuffer;
+
+    GLuint vertexShaderProgram;      // Single shader with dual outputs for vertices
+    GLuint edgeShaderProgram;
     // Path to shader source files
-    std::string mVertexShaderPath;
-    std::string mFragmentShaderPath;
+    std::string vVertexShaderPath;  // for vertices
+    std::string vFragmentShaderPath;
+    std::string eVertexShaderPath;  // for edges
+    std::string eFragmentShaderPath;
     // Reference containers for the vertex array object and the vertex buffer object
     GLuint mVAO, mVBO;
     // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
@@ -109,7 +97,8 @@ private:
     std::vector<unsigned int> sphereIndices;
     GLuint sphereVAO{}, sphereVBO{}, sphereEBO{};
     // generate sphere mesh data(icosphere)
-    float sphereRadius{};
+    float sphereRadius;
+    void initMultipleRenderTargets();// Initialize buffers for multiple target rendering, to enable node picking
     void generateIcosphere(int subdivisions = 2);
     void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
 
@@ -118,16 +107,18 @@ private:
     std::vector<unsigned int> cylinderIndices;
     GLuint cylinderVAO{}, cylinderVBO{}, cylinderEBO{};
 
-    float cylinderRadius{};
+    float cylinderRadius;
     void generateCylinder(int segments = 16);
     void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
+
+    glm::vec4 encodeIdToColor(uint32_t id);//used for finding id of clicked vertice
+    uint32_t decodeColorToId(const glm::vec4& color);
 
     Camera mCamera;
     CameraFocusMode cameraFocusMode;
     LightSourceMovementBehaviour lightSourceMovementBehaviour;
     PerformanceMode performanceMode;
-    glm::ivec2 mFramebufferSize;
 
     bool mF5Pressed;
 

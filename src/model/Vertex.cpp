@@ -18,11 +18,20 @@ void Vertex::setGroup(const std::uint32_t groupID) {
 }
 
 const glm::vec3& Vertex::getCoordsVector() const {
+    /* todo remove
+     *
+    std::cout << "DEBUG: getCoordsVector() for vertex ID " << vertexID
+              << ": (" << coordsVector.x << "," << coordsVector.y << "," << coordsVector.z << ")" << std::endl;
+*/
     return coordsVector;
 }
 
 ImVec4 Vertex::getVertexVec4() const {
-    ImVec4 vertexVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    auto& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);//  red for testing todo remove this option when graph is no longer hardcoded, throw error
+    }
+    ImVec4 vertexVec = graph.value().getGroupByID(connectedGroupID).getGroupVec4();
     vertexVec.w = getTransparency();
     return vertexVec;
 }
@@ -31,7 +40,13 @@ float Vertex::getTransparency() const {
     if (ownTransparency.has_value()) {
         return ownTransparency.value();
     }
-    return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
+    auto& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return 1.0f;// todo remove this option when graph is no longer hardcoded, throw error
+    }
+    ImVec4 vertexVec = graph.value().getGroupByID(connectedGroupID).getGroupVec4();
+    vertexVec.w = getTransparency();
+    return vertexVec.w;
 }
 
 bool Vertex::setOwnTransparency(float transparency) {

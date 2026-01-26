@@ -5,6 +5,7 @@
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
 #include <array>
+#include <iostream>
 #include <string>
 #include <vector>
 #include "CameraBookmark.hpp"
@@ -17,7 +18,11 @@
 class Graph {
     public:
         explicit Graph(const std::uint32_t quantityOfVertices) {
+            std::cout << "DEBUG: Graph constructor called with capacity: " << quantityOfVertices << std::endl;
             vertices.reserve(quantityOfVertices);
+            std::cout << "DEBUG: Graph constructor completed" << std::endl;
+            std::cout << "DEBUG: vertices capacity: " << vertices.capacity()
+             << ", size: " << vertices.size() << std::endl;
         }
 
         [[nodiscard]] std::vector<Vertex>& getVertices() ;
@@ -38,6 +43,7 @@ class Graph {
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
         void deleteGraph();
+
 
     private:
         std::vector<Vertex> vertices;

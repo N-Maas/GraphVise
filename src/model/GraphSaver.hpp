@@ -11,12 +11,11 @@ class GraphSaver {
     public:
         GraphSaver();
         static GraphSaver& getGraphSaver();
-        [[nodiscard]] Graph& getGraph();
+        [[nodiscard]] std::optional<Graph> &getGraph();
         void setGraph(const Graph& new_graph);
 
     private:
         static GraphSaver instance;
-        //TODO: is optional ok here?
         std::optional<Graph> graph;
 };
 

@@ -20,7 +20,11 @@ void ButtonController::togglePerformanceMode(PerformanceMode mode) {
 }
 
 void ButtonController::randomizeColoring(int groupID) {
-    Group& group= GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+    std::optional<Graph>& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return;
+    }
+    Group& group= graph.value().getGroupByID(groupID);
 
     std::random_device random;
     std::mt19937 generator(random());
@@ -31,7 +35,11 @@ void ButtonController::randomizeColoring(int groupID) {
 }
 
 void ButtonController::changeColoring(int groupID, ImVec4 newColor) {
-    Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+    std::optional<Graph>& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return;
+    }
+    Group& group= graph.value().getGroupByID(groupID);
     group.setGroupVec4(newColor);
 }
 
@@ -52,7 +60,12 @@ void ButtonController::findVertex(int vertexID) {
 }
 
 void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
-    std::optional<uint32_t>  edgeID = GraphSaver::getGraphSaver().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
+    auto& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return;  //todo throw error
+    }
+
+    std::optional<uint32_t>  edgeID = graph->getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
     //TODO: Implement, when function for highlighting single Edge exists
 }
 

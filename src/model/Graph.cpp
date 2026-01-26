@@ -49,9 +49,26 @@ std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(const std::uint3
 }
 
  bool Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-    vertices[vertexID] = Vertex(vertexID, coords);
+    /*
+    //todo throw out debug code when it works
+    std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
+              << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
+
+    std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
+              << ", vertices.capacity() = " << vertices.capacity() << std::endl;
+
+    //todo uncomment when code is corrected
+
+    std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
+    */
+
+    //add to the end of vertex list
+    vertices.emplace_back(vertexID, coords);
+
     return true; //ToDo Überprüfen, ob bereits ein Knoten mit der ID vorhanden ist, falls überhaubt nötig
- }
+    }
+
+
 
 void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
     edges.emplace_back(edges.size(), firstVertexID, secondVertexID);

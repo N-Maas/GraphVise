@@ -23,7 +23,11 @@ std::vector<std::uint32_t> Edge::getConnectingVerticesIDs() const {
 }
 
 ImVec4 Edge::getEdgeVec4() const {
-    ImVec4 edgeVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    auto& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);  // Green for testing todo remove when graph isnt hardcoded
+    }
+    ImVec4 edgeVec = graph.value().getGroupByID(connectedGroupID).getGroupVec4();
     edgeVec.w = getTransparency();
     return edgeVec;
 }
@@ -32,7 +36,13 @@ float Edge::getTransparency() const {
     if (ownTransparency.has_value()) {
         return ownTransparency.value();
     }
-    return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
+    auto& graph = GraphSaver::getGraphSaver().getGraph();
+    if (!graph.has_value()) {//check if graph exists
+        return 1.0f;  // todo remove when graph isnt hardcoded
+    }
+    ImVec4 edgeVec = graph.value().getGroupByID(connectedGroupID).getGroupVec4();
+    edgeVec.w = getTransparency();
+    return edgeVec.w;
 }
 
 bool Edge::setOwnTransparency(float transparency) {
