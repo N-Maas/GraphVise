@@ -105,6 +105,7 @@ set(SOURCES
         src/view/GUI.cpp
         src/view/Buttons.cpp
         src/controller/Parsing/WEmbedController.cpp
+        src/controller/Parsing/GroupParser.cpp
 )
 
 set(SHADERS
