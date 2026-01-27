@@ -77,6 +77,7 @@ set(HEADERS
         src/model/CameraBookmark.hpp
         src/model/Vertex.hpp
         src/model/Edge.hpp
+        src/controller/Parsing/GroupParser.hpp
 )
 
 set(SOURCES

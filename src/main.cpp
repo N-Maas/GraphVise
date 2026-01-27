@@ -23,9 +23,20 @@
 	{
 
 		//TODO: Remove when threadController is ready
+		time_t timestamp;
+		time(&timestamp);
+		std::cout << std::endl;
+		std::cout << "Starting Loading Graph at current time: "  << ctime(&timestamp) << std::endl;
+		std::cout << std::endl;
+
 		graphvise::ParserController pc;
-		pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
+		pc.parseFile("../Testgraph100.txt", graphvise::ParseFormat::TXT);
 		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
+
+		time(&timestamp);
+		std::cout << std::endl;
+		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
+		std::cout << std::endl;
 
 		auto window = graphvise::Window();
 
