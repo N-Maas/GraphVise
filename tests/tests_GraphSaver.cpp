@@ -2,6 +2,7 @@
 #include "../ext/imgui/imgui.h"
 #include "model/GraphSaver.hpp"
 
+using namespace graphvise;
 TEST(GraphSaverTest, getSetGraphTest) {
     GraphSaver& graphSaver = GraphSaver::getGraphSaver();
 

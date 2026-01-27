@@ -7,11 +7,10 @@
 namespace graphvise {
     class CameraBookmark {
     public:
-        explicit CameraBookmark(const std::uint32_t  cameraBookmarkID, std::string name, const glm::vec3& coords, const float pitch, const float yaw)
-            : cameraBookmarkID(cameraBookmarkID), name(std::move(name)),
-            coordsVector(coords), pitch(pitch), yaw(yaw) {}
+        explicit CameraBookmark(std::string name, const glm::vec3& coords, const float pitch, const float yaw)
+            : name(std::move(name)), coordsVector(coords), pitch(pitch), yaw(yaw) {}
 
-        [[nodiscard]] std::uint32_t  getCameraBookmarkID() const;
+        //[[nodiscard]] std::uint32_t  getCameraBookmarkID() const;
         [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
         [[nodiscard]] const glm::vec3& getCoordsVector() const;
@@ -20,7 +19,6 @@ namespace graphvise {
 
 
     private:
-        std::uint32_t  cameraBookmarkID;
         std::string name;
         glm::vec3 coordsVector;
         float pitch;

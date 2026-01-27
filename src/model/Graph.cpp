@@ -69,7 +69,7 @@ namespace graphvise {
     }
 
     void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw) {
-        cameraBookmarks.emplace_back(cameraBookmarks.size(), name, coords, pitch, yaw);
+        cameraBookmarks.emplace_back(name, coords, pitch, yaw);
     }
 
     void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {

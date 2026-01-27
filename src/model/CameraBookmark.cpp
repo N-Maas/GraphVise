@@ -1,9 +1,9 @@
 #include "CameraBookmark.hpp"
 
 namespace graphvise {
-    std::uint32_t  CameraBookmark::getCameraBookmarkID() const {
-        return cameraBookmarkID;
-    }
+    // std::uint32_t  CameraBookmark::getCameraBookmarkID() const {
+    //     return cameraBookmarkID;
+    // }
 
     const std::string& CameraBookmark::getName() const {
         return name;

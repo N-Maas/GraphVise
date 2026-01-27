@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "model/GraphSaver.hpp"
 
+using namespace graphvise;
 TEST(GraphTest, CheckGetterAndInitialization) {
     GraphSaver::getGraphSaver().setGraph(Graph(std::vector<glm::vec3>{
         glm::vec3(1.0f, 3.0f, 2.5f),
@@ -131,12 +132,10 @@ TEST(GraphTest, addCameeraBookmarkTest) {
     graph.addCameraBookmark("first-CameraBookmark", glm::vec3(5.2f, -3.1f, 2.0f), 0.5f, 4.3f);
     EXPECT_STREQ(graph.getCameraBookmarks().at(0).getName().c_str(), "first-CameraBookmark");
     EXPECT_STREQ(graph.getCameraBookmarkByID(0).getName().c_str(), "first-CameraBookmark");
-    EXPECT_EQ(graph.getCameraBookmarks().at(0).getCameraBookmarkID(), 0);
     EXPECT_THROW(graph.getCameraBookmarks().at(1), std::out_of_range);
     graph.addCameraBookmark("second-CameraBookmark", glm::vec3(5.2f, -3.1f, 2.0f), 0.5f, 4.3f);
     EXPECT_STREQ(graph.getCameraBookmarks().at(1).getName().c_str(), "second-CameraBookmark");
     EXPECT_STREQ(graph.getCameraBookmarkByID(1).getName().c_str(), "second-CameraBookmark");
-    EXPECT_EQ(graph.getCameraBookmarks().at(1).getCameraBookmarkID(), 1);
     EXPECT_THROW(graph.getCameraBookmarks().at(2), std::out_of_range);
 }
 

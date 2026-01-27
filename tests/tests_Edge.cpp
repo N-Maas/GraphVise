@@ -4,6 +4,7 @@
 #include "../ext/imgui/imgui.h"
 #include "model/GraphSaver.hpp"
 
+using namespace graphvise;
 TEST(EdgeTest, CheckGetter) {
     Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
     GraphSaver::getGraphSaver().setGraph(graph);

@@ -2,6 +2,7 @@
 #include "../src/model/Graph.hpp"
 #include "../ext/imgui/imgui.h"
 
+using namespace graphvise;
 TEST(GroupTest, CheckGetter) {
     Group group = Group(4,
         "Test-Group",
