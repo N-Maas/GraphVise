@@ -166,7 +166,7 @@ void Renderer::runFrame()
 // rendering Graph
 void Renderer::render(const glm::mat4& mvp) {
 
-    Graph graph = graphSaver.getGraph();
+    Graph& graph = GraphSaver::getGraphSaver().getGraph();
     std::vector<Vertex>& vertices = graph.getVertices();
     std::vector<Edge>& edges = graph.getEdges();
     std::cout << "=== GraphRenderer start ===" << std::endl;
