@@ -8,9 +8,9 @@
 #include "../ThreadController.hpp"
 
 namespace graphvise {
-    class GroupParser : GraphParser {
+    class GroupParser {
     public:
-        std::expected<GraphData, Error> parseFile(std::string filePath) override;
+        [[nodiscard]] std::expected<GroupData, Error> parseFile(std::string filePath);
     };
 }
 
