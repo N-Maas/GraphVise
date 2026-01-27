@@ -8,12 +8,14 @@
 
 #include "../Structs/GraphData.hpp"
 
-#endif //THESIS_FRAMEWORK_CNFPARSER_HPP
-
-class CNFParser {
+namespace graphvise {
+    class CNFParser {
     public:
-    //Destruktor
-    virtual ~CNFParser() = default;
+        //Destruktor
+        virtual ~CNFParser() = default;
 
-    virtual GraphData parseFile(std::string filePath) = 0;
-};
+        virtual GraphData parseFile(std::string filePath) = 0;
+    };
+}
+
+#endif //THESIS_FRAMEWORK_CNFPARSER_HPP

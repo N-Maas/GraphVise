@@ -9,11 +9,13 @@
 
 #include "imgui/imgui.h"
 
-#endif //THESIS_FRAMEWORK_GROUPDATA_HPP
+namespace graphvise {
+    struct GroupData {
+        std::string name;
+        ImVec4 color;
+        std::vector<int> vertices;
+        std::vector<int> edges;
+    };
+}
 
-struct GroupData {
-    std::string name;
-    ImVec4 color;
-    std::vector<int> vertices;
-    std::vector<int> edges;
-};
+#endif //THESIS_FRAMEWORK_GROUPDATA_HPP

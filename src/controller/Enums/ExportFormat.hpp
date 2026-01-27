@@ -5,8 +5,9 @@
 #ifndef THESIS_FRAMEWORK_EXPORTFORMAT_HPP
 #define THESIS_FRAMEWORK_EXPORTFORMAT_HPP
 
+namespace graphvise {
+    enum class ExportFormat {
+        PNG
+    };
+}
 #endif //THESIS_FRAMEWORK_EXPORTFORMAT_HPP
-
-enum class ExportFormat {
-    PNG
-};

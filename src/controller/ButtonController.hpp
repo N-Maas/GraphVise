@@ -10,8 +10,8 @@
 #include "Enums/ExportFormat.hpp"
 #include "imgui/imgui.h"
 
-
-class ButtonController {
+namespace graphvise {
+    class ButtonController {
     public:
         ButtonController(Camera& camera, Renderer& renderer);
         void togglePerformanceMode(PerformanceMode mode);
@@ -31,7 +31,7 @@ class ButtonController {
         Camera& camera;
         Renderer& renderer;
         ThreadController threadController;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP

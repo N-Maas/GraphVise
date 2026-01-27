@@ -19,18 +19,18 @@
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
 
-int main()
-{
-
-	//TODO: Remove when threadController is ready
-	ParserController pc;
-	pc.parseFile("../Testgraph.txt", ParseFormat::TXT);
-	GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
-
-	auto window = Window();
-
-	if (window.initWindow() != 0)
+	int main()
 	{
-		return -1;
+
+		//TODO: Remove when threadController is ready
+		graphvise::ParserController pc;
+		pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
+		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
+
+		auto window = graphvise::Window();
+
+		if (window.initWindow() != 0)
+		{
+			return -1;
+		}
 	}
-}

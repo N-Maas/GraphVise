@@ -7,9 +7,11 @@
 #include <cstdint>
 #include <vector>
 
-struct GraphData {
-    uint32_t vertexCount;
-    std::vector<std::pair<int, int>> edges;
-};
+namespace graphvise {
+    struct GraphData {
+        uint32_t vertexCount;
+        std::vector<std::pair<int, int>> edges;
+    };
+}
 
 #endif //THESIS_FRAMEWORK_GRAPHDATA_HPP

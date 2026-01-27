@@ -2,7 +2,8 @@
 #define THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #include "Graph.hpp"
 
-class GraphSaver {
+namespace graphvise {
+    class GraphSaver {
     public:
         static GraphSaver& getGraphSaver();
         [[nodiscard]] Graph& getGraph();
@@ -13,7 +14,7 @@ class GraphSaver {
         explicit GraphSaver();
         static GraphSaver instance;
         std::optional<Graph> graph;
-};
-
+    };
+}
 
 #endif

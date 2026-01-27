@@ -137,7 +137,7 @@ include(FetchContent)
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG        496f320b841ee969e7ab851e9368a323f49fe5cb
+        GIT_TAG        1305d30ff5ee26dd637fb127a9a7bd0ab0c6fc00
         GIT_SHALLOW TRUE
 )
 

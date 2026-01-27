@@ -7,8 +7,8 @@
 
 #include "../rendering/camera.hpp"
 
-
-class MovementController {
+namespace graphvise {
+    class MovementController {
     public:
         explicit MovementController(Camera& camera);
         void moveCamera(glm::vec3 direction);
@@ -17,7 +17,7 @@ class MovementController {
 
     private:
         Camera& camera;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP

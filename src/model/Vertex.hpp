@@ -3,7 +3,8 @@
 #include <optional>
 #include "imgui/imgui.h"
 
-class Vertex {
+namespace graphvise {
+    class Vertex {
     public:
         explicit Vertex(const std::uint32_t  vertexID, const glm::vec3& coords)
             : vertexID(vertexID), connectedGroupID(0),
@@ -24,7 +25,7 @@ class Vertex {
         std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
         glm::vec3 coordsVector;
-};
-
+    };
+}
 
 #endif

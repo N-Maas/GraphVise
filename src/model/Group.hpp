@@ -4,7 +4,8 @@
 #include <utility>
 #include "imgui/imgui.h"
 
-class Group {
+namespace graphvise {
+    class Group {
     public:
         explicit Group(const std::uint32_t  groupID, std::string  name, const ImVec4& groupVec4)
             : groupID(groupID), name(std::move(name)), groupVec4(groupVec4) {}
@@ -22,7 +23,7 @@ class Group {
         std::uint32_t  groupID;
         std::string name;
         ImVec4 groupVec4;
-};
-
+    };
+}
 
 #endif

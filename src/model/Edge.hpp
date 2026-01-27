@@ -4,7 +4,8 @@
 #include <vector>
 #include "imgui/imgui.h"
 
-class Edge {
+namespace graphvise {
+    class Edge {
     public:
         explicit Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
             : edgeID(edgeID), connectedGroupID(0), firstVertexID(firstVertexID),
@@ -27,7 +28,7 @@ class Edge {
         std::optional<float> ownTransparency;
         std::uint32_t  firstVertexID;
         std::uint32_t  secondVertexID;
-};
-
+    };
+}
 
 #endif

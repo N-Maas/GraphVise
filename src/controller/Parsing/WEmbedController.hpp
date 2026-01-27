@@ -7,9 +7,10 @@
 #include "model/Graph.hpp"
 #include "controller/Structs/GraphData.hpp"
 
-class WEmbedController {
+namespace graphvise {
+    class WEmbedController {
     public:
         Graph embedGraph(GraphData& graphData);
-};
-
+    };
+}
 #endif //THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP

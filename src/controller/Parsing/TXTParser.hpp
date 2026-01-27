@@ -10,10 +10,11 @@
 #include "controller/Error.hpp"
 
 
-class TXTParser : GraphParser {
+namespace graphvise {
+    class TXTParser : GraphParser {
     public:
         std::expected<GraphData, Error> parseFile(std::string filePath) override;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_TXTPARSER_HPP

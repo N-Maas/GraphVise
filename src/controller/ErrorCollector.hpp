@@ -7,7 +7,8 @@
 #include "Error.hpp"
 #include "ErrorCollectorSubject.hpp"
 
-class ErrorCollector : ErrorCollectorSubject {
+namespace graphvise {
+    class ErrorCollector : ErrorCollectorSubject {
     public:
         static ErrorCollector& getInstance();
         void collectError(Error error);
@@ -24,7 +25,7 @@ class ErrorCollector : ErrorCollectorSubject {
         std::vector<ErrorCollectorObserver> observers;
 
         void notify() override;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_ERRORCOLLECTOR_HPP

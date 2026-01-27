@@ -14,7 +14,8 @@
 #include "../Structs/GroupData.hpp"
 #include "model/Graph.hpp"
 
-class ParserController {
+namespace graphvise {
+    class ParserController {
     public:
         void parseFile(std::string filePath, ParseFormat format);
         std::optional<Graph> getGraph();
@@ -30,7 +31,7 @@ class ParserController {
         std::optional<Graph> parsedGraph;
         std::optional<std::vector<GroupData>> groups;
         std::optional<GraphData> highlightingSubgraph;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_PARSERCONTROLLER_HPP

@@ -5,12 +5,14 @@
 #ifndef THESIS_FRAMEWORK_THREADOPERATIONTYPE_HPP
 #define THESIS_FRAMEWORK_THREADOPERATIONTYPE_HPP
 
-#endif //THESIS_FRAMEWORK_THREADOPERATIONTYPE_HPP
-
 //TODO: Neue Einträge hinzufügen, wenn die entsprechenden Klassen implementiert wurden
-enum class ThreadOperationType {
-    PARSE_TXT,
-    PARSE_SUBGRAPH,
-    PARSE_GROUPS,
-    EXPORT_PNG
-};
+namespace graphvise {
+    enum class ThreadOperationType {
+        PARSE_TXT,
+        PARSE_SUBGRAPH,
+        PARSE_GROUPS,
+        EXPORT_PNG
+    };
+}
+
+#endif //THESIS_FRAMEWORK_THREADOPERATIONTYPE_HPP

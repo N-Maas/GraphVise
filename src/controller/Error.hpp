@@ -10,8 +10,8 @@
 
 #include "Enums/ErrorType.hpp"
 
-
-class Error {
+namespace graphvise {
+    class Error {
     public:
         explicit Error(ErrorType type);
         explicit Error(ErrorType, std::string message);
@@ -25,7 +25,7 @@ class Error {
         ErrorType errorType;
         std::optional<uint32_t> line;
         std::optional<std::string> message;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_ERROR_HPP
