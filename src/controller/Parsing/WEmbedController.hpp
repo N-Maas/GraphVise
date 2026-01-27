@@ -9,7 +9,7 @@
 
 class WEmbedController {
     public:
-        model::Graph embedGraph(GraphData& graphData);
+        Graph embedGraph(GraphData& graphData);
 };
 
 #endif //THESIS_FRAMEWORK_WEMBEDCONTROLLER_HPP

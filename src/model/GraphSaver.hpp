@@ -2,8 +2,6 @@
 #define THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #include "Graph.hpp"
 
-using namespace model;
-
 class GraphSaver {
     public:
         static GraphSaver& getGraphSaver();

@@ -8,7 +8,6 @@
 #include "Vertex.hpp"
 #include "imgui/imgui.h"
 
-namespace model {
     class Graph {
     public:
         explicit Graph(const std::vector<glm::vec3>& coordinates) {
@@ -42,6 +41,5 @@ namespace model {
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
     };
-}
 
 #endif

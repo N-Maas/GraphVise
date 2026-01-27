@@ -4,14 +4,13 @@
 
 #include "WEmbedController.hpp"
 
-#include "Graph.hpp"
-#include "../../../cmake-build-release/_deps/wembed-src/src/embeddingLib/include/embedder/WEmbedEmbedder.hpp"
+#include "wembed.h"
 
-model::Graph WEmbedController::embedGraph(GraphData& graphData) {
-    Graph graph(graphData.edges);
-    EmbedderOptions embedderOptions;
+Graph WEmbedController::embedGraph(GraphData& graphData) {
+    wembed::Graph graph = wembed::graphFromEdges(graphData.edges);
+    wembed::Options embedderOptions;
     embedderOptions.embeddingDimension = 3;
-    WEmbedEmbedder embedder(graph, embedderOptions);
+    wembed::Embedder embedder = wembed::createEmbedder(graph, embedderOptions);
     embedder.calculateEmbedding();
     std::vector<std::vector<double>> coordinates = embedder.getCoordinates();
 
@@ -20,7 +19,7 @@ model::Graph WEmbedController::embedGraph(GraphData& graphData) {
         vertexCoordinates.emplace_back(coord[0], coord[1], coord[2]);
     }
 
-    model::Graph embeddedGraph(vertexCoordinates);
+    Graph embeddedGraph(vertexCoordinates);
 
     for (auto edge : graphData.edges) {
         embeddedGraph.addEdge(edge.first, edge.second);
