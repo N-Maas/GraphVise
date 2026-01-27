@@ -8,6 +8,7 @@
 #include <expected>
 #include <iostream>
 #include <regex>
+#include <unordered_map>
 #include <vector>
 
 #include "controller/Error.hpp"
@@ -59,6 +60,7 @@ namespace graphvise {
         std::regex emptyLineRegex(EMPTY_LINE_REGEX);
 
         std::vector<std::pair<int, int>> edges;
+        std::map<std::pair<int, int>, int> edgeMap;
         edges.reserve(edgeCount);
 
         for (std::string line; std::getline(fileStream, line);) {
@@ -98,12 +100,11 @@ namespace graphvise {
             std::pair<int, int> edge(firstVertexID, secondVertexID);
 
             //Check for duplicate edges
-            for (auto & currentEdge : edges) {
-                if ((currentEdge.first == firstVertexID && currentEdge.second == secondVertexID) || (currentEdge.first == secondVertexID && currentEdge.second == firstVertexID)) {
-                    Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
-                    return std::unexpected(error);
-                }
+            if (edgeMap.contains(edge)) {
+                Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
+                return std::unexpected(error);
             }
+            edgeMap[edge] = 1;
 
             edges.push_back(edge);
         }
