@@ -14,8 +14,8 @@ namespace graphvise {
         //Destruktor
         virtual ~ErrorCollectorSubject();
 
-        virtual void signIn(ErrorCollectorObserver* observer) = 0;
-        virtual void signOut(ErrorCollectorObserver* observer) = 0;
+        virtual void signIn(ErrorCollectorObserver& observer) = 0;
+        virtual void signOut(ErrorCollectorObserver& observer) = 0;
 
     private:
         std::vector<ErrorCollectorObserver*> observers;

@@ -32,11 +32,11 @@ namespace graphvise {
         }
     }
 
-    void ErrorCollector::signIn(ErrorCollectorObserver *observer) {
+    void ErrorCollector::signIn(ErrorCollectorObserver& observer) {
         //TODO: implement
     }
 
-    void ErrorCollector::signOut(ErrorCollectorObserver *observer) {
+    void ErrorCollector::signOut(ErrorCollectorObserver& observer) {
         //TODO: implement
     }
 

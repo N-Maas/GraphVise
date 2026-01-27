@@ -13,8 +13,8 @@ namespace graphvise {
         static ErrorCollector& getInstance();
         void collectError(Error error);
         Error getCurrentError();
-        void signIn(ErrorCollectorObserver* observer) override;
-        void signOut(ErrorCollectorObserver* observer) override;
+        void signIn(ErrorCollectorObserver& observer) override;
+        void signOut(ErrorCollectorObserver& observer) override;
         ErrorCollector(const ErrorCollector&) = delete;
         ErrorCollector& operator=(const ErrorCollector&) = delete;
     private:
