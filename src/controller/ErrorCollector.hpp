@@ -14,6 +14,8 @@ class ErrorCollector : ErrorCollectorSubject {
         Error getCurrentError();
         void signIn(ErrorCollectorObserver* observer) override;
         void signOut(ErrorCollectorObserver* observer) override;
+        ErrorCollector(const ErrorCollector&) = delete;
+        ErrorCollector& operator=(const ErrorCollector&) = delete;
     private:
         static ErrorCollector instance;
 
