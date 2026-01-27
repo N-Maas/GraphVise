@@ -119,7 +119,6 @@ void Renderer::runFrame()
     GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
     if (mvpLoc != -1) {
         glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        std::cout << "Set cube MVP" << std::endl;
     }
 
     // 2.2 Model matrix (identity for now)
@@ -134,7 +133,6 @@ void Renderer::runFrame()
     if (lightPosLoc != -1) {
         glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
         glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        std::cout << "Set lightPos to (2,2,2)" << std::endl;
     } else {
         std::cout << "WARNING: lightPos uniform not found in cube shader!" << std::endl;
     }
@@ -144,8 +142,6 @@ void Renderer::runFrame()
     if (colorLoc == -1) colorLoc = glGetUniformLocation(mShaderProgram, "color");
     if (colorLoc != -1) {
         glUniform3f(colorLoc, mColor[0], mColor[1], mColor[2]);  // Orange
-        std::cout << "Set cube color to orange: ("
-                  << mColor[0] << "," << mColor[1] << "," << mColor[2] << ")" << std::endl;
     } else {
         std::cout << "WARNING: No color uniform found in cube shader!" << std::endl;
     }
@@ -155,7 +151,6 @@ void Renderer::runFrame()
     //Render cube
     glBindVertexArray(mVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    std::cout << "Cube drawn" << std::endl;
 
     /* todo currently we are using the same shader program for the cube and the graph, this of course does not work and
     * todo we are only using the graph shader program
@@ -171,8 +166,7 @@ void Renderer::runFrame()
 // rendering Graph
 void Renderer::render(const glm::mat4& mvp) {
 
-    //TODO: Graph is std::<optional> currently. (Greyed out, so the program runs)
-    /*Graph graph = graphSaver.getGraph();
+    Graph graph = graphSaver.getGraph();
     std::vector<Vertex>& vertices = graph.getVertices();
     std::vector<Edge>& edges = graph.getEdges();
     std::cout << "=== GraphRenderer start ===" << std::endl;
@@ -182,7 +176,7 @@ void Renderer::render(const glm::mat4& mvp) {
     if (mShaderProgram == 0 || vertices.empty()) {
         std::cout << "ERROR: No shader or graph.vertices" << std::endl;
         return;
-    }*/
+    }
 
     glUseProgram(mShaderProgram);
 
@@ -190,7 +184,6 @@ void Renderer::render(const glm::mat4& mvp) {
     GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
     if (mvpLoc != -1) {
         glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        std::cout << "Set graph MVP" << std::endl;
     } else {
         std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
     }
@@ -205,8 +198,6 @@ void Renderer::render(const glm::mat4& mvp) {
         generateCylinder(12);  // 12 segments
     }
 
-    //TODO: Uncomment, when graph can be loaded
-    /*
     std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
               << edges.size() << " edges" << std::endl;
 
@@ -225,7 +216,7 @@ void Renderer::render(const glm::mat4& mvp) {
                           cylinderRadius, edge.getEdgeVec4(), mvp);
         }
     }
-    */
+
 }
 
 /**

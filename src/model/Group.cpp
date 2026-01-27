@@ -1,9 +1,5 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "Group.hpp"
-#include "GraphHierarchy.hpp"
+#include <stdexcept>
 
 const std::string& Group::getName() const {
     return name;
@@ -17,12 +13,12 @@ void Group::setName(const std::string& new_name) {
     name = new_name;
 }
 
-bool Group::setTransparency(const float transparency) {
+void Group::setTransparency(const float transparency) {
     if (transparency >= 0.0f && transparency <= 1.0f) {
         groupVec4.w = transparency;
-        return true;
+        return;
     }
-    return false;
+    throw std::out_of_range("Transparency must be between 0 and 1");
 }
 
 float Group::getTransparency() const {

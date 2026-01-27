@@ -7,6 +7,6 @@
 
 #endif //THESIS_FRAMEWORK_EXPORTFORMAT_HPP
 
-enum ExportFormat {
+enum class ExportFormat {
     PNG
 };

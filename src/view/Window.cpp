@@ -121,7 +121,6 @@ int Window::initWindow()
 		//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
         // Draw frame from renderer
 		GL_CHECK_ERROR();
-		GraphSaver graphSaver;
         renderer.runFrame();
         GL_CHECK_ERROR();
 

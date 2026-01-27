@@ -8,7 +8,7 @@
 #endif //THESIS_FRAMEWORK_THREADOPERATIONTYPE_HPP
 
 //TODO: Neue Einträge hinzufügen, wenn die entsprechenden Klassen implementiert wurden
-enum ThreadOperationType {
+enum class ThreadOperationType {
     PARSE_TXT,
     PARSE_SUBGRAPH,
     PARSE_GROUPS,

@@ -8,11 +8,40 @@ if(EXISTS "${LOC_PATH}")
 endif()
 
 # Use C++20 for wembed compatibility
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # source files -----------------------------------------------------------
 # All files that will be compiled have to be listed here. The shaders variable is unused.
+
+# GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+file(GLOB TEST_SOURCES tests/*.cpp)
+add_executable(my_tests ${TEST_SOURCES})
+
+add_library(my_lib
+        src/model/CameraBookmark.cpp
+        src/model/GraphSaver.cpp
+        src/model/Edge.cpp
+        src/model/Graph.cpp
+        src/model/Group.cpp
+        src/model/Vertex.cpp
+)
+
+target_include_directories(my_lib PUBLIC src ext)
+target_link_libraries(my_tests PRIVATE my_lib gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(my_tests)
 
 set(HEADERS
         src/rendering/camera.hpp
@@ -74,6 +103,7 @@ set(SOURCES
         src/model/Edge.cpp
         src/view/GUI.cpp
         src/view/Buttons.cpp
+        src/controller/Parsing/WEmbedController.cpp
 )
 
 set(SHADERS

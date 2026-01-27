@@ -1,7 +1,3 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "CameraBookmark.hpp"
 
 std::uint32_t  CameraBookmark::getCameraBookmarkID() const {
