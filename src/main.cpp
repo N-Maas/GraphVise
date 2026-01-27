@@ -30,7 +30,7 @@
 		std::cout << std::endl;
 
 		graphvise::ParserController pc;
-		pc.parseFile("../Testgraph100.txt", graphvise::ParseFormat::TXT);
+		pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
 		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
 
 		time(&timestamp);
