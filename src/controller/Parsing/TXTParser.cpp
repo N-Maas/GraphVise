@@ -74,6 +74,7 @@ namespace graphvise {
             //Check correct formatting
             if (!std::regex_match(line, matches, edgeRegex)) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             //Convert vertex IDs to uint32
@@ -82,6 +83,7 @@ namespace graphvise {
                 firstVertexID = std::stoi(matches[1].str());
             } catch (std::invalid_argument& exception) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             uint32_t secondVertexID;
@@ -89,6 +91,7 @@ namespace graphvise {
                 secondVertexID = std::stoi(matches[2].str());
             } catch (std::invalid_argument& exception) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             //Return error if ids are too large
