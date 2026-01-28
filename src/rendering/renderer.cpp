@@ -290,7 +290,7 @@ namespace graphvise {
     }
 
 
-    void Renderer::processEvents(::GLFWwindow* m_window)
+    void Renderer::processEvents(GLFWwindow* m_window)
     {
         // alternatively: use GLFW's glfwSetKeyCallback
 
