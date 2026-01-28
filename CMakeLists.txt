@@ -8,7 +8,7 @@ if(EXISTS "${LOC_PATH}")
 endif()
 
 # Use C++20 for wembed compatibility
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 #set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # source files -----------------------------------------------------------
@@ -74,7 +74,6 @@ set(SOURCES
         src/model/Edge.cpp
         src/view/GUI.cpp
         src/view/Buttons.cpp
-        src/imgui-filebrowser/imfilebrowser.h
 )
 
 set(SHADERS

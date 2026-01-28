@@ -2,23 +2,16 @@
 // Created by tim on 19.01.26.
 //
 
-#ifndef THESIS_FRAMEWORK_GRAPHPARSER_HPP
-#define THESIS_FRAMEWORK_GRAPHPARSER_HPP
+#ifndef THESIS_FRAMEWORK_GROUPPARSER_HPP
+#define THESIS_FRAMEWORK_GROUPPARSER_HPP
 #include <string>
-
-#include "../Structs/GroupData.hpp"
-// TODO: Include GraphSaver from model once class exists
 #include "../ThreadController.hpp"
 
-#endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP
-
-class GroupParser {
+namespace graphvise {
+    class GroupParser {
     public:
-    //Destruktor
-    virtual ~GroupParser();
+        [[nodiscard]] std::expected<GroupData, Error> parseFile(std::string filePath);
+    };
+}
 
-    virtual std::vector<GroupData> parseFile(std::string filePath) = 0;
-
-    private:
-        ThreadController threadController;
-};
+#endif

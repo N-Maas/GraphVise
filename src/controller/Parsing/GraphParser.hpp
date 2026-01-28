@@ -7,13 +7,15 @@
 #include <string>
 
 #include "../Structs/GraphData.hpp"
+#include "controller/Error.hpp"
 
-#endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP
-
-class GraphParser {
+namespace graphvise {
+    class GraphParser {
     public:
-    //Destruktor
-    virtual ~GraphParser();
+        //Destruktor
+        virtual ~GraphParser();
 
-    virtual GraphData parseFile(std::string filePath) = 0;
-};
+        virtual std::expected<GraphData, Error> parseFile(std::string filePath) = 0;
+    };
+}
+#endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP

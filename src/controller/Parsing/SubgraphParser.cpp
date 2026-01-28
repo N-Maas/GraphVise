@@ -3,3 +3,6 @@
 //
 
 #include "SubgraphParser.hpp"
+
+namespace graphvise {
+}

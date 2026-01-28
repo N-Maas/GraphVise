@@ -13,19 +13,35 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#include <iostream>
+
+#include "controller/Parsing/ParserController.hpp"
+#include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
 
-int main()
-{
-
-
-	auto window = Window();
-
-	if (window.initWindow() != 0)
+	int main()
 	{
-		return -1;
+
+		//TODO: Remove when threadController is ready
+		time_t timestamp;
+		time(&timestamp);
+		std::cout << std::endl;
+		std::cout << "Starting Loading Graph at current time: "  << ctime(&timestamp) << std::endl;
+		std::cout << std::endl;
+
+		graphvise::ParserController pc;
+		pc.parseFile("../Testgraph100.txt", graphvise::ParseFormat::TXT);
+		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
+
+		time(&timestamp);
+		std::cout << std::endl;
+		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
+		std::cout << std::endl;
+
+		auto window = graphvise::Window();
+
+		if (window.initWindow() != 0)
+		{
+			return -1;
+		}
 	}
-
-
-
-}

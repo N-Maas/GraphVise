@@ -8,14 +8,15 @@
 #include "../Structs/GraphData.hpp"
 #include "model/GraphSaver.hpp"
 
-#endif //THESIS_FRAMEWORK_CNFPARSER_HPP
-
-class SubgraphParser {
+namespace graphvise {
+    class SubgraphParser {
     public:
         SubgraphParser() = default;
 
-    //Destruktor
-    virtual ~SubgraphParser() = default;
+        //Destruktor
+        virtual ~SubgraphParser() = default;
 
-    virtual GraphData parseFile(std::string filePath) = 0;
-};
+        virtual GraphData parseFile(std::string filePath) = 0;
+    };
+}
+#endif //THESIS_FRAMEWORK_CNFPARSER_HPP

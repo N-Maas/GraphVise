@@ -3,3 +3,7 @@
 //
 
 #include "MovementController.hpp"
+
+namespace graphvise {
+
+}

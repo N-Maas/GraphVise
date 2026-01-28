@@ -8,35 +8,37 @@
 
 #include "Rand.hpp"
 
-ErrorCollector ErrorCollector::instance;
+namespace graphvise {
+    ErrorCollector ErrorCollector::instance;
 
-ErrorCollector& ErrorCollector::getInstance() {
-    return instance;
-}
-
-void ErrorCollector::collectError(Error error) {
-    currentError = std::move(error);
-
-    notify();
-}
-
-Error ErrorCollector::getCurrentError() {
-    //Throws exception, if value is not set
-    return currentError.value();
-}
-
-void ErrorCollector::notify() {
-    for (ErrorCollectorObserver& observer : observers) {
-        observer.update();
+    ErrorCollector& ErrorCollector::getInstance() {
+        return instance;
     }
-}
 
-void ErrorCollector::signIn(ErrorCollectorObserver *observer) {
-    //TODO: implement
-}
+    void ErrorCollector::collectError(Error error) {
+        currentError = std::move(error);
 
-void ErrorCollector::signOut(ErrorCollectorObserver *observer) {
-    //TODO: implement
-}
+        notify();
+    }
 
-ErrorCollectorSubject::~ErrorCollectorSubject() = default;
+    Error ErrorCollector::getCurrentError() {
+        //Throws exception, if value is not set
+        return currentError.value();
+    }
+
+    void ErrorCollector::notify() {
+        for (ErrorCollectorObserver& observer : observers) {
+            observer.update();
+        }
+    }
+
+    void ErrorCollector::signIn(ErrorCollectorObserver& observer) {
+        //TODO: implement
+    }
+
+    void ErrorCollector::signOut(ErrorCollectorObserver& observer) {
+        //TODO: implement
+    }
+
+    ErrorCollectorSubject::~ErrorCollectorSubject() = default;
+}

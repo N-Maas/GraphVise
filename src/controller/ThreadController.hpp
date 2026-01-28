@@ -9,15 +9,15 @@
 #include "Parsing/ParserController.hpp"
 #include "Structs/ThreadOperation.hpp"
 
-
-class ThreadController : RendererObserver {
+namespace graphvise {
+    class ThreadController : RendererObserver {
     public:
         explicit ThreadController(RendererSubject& renderer);
         bool notifyBackgroundThread(ThreadOperation threadOperation);
         void update() override;
     private:
         ParserController parserController;
-};
-
+    };
+}
 
 #endif //THESIS_FRAMEWORK_THREADCONTROLLER_HPP

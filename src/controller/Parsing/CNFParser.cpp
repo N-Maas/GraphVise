@@ -3,3 +3,6 @@
 //
 
 #include "CNFParser.hpp"
+
+namespace graphvise {
+}
