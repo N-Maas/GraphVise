@@ -48,6 +48,7 @@ namespace graphvise {
     }
 
     void ButtonController::findVertex(int vertexID) {
+        //TODO: Make camera jump to vertex?
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
         if (graph.getVertices().size() < vertexID) {
             graph.highlightByID(std::vector<uint32_t>{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
@@ -57,6 +58,7 @@ namespace graphvise {
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
+        //TODO: Make camera jump to edge?
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
         uint32_t maxVertexID = graph.getVertices().size() - 1;
         if (firstVertexID == secondVertexID) {
