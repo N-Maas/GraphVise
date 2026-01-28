@@ -121,7 +121,22 @@ target_include_directories(thesis-framework PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
+        ${wembed_SOURCE_DIR}
+        ${wembed_SOURCE_DIR}/src
+        ${wembed_SOURCE_DIR}/src/utilLib/include
+        ${wembed_SOURCE_DIR}/include
         )
+
+# After fetching, let's see what targets wembed actually provides
+# First, check if wembed populated successfully
+if(wembed_POPULATED)
+    message(STATUS "wembed populated successfully")
+    message(STATUS "wembed source dir: ${wembed_SOURCE_DIR}")
+    # List all targets in the wembed directory
+    get_property(wembed_targets DIRECTORY ${wembed_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
+    message(STATUS "wembed targets found: ${wembed_targets}")
+endif()
+
 
 # link required libraries
 target_link_libraries(thesis-framework PRIVATE
@@ -129,11 +144,12 @@ target_link_libraries(thesis-framework PRIVATE
     glad
     glfw
     OpenGL::GL
+    #wembed::wembed wembed
     wembedLib # main wembed library
     wembed_flags # compiler flags
-    embeddingLib # will be available from wembed
-    graphLib # will be available from wembed
-    utilLib # will be available from wembed
+    #wembed::embeddingLib # will be available from wembed
+    #wembed::graphLib # will be available from wembed
+    #wembed::utilLib # will be available from wembed
 )
 # link optional libraries
 if(OpenMP_CXX_FOUND)

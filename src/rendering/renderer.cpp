@@ -166,7 +166,7 @@ namespace graphvise {
     // todo will work properly when Model is implemented
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
-
+        // todo make graph std::expected
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
