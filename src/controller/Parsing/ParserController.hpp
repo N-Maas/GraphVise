@@ -21,6 +21,8 @@ namespace graphvise {
         std::optional<Graph> getGraph();
 
     private:
+        std::optional<Error> verifySubgraph(GraphData graphData);
+
         //TODO: Felder deklarieren, sobald die Klassen existieren
         TXTParser txtParser;
         GroupParser groupParser;
