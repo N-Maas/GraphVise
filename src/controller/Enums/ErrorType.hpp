@@ -7,6 +7,8 @@
 
 namespace graphvise {
     enum class ErrorType {
+        EQUAL_VERTEX_IDS,
+        VERTEX_ID_OUT_OF_BOUNDS,
         TOO_MANY_VERTICES_IN_SUBGRAPH,
         INVALID_SUBGRAPH_EDGE,
         DUPLICATE_EDGE,

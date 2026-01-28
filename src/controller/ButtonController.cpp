@@ -16,7 +16,6 @@ namespace graphvise {
     }
 
     void ButtonController::togglePerformanceMode(PerformanceMode mode) {
-        //TODO: Implementieren, wenn es eine entsprechende Methode im Renderer gibt
         renderer.adjustPerformanceMode(mode);
     }
 
@@ -49,17 +48,35 @@ namespace graphvise {
     }
 
     void ButtonController::findVertex(int vertexID) {
-        //TODO: Implement, when function for highlighting single Vertex exists
+        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        if (graph.getVertices().size() < vertexID) {
+            graph.highlightByID(std::vector<uint32_t>{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        } else {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
+        }
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
-        std::optional<uint32_t>  edgeID = GraphSaver::getGraphSaver().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
-        //TODO: Implement, when function for highlighting single Edge exists
+        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        uint32_t maxVertexID = graph.getVertices().size() - 1;
+        if (firstVertexID == secondVertexID) {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::EQUAL_VERTEX_IDS));
+        } else if (firstVertexID > maxVertexID) {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(firstVertexID)));
+        } else if (secondVertexID > maxVertexID) {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(secondVertexID)));
+        }
+
+        uint32_t edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
+        graph.highlightByID(std::vector<uint32_t>{}, std::vector<uint32_t>{edgeID});
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
-        threadController.notifyBackgroundThread(threadOperation);
+        if (!threadController.notifyBackgroundThread(threadOperation)) {
+            Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
+            ErrorCollector::getInstance().collectError(error);
+        }
     }
 
     void ButtonController::importGraph(std::string filePath) {
