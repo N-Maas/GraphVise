@@ -44,13 +44,11 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
             std::optional<Error> verifyResult = verifySubgraph(parsedGraphData);
             if (!verifyResult.has_value()) {
                 highlightingSubgraph = parsedGraphData;
-                std::cout << "valid" << std::endl;
+                std::cout << "valid subgraph" << std::endl;
             } else {
+                std::cout << "invalid subgraph" << std::endl;
                 error = verifyResult.value();
             }
-
-            if (error.has_value())
-                throw std::exception();
 
             break;
         }
