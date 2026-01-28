@@ -116,4 +116,23 @@ namespace graphvise {
             throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
         }
     }
+
+    // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
+    void Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
+        /*
+        //todo throw out debug code when it works
+        std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
+                  << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
+
+        std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
+                  << ", vertices.capacity() = " << vertices.capacity() << std::endl;
+
+        //todo uncomment when code is corrected
+
+        std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
+        */
+
+        //add to the end of vertex list
+        vertices.emplace_back(vertexID, coords);
+    }
 }

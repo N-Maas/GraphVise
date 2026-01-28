@@ -25,21 +25,91 @@
 #include <glm/ext/matrix_transform.hpp>
 
 namespace graphvise {
-    Renderer::Renderer(int framebufferWidth, int framebufferHeight)
-            : mColor{1.f, 0.55f, 0.f, 1.0f}, mShaderProgram(0),
-            mVertexShaderPath(std::string(SHADERS_PATH) + std::string("/graph.vert")),
-            mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("/graph_color.frag")),
-            mVAO(0), mVBO(0), mCamera(), mFramebufferSize(framebufferWidth, framebufferHeight), mF5Pressed(false)
-    {
+    Renderer::Renderer()
+    : mFramebufferSize(800, 600),  // Default size
+      framebuffer(0),
+      colorTexture(0),
+      depthBuffer(0),
+      mShaderProgram(0),
+      mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
+     mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
+     //eVertexShaderPath(std::string(SHADERS_PATH) + std::string("edge.vert")),
+     //eFragmentShaderPath(std::string(SHADERS_PATH) + std::string("edge_color.frag")),
+     sphereVAO(0),
+     sphereVBO(0),
+     sphereEBO(0),
+     sphereRadius(STANDARD_SPHERE_RADIUS),
+     cylinderVAO(0),
+      cylinderVBO(0),
+     cylinderEBO(0),
+     cylinderRadius(STANDARD_CYLINDER_RADIUS),
+     mCamera(),
+     cameraFocusMode(),
+     lightSourceMovementBehaviour(),
+     performanceMode(),
+     mF5Pressed(false) {
     }
+
+    Renderer::Renderer(int framebufferWidth, int framebufferHeight)
+        : mFramebufferSize(framebufferWidth, framebufferHeight),
+          framebuffer(0),
+          colorTexture(0),
+          depthBuffer(0),
+          mShaderProgram(0),
+          mVertexShaderPath(std::string(SHADERS_PATH) + std::string("vertex.vert")),
+          mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("vertex_color.frag")),
+          sphereVAO(0),
+          sphereVBO(0),
+          sphereEBO(0),
+          sphereRadius(STANDARD_SPHERE_RADIUS),
+          cylinderVAO(0),
+          cylinderVBO(0),
+          cylinderEBO(0),
+          cylinderRadius(STANDARD_CYLINDER_RADIUS),
+          mCamera(),
+          cameraFocusMode(),
+          lightSourceMovementBehaviour(),
+          performanceMode(),
+          mF5Pressed(false) {
+    }
+
 
     Renderer::~Renderer() {
         // Cleanup OpenGL resources
         if (vertexVAO) glDeleteVertexArrays(1, &vertexVAO);
         if (vertexVBO) glDeleteBuffers(1, &vertexVBO);
         if (edgeVAO) glDeleteVertexArrays(1, &edgeVAO);
-        if (edgeVBO) glDeleteBuffers(1, &edgeVBO);
+        if (sphereVAO) glDeleteBuffers(1, &sphereVAO);
+        if (sphereVBO) glDeleteBuffers(1, &sphereVBO);
+        if (sphereEBO) glDeleteBuffers(1, &sphereEBO);
+        if (cylinderVAO) glDeleteBuffers(1, &cylinderVAO);
+        if (cylinderVBO) glDeleteBuffers(1, &cylinderVBO);
+        if (cylinderEBO) glDeleteBuffers(1, &cylinderEBO);
         if (mShaderProgram) glDeleteProgram(mShaderProgram);
+    }
+
+    // Singleton getters
+    std::shared_ptr<Renderer> Renderer::getInstance(int framebufferWidth, int framebufferHeight) {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!rendererInstance) {
+            rendererInstance = std::shared_ptr<Renderer>(new Renderer(framebufferWidth, framebufferHeight),
+                [](Renderer* ptr) { delete ptr; });
+        } else {
+            // If instance already exists, resize it
+            rendererInstance->resize(framebufferWidth, framebufferHeight);
+        }
+        return rendererInstance;
+    }
+
+    std::shared_ptr<Renderer> Renderer::getInstance() {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!rendererInstance) {
+            rendererInstance = std::shared_ptr<Renderer>(
+                new Renderer(),
+                [](Renderer* ptr) { delete ptr; }
+            );
+        }
+        return rendererInstance;
     }
 
     /**
@@ -47,30 +117,27 @@ namespace graphvise {
      */
     void Renderer::init()
     {
+        // contains OpenGL initialization
         // Load the shader files
         reloadShaders();
 
-        // Vertex Data -----------------------------------------------------------------------------------------------------
-        // Generate the VAO and VBO with only 1 object each
-        glGenVertexArrays(1, &mVAO);
-        glGenBuffers(1, &mVBO);
+        // Initialize Buffers and Arrays for sphere and cylinder
+        glGenVertexArrays(1, &sphereVAO);
+        glGenBuffers(1, &sphereVBO);
+        glGenBuffers(1, &sphereEBO);
 
-        // Make the VAO the current vertex array object by binding it
-        glBindVertexArray(mVAO);
+        glGenVertexArrays(1, &cylinderVAO);
+        glGenBuffers(1, &cylinderVBO);
+        glGenBuffers(1, &cylinderEBO);
 
-        // Bind the VBO specifying it's a GL_ARRAY_BUFFER
-        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-        // Introduce the vertices into the VBO
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+        // Generate meshes if needed
+        if (sphereVertices.empty()) {
+            generateIcosphere(2);
+        }
+        if (cylinderVertices.empty()) {
+            generateCylinder(12);
+        }
 
-        // Configure the vertex attribute so that OpenGL knows how to read the VBO
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
-        // Enable the Vertex Attribute so that OpenGL knows to use it
-        glEnableVertexAttribArray(0);
-
-        // Bind both the VBO and VAO to 0 so that we don't accidentally modify the VAO and VBO we created
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
 
@@ -113,50 +180,13 @@ namespace graphvise {
         glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
 
-        //todo all this code is for rendering the cube and has to be thrown out when the cube is no longer needed
-
-        // 2.1 MVP matrix
+        // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         if (mvpLoc != -1) {
             glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         }
 
-        // 2.2 Model matrix (identity for now)
-        glm::mat4 model = glm::mat4(1.0f);
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        if (modelLoc != -1) {
-            glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        }
-
-        // 3.Set lighting uniforms for CUBE
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        } else {
-            std::cout << "WARNING: lightPos uniform not found in cube shader!" << std::endl;
-        }
-
-        // 4. Set cube color (ORANGE)
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        if (colorLoc == -1) colorLoc = glGetUniformLocation(mShaderProgram, "color");
-        if (colorLoc != -1) {
-            glUniform3f(colorLoc, mColor[0], mColor[1], mColor[2]);  // Orange
-        } else {
-            std::cout << "WARNING: No color uniform found in cube shader!" << std::endl;
-        }
-
-
-        // todo throw test cube out when graph can be rendered
-        //Render cube
-        glBindVertexArray(mVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        /* todo currently we are using the same shader program for the cube and the graph, this of course does not work and
-        * todo we are only using the graph shader program
-        * todo we need access to GraphSaver object
-         */
         //rendering graph
         render(mvp);
         GL_CHECK_ERROR();
@@ -166,13 +196,36 @@ namespace graphvise {
     // todo will work properly when Model is implemented
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
+        std::cout << "DEBUG: Renderer::render() called!" << std::endl;
+
+        // creating test graph
+        //todo only keep till graph in uploaded properly
+        Graph graph = Graph(3);
+        std::cout << "DEBUG: Graph created" << std::endl;
+        graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
+        graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
+        graph.addVertex(2, glm::vec3(0.0f, 1.0f, 2.0f));
+        std::cout << "DEBUG: Added 3 vertices" << std::endl;
+        graph.addEdge(0,1);
+        graph.addEdge(1, 2);
+        graph.addEdge(2,0);
+        std::cout << "DEBUG: Added 3 edges" << std::endl;
+        std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
+        std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
+        ImVec4 colorVec1= ImColor(225, 183, 25, 255);
+        ImVec4 colorVec2= ImColor(225, 183, 25, 255);
+        ImVec4 colorVec3= ImColor(225, 183, 25, 255);
+        graph.addGroup("firstBuddies", colorVec1, {0}, myEdgeIDs);
+        graph.addGroup("god help us!", colorVec2, {1}, {});
+        graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
+        std::cout << "DEBUG: Added group" << std::endl;
+
+        /*
         // todo make graph std::expected
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        */
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
-        std::cout << "=== GraphRenderer start ===" << std::endl;
-        std::cout << "Graph shader ID: " << mShaderProgram << std::endl;
-        std::cout << "vertex count: " << vertices.size() << std::endl;
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
@@ -226,9 +279,14 @@ namespace graphvise {
     void Renderer::shutdown()
     {
         // delete all the objects we've created
-        glDeleteVertexArrays(1, &mVAO);
-        glDeleteBuffers(1, &mVBO);
         glDeleteProgram(mShaderProgram);
+        //delete render buffers and arrays
+        glDeleteVertexArrays(1, &sphereVAO);
+        glDeleteBuffers(1, &sphereVBO);
+        glDeleteBuffers(1, &sphereEBO);
+        glDeleteVertexArrays(1, &cylinderVAO);
+        glDeleteBuffers(1, &cylinderVBO);
+        glDeleteBuffers(1, &cylinderEBO);
     }
 
 

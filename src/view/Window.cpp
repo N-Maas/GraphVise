@@ -86,8 +86,8 @@ namespace graphvise {
 		glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
 		// Create the renderer object
-		Renderer renderer = Renderer(framebufferWidth, framebufferHeight);
-		renderer.init();
+		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+		renderer->init();
 
 		// FPS counter
 		int frameCount = 0;
@@ -106,7 +106,7 @@ namespace graphvise {
 				framebufferWidth = newFramebufferWidth;
 				framebufferHeight = newFramebufferHeight;
 				glViewport(0, 0, framebufferWidth, framebufferHeight);
-				renderer.resize(framebufferWidth, framebufferHeight);
+				renderer->resize(framebufferWidth, framebufferHeight);
 			}
 
 			// Specify the color of the background
@@ -115,13 +115,13 @@ namespace graphvise {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glfwPollEvents();
-			renderer.processEvents(window);
+			renderer->processEvents(window);
 
 
 			//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
-			renderer.runFrame();
+			renderer->runFrame();
 			GL_CHECK_ERROR();
 
 			//load GUI
@@ -151,7 +151,7 @@ namespace graphvise {
 		gui.shutdownGUI();
 
 		// Renderer cleanup
-		renderer.shutdown();
+		renderer->shutdown();
 
 		// Delete window before ending the program
 		glfwDestroyWindow(window);
