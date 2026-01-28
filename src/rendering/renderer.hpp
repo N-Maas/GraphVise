@@ -30,8 +30,9 @@
 #include "RendererSubject.hpp"
 #include "view/Window.hpp"
 
+class GLFWwindow;
+
 namespace graphvise {
-    class GLFWwindow;
 
     enum LightSourceMovementBehaviour {
         FOLLOW_CAMERA,
@@ -73,7 +74,6 @@ namespace graphvise {
 
         static std::shared_ptr<Renderer> getInstance();
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
-        static std::mutex mtx;
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
@@ -83,7 +83,8 @@ namespace graphvise {
         Renderer(int framebufferWidth, int framebufferHeight);
         ~Renderer() override;
         // Static pointer to the Singleton instance
-        static std::shared_ptr<Renderer> rendererInstance;
+        static inline std::shared_ptr<Renderer> rendererInstance = nullptr;
+        static inline std::mutex mtx;
 
         std::vector<std::shared_ptr<RendererObserver>> observerList;
         const float STANDARD_SPHERE_RADIUS = 0.5f;
