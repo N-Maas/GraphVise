@@ -6,7 +6,7 @@
 #define THESIS_FRAMEWORK_PARSERCONTROLLER_HPP
 #include <mutex>
 #include <string>
-
+#include "GroupParser.hpp"
 #include "TXTParser.hpp"
 #include "WEmbedController.hpp"
 #include "../Error.hpp"
@@ -23,6 +23,7 @@ namespace graphvise {
     private:
         //TODO: Felder deklarieren, sobald die Klassen existieren
         TXTParser txtParser;
+        GroupParser groupParser;
         WEmbedController wembedController;
 
         std::mutex dataMutex;
