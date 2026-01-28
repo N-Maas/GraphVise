@@ -72,6 +72,7 @@ namespace graphvise {
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {
+        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -80,6 +81,7 @@ namespace graphvise {
     }
 
     void ButtonController::importGraph(std::string filePath) {
+        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -88,6 +90,7 @@ namespace graphvise {
     }
 
     void ButtonController::exportGraph(std::string filePath, ExportFormat exportFormat) {
+        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperationType operationType;
         switch (exportFormat) {
             case ExportFormat::PNG: operationType = ThreadOperationType::EXPORT_PNG;
