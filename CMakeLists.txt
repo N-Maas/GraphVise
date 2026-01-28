@@ -74,6 +74,7 @@ set(SOURCES
         src/model/Edge.cpp
         src/view/GUI.cpp
         src/view/Buttons.cpp
+        src/imgui-filebrowser/imfilebrowser.h
 )
 
 set(SHADERS

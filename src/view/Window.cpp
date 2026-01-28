@@ -71,14 +71,6 @@ int Window::initWindow()
 	// TEMPORARY: Disable depth test
 	//glDisable(GL_DEPTH_TEST);
 
-	// Initialize ImGUI
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
     // Query the framebuffer size, this can differ from the window size on some systems
     int framebufferWidth, framebufferHeight;
     glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
