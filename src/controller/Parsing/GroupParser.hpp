@@ -5,12 +5,14 @@
 #ifndef THESIS_FRAMEWORK_GROUPPARSER_HPP
 #define THESIS_FRAMEWORK_GROUPPARSER_HPP
 #include <string>
-#include "../ThreadController.hpp"
+#include <expected>
+#include "../Structs/GroupData.hpp"
+#include "controller/Error.hpp"
 
 namespace graphvise {
     class GroupParser {
     public:
-        [[nodiscard]] std::expected<GroupData, Error> parseFile(std::string filePath);
+        [[nodiscard]] std::expected<std::vector<GroupData>, Error> parseFile(const std::string& filePath);
     };
 }
 

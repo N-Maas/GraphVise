@@ -14,6 +14,35 @@ set(CMAKE_CXX_STANDARD 23)
 # source files -----------------------------------------------------------
 # All files that will be compiled have to be listed here. The shaders variable is unused.
 
+# GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+file(GLOB TEST_SOURCES tests/*.cpp)
+add_executable(my_tests ${TEST_SOURCES})
+
+add_library(my_lib
+        src/model/CameraBookmark.cpp
+        src/model/GraphSaver.cpp
+        src/model/Edge.cpp
+        src/model/Graph.cpp
+        src/model/Group.cpp
+        src/model/Vertex.cpp
+)
+
+target_include_directories(my_lib PUBLIC src ext)
+target_link_libraries(my_tests PRIVATE my_lib gtest_main)
+
+include(GoogleTest)
+gtest_discover_tests(my_tests)
+
 set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
@@ -48,6 +77,7 @@ set(HEADERS
         src/model/CameraBookmark.hpp
         src/model/Vertex.hpp
         src/model/Edge.hpp
+        src/controller/Parsing/GroupParser.hpp
 )
 
 set(SOURCES
@@ -63,7 +93,6 @@ set(SOURCES
         src/controller/Parsing/TXTParser.cpp
         src/controller/Parsing/CNFParser.cpp
         src/controller/Parsing/SubgraphParser.cpp
-        src/controller/Parsing/WEmbedController.cpp
         src/controller/MovementController.cpp
         src/controller/Error.cpp
         src/controller/ErrorCollector.cpp
@@ -75,6 +104,8 @@ set(SOURCES
         src/model/Edge.cpp
         src/view/GUI.cpp
         src/view/Buttons.cpp
+        src/controller/Parsing/WEmbedController.cpp
+        src/controller/Parsing/GroupParser.cpp
 )
 
 set(SHADERS
@@ -108,7 +139,7 @@ include(FetchContent)
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG        85e11b34d7600b65cd42e4e2de0f40661afa24f9
+        GIT_TAG        1305d30ff5ee26dd637fb127a9a7bd0ab0c6fc00
         GIT_SHALLOW TRUE
 )
 
@@ -122,22 +153,7 @@ target_include_directories(thesis-framework PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/src/imgui-filebrowser
-        ${wembed_SOURCE_DIR}
-        ${wembed_SOURCE_DIR}/src
-        ${wembed_SOURCE_DIR}/src/utilLib/include
-        ${wembed_SOURCE_DIR}/include
         )
-
-# After fetching, let's see what targets wembed actually provides
-# First, check if wembed populated successfully
-if(wembed_POPULATED)
-    message(STATUS "wembed populated successfully")
-    message(STATUS "wembed source dir: ${wembed_SOURCE_DIR}")
-    # List all targets in the wembed directory
-    get_property(wembed_targets DIRECTORY ${wembed_SOURCE_DIR} PROPERTY BUILDSYSTEM_TARGETS)
-    message(STATUS "wembed targets found: ${wembed_targets}")
-endif()
-
 
 # link required libraries
 target_link_libraries(thesis-framework PRIVATE
@@ -145,12 +161,11 @@ target_link_libraries(thesis-framework PRIVATE
     glad
     glfw
     OpenGL::GL
-    #wembed::wembed wembed
     wembedLib # main wembed library
     wembed_flags # compiler flags
-    #wembed::embeddingLib # will be available from wembed
-    #wembed::graphLib # will be available from wembed
-    #wembed::utilLib # will be available from wembed
+    embeddingLib # will be available from wembed
+    graphLib # will be available from wembed
+    utilLib # will be available from wembed
 )
 # link optional libraries
 if(OpenMP_CXX_FOUND)

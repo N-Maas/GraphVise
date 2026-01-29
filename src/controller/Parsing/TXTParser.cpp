@@ -8,6 +8,7 @@
 #include <expected>
 #include <iostream>
 #include <regex>
+#include <unordered_map>
 #include <vector>
 
 #include "controller/Error.hpp"
@@ -59,6 +60,7 @@ namespace graphvise {
         std::regex emptyLineRegex(EMPTY_LINE_REGEX);
 
         std::vector<std::pair<int, int>> edges;
+        std::map<std::pair<int, int>, int> edgeMap;
         edges.reserve(edgeCount);
 
         for (std::string line; std::getline(fileStream, line);) {
@@ -72,6 +74,7 @@ namespace graphvise {
             //Check correct formatting
             if (!std::regex_match(line, matches, edgeRegex)) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             //Convert vertex IDs to uint32
@@ -80,6 +83,7 @@ namespace graphvise {
                 firstVertexID = std::stoi(matches[1].str());
             } catch (std::invalid_argument& exception) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             uint32_t secondVertexID;
@@ -87,6 +91,7 @@ namespace graphvise {
                 secondVertexID = std::stoi(matches[2].str());
             } catch (std::invalid_argument& exception) {
                 Error error(ErrorType::INVALID_FORMATTING, line, currentLine);
+                return std::unexpected(error);
             }
 
             //Return error if ids are too large
@@ -98,12 +103,11 @@ namespace graphvise {
             std::pair<int, int> edge(firstVertexID, secondVertexID);
 
             //Check for duplicate edges
-            for (auto & currentEdge : edges) {
-                if ((currentEdge.first == firstVertexID && currentEdge.second == secondVertexID) || (currentEdge.first == secondVertexID && currentEdge.second == firstVertexID)) {
-                    Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
-                    return std::unexpected(error);
-                }
+            if (edgeMap.contains(edge)) {
+                Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
+                return std::unexpected(error);
             }
+            edgeMap[edge] = 1;
 
             edges.push_back(edge);
         }

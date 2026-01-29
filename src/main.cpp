@@ -14,7 +14,6 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
-
 #include "controller/Parsing/ParserController.hpp"
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
@@ -30,9 +29,12 @@
 		std::cout << "Starting Loading Graph at current time: "  << ctime(&timestamp) << std::endl;
 		std::cout << std::endl;
 
-		graphvise::ParserController pc;
-		pc.parseFile("../Testgraph100.txt", graphvise::ParseFormat::TXT);
+		graphvise::ParserController pc;		//Testing TXT parser
+		pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
 		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
+
+		graphvise::ParserController parser;		//Testing Group parser
+		parser.parseFile("../TestGroup.txt", graphvise::ParseFormat::GROUP);
 
 		time(&timestamp);
 		std::cout << std::endl;

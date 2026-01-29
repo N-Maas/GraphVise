@@ -7,6 +7,10 @@
 
 namespace graphvise {
     enum class ErrorType {
+        EQUAL_VERTEX_IDS,
+        VERTEX_ID_OUT_OF_BOUNDS,
+        TOO_MANY_VERTICES_IN_SUBGRAPH,
+        INVALID_SUBGRAPH_EDGE,
         DUPLICATE_EDGE,
         INVALID_VERTEX_COUNT,
         INVALID_EDGE_COUNT,
@@ -14,7 +18,10 @@ namespace graphvise {
         FILE_NOT_FOUND,
         NOT_A_VERTEX_ID,
         INVALID_COLOR_VALUE,
-        BACKGROUND_THREAD_ALREADY_BUSY
+        INVALID_TRANSPARENCY_VALUE,
+        BACKGROUND_THREAD_ALREADY_BUSY,
+        INVALID_EDGE_ID,
+        INVALID_VERTEX_ID,
     };
 }
 
