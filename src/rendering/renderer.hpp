@@ -75,6 +75,12 @@ namespace graphvise {
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
+        [[nodiscard]] Camera m_camera() const {
+            return mCamera;
+        }
+        void setLightPos(const glm::vec3 &light_pos) {
+            lightPos = light_pos;
+        }
 
     private:
         Renderer();
@@ -124,6 +130,9 @@ namespace graphvise {
         void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
         Camera mCamera;
+        glm::vec3 lightPos;
+
+    private:
         CameraFocusMode cameraFocusMode;
         LightSourceMovementBehaviour lightSourceMovementBehaviour;
         PerformanceMode performanceMode;

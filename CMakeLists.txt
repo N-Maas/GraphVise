@@ -114,6 +114,8 @@ set(SHADERS
     shaders/graph_color.vert
 )
 
+set(SHADERS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+
 # define target ---------------------------------------------------------- 
 
 # add executable
