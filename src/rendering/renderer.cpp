@@ -199,6 +199,7 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
+        /*
         // creating test graph
         //todo only keep till graph in uploaded properly
         Graph graph = Graph();
@@ -224,11 +225,11 @@ namespace graphvise {
         std::cout << "DEBUG: Added groups" << std::endl;
         GraphSaver::getGraphSaver().setGraph(graph);
         std::cout << "DEBUG: Graph saved" << std::endl;
-
-        /*
-        // todo make graph std::expected
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
         */
+
+        // todo get graph propperly
+        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
 
