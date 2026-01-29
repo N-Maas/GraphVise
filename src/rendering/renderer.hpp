@@ -23,16 +23,14 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <memory>
 #include <GLFW/glfw3.h>
+#include <memory>
 
 
 #include "RendererSubject.hpp"
+#include "view/Window.hpp"
 
-namespace graphvise
-{
-
+namespace graphvise {
 
     enum LightSourceMovementBehaviour {
         FOLLOW_CAMERA,
@@ -44,68 +42,66 @@ namespace graphvise
         HIGH_RESOLUTION
     };
 
+    struct VertexData {
+        glm::vec3 position;
+        glm::vec3 normal;
+    };
+
+
     class Renderer : public RendererSubject {
     public:
-        Renderer(int framebufferWidth, int framebufferHeight);
-        ~Renderer() override;
+        // Delete copy constructor and assignment operator
+        Renderer(const Renderer&) = delete;
+        Renderer& operator=(const Renderer&) = delete;
 
         void init();            // Initialize all buffers, called before the main loop
         void reloadShaders();   // Reload shader programs from source files
-        void runFrame(GraphSaver& graph_saver);        // Called once per Frame
+        void runFrame();        // Called once per Frame
         void shutdown();        // Cleanup resources, called after the main loop
 
-
+        void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
         void resize(int framebufferWidth, int framebufferHeight);
 
-        void render(const glm::mat4& mvp, GraphSaver& graphSaver); // Render graph
-
-        //TODO: review
-        //Had to be implemented in renderer.cpp
-
-        /*void signIn(std::shared_ptr<RendererObserver> observer) override {
-            this->observerList.push_back(std::move(observer));
-        };*/
-
-        /*void signOut(std::shared_ptr<RendererObserver> observer) override {;
-            auto it = std::ranges::find_if(observerList,
-                                           [observer](const std::shared_ptr<RendererObserver>& ptr) {
-                                               return ptr.get() == observer.get();
-                                           }
-            );
-            if (it != observerList.end()) {
-                observerList.erase(it);
-            }
-        };*/
-
-        /*void notify() override {
-            for (const auto& observer : observerList) {
-                observer->update();  // Call update on each observer
-            }
-        };*/
+        void render(const glm::mat4& mvp); // Render graph
 
         void adjustPerformanceMode(PerformanceMode newMode) {
             performanceMode = newMode;
         };
-        void processEvents(GLFWwindow* m_window);
 
+        uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
+
+        static std::shared_ptr<Renderer> getInstance();
+        static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
 
     private:
+        Renderer();
+        Renderer(int framebufferWidth, int framebufferHeight);
+        ~Renderer() override;
+        // Static pointer to the Singleton instance
+        static inline std::shared_ptr<Renderer> rendererInstance = nullptr;
+        static inline std::mutex mtx;
+
         std::vector<std::shared_ptr<RendererObserver>> observerList;
         const float STANDARD_SPHERE_RADIUS = 0.1f;
         const float STANDARD_CYLINDER_RADIUS = 0.01f;
+        glm::ivec2 mFramebufferSize;
+
         [[nodiscard]] float getAspectRatio() const {
             return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
         }
+
+        GLuint framebuffer;
+        GLuint colorTexture;        // Visual output (RGBA8)
+        GLuint depthBuffer;
 
         GLuint mShaderProgram;
         // Path to shader source files
         std::string mVertexShaderPath;
         std::string mFragmentShaderPath;
-        // Reference containers for the vertex array object and the vertex buffer object
-        GLuint mVAO, mVBO;
+
         // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
         GLuint vertexVAO = 0, vertexVBO = 0;
         GLuint edgeVAO = 0, edgeVBO = 0;
@@ -127,53 +123,12 @@ namespace graphvise
         void generateCylinder(int segments = 16);
         void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
-        bool mF5Pressed;
         Camera mCamera;
         CameraFocusMode cameraFocusMode;
         LightSourceMovementBehaviour lightSourceMovementBehaviour;
         PerformanceMode performanceMode;
-        glm::ivec2 mFramebufferSize;
 
+        bool mF5Pressed;
 
-        // Vertex array for screen filling cube
-        // remove this when Graph gets represented
-        static constexpr GLfloat cubeVertices[] = {
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f
-        };
     };
 }

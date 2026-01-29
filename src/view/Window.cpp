@@ -6,18 +6,24 @@
 #include "../rendering/renderer.hpp"
 #include "Window.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
 
 #include "../model/GraphSaver.hpp"
 
-namespace graphvise
-{
-	Window::Window()
-	= default;
 
-	bool Window::initWindow()
+namespace graphvise {
+	Window::Window()
+	{
+
+	}
+
+	int Window::initWindow()
 	{
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
@@ -37,8 +43,9 @@ namespace graphvise
 		std::string windowTitle = "GraphVise";
 
 
+		int width=1280, height=720;
 
-		GLFWwindow* window = glfwCreateWindow(currentRes.width, currentRes.height, windowTitle.c_str(), nullptr, nullptr);
+		::GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
 		// Error check if the window fails to create
 
 		std::cout << "here";
@@ -46,7 +53,7 @@ namespace graphvise
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
-			return false;
+			return -1;
 		}
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -54,6 +61,21 @@ namespace graphvise
 
 		gui.initGUI(window);
 
+		//Load GLAD so it configures OpenGL
+		gladLoadGL();
+
+		// enable depth testing for rendering
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		// TEMPORARY: Disable depth test
+		//glDisable(GL_DEPTH_TEST);
+
+		// Initialize ImGUI
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui::StyleColorsDark();
 
 
 		// Query the framebuffer size, this can differ from the window size on some systems
@@ -61,14 +83,10 @@ namespace graphvise
 		glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
 		// Create the renderer object
+		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+		renderer->init();
 
-		//Load GLAD so it configures OpenGL
-		gladLoadGL();  //TODO: in renderer?
-
-		renderer.init();
-
-
-		// FPS counter TODO: Move to GUI, implement in ImGui
+		// FPS counter
 		int frameCount = 0;
 		double accumulatedTime = 0.0;
 
@@ -85,32 +103,24 @@ namespace graphvise
 				framebufferWidth = newFramebufferWidth;
 				framebufferHeight = newFramebufferHeight;
 				glViewport(0, 0, framebufferWidth, framebufferHeight);
-				renderer.resize(framebufferWidth, framebufferHeight);
+				renderer->resize(framebufferWidth, framebufferHeight);
 			}
 
 			// Specify the color of the background
-			glClearColor(0.f, 0.14f, 0.28f, 1.0f); //TODO: in renderer?
+			glClearColor(0.f, 0.14f, 0.28f, 1.0f);
 			// Clean the back buffer and assign the new color to it
-			glClear(GL_COLOR_BUFFER_BIT); //TODO: in renderer?
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glfwPollEvents();
-
-
-			renderer.processEvents(window);
-
+			renderer->processEvents(window);
 
 			// Draw frame from renderer
-
-
-
-			GL_CHECK_ERROR();//TODO: in renderer?
-
-
-			renderer.runFrame(graphSaver);
-			GL_CHECK_ERROR();//TODO: in renderer?
+			GL_CHECK_ERROR();
+			renderer->runFrame();
+			GL_CHECK_ERROR();
 
 			//load GUI
-			gui.loadFrame(framebufferWidth, framebufferHeight);
+			gui.loadFrame();
 
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
@@ -136,14 +146,13 @@ namespace graphvise
 		gui.shutdownGUI();
 
 		// Renderer cleanup
-		renderer.shutdown();
+		renderer->shutdown();
 
 		// Delete window before ending the program
 		glfwDestroyWindow(window);
 
 		// Terminate GLFW before ending the program
 		glfwTerminate();
-
-		return true;
+		return 0;
 	}
 }

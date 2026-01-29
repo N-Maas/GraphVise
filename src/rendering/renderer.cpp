@@ -24,23 +24,90 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
-namespace graphvise
-{
-    Renderer::Renderer(int framebufferWidth, int framebufferHeight)
-            : mColor{1.f, 0.55f, 0.f, 1.0f}, mShaderProgram(0),
-            mVertexShaderPath(std::string(SHADERS_PATH) + std::string("/graph.vert")),
-            mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("/graph_color.frag")),
-            mVAO(0), mVBO(0), mCamera(), mFramebufferSize(framebufferWidth, framebufferHeight)
-    {
+namespace graphvise {
+    Renderer::Renderer()
+    : mFramebufferSize(800, 600),  // Default size
+      framebuffer(0),
+      colorTexture(0),
+      depthBuffer(0),
+      mShaderProgram(0),
+      mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
+     mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
+     sphereVAO(0),
+     sphereVBO(0),
+     sphereEBO(0),
+     sphereRadius(STANDARD_SPHERE_RADIUS),
+     cylinderVAO(0),
+      cylinderVBO(0),
+     cylinderEBO(0),
+     cylinderRadius(STANDARD_CYLINDER_RADIUS),
+     mCamera(),
+     cameraFocusMode(),
+     lightSourceMovementBehaviour(),
+     performanceMode(),
+     mF5Pressed(false) {
     }
+
+    Renderer::Renderer(int framebufferWidth, int framebufferHeight)
+        : mFramebufferSize(framebufferWidth, framebufferHeight),
+          framebuffer(0),
+          colorTexture(0),
+          depthBuffer(0),
+          mShaderProgram(0),
+          mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
+          mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
+          sphereVAO(0),
+          sphereVBO(0),
+          sphereEBO(0),
+          sphereRadius(STANDARD_SPHERE_RADIUS),
+          cylinderVAO(0),
+          cylinderVBO(0),
+          cylinderEBO(0),
+          cylinderRadius(STANDARD_CYLINDER_RADIUS),
+          mCamera(),
+          cameraFocusMode(),
+          lightSourceMovementBehaviour(),
+          performanceMode(),
+          mF5Pressed(false) {
+    }
+
 
     Renderer::~Renderer() {
         // Cleanup OpenGL resources
         if (vertexVAO) glDeleteVertexArrays(1, &vertexVAO);
         if (vertexVBO) glDeleteBuffers(1, &vertexVBO);
         if (edgeVAO) glDeleteVertexArrays(1, &edgeVAO);
-        if (edgeVBO) glDeleteBuffers(1, &edgeVBO);
+        if (sphereVAO) glDeleteBuffers(1, &sphereVAO);
+        if (sphereVBO) glDeleteBuffers(1, &sphereVBO);
+        if (sphereEBO) glDeleteBuffers(1, &sphereEBO);
+        if (cylinderVAO) glDeleteBuffers(1, &cylinderVAO);
+        if (cylinderVBO) glDeleteBuffers(1, &cylinderVBO);
+        if (cylinderEBO) glDeleteBuffers(1, &cylinderEBO);
         if (mShaderProgram) glDeleteProgram(mShaderProgram);
+    }
+
+    // Singleton getters
+    std::shared_ptr<Renderer> Renderer::getInstance(int framebufferWidth, int framebufferHeight) {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!rendererInstance) {
+            rendererInstance = std::shared_ptr<Renderer>(new Renderer(framebufferWidth, framebufferHeight),
+                [](Renderer* ptr) { delete ptr; });
+        } else {
+            // If instance already exists, resize it
+            rendererInstance->resize(framebufferWidth, framebufferHeight);
+        }
+        return rendererInstance;
+    }
+
+    std::shared_ptr<Renderer> Renderer::getInstance() {
+        std::lock_guard<std::mutex> lock(mtx);
+        if (!rendererInstance) {
+            rendererInstance = std::shared_ptr<Renderer>(
+                new Renderer(),
+                [](Renderer* ptr) { delete ptr; }
+            );
+        }
+        return rendererInstance;
     }
 
     /**
@@ -48,30 +115,27 @@ namespace graphvise
      */
     void Renderer::init()
     {
+        // contains OpenGL initialization
         // Load the shader files
         reloadShaders();
 
-        // Vertex Data -----------------------------------------------------------------------------------------------------
-        // Generate the VAO and VBO with only 1 object each
-        glGenVertexArrays(1, &mVAO);
-        glGenBuffers(1, &mVBO);
+        // Initialize Buffers and Arrays for sphere and cylinder
+        glGenVertexArrays(1, &sphereVAO);
+        glGenBuffers(1, &sphereVBO);
+        glGenBuffers(1, &sphereEBO);
 
-        // Make the VAO the current vertex array object by binding it
-        glBindVertexArray(mVAO);
+        glGenVertexArrays(1, &cylinderVAO);
+        glGenBuffers(1, &cylinderVBO);
+        glGenBuffers(1, &cylinderEBO);
 
-        // Bind the VBO specifying it's a GL_ARRAY_BUFFER
-        glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-        // Introduce the vertices into the VBO
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+        // Generate meshes if needed
+        if (sphereVertices.empty()) {
+            generateIcosphere(2);
+        }
+        if (cylinderVertices.empty()) {
+            generateCylinder(12);
+        }
 
-        // Configure the vertex attribute so that OpenGL knows how to read the VBO
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(nullptr));
-        // Enable the Vertex Attribute so that OpenGL knows to use it
-        glEnableVertexAttribArray(0);
-
-        // Bind both the VBO and VAO to 0 so that we don't accidentally modify the VAO and VBO we created
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
 
@@ -80,6 +144,9 @@ namespace graphvise
      */
     void Renderer::reloadShaders()
     {
+        std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
+        std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
+        std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
         // Create shader program object and get its reference
         GLuint newProgram = utils::createShaderProgramFromFile(mVertexShaderPath, mFragmentShaderPath);
         if (newProgram != 0)
@@ -102,7 +169,7 @@ namespace graphvise
     /**
      * Called in the main loop to render a new frame.
      */
-    void Renderer::runFrame(GraphSaver& graphSaver)
+    void Renderer::runFrame()
     {
         if(mShaderProgram == 0)
         {
@@ -114,76 +181,61 @@ namespace graphvise
         glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
 
-        //todo all this code is for rendering the cube and has to be thrown out when the cube is no longer needed
-
-        // 2.1 MVP matrix
+        // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         if (mvpLoc != -1) {
             glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-            std::cout << "Set cube MVP" << std::endl;
         }
 
-        // 2.2 Model matrix (identity for now)
-        glm::mat4 model = glm::mat4(1.0f);
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        if (modelLoc != -1) {
-            glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        }
-
-        // 3.Set lighting uniforms for CUBE
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-            std::cout << "Set lightPos to (2,2,2)" << std::endl;
-        } else {
-            std::cout << "WARNING: lightPos uniform not found in cube shader!" << std::endl;
-        }
-
-        // 4. Set cube color (ORANGE)
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        if (colorLoc == -1) colorLoc = glGetUniformLocation(mShaderProgram, "color");
-        if (colorLoc != -1) {
-            glUniform3f(colorLoc, mColor[0], mColor[1], mColor[2]);  // Orange
-            std::cout << "Set cube color to orange: ("
-                      << mColor[0] << "," << mColor[1] << "," << mColor[2] << ")" << std::endl;
-        } else {
-            std::cout << "WARNING: No color uniform found in cube shader!" << std::endl;
-        }
-
-
-        // todo throw test cube out when graph can be rendered
-        //Render cube
-        glBindVertexArray(mVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        std::cout << "Cube drawn" << std::endl;
-
-        /* todo currently we are using the same shader program for the cube and the graph, this of course does not work and
-        * todo we are only using the graph shader program
-        * todo we need access to GraphSaver object
-         */
         //rendering graph
-        render(mvp, graphSaver);
+        render(mvp);
+        GL_CHECK_ERROR();
         notify();
     }
 
     // todo will work properly when Model is implemented
     // rendering Graph
-    void Renderer::render(const glm::mat4& mvp, GraphSaver& graphSaver) {
+    void Renderer::render(const glm::mat4& mvp) {
+        std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
-        //TODO: Graph is std::<optional> currently. (Greyed out, so the program runs)
-        /*Graph graph = graphSaver.getGraph();
+        // creating test graph
+        //todo only keep till graph in uploaded properly
+        Graph graph = Graph();
+        std::cout << "DEBUG: Graph created" << std::endl;
+        graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
+        graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
+        graph.addVertex(2, glm::vec3(0.0f, 1.0f, 2.0f));
+        std::cout << "DEBUG: Added 3 vertices" << std::endl;
+        graph.addEdge(0,1);
+        graph.addEdge(1, 2);
+        graph.addEdge(2,0);
+        std::cout << "DEBUG: Added 3 edges" << std::endl;
+        std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
+        std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
+        ImVec4 colorVec1= ImColor(225, 183, 25, 255);
+        ImVec4 colorVec2= ImColor(0, 183, 25, 255);
+        ImVec4 colorVec3= ImColor(225, 0, 25, 255);
+        ImVec4 colorVec4= ImColor(0, 0, 255, 255);
+        graph.addGroup("firstBuddies", colorVec1, {0}, {});
+        graph.addGroup("god help us!", colorVec2, {1}, {});
+        graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
+        graph.addGroup("my edges:D", colorVec4, {}, myEdgeIDs);
+        std::cout << "DEBUG: Added groups" << std::endl;
+        GraphSaver::getGraphSaver().setGraph(graph);
+        std::cout << "DEBUG: Graph saved" << std::endl;
+
+        /*
+        // todo make graph std::expected
+        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        */
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
-        std::cout << "=== GraphRenderer start ===" << std::endl;
-        std::cout << "Graph shader ID: " << mShaderProgram << std::endl;
-        std::cout << "vertex count: " << vertices.size() << std::endl;
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
             return;
-        }*/
+        }
 
         glUseProgram(mShaderProgram);
 
@@ -191,7 +243,6 @@ namespace graphvise
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         if (mvpLoc != -1) {
             glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-            std::cout << "Set graph MVP" << std::endl;
         } else {
             std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
         }
@@ -206,13 +257,12 @@ namespace graphvise
             generateCylinder(12);  // 12 segments
         }
 
-        //TODO: Uncomment, when graph can be loaded
-        /*
         std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
                   << edges.size() << " edges" << std::endl;
 
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const auto& vertex : vertices) {
+            std::cout << "iterating through vertices" << std::endl;
             renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
@@ -226,7 +276,7 @@ namespace graphvise
                               cylinderRadius, edge.getEdgeVec4(), mvp);
             }
         }
-        */
+
     }
 
     /**
@@ -235,12 +285,79 @@ namespace graphvise
     void Renderer::shutdown()
     {
         // delete all the objects we've created
-        glDeleteVertexArrays(1, &mVAO);
-        glDeleteBuffers(1, &mVBO);
         glDeleteProgram(mShaderProgram);
+        //delete render buffers and arrays
+        glDeleteVertexArrays(1, &sphereVAO);
+        glDeleteBuffers(1, &sphereVBO);
+        glDeleteBuffers(1, &sphereEBO);
+        glDeleteVertexArrays(1, &cylinderVAO);
+        glDeleteBuffers(1, &cylinderVBO);
+        glDeleteBuffers(1, &cylinderEBO);
     }
 
 
+    void Renderer::processEvents(GLFWwindow* m_window)
+    {
+        // alternatively: use GLFW's glfwSetKeyCallback
+
+        // F5 to reload shaders
+        if (glfwGetKey(m_window, GLFW_KEY_F5) == GLFW_RELEASE)
+        {
+            mF5Pressed = false;
+        } else
+        {
+            if (!mF5Pressed)
+            {
+                reloadShaders();
+            }
+            mF5Pressed = true;
+        }
+
+        // Camera Mouse
+        static constexpr float PI = 3.1415926536f;
+        static const float mouse_radians_per_pixel = 0.003f;
+        int right_mouse_state = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2);
+        double mouse_position_double[2];
+        glfwGetCursorPos(m_window, &mouse_position_double[0], &mouse_position_double[1]);
+        float mouse_position[2] = {(float)mouse_position_double[0], (float)mouse_position_double[1]};
+        if (!mCamera.rotate_camera && right_mouse_state == GLFW_PRESS) {
+            mCamera.rotate_camera = true;
+            mCamera.rotation_x_0 = mCamera.rotation_x + mouse_position[1] * mouse_radians_per_pixel;
+            mCamera.rotation_y_0 = mCamera.rotation_y - mouse_position[0] * mouse_radians_per_pixel;
+        }
+        if (right_mouse_state == GLFW_RELEASE)
+            mCamera.rotate_camera = false;
+        if (mCamera.rotate_camera) {
+            mCamera.rotation_x = mCamera.rotation_x_0 - mouse_radians_per_pixel * mouse_position[1];
+            mCamera.rotation_y = mCamera.rotation_y_0 + mouse_radians_per_pixel * mouse_position[0];
+            mCamera.rotation_x = (mCamera.rotation_x < -PI) ? -PI : mCamera.rotation_x;
+            mCamera.rotation_x = (mCamera.rotation_x > PI) ? PI : mCamera.rotation_x;
+        }
+        static double last_time = 0.0;
+        double now = glfwGetTime();
+        double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
+        auto time_delta = (float)elapsed_time;
+        last_time = now;
+        float final_speed = mCamera.speed;
+        final_speed *= (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 10.0f : 1.0f;
+        final_speed *= (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ? 0.1f : 1.0f;
+        float step = time_delta * final_speed;
+
+        // Camera Keyboard
+        float forward = 0.0f, right = 0.0f, vertical = 0.0f;
+        forward += (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) ? step : 0.0f;
+        forward -= (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) ? step : 0.0f;
+        right += (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) ? step : 0.0f;
+        right -= (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) ? step : 0.0f;
+        vertical += (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) ? step : 0.0f;
+        vertical -= (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) ? step : 0.0f;
+        float cos_y = cosf(mCamera.rotation_y), sin_y = sinf(mCamera.rotation_y);
+        mCamera.position_world_space[0] +=  sin_y * forward;
+        mCamera.position_world_space[0] +=  cos_y * right;
+        mCamera.position_world_space[2] += -cos_y * forward;
+        mCamera.position_world_space[2] +=  sin_y * right;
+        mCamera.position_world_space[1] +=  vertical;
+    }
 
     void Renderer::resize(int framebufferWidth, int framebufferHeight)
     {
@@ -532,73 +649,6 @@ namespace graphvise
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
-    }
-
-    void Renderer::processEvents(GLFWwindow* m_window)
-    {
-        // alternatively: use GLFW's glfwSetKeyCallback
-
-        // F5 to reload shaders
-        if (glfwGetKey(m_window, GLFW_KEY_F5) == GLFW_RELEASE)
-        {
-            mF5Pressed = false;
-        } else
-        {
-            if (!mF5Pressed)
-            {
-                reloadShaders();
-            }
-            mF5Pressed = true;
-        }
-
-        // Camera Mouse TODO:
-
-
-        static constexpr float PI = 3.1415926536f;
-        static constexpr float mouse_radians_per_pixel = 0.003f;
-
-        int right_mouse_state = glfwGetMouseButton(m_window, GLFW_MOUSE_BUTTON_2);
-        double mouse_position_double[2];
-        glfwGetCursorPos(m_window, &mouse_position_double[0], &mouse_position_double[1]);
-        float mouse_position[2] = {(float)mouse_position_double[0], (float)mouse_position_double[1]};
-
-        if (!mCamera.rotate_camera && right_mouse_state == GLFW_PRESS) {
-            mCamera.rotate_camera = true;
-            mCamera.rotation_x_0 = mCamera.rotation_x + mouse_position[1] * mouse_radians_per_pixel;
-            mCamera.rotation_y_0 = mCamera.rotation_y - mouse_position[0] * mouse_radians_per_pixel;
-        }
-        if (right_mouse_state == GLFW_RELEASE)
-            mCamera.rotate_camera = false;
-        if (mCamera.rotate_camera) {
-            mCamera.rotation_x = mCamera.rotation_x_0 - mouse_radians_per_pixel * mouse_position[1];
-            mCamera.rotation_y = mCamera.rotation_y_0 + mouse_radians_per_pixel * mouse_position[0];
-            mCamera.rotation_x = (mCamera.rotation_x < -PI) ? -PI : mCamera.rotation_x;
-            mCamera.rotation_x = (mCamera.rotation_x > PI) ? PI : mCamera.rotation_x;
-        }
-        static double last_time = 0.0;
-        double now = glfwGetTime();
-        double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
-        auto time_delta = (float)elapsed_time;
-        last_time = now;
-        float final_speed = mCamera.speed;
-        final_speed *= (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? 10.0f : 1.0f;
-        final_speed *= (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ? 0.1f : 1.0f;
-        float step = time_delta * final_speed;
-
-        // Camera Keyboard
-        float forward = 0.0f, right = 0.0f, vertical = 0.0f;
-        forward += (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) ? step : 0.0f;
-        forward -= (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) ? step : 0.0f;
-        right += (glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) ? step : 0.0f;
-        right -= (glfwGetKey(m_window, GLFW_KEY_A) == GLFW_PRESS) ? step : 0.0f;
-        vertical += (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) ? step : 0.0f;
-        vertical -= (glfwGetKey(m_window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ? step : 0.0f;
-        float cos_y = cosf(mCamera.rotation_y), sin_y = sinf(mCamera.rotation_y);
-        mCamera.position_world_space[0] +=  sin_y * forward;
-        mCamera.position_world_space[0] +=  cos_y * right;
-        mCamera.position_world_space[2] += -cos_y * forward;
-        mCamera.position_world_space[2] +=  sin_y * right;
-        mCamera.position_world_space[1] +=  vertical;
     }
 
     void RendererSubject::signIn(std::shared_ptr<RendererObserver> observer) {
