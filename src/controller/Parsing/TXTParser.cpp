@@ -94,6 +94,12 @@ namespace graphvise {
                 return std::unexpected(error);
             }
 
+            //Return error if ids are equal
+            if (firstVertexID == secondVertexID) {
+                Error error(ErrorType::EQUAL_VERTEX_IDS, line, currentLine);
+                return std::unexpected(error);
+            }
+
             //Return error if ids are too large
             if (firstVertexID > vertexCount - 1 || secondVertexID > vertexCount - 1) {
                 Error error(ErrorType::NOT_A_VERTEX_ID, line, currentLine);
