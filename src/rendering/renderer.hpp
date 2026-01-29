@@ -82,7 +82,6 @@ namespace graphvise {
             lightPos = light_pos;
         }
 
-    public:
         [[nodiscard]] LightSourceMovementBehaviour light_source_movement_behaviour() const {
             return lightSourceMovementBehaviour;
         }

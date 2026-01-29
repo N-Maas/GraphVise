@@ -51,6 +51,16 @@ namespace graphvise {
         // The rotation of the camera around the local x-axis in radians. Without
         // rotation the camera looks into the negative z-direction.
         float rotation_y;
+
+        [[nodiscard]] float getRotation() const {
+            return rotation_x_0;
+        }
+
+        void setRotation(float rotation_x_0, float rotation_y_0) {
+            this->rotation_x_0 = rotation_x_0;
+            this->rotation_y_0 = rotation_y_0;
+        }
+
         float rotation_x;
         // The rotation that the camera would have if the cursor were moved to coordinate (0, 0) with rotate_camera enabled
         float rotation_y_0, rotation_x_0;
