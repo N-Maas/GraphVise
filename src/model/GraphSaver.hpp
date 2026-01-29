@@ -8,8 +8,10 @@ namespace graphvise {
         static GraphSaver& getGraphSaver();
         [[nodiscard]] Graph& getGraph();
         void setGraph(const Graph& new_graph);
+
         GraphSaver(const GraphSaver&) = delete;
         GraphSaver& operator=(const GraphSaver&) = delete;
+
         Group& getGroupForEdge(const Edge& edge);
         Group &getGroupByID(uint32_t groupID);
         std::vector<Vertex> &getVertices();

@@ -1,19 +1,16 @@
 Group 1Group
 0
-1
 1 6
 3 4
-3 5
 
 Group second-Group 100 100 100
 2
 3
 5 1
-4
 3 6
 3 5
 
-Group third_Group 50 255 0 1
+Group third_Group 50 255 0 10
 0 2
 5
 4

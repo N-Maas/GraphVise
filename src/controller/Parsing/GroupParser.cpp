@@ -32,8 +32,8 @@ namespace graphvise {
                 //line defines a new Group
                 GroupData currentGroupData = GroupData();
                 currentGroupData.name = matches[1].str();
-                int x = 204;        //Default Values, if non are specified in the Group-File
-                int y = 102;
+                int x = 153;        //Default Values, if non are specified in the Group-File
+                int y = 61;
                 int z = 0;
                 int w = 100;        //Transparency from 0 to 100
                 if (matches[2].matched && matches[3].matched) {
