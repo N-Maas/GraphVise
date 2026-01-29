@@ -8,9 +8,11 @@
 
 #include "../Enums/ThreadOperationType.hpp"
 
-#endif //THESIS_FRAMEWORK_THREADOPERATION_HPP
+namespace graphvise {
+    struct ThreadOperation {
+        std::string filePath;
+        ThreadOperationType requestedOperation;
+    };
+}
 
-struct ThreadOperation {
-    std::string filePath;
-    ThreadOperationType requestedOperation;
-};
+#endif //THESIS_FRAMEWORK_THREADOPERATION_HPP

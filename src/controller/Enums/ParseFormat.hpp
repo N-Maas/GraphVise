@@ -5,11 +5,13 @@
 #ifndef THESIS_FRAMEWORK_PARSEFORMAT_HPP
 #define THESIS_FRAMEWORK_PARSEFORMAT_HPP
 
-#endif //THESIS_FRAMEWORK_PARSEFORMAT_HPP
+namespace graphvise {
+    enum class ParseFormat {
+        TXT,
+        CNF,
+        GROUP,
+        SUBGRAPH
+    };
+}
 
-enum ParseFormat {
-    TXT,
-    CNF,
-    GROUP,
-    SUBGRAPH
-};
+#endif //THESIS_FRAMEWORK_PARSEFORMAT_HPP

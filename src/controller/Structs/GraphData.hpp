@@ -4,11 +4,14 @@
 
 #ifndef THESIS_FRAMEWORK_GRAPHDATA_HPP
 #define THESIS_FRAMEWORK_GRAPHDATA_HPP
+#include <cstdint>
 #include <vector>
 
-#endif //THESIS_FRAMEWORK_GRAPHDATA_HPP
+namespace graphvise {
+    struct GraphData {
+        uint32_t vertexCount;
+        std::vector<std::pair<int, int>> edges;
+    };
+}
 
-struct GraphData {
-    std::vector<int> vertices;
-    std::vector<std::vector<int>> edges;
-};
+#endif //THESIS_FRAMEWORK_GRAPHDATA_HPP

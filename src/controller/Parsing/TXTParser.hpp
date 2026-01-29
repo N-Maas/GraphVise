@@ -4,13 +4,17 @@
 
 #ifndef THESIS_FRAMEWORK_TXTPARSER_HPP
 #define THESIS_FRAMEWORK_TXTPARSER_HPP
+#include <expected>
+
 #include "GraphParser.hpp"
+#include "controller/Error.hpp"
 
 
-class TXTParser : GraphParser {
+namespace graphvise {
+    class TXTParser : GraphParser {
     public:
-        GraphData parseFile(std::string filePath) override;
-};
-
+        std::expected<GraphData, Error> parseFile(std::string filePath) override;
+    };
+}
 
 #endif //THESIS_FRAMEWORK_TXTPARSER_HPP

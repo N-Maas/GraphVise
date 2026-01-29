@@ -3,3 +3,7 @@
 //
 
 #include "RendererObserver.hpp"
+
+namespace graphvise {
+
+}

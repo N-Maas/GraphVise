@@ -4,17 +4,19 @@
 
 #include "ThreadController.hpp"
 
-ThreadController::ThreadController(RendererSubject &renderer) {
-    //TODO: implement
-}
+namespace graphvise {
+    ThreadController::ThreadController(RendererSubject &renderer) {
+        //TODO: implement
+    }
 
-void ThreadController::update() {
-    //TODO: implement
-}
+    void ThreadController::update() {
+        //TODO: implement
+    }
 
-bool ThreadController::notifyBackgroundThread(ThreadOperation threadOperation) {
-    //TODO: implement
-    return false;
-}
+    bool ThreadController::notifyBackgroundThread(ThreadOperation threadOperation) {
+        //TODO: implement
+        return false;
+    }
 
-RendererObserver::~RendererObserver() = default;
+    RendererObserver::~RendererObserver() = default;
+}

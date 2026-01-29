@@ -5,11 +5,13 @@
 #ifndef THESIS_FRAMEWORK_ERRORCOLLECTOROBSERVER_HPP
 #define THESIS_FRAMEWORK_ERRORCOLLECTOROBSERVER_HPP
 
-#endif //THESIS_FRAMEWORK_ERRORCOLLECTOROBSERVER_HPP
-
-class ErrorCollectorObserver {
+namespace graphvise {
+    class ErrorCollectorObserver {
     public:
-    virtual ~ErrorCollectorObserver() = default;
+        virtual ~ErrorCollectorObserver() = default;
 
-    virtual void update() = 0;
-};
+        virtual void update() = 0;
+    };
+}
+
+#endif //THESIS_FRAMEWORK_ERRORCOLLECTOROBSERVER_HPP
