@@ -43,7 +43,6 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     cameraFocusMode(),
      lightSourceMovementBehaviour(),
      performanceMode(),
      mF5Pressed(false) {
@@ -67,7 +66,6 @@ namespace graphvise {
           cylinderRadius(STANDARD_CYLINDER_RADIUS),
           mCamera(),
           lightPos({2.0f, 2.0f, 2.0f}),
-          cameraFocusMode(),
           lightSourceMovementBehaviour(),
           performanceMode(),
           mF5Pressed(false) {

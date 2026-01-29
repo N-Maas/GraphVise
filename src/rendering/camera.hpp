@@ -34,7 +34,17 @@ namespace graphvise {
     };
 
     class Camera {
+    private:
+        CameraFocusMode cameraFocusMode;
     public:
+        [[nodiscard]] CameraFocusMode camera_focus_mode() const {
+            return cameraFocusMode;
+        }
+
+        void set_camera_focus_mode(CameraFocusMode camera_focus_mode) {
+            cameraFocusMode = camera_focus_mode;
+        }
+
         // The position of the camera in world space
         glm::vec3 position_world_space;
         // The rotation of the camera around the global y-axis in radians
@@ -63,7 +73,8 @@ namespace graphvise {
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
             speed(2.0f),
-            rotate_camera(false)
+            rotate_camera(false),
+            cameraFocusMode(FREE)
         {
         }
 

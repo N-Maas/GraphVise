@@ -82,6 +82,23 @@ namespace graphvise {
             lightPos = light_pos;
         }
 
+    public:
+        [[nodiscard]] LightSourceMovementBehaviour light_source_movement_behaviour() const {
+            return lightSourceMovementBehaviour;
+        }
+
+        void set_light_source_movement_behaviour(LightSourceMovementBehaviour light_source_movement_behaviour) {
+            lightSourceMovementBehaviour = light_source_movement_behaviour;
+        }
+
+        [[nodiscard]] PerformanceMode performance_mode() const {
+            return performanceMode;
+        }
+
+        void set_performance_mode(PerformanceMode performance_mode) {
+            performanceMode = performance_mode;
+        }
+
     private:
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);
@@ -131,9 +148,6 @@ namespace graphvise {
 
         Camera mCamera;
         glm::vec3 lightPos;
-
-    private:
-        CameraFocusMode cameraFocusMode;
         LightSourceMovementBehaviour lightSourceMovementBehaviour;
         PerformanceMode performanceMode;
 
