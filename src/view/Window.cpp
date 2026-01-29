@@ -17,9 +17,7 @@
 namespace graphvise {
 
 	Window::Window()
-	{
-
-	}
+	= default;
 	bool Window::initWindow()
 	{
 		// If OpenMP is installed we can use it for parallelization

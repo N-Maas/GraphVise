@@ -7,7 +7,6 @@
 
 
 #include "GUI.hpp"
-#include "rendering/renderer.hpp"
 
 namespace graphvise
 {
@@ -32,8 +31,6 @@ namespace graphvise
         GUI gui = GUI();
         bool mF5Pressed = false;
 
-
-        Renderer renderer = Renderer(currentRes.width, currentRes.height);
     };
 }
 #endif //THESIS_FRAMEWORK_WINDOW_HPP
