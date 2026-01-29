@@ -23,153 +23,112 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <algorithm>
+#include <GLFW/glfw3.h>
 #include <memory>
 
 
 #include "RendererSubject.hpp"
+#include "view/Window.hpp"
 
-class GLFWwindow;
+namespace graphvise {
 
-enum LightSourceMovementBehaviour {
-    FOLLOW_CAMERA,
-    FIXED_POSITION
-};
-
-enum PerformanceMode {
-    HIGH_PERFORMANCE,
-    HIGH_RESOLUTION
-};
-
-class Renderer : public RendererSubject {
-public:
-    Renderer(int framebufferWidth, int framebufferHeight);
-    ~Renderer() override;
-
-    void init();            // Initialize all buffers, called before the main loop
-    void reloadShaders();   // Reload shader programs from source files
-    void runFrame();        // Called once per Frame
-    void shutdown();        // Cleanup resources, called after the main loop
-
-    void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
-    void resize(int framebufferWidth, int framebufferHeight);
-
-    void render(const glm::mat4& mvp); // Render graph
-
-    void adjustPerformanceMode(PerformanceMode newMode) {
-        performanceMode = newMode;
+    enum LightSourceMovementBehaviour {
+        FOLLOW_CAMERA,
+        FIXED_POSITION
     };
 
-    uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
-    // Variables to be changed in the ImGUI windows
-    glm::vec4 mColor;
-
-private:
-    std::vector<std::shared_ptr<RendererObserver>> observerList;
-    const float STANDARD_SPHERE_RADIUS = 0.1f;
-    const float STANDARD_CYLINDER_RADIUS = 0.1f;
-    glm::ivec2 mFramebufferSize;
-
-
-    [[nodiscard]] float getAspectRatio() const {
-        return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
-    }
-
-    GLuint framebuffer;
-    GLuint colorTexture;        // Visual output (RGBA8)
-    GLuint pickingTexture;      // Picking IDs (RGBA32F or RGBA32UI)
-    GLuint depthBuffer;
-
-    GLuint vertexShaderProgram;      // Single shader with dual outputs for vertices
-    GLuint edgeShaderProgram;
-    // Path to shader source files
-    std::string vVertexShaderPath;  // for vertices
-    std::string vFragmentShaderPath;
-    std::string eVertexShaderPath;  // for edges
-    std::string eFragmentShaderPath;
-    // Reference containers for the vertex array object and the vertex buffer object
-    GLuint mVAO, mVBO;
-    // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
-    GLuint vertexVAO = 0, vertexVBO = 0;
-    GLuint edgeVAO = 0, edgeVBO = 0;
-    // Sphere mesh data (icosphere)
-    std::vector<glm::vec3> sphereVertices;
-    std::vector<unsigned int> sphereIndices;
-    GLuint sphereVAO{}, sphereVBO{}, sphereEBO{};
-    // generate sphere mesh data(icosphere)
-    float sphereRadius;
-    void initMultipleRenderTargets();// Initialize buffers for multiple target rendering, to enable node picking
-    void generateIcosphere(int subdivisions = 2);
-    void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
-
-    // Cylinder mesh (reusable)
-    std::vector<glm::vec3> cylinderVertices;
-    std::vector<unsigned int> cylinderIndices;
-    GLuint cylinderVAO{}, cylinderVBO{}, cylinderEBO{};
-
-    float cylinderRadius;
-    void generateCylinder(int segments = 16);
-    void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
-
-
-    glm::vec4 encodeIdToColor(uint32_t id);//used for finding id of clicked vertice
-    uint32_t decodeColorToId(const glm::vec4& color);
-
-    Camera mCamera;
-    CameraFocusMode cameraFocusMode;
-    LightSourceMovementBehaviour lightSourceMovementBehaviour;
-    PerformanceMode performanceMode;
-
-    bool mF5Pressed;
-
-    static constexpr GLfloat cubeVertices[] = {
-        // Position: X, Y, Z
-        // Front face
-        -1.0f, -1.0f,  1.0f,  // bottom-left
-         1.0f, -1.0f,  1.0f,  // bottom-right
-         1.0f,  1.0f,  1.0f,  // top-right
-         1.0f,  1.0f,  1.0f,  // top-right (duplicate for second triangle)
-        -1.0f,  1.0f,  1.0f,  // top-left
-        -1.0f, -1.0f,  1.0f,  // bottom-left
-
-        // Back face
-         1.0f, -1.0f, -1.0f,  // bottom-right
-        -1.0f, -1.0f, -1.0f,  // bottom-left
-        -1.0f,  1.0f, -1.0f,  // top-left
-        -1.0f,  1.0f, -1.0f,  // top-left (duplicate for second triangle)
-         1.0f,  1.0f, -1.0f,  // top-right
-         1.0f, -1.0f, -1.0f,  // bottom-right
-
-        // Left face
-        -1.0f, -1.0f, -1.0f,  // bottom-back
-        -1.0f, -1.0f,  1.0f,  // bottom-front
-        -1.0f,  1.0f,  1.0f,  // top-front
-        -1.0f,  1.0f,  1.0f,  // top-front (duplicate for second triangle)
-        -1.0f,  1.0f, -1.0f,  // top-back
-        -1.0f, -1.0f, -1.0f,  // bottom-back
-
-        // Right face
-         1.0f, -1.0f,  1.0f,  // bottom-front
-         1.0f, -1.0f, -1.0f,  // bottom-back
-         1.0f,  1.0f, -1.0f,  // top-back
-         1.0f,  1.0f, -1.0f,  // top-back (duplicate for second triangle)
-         1.0f,  1.0f,  1.0f,  // top-front
-         1.0f, -1.0f,  1.0f,  // bottom-front
-
-        // Bottom face
-        -1.0f, -1.0f, -1.0f,  // back-left
-         1.0f, -1.0f, -1.0f,  // back-right
-         1.0f, -1.0f,  1.0f,  // front-right
-         1.0f, -1.0f,  1.0f,  // front-right (duplicate for second triangle)
-        -1.0f, -1.0f,  1.0f,  // front-left
-        -1.0f, -1.0f, -1.0f,  // back-left
-
-        // Top face
-        -1.0f,  1.0f,  1.0f,  // front-left
-         1.0f,  1.0f,  1.0f,  // front-right
-         1.0f,  1.0f, -1.0f,  // back-right
-         1.0f,  1.0f, -1.0f,  // back-right (duplicate for second triangle)
-        -1.0f,  1.0f, -1.0f,  // back-left
-        -1.0f,  1.0f,  1.0f   // front-left
+    enum PerformanceMode {
+        HIGH_PERFORMANCE,
+        HIGH_RESOLUTION
     };
-};
+
+    struct VertexData {
+        glm::vec3 position;
+        glm::vec3 normal;
+    };
+
+
+    class Renderer : public RendererSubject {
+    public:
+        // Delete copy constructor and assignment operator
+        Renderer(const Renderer&) = delete;
+        Renderer& operator=(const Renderer&) = delete;
+
+        void init();            // Initialize all buffers, called before the main loop
+        void reloadShaders();   // Reload shader programs from source files
+        void runFrame();        // Called once per Frame
+        void shutdown();        // Cleanup resources, called after the main loop
+
+        void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
+        void resize(int framebufferWidth, int framebufferHeight);
+
+        void render(const glm::mat4& mvp); // Render graph
+
+        void adjustPerformanceMode(PerformanceMode newMode) {
+            performanceMode = newMode;
+        };
+
+        uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
+
+        static std::shared_ptr<Renderer> getInstance();
+        static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
+
+        // Variables to be changed in the ImGUI windows
+        glm::vec4 mColor;
+
+    private:
+        Renderer();
+        Renderer(int framebufferWidth, int framebufferHeight);
+        ~Renderer() override;
+        // Static pointer to the Singleton instance
+        static inline std::shared_ptr<Renderer> rendererInstance = nullptr;
+        static inline std::mutex mtx;
+
+        std::vector<std::shared_ptr<RendererObserver>> observerList;
+        const float STANDARD_SPHERE_RADIUS = 0.1f;
+        const float STANDARD_CYLINDER_RADIUS = 0.01f;
+        glm::ivec2 mFramebufferSize;
+
+        [[nodiscard]] float getAspectRatio() const {
+            return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
+        }
+
+        GLuint framebuffer;
+        GLuint colorTexture;        // Visual output (RGBA8)
+        GLuint depthBuffer;
+
+        GLuint mShaderProgram;
+        // Path to shader source files
+        std::string mVertexShaderPath;
+        std::string mFragmentShaderPath;
+
+        // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
+        GLuint vertexVAO = 0, vertexVBO = 0;
+        GLuint edgeVAO = 0, edgeVBO = 0;
+        // Sphere mesh data (icosphere)
+        std::vector<glm::vec3> sphereVertices;
+        std::vector<unsigned int> sphereIndices;
+        GLuint sphereVAO{}, sphereVBO{}, sphereEBO{};
+        // generate sphere mesh data(icosphere)
+        float sphereRadius{};
+        void generateIcosphere(int subdivisions = 2);
+        void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
+
+        // Cylinder mesh (reusable)
+        std::vector<glm::vec3> cylinderVertices;
+        std::vector<unsigned int> cylinderIndices;
+        GLuint cylinderVAO{}, cylinderVBO{}, cylinderEBO{};
+
+        float cylinderRadius{};
+        void generateCylinder(int segments = 16);
+        void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
+
+        Camera mCamera;
+        CameraFocusMode cameraFocusMode;
+        LightSourceMovementBehaviour lightSourceMovementBehaviour;
+        PerformanceMode performanceMode;
+
+        bool mF5Pressed;
+
+    };
+}

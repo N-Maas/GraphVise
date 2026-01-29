@@ -651,7 +651,7 @@ inline void ImGui::FileBrowser::Display()
             }
 
             const bool selected = selectedFilenames_.find(rsc.name) != selectedFilenames_.end();
-            
+
 #if IMGUI_VERSION_NUM >= 19100
             const ImGuiSelectableFlags selectableFlag = ImGuiSelectableFlags_NoAutoClosePopups;
 #else
@@ -852,7 +852,7 @@ inline void ImGui::FileBrowser::Display()
         Text("%s", statusStr_.c_str());
         if (ImGui::IsItemHovered())
         {
-            ImGui::BeginTooltip();            
+            ImGui::BeginTooltip();
             ImGui::PushTextWrapPos(300.0f);
             ImGui::Text("%s", statusStr_.c_str());
             ImGui::PopTextWrapPos();
@@ -1030,11 +1030,11 @@ inline void ImGui::FileBrowser::UpdateFileRecords()
     const auto getDirectoryIterator = [&]() -> std::filesystem::directory_iterator
     {
         try
-        {            
+        {
             return std::filesystem::directory_iterator(currentDirectory_);
         }
         catch (const std::filesystem::filesystem_error& err)
-        {            
+        {
             statusStr_ = std::string("error: ") + err.what();
             if (!(flags_ & ImGuiFileBrowserFlags_SkipItemsCausingError))
             {

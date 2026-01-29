@@ -6,18 +6,18 @@
 #define THESIS_FRAMEWORK_WINDOW_HPP
 #include "GUI.hpp"
 
+namespace graphvise {
+    class Window
+    {
 
-class Window
-{
+    private:
+        GUI gui = GUI();
 
-private:
-    GUI gui = GUI();
+    public:
+        Window();
 
-public:
-    Window();
-
-    int initWindow();
-};
-
+        int initWindow();
+    };
+}
 
 #endif //THESIS_FRAMEWORK_WINDOW_HPP

@@ -6,27 +6,35 @@
 #define THESIS_FRAMEWORK_PARSERCONTROLLER_HPP
 #include <mutex>
 #include <string>
-
+#include "GroupParser.hpp"
 #include "TXTParser.hpp"
+#include "WEmbedController.hpp"
 #include "../Error.hpp"
 #include "../Enums/ParseFormat.hpp"
 #include "../Structs/GroupData.hpp"
+#include "model/Graph.hpp"
 
-
-class ParserController {
+namespace graphvise {
+    class ParserController {
     public:
-        void parseFile(std::pmr::string filePath, ParseFormat format);
+        void parseFile(std::string filePath, ParseFormat format);
+        std::optional<Graph> getGraph();
 
     private:
+        std::optional<Error> verifySubgraph(GraphData graphData);
+
         //TODO: Felder deklarieren, sobald die Klassen existieren
         TXTParser txtParser;
+        GroupParser groupParser;
+        WEmbedController wembedController;
 
         std::mutex dataMutex;
 
         std::optional<Error> error;
-        std::vector<GroupData> groups;
-        GraphData highlightingSubgraph;
-};
-
+        std::optional<Graph> parsedGraph;
+        std::optional<std::vector<GroupData>> groups;
+        std::optional<GraphData> highlightingSubgraph;
+    };
+}
 
 #endif //THESIS_FRAMEWORK_PARSERCONTROLLER_HPP

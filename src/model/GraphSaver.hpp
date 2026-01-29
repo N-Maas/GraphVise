@@ -1,23 +1,20 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #ifndef THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #define THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #include "Graph.hpp"
 
-
-class GraphSaver {
+namespace graphvise {
+    class GraphSaver {
     public:
-        GraphSaver();
         static GraphSaver& getGraphSaver();
         [[nodiscard]] std::optional<Graph> &getGraph();
         void setGraph(const Graph& new_graph);
-
+        GraphSaver(const GraphSaver&) = delete;
+        GraphSaver& operator=(const GraphSaver&) = delete;
     private:
+        explicit GraphSaver();
         static GraphSaver instance;
         std::optional<Graph> graph;
-};
-
+    };
+}
 
 #endif

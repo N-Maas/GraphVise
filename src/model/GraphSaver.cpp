@@ -1,24 +1,23 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "GraphSaver.hpp"
-
 #include <iostream>
 
-GraphSaver GraphSaver::instance;
+namespace graphvise {
+    GraphSaver GraphSaver::instance;
 
-GraphSaver::GraphSaver() {
-}
+    GraphSaver::GraphSaver() = default;
 
-GraphSaver& GraphSaver::getGraphSaver() {
-    return instance;
-}
+    GraphSaver& GraphSaver::getGraphSaver() {
+        return instance;
+    }
 
-std::optional<Graph>& GraphSaver::getGraph() {
-    return graph;
-}
+    Graph& GraphSaver::getGraph() {
+        if (!graph.has_value()) {
+            throw std::logic_error("No graph has loaded yet");
+        }
+        return graph.value();
+    }
 
-void GraphSaver::setGraph(const Graph& new_graph) {
-    graph = new_graph;
+    void GraphSaver::setGraph(const Graph& new_graph) {
+        graph = new_graph;
+    }
 }

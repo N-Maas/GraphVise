@@ -1,110 +1,142 @@
-//
-// Created by jannis on 1/15/26.
-//
-
 #include "Graph.hpp"
+#include <algorithm>
+#include <iostream>
+#include <stdexcept>
 
-std::vector<Vertex>& Graph::getVertices() {
-    return vertices;
-}
+#include <iostream>
 
-std::vector<Edge>& Graph::getEdges() {
-    return edges;
-}
+namespace graphvise {
+    std::vector<Vertex>& Graph::getVertices() {
+        return vertices;
+    }
 
-std::vector<Group>& Graph::getGroups() {
-    return groups;
-}
+    std::vector<Edge>& Graph::getEdges() {
+        return edges;
+    }
 
-std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
-    return cameraBookmarks;
-}
+    std::vector<Group>& Graph::getGroups() {
+        return groups;
+    }
 
-Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
-    return vertices.at(ID);
-}
+    std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
+        return cameraBookmarks;
+    }
 
-Edge& Graph::getEdgeByID(const std::uint32_t ID) {
-    return edges.at(ID);
-}
+    Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
+        return vertices.at(ID);
+    }
 
-Group& Graph::getGroupByID(const std::uint32_t ID) {
-    return groups.at(ID);
-}
+    Edge& Graph::getEdgeByID(const std::uint32_t ID) {
+        return edges.at(ID);
+    }
 
-CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
-    return cameraBookmarks.at(ID);
-}
+    Group& Graph::getGroupByID(const std::uint32_t ID) {
+        return groups.at(ID);
+    }
 
-std::optional<uint32_t> Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
-    for (const Edge& edge : edges) {
-        std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
-        if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
-            if (connectingVerticesIDs.at(0) == secondVertexID || connectingVerticesIDs.at(1) == secondVertexID) {
-                return edge.getEdgeID();
+    CameraBookmark& Graph::getCameraBookmarkByID(const std::uint32_t ID) {
+        return cameraBookmarks.at(ID);
+    }
+
+    std::uint32_t Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
+        if (firstVertexID == secondVertexID) {
+            throw std::out_of_range("An edge requires two different nodes.");
+        }
+        for (const Edge& edge : edges) {
+            std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
+            if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
+                if (connectingVerticesIDs.at(0) == secondVertexID || connectingVerticesIDs.at(1) == secondVertexID) {
+                    return edge.getEdgeID();
+                }
+            }
+        }
+        throw std::out_of_range("There is no edge between the specified nodes.");
+    }
+
+    void Graph::addEdge(std::uint32_t firstVertexID, std::uint32_t secondVertexID) {
+        edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
+    }
+
+    void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
+        groups.emplace_back(groups.size(), name, groupVec4);
+        const std::size_t groupID = groups.size() - 1;
+        for (const std::uint32_t ID : verticesIDs) {
+            vertices.at(ID).setGroup(groupID);
+        }
+        for (const std::uint32_t ID : edgesIDs) {
+            edges.at(ID).setGroup(groupID);
+        }
+    }
+
+    void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw) {
+        cameraBookmarks.emplace_back(name, coords, pitch, yaw);
+    }
+
+    void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
+        for (Vertex& vertex : vertices) {
+            if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
+                vertex.setOwnTransparency(0.2);
+            } else {
+                vertex.setOwnTransparency(1);
+            }
+        }
+        for (Edge& edge : edges) {
+            if (std::ranges::find(edgesIDs, edge.getEdgeID()) == edgesIDs.end()) {
+                edge.setOwnTransparency(0.2);
+            } else {
+                edge.setOwnTransparency(1);
             }
         }
     }
-    return std::nullopt;
-}
 
- bool Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-    /*
-    //todo throw out debug code when it works
-    std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
-              << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
-
-    std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
-              << ", vertices.capacity() = " << vertices.capacity() << std::endl;
-
-    //todo uncomment when code is corrected
-
-    std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
-    */
-
-    //add to the end of vertex list
-    vertices.emplace_back(vertexID, coords);
-
-    return true; //ToDo Überprüfen, ob bereits ein Knoten mit der ID vorhanden ist, falls überhaubt nötig
+    void Graph::removeAllHighlights() {
+        for (Vertex& vertex : vertices) {
+            vertex.deleteOwnTransparency();
+        }
+        for (Edge& edge : edges) {
+            edge.deleteOwnTransparency();
+        }
     }
 
-
-
-void Graph::addEdge(uint32_t firstVertexID, uint32_t secondVertexID) {
-    edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
-}
-
-void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<uint32_t>& verticesIDs, const std::vector<uint32_t>& edgesIDs) {
-    groups.emplace_back(groups.size(), name, groupVec4);
-    const std::size_t groupID = groups.size() - 1;
-    for (const uint32_t ID : verticesIDs) {
-        vertices.at(ID).setGroup(groupID);
+    void Graph::deleteAllGroups() {
+        groups.clear();
+        addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        for (Vertex& vertex : vertices) {
+            vertex.setGroup(0);
+        }
+        for (Edge& edge : edges) {
+            edge.setGroup(0);
+        }
     }
-    for (const uint32_t ID : edgesIDs) {
-        edges.at(ID).setGroup(groupID);
+
+    void Graph::deleteCameraBookmarks(const std::uint32_t cameraBookmarkID) {
+        if (cameraBookmarkID < cameraBookmarks.size()) {
+            cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
+        } else {
+            throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
+        }
+    }
+
+    // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
+    void Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
+
+        //todo throw out debug code when it works
+        std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
+                  << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
+
+        std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
+                  << ", vertices.capacity() = " << vertices.capacity() << std::endl;
+
+        //todo uncomment when code is corrected
+
+        std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
+
+        // Add to vector
+        size_t index = vertices.size();
+        vertices.emplace_back(vertexID, coords);
+
+        std::cout << "DEBUG: Added vertex ID=" << vertexID
+                  << " at index=" << index
+                  << " coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
     }
 }
-
-void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw) {
-    cameraBookmarks.emplace_back(cameraBookmarks.size(), name, coords, pitch, yaw);
-}
-
-// void Graph::highlightByID(const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) const {
-//
-// }
-
-// void Graph::removeHighlightByID(const std::vector<int>& verticesIDs, const std::vector<int>& edgesIDs) const {
-//
-// }
-
-void Graph::deleteAllGroups() {
-    groups.clear();
-}
-
-void Graph::deleteCameraBookmarks(const uint32_t cameraBookmarkID) {
-    cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
-}
-
-// void Graph::deleteGraph() {
-//
-// }

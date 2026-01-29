@@ -8,24 +8,24 @@
 
 #include "Buttons.hpp"
 
+namespace graphvise {
+    class GUI
+    {
+    public:
+        GUI();
+        void initGUI(GLFWwindow* window);
+        void loadFrame();
+        void shutdownGUI();
 
-class GUI
-{
-public:
-    GUI();
-    void initGUI(GLFWwindow* window);
-    void loadFrame();
-    void shutdownGUI();
+    private:
 
-private:
+        int currentObjId = -1;
+        Buttons buttons = Buttons(0);
 
-    int currentObjId = -1;
-    Buttons buttons = Buttons(0);
-
-    void loadGUI();
-    void errorPopup();
-    void currentObjInfo();
-};
-
+        void loadGUI();
+        void errorPopup();
+        void currentObjInfo();
+    };
+}
 
 #endif //THESIS_FRAMEWORK_GUI_HPP

@@ -4,9 +4,10 @@
 
 #pragma once
 
-
-class RendererObserver {
-public:
-    virtual ~RendererObserver();
-    virtual void update() = 0;
-};
+namespace graphvise {
+    class RendererObserver {
+    public:
+        virtual ~RendererObserver();
+        virtual void update() = 0;
+    };
+}
