@@ -77,9 +77,6 @@ namespace graphvise {
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		ImGui::StyleColorsDark();
 
-		//TODO: These 2 lines caused the program to crash
-		//ImGui_ImplGlfw_InitForOpenGL(window, true);
-		//ImGui_ImplOpenGL3_Init("#version 330");
 
 		// Query the framebuffer size, this can differ from the window size on some systems
 		int framebufferWidth, framebufferHeight;
@@ -117,8 +114,6 @@ namespace graphvise {
 			glfwPollEvents();
 			renderer->processEvents(window);
 
-
-			//todo create a graphSaver in the propper place, after graph was imported, and give it as an attribute to renderer.runFrame
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
 			renderer->runFrame();

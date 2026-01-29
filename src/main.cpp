@@ -22,6 +22,7 @@
 	int main()
 	{
 
+		/*
 		//TODO: Remove when threadController is ready
 		time_t timestamp;
 		time(&timestamp);
@@ -37,7 +38,7 @@
 		std::cout << std::endl;
 		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
 		std::cout << std::endl;
-
+		*/
 		auto window = graphvise::Window();
 
 		if (window.initWindow() != 0)

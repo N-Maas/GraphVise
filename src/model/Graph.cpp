@@ -119,7 +119,7 @@ namespace graphvise {
 
     // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
     void Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-        /*
+
         //todo throw out debug code when it works
         std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
                   << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
@@ -130,9 +130,13 @@ namespace graphvise {
         //todo uncomment when code is corrected
 
         std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
-        */
 
-        //add to the end of vertex list
+        // Add to vector
+        size_t index = vertices.size();
         vertices.emplace_back(vertexID, coords);
+
+        std::cout << "DEBUG: Added vertex ID=" << vertexID
+                  << " at index=" << index
+                  << " coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
     }
 }

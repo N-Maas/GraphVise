@@ -17,11 +17,14 @@ namespace graphvise {
             }
             addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         }
-
+        Graph() = default;
+/*
         // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
         explicit Graph(int vertexNumber) {
             vertices.reserve(vertexNumber);
+
         }
+        */
         void addVertex(const std::uint32_t vertexID, const glm::vec3& coords);
 
         [[nodiscard]] std::vector<Vertex>& getVertices() ;

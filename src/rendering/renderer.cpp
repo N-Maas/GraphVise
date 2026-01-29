@@ -33,8 +33,6 @@ namespace graphvise {
       mShaderProgram(0),
       mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
      mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
-     //eVertexShaderPath(std::string(SHADERS_PATH) + std::string("edge.vert")),
-     //eFragmentShaderPath(std::string(SHADERS_PATH) + std::string("edge_color.frag")),
      sphereVAO(0),
      sphereVBO(0),
      sphereEBO(0),
@@ -56,8 +54,8 @@ namespace graphvise {
           colorTexture(0),
           depthBuffer(0),
           mShaderProgram(0),
-          mVertexShaderPath(std::string(SHADERS_PATH) + std::string("vertex.vert")),
-          mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("vertex_color.frag")),
+          mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
+          mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
           sphereVAO(0),
           sphereVBO(0),
           sphereEBO(0),
@@ -146,6 +144,9 @@ namespace graphvise {
      */
     void Renderer::reloadShaders()
     {
+        std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
+        std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
+        std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
         // Create shader program object and get its reference
         GLuint newProgram = utils::createShaderProgramFromFile(mVertexShaderPath, mFragmentShaderPath);
         if (newProgram != 0)
@@ -200,7 +201,7 @@ namespace graphvise {
 
         // creating test graph
         //todo only keep till graph in uploaded properly
-        Graph graph = Graph(3);
+        Graph graph = Graph();
         std::cout << "DEBUG: Graph created" << std::endl;
         graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
         graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
@@ -213,12 +214,16 @@ namespace graphvise {
         std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
         std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
         ImVec4 colorVec1= ImColor(225, 183, 25, 255);
-        ImVec4 colorVec2= ImColor(225, 183, 25, 255);
-        ImVec4 colorVec3= ImColor(225, 183, 25, 255);
-        graph.addGroup("firstBuddies", colorVec1, {0}, myEdgeIDs);
+        ImVec4 colorVec2= ImColor(0, 183, 25, 255);
+        ImVec4 colorVec3= ImColor(225, 0, 25, 255);
+        ImVec4 colorVec4= ImColor(0, 0, 255, 255);
+        graph.addGroup("firstBuddies", colorVec1, {0}, {});
         graph.addGroup("god help us!", colorVec2, {1}, {});
         graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
-        std::cout << "DEBUG: Added group" << std::endl;
+        graph.addGroup("my edges:D", colorVec4, {}, myEdgeIDs);
+        std::cout << "DEBUG: Added groups" << std::endl;
+        GraphSaver::getGraphSaver().setGraph(graph);
+        std::cout << "DEBUG: Graph saved" << std::endl;
 
         /*
         // todo make graph std::expected
@@ -257,6 +262,7 @@ namespace graphvise {
 
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const auto& vertex : vertices) {
+            std::cout << "iterating through vertices" << std::endl;
             renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
