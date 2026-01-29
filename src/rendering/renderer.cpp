@@ -199,35 +199,6 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
-        /*
-        // creating test graph
-        //todo only keep till graph in uploaded properly
-        Graph graph = Graph();
-        std::cout << "DEBUG: Graph created" << std::endl;
-        graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
-        graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
-        graph.addVertex(2, glm::vec3(0.0f, 1.0f, 2.0f));
-        std::cout << "DEBUG: Added 3 vertices" << std::endl;
-        graph.addEdge(0,1);
-        graph.addEdge(1, 2);
-        graph.addEdge(2,0);
-        std::cout << "DEBUG: Added 3 edges" << std::endl;
-        std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
-        std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
-        ImVec4 colorVec1= ImColor(225, 183, 25, 255);
-        ImVec4 colorVec2= ImColor(0, 183, 25, 255);
-        ImVec4 colorVec3= ImColor(225, 0, 25, 255);
-        ImVec4 colorVec4= ImColor(0, 0, 255, 255);
-        graph.addGroup("firstBuddies", colorVec1, {0}, {});
-        graph.addGroup("god help us!", colorVec2, {1}, {});
-        graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
-        graph.addGroup("my edges:D", colorVec4, {}, myEdgeIDs);
-        std::cout << "DEBUG: Added groups" << std::endl;
-        GraphSaver::getGraphSaver().setGraph(graph);
-        std::cout << "DEBUG: Graph saved" << std::endl;
-        */
-
-        // todo get graph propperly
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
 
         std::vector<Vertex>& vertices = graph.getVertices();
