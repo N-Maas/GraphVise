@@ -107,7 +107,7 @@ namespace graphvise {
         static inline std::mutex mtx;
 
         std::vector<std::shared_ptr<RendererObserver>> observerList;
-        const float STANDARD_SPHERE_RADIUS = 0.1f;
+        const float STANDARD_SPHERE_RADIUS = 0.05f;
         const float STANDARD_CYLINDER_RADIUS = 0.01f;
         glm::ivec2 mFramebufferSize;
 
