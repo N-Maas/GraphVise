@@ -43,7 +43,6 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     cameraFocusMode(),
      lightSourceMovementBehaviour(),
      performanceMode(),
      mF5Pressed(false) {
@@ -67,7 +66,6 @@ namespace graphvise {
           cylinderRadius(STANDARD_CYLINDER_RADIUS),
           mCamera(),
           lightPos({2.0f, 2.0f, 2.0f}),
-          cameraFocusMode(),
           lightSourceMovementBehaviour(),
           performanceMode(),
           mF5Pressed(false) {
@@ -201,6 +199,7 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
+        /*
         // creating test graph
         //todo only keep till graph in uploaded properly
         Graph graph = Graph();
@@ -226,11 +225,11 @@ namespace graphvise {
         std::cout << "DEBUG: Added groups" << std::endl;
         GraphSaver::getGraphSaver().setGraph(graph);
         std::cout << "DEBUG: Graph saved" << std::endl;
-
-        /*
-        // todo make graph std::expected
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
         */
+
+        // todo get graph propperly
+        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
 
@@ -592,7 +591,6 @@ namespace graphvise {
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {
@@ -648,7 +646,6 @@ namespace graphvise {
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {
