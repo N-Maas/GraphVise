@@ -92,7 +92,6 @@ set(SOURCES
         src/controller/Parsing/ParserController.cpp
         src/controller/Parsing/TXTParser.cpp
         src/controller/Parsing/CNFParser.cpp
-        src/controller/Parsing/SubgraphParser.cpp
         src/controller/MovementController.cpp
         src/controller/Error.cpp
         src/controller/ErrorCollector.cpp
