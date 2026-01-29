@@ -71,19 +71,19 @@ TEST(GraphTest, addEdgeTest) {
 
     EXPECT_EQ(graph.getEdges().empty(), true);
     graph.addEdge(0, 3);
-    EXPECT_EQ(graph.getEdges().at(0).getConnectingVerticesIDs().at(0), 0);
-    EXPECT_EQ(graph.getEdges().at(0).getConnectingVerticesIDs().at(1), 3);
+    EXPECT_EQ(graph.getEdges().at(0).getConnectingVerticesIDs().first, 0);
+    EXPECT_EQ(graph.getEdges().at(0).getConnectingVerticesIDs().second, 3);
     EXPECT_EQ(graph.getEdges().at(0).getEdgeID(), 0);
-    EXPECT_EQ(graph.getEdgeByID(0).getConnectingVerticesIDs().at(0), 0);
-    EXPECT_EQ(graph.getEdgeByID(0).getConnectingVerticesIDs().at(1), 3);
+    EXPECT_EQ(graph.getEdgeByID(0).getConnectingVerticesIDs().first, 0);
+    EXPECT_EQ(graph.getEdgeByID(0).getConnectingVerticesIDs().second, 3);
     EXPECT_EQ(graph.getEdgeByID(0).getEdgeID(), 0);
     EXPECT_THROW(graph.getEdges().at(1), std::out_of_range);
     graph.addEdge(9, 2);
-    EXPECT_EQ(graph.getEdges().at(1).getConnectingVerticesIDs().at(0), 9);
-    EXPECT_EQ(graph.getEdges().at(1).getConnectingVerticesIDs().at(1), 2);
+    EXPECT_EQ(graph.getEdges().at(1).getConnectingVerticesIDs().first, 9);
+    EXPECT_EQ(graph.getEdges().at(1).getConnectingVerticesIDs().second, 2);
     EXPECT_EQ(graph.getEdges().at(1).getEdgeID(), 1);
-    EXPECT_EQ(graph.getEdgeByID(1).getConnectingVerticesIDs().at(0), 9);
-    EXPECT_EQ(graph.getEdgeByID(1).getConnectingVerticesIDs().at(1), 2);
+    EXPECT_EQ(graph.getEdgeByID(1).getConnectingVerticesIDs().first, 9);
+    EXPECT_EQ(graph.getEdgeByID(1).getConnectingVerticesIDs().second, 2);
     EXPECT_EQ(graph.getEdgeByID(1).getEdgeID(), 1);
     EXPECT_THROW(graph.getEdges().at(2), std::out_of_range);
 }
