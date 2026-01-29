@@ -25,6 +25,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 namespace graphvise {
+
     Renderer::Renderer()
     : mFramebufferSize(800, 600),  // Default size
       framebuffer(0),

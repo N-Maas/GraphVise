@@ -47,8 +47,6 @@ set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
         src/utils.hpp
-        src/view/imgui-filebrowser/imfilebrowser.h
-        src/view/Window.hpp
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.hpp
         src/controller/ButtonController.hpp
@@ -71,6 +69,8 @@ set(HEADERS
         src/controller/Structs/GraphData.hpp
         src/controller/Structs/ThreadOperation.hpp
         src/view/ErrorCollectorObserver.hpp
+        src/view/imgui-filebrowser/imfilebrowser.h
+        src/view/Window.hpp
         src/model/GraphSaver.hpp
         src/model/Graph.hpp
         src/model/Group.hpp

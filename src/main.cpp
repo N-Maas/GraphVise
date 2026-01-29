@@ -41,9 +41,10 @@
 		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
 		std::cout << std::endl;
 		*/
-		auto window = graphvise::Window();
 
-	if (!window.initWindow())
+
+
+	if (!graphvise::Window().initWindow())
 	{
 		return -1;
 	}

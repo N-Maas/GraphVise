@@ -28,7 +28,6 @@
 
 
 #include "RendererSubject.hpp"
-#include "view/Window.hpp"
 
 namespace graphvise {
 

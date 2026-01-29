@@ -7,23 +7,20 @@
 #include "Window.hpp"
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-#include "../model/GraphSaver.hpp"
 
 
 namespace graphvise {
+
 	Window::Window()
 	{
 
 	}
-
-	int Window::initWindow()
+	bool Window::initWindow()
 	{
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
@@ -48,12 +45,11 @@ namespace graphvise {
 		::GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
 		// Error check if the window fails to create
 
-		std::cout << "here";
 		if (window == nullptr)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
-			return -1;
+			return false;
 		}
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -120,7 +116,7 @@ namespace graphvise {
 			GL_CHECK_ERROR();
 
 			//load GUI
-			gui.loadFrame();
+			gui.loadFrame(framebufferWidth, framebufferHeight);
 
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
@@ -153,6 +149,6 @@ namespace graphvise {
 
 		// Terminate GLFW before ending the program
 		glfwTerminate();
-		return 0;
+		return true;
 	}
 }
