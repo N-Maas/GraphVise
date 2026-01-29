@@ -9,45 +9,47 @@
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
 
-
-class Buttons
+namespace graphvise
 {
+    class Buttons
+    {
     public:
-    Buttons(int buttonController);
+        Buttons(int buttonController);
 
-    void loadButtonFrame(int framebufferWidth, int framebufferHeight);
+        void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
-private:
-    const std::vector<std::string> allowedFiles = {".txt"};
-    int buttonController = 0;
-    int performanceMode = 0;
-    int framebufferWidth = 0;
-    int framebufferHeight = 0;
+    private:
+        const std::vector<std::string> allowedFiles = {".txt"};
+        int buttonController = 0;
+        int performanceModeSlider = 0;
+        int framebufferWidth = 0;
+        int framebufferHeight = 0;
 
-    int vertex = -1;
-    int edge = -1;
+        int vertex = -1;
+        int edge = -1;
 
-    ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
-    ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
-    ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
-    ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+        ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
+        ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
+        ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
+        ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
 
-    void MainMenuBar();
-    void GroupMenu();
-    void performanceModeToggle();
-    void randomizeColoring(int groupID);
-    void changeColoring(int groupID);
-    void toggleLightSourceMovement();
-    void setLightSourceMovementBehaviour();
-    void setCameraMovementMode();
-    void findVertex();
-    void findEdge();
-    void highlightSubgraph();
-    void importGraph();
-    void exportGraph();
-    void SideBar();
-    void importGroupConfiguration();
-};
-
+        void MainMenuBar();
+        void GroupMenu(bool* groupMenu);
+        void findObject(bool* findObject);
+        void performanceModeToggle(bool* performanceMode);
+        void randomizeColoring(int groupID);
+        void changeColoring(int groupID);
+        void toggleLightSourceMovement(bool* lightSourceMovement);
+        void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviour);
+        void setCameraMovementMode(bool* cameraMovementMode);
+        void findVertex();
+        void findEdge();
+        void highlightSubgraph();
+        void importGraph();
+        void exportGraph();
+        void SideBar();
+        void importGroupConfiguration();
+    };
+}
 
 #endif //THESIS_FRAMEWORK_BUTTONS_HPP

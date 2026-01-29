@@ -19,7 +19,7 @@ int main()
 {
 
 
-	auto window = Window();
+	auto window = graphvise::Window();
 
 	if (!window.initWindow())
 	{

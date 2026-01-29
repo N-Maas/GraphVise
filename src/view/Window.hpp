@@ -8,29 +8,29 @@
 #include "rendering/renderer.hpp"
 #include "GUI.hpp"
 
-
-class Window
+namespace graphvise
 {
-public:
-    Window();
-    bool initWindow();
-    void processEvents(GLFWwindow* m_window);
-
-private:
-    struct Resolution
+    class Window
     {
-        int width, height;
+    public:
+        Window();
+        bool initWindow();
+        void processEvents(GLFWwindow* m_window);
+
+    private:
+        struct Resolution
+        {
+            int width, height;
+        };
+
+        Resolution HD = {1920, 1080};
+        Resolution SD = {1280, 720};
+
+        Resolution currentRes = HD;
+
+        GUI gui = GUI();
+        bool mF5Pressed = false;
+        Renderer renderer = Renderer(currentRes.width, currentRes.height);
     };
-
-    Resolution HD = {1920, 1080};
-    Resolution SD = {1280, 720};
-
-    Resolution currentRes = HD;
-
-    GUI gui = GUI();
-    bool mF5Pressed = false;
-    Renderer renderer = Renderer(currentRes.width, currentRes.height);
-};
-
-
+}
 #endif //THESIS_FRAMEWORK_WINDOW_HPP

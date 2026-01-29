@@ -7,25 +7,26 @@
 
 #include "../rendering/camera.hpp"
 
-
-class MovementController
+namespace graphvise
 {
-public:
-    explicit MovementController(Camera& camera);
+    class MovementController
+    {
+    public:
+        explicit MovementController(Camera& camera);
 
-    void moveForward();
-    void moveBackward();
-    void moveLeft();
-    void moveRight();
-    void moveUp();
-    void moveDown();
+        void moveForward();
+        void moveBackward();
+        void moveLeft();
+        void moveRight();
+        void moveUp();
+        void moveDown();
 
-    void rotateCamera(float pitchChange, float yawChange);
-    void zoom(float value);
+        void rotateCamera(float pitchChange, float yawChange);
+        void zoom(float value);
 
-private:
-    Camera& camera;
-};
-
+    private:
+        Camera& camera;
+    };
+}
 
 #endif //THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
