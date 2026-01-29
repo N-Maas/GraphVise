@@ -442,8 +442,12 @@ namespace graphvise {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereIndices.size() * sizeof(unsigned int),
                      sphereIndices.data(), GL_STATIC_DRAW);
 
+        // Enable and set up vertex attributes
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
     }
@@ -527,8 +531,12 @@ namespace graphvise {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinderIndices.size() * sizeof(unsigned int),
                      cylinderIndices.data(), GL_STATIC_DRAW);
 
+        // Enable and set up vertex attributes
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
     }
