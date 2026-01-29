@@ -592,7 +592,6 @@ namespace graphvise {
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {
@@ -648,7 +647,6 @@ namespace graphvise {
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {
