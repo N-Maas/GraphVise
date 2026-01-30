@@ -4,6 +4,7 @@
 
 #include "ErrorCollector.hpp"
 
+#include <iostream>
 #include <memory>
 #include <utility>
 
@@ -18,7 +19,6 @@ namespace graphvise {
 
     void ErrorCollector::collectError(Error error) {
         currentError = std::move(error);
-
         notify();
     }
 

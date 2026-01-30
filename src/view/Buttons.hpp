@@ -59,6 +59,7 @@ namespace graphvise
         void importGraph();
         void exportGraph();
         void SideBar();
+        static void SideBarElement(const char* label, bool* state);
         void importGroupConfiguration();
     };
 }

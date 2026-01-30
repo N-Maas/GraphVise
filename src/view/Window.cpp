@@ -39,11 +39,13 @@ namespace graphvise {
 		// Create GLFW window
 		std::string windowTitle = "GraphVise";
 
-
-		int defaultWidth=1280, defaultHeight=720;
+		int defaultWidth = currentRes.width;
+		int defaultHeight = currentRes.height;
 
 		window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
 		// Error check if the window fails to create
+
+		glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
 		if (window == nullptr)
 		{
@@ -86,14 +88,14 @@ namespace graphvise {
 
 		ButtonController controller = ButtonController(placeholderCamera, *renderer);
 
-		std::shared_ptr<GUI> guiptr = std::make_shared<GUI>(&controller);
+		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
 
-		ErrorCollector::getInstance().signIn(guiptr);
+		ErrorCollector::getInstance().signIn(gui);
 
 
-		auto gui = *guiptr.get();
 
-		gui.initGUI(window);
+
+		gui->initGUI(window);
 
 		// FPS counter
 		int frameCount = 0;
@@ -102,6 +104,7 @@ namespace graphvise {
 		// Main while loop
 		while (!glfwWindowShouldClose(window))
 		{
+
 			double startTime = glfwGetTime();
 
 			// Resize the renderer and viewport if the framebuffer / window size changed
@@ -131,7 +134,7 @@ namespace graphvise {
 			GL_CHECK_ERROR();
 
 			//load GUI
-			gui.loadFrame(framebufferWidth, framebufferHeight);
+			gui->loadFrame(framebufferWidth, framebufferHeight);
 
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
@@ -154,7 +157,7 @@ namespace graphvise {
 			}
 		}
 
-		gui.shutdownGUI();
+		gui->shutdownGUI();
 
 		// Renderer cleanup
 		renderer->shutdown();

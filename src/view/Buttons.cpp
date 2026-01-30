@@ -9,6 +9,13 @@
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
 
+#define MainMenuBarHeight 19
+#define findObjectHeight 100
+#define GroupMenuHeight 300
+#define PerformanceHeight 54
+#define MovementLightSourceHeight 77
+#define MovementCameraHeight 77
+
 namespace graphvise
 {
     Buttons::Buttons(ButtonController *controller)
@@ -61,15 +68,6 @@ namespace graphvise
 
     }
 
-    void SideBarElement(const char* label, bool* state)
-    {
-        if (ImGui::Button(label))
-        {
-            *state = !*state;
-        }
-        ImGui::Spacing();
-    }
-
     void Buttons::SideBar()
     {
 
@@ -81,9 +79,12 @@ namespace graphvise
 
 
         ImVec2 pos;
-        pos.x = framebufferWidth;
-        pos.y = framebufferHeight / 2.0f;
-        ImGui::SetNextWindowPos(pos, 0, {1.0f, 0.5f});
+        pos.x = static_cast<float>(framebufferWidth);
+        pos.y = static_cast<float>(framebufferHeight) / 2.0f;
+
+        ImVec2 windowPivot = {1.0f, 0.5f};
+
+        ImGui::SetNextWindowPos(pos, 0, windowPivot);
 
 
         ImGui::Begin("##SideBarMenu", nullptr,
@@ -100,30 +101,63 @@ namespace graphvise
         SideBarElement("Camera Movement Mode", &cameraMovement);
 
 
+        const ImVec2 sideBarSize = ImGui::GetWindowSize();
         ImGui::End();
+
+        float widgetSpacing = 3.0f;
+
+        pos.x = pos.x - sideBarSize.x;
+        pos.y = MainMenuBarHeight;
+
+        windowPivot = {1.0f, 0.0f};
 
         if (search)
         {
+            ImGui::SetNextWindowPos(pos,ImGuiCond_Always, windowPivot);
             findObject(&search);
         }
 
+        pos.y += findObjectHeight + widgetSpacing;
+
         if (groups)
         {
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
             GroupMenu(&groups);
         }
 
+        pos.y +=  GroupMenuHeight + widgetSpacing;
+
         if (togglePerformanceMode)
         {
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+
             performanceModeToggle(&togglePerformanceMode);
         }
+        pos.y += PerformanceHeight + widgetSpacing;
+
         if (lightSource)
         {
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+
             setLightSourceMovementBehaviour(&lightSource);
         }
+
+        pos.y += MovementLightSourceHeight + widgetSpacing;
         if (cameraMovement)
         {
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+
             setCameraMovementMode(&cameraMovement);
         }
+    }
+
+    void Buttons::SideBarElement(const char* label, bool* state)
+    {
+        if (ImGui::Button(label))
+        {
+            *state = !*state;
+        }
+        ImGui::Spacing();
     }
 
     void Buttons::GroupMenu(bool* groupMenu)
@@ -132,7 +166,7 @@ namespace graphvise
 
         activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({230, 0},{MAXFLOAT, 400});
+        ImGui::SetNextWindowSizeConstraints({230, 300},{MAXFLOAT, 300});
         ImGui::Begin("Groups", groupMenu,
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoCollapse
@@ -145,6 +179,7 @@ namespace graphvise
                 ImGui::Text("Group ID: %d", group.getGroupID());
                 ImGui::SameLine();
                 ImGui::ColorButton(std::format("Group Color##{}", group.getGroupID()).c_str(),group.getGroupVec4());
+                ImGui::SameLine();
                 randomizeColoring(group.getGroupID());
                 changeColoring(group.getGroupID());
 
@@ -169,6 +204,7 @@ namespace graphvise
         {
             buttonController->togglePerformanceMode(performanceMode);
         }
+
 
         ImGui::End();
     }
@@ -247,6 +283,7 @@ namespace graphvise
             buttonController->setCameraFocusMode(cameraMode);
         }
 
+
         ImGui::End();
 
     }
@@ -271,6 +308,7 @@ namespace graphvise
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
+
 
         ImGui::End();
 

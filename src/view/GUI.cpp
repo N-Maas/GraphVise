@@ -10,9 +10,8 @@
 
 namespace graphvise
 {
-    GUI::GUI(ButtonController *controller) : buttons(controller)
+    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false)
     {
-
     }
 
     void GUI::initGUI(GLFWwindow* window)
@@ -20,67 +19,75 @@ namespace graphvise
         // Initialize ImGUI
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
-        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
 
 
-
     }
-    void GUI::loadFrame(int framebufferWidth,int framebufferHeight)
+
+    void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
     {
         // Tell OpenGL a new frame is about to begin
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
         currentObjInfo();
 
 
-        errorPopup();
+        if (ImGui::Button("Press For Error"))
+        {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::NO_ERROR, "This is a Test Error Message"));
+        }
 
+        ImGui::Text("Width: %d Height: %d", framebufferWidth, framebufferHeight);
+        if (errorAvailable)
+        {
+            errorPopup();
+        }
+
+        buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
         // Renders the ImGUI elements
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-
-
     }
+
     void GUI::shutdownGUI()
     {
-
         // Deletes all ImGUI instances
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
-
     }
 
     void GUI::errorPopup()
     {
+        ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-
-        if (errorAvailable)
+        if (currentError.getMessage().has_value())
         {
-            ImGui::Text(currentError.getMessage()->c_str());
-
-            ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::Text("%s",
-                currentError.getErrorType());
-            ImGui::Separator();
-
-            if (ImGui::Button("Ok"))
-            {
-                ImGui::CloseCurrentPopup();
-                errorAvailable = false;
-            }
-            ImGui::EndPopup();
+            ImGui::Text("Message: %s",
+                        currentError.getMessage()->c_str());
         }
+        ImGui::Separator();
 
+        if (currentError.getLine().has_value())
+        {
+            ImGui::Text("At line: %s",
+                        currentError.getMessage()->c_str());
+        }
+        ImGui::Separator();
 
+        if (ImGui::Button("OK##Error Confirm"))
+        {
+            ImGui::CloseCurrentPopup();
+            errorAvailable = false;
+        }
+        ImGui::EndPopup();
     }
 
     void GUI::currentObjInfo()
@@ -89,24 +96,22 @@ namespace graphvise
 
 
         ImGui::Begin("Current Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::Text("ObjectID: %d \n ", currentVertex.getVertexID());
+        ImGui::Text("ObjectID: %d", currentVertex.getVertexID());
         const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
-            coords.x, coords.y, coords.z);
-        ImGui::Text("Object Group: %d \n ", currentVertex.getGroupID());
+                    coords.x, coords.y, coords.z);
+        ImGui::Text("Object Group: %d", currentVertex.getGroupID());
 
 
-        ImGui::Text("Object Color:"); ImGui::SameLine(); ImGui::ColorButton("##Vertex color", currentVertex.getVertexVec4());
+        ImGui::Text("Object Color:");
+        ImGui::SameLine();
+        ImGui::ColorButton("##Vertex color", currentVertex.getVertexVec4());
         ImGui::End();
-
-
     }
 
     void GUI::update()
     {
-        currentError = ErrorCollector::getInstance().getCurrentError();
-
         errorAvailable = true;
-
+        currentError = ErrorCollector::getInstance().getCurrentError();
     }
 }
