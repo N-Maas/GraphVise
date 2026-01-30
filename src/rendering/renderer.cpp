@@ -136,6 +136,10 @@ namespace graphvise {
             generateCylinder(12);
         }
 
+        //for rendering transparent objects
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         GL_CHECK_ERROR();
     }
 
@@ -536,12 +540,14 @@ namespace graphvise {
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         //debug
         std::cout << "objectColor uniform location: " << colorLoc << std::endl;
         if (colorLoc != -1) {
             glUniform3f(colorLoc, color.r, color.g, color.b);
-            std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
+
+            std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
         } else {
             std::cout << "ERROR: objectColor uniform not found in shader!" << std::endl;
             // Check what uniforms actually exist
@@ -558,8 +564,7 @@ namespace graphvise {
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
-
+        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);

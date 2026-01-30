@@ -2,6 +2,7 @@
 in vec3 FragPos;
 in vec3 Normal;
 uniform vec3 objectColor;
+uniform float transparency;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 out vec4 FragColor;
@@ -13,5 +14,7 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.3);  // 0.3 = ambient
 
     vec3 result = objectColor * diff;
-    FragColor = vec4(result, 1.0);
+    //FragColor = vec4(result);
+    //FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, transparency);
 }

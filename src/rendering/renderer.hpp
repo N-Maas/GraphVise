@@ -108,7 +108,7 @@ namespace graphvise {
 
         std::vector<std::shared_ptr<RendererObserver>> observerList;
         const float STANDARD_SPHERE_RADIUS = 0.05f;
-        const float STANDARD_CYLINDER_RADIUS = 0.01f;
+        const float STANDARD_CYLINDER_RADIUS = 0.03f;
         glm::ivec2 mFramebufferSize;
 
         [[nodiscard]] float getAspectRatio() const {
