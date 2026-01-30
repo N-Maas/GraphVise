@@ -18,38 +18,35 @@
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
 
-	int main()
-	{
-		//TODO: Remove when threadController is ready
-		time_t timestamp;
-		time(&timestamp);
-		std::cout << std::endl;
-		std::cout << "Starting Loading Graph at current time: "  << ctime(&timestamp) << std::endl;
-		std::cout << std::endl;
+int main()
+{
+    //TODO: Remove when threadController is ready
+    time_t timestamp;
+    time(&timestamp);
+    std::cout << std::endl;
+    std::cout << "Starting Loading Graph at current time: " << ctime(&timestamp) << std::endl;
+    std::cout << std::endl;
 
-		graphvise::ParserController pc;		//Testing TXT parser
-		pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
-		graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
+    graphvise::ParserController pc; //Testing TXT parser
+    pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
+    graphvise::GraphSaver::getGraphSaver().setGraph(pc.getGraph().value());
 
-		graphvise::ParserController parser;		//Testing Group parser
-		parser.parseFile("../TestGroup.txt", graphvise::ParseFormat::GROUP);
+    graphvise::ParserController parser; //Testing Group parser
+    parser.parseFile("../TestGroup.txt", graphvise::ParseFormat::GROUP);
 
-		time(&timestamp);
-		std::cout << std::endl;
-		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
-		std::cout << std::endl;
-
-
-		graphvise::Window window = graphvise::Window();
+    time(&timestamp);
+    std::cout << std::endl;
+    std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
+    std::cout << std::endl;
 
 
-	if (!window.initWindow())
-	{
-		return -1;
-	}
+    graphvise::Window window = graphvise::Window();
 
 
+    if (!window.initWindow())
+    {
+        return -1;
+    }
 
-	return 0;
-
+    return 0;
 }

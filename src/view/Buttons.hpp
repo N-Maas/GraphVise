@@ -25,7 +25,7 @@ namespace graphvise
 
 
         GraphSaver *saver = &GraphSaver::getGraphSaver();
-        std::vector<Group>* activeGroups = nullptr;
+        const std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
 
         PerformanceMode performanceMode = HIGH_PERFORMANCE;
