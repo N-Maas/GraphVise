@@ -61,6 +61,7 @@ namespace graphvise {
         //TODO: Make camera jump to edge?
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
         uint32_t maxVertexID = graph.getVertices().size() - 1;
+
         if (firstVertexID == secondVertexID) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EQUAL_VERTEX_IDS));
             return;

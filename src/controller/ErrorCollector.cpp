@@ -4,6 +4,7 @@
 
 #include "ErrorCollector.hpp"
 
+#include <memory>
 #include <utility>
 
 #include "Rand.hpp"
@@ -27,17 +28,24 @@ namespace graphvise {
     }
 
     void ErrorCollector::notify() {
-        for (ErrorCollectorObserver& observer : observers) {
-            observer.update();
+        for (auto& observer : observers) {
+            observer.get()->update();
         }
     }
 
-    void ErrorCollector::signIn(ErrorCollectorObserver& observer) {
-        //TODO: implement
+    void ErrorCollector::signIn(std::shared_ptr<ErrorCollectorObserver> observer) {
+        this->observers.push_back(std::move(observer));
     }
 
-    void ErrorCollector::signOut(ErrorCollectorObserver& observer) {
-        //TODO: implement
+    void ErrorCollector::signOut(std::shared_ptr<ErrorCollectorObserver> observer) {
+        auto it = std::ranges::find_if(observers,
+                                       [observer](const std::shared_ptr<ErrorCollectorObserver>& ptr) {
+                                           return ptr.get() == observer.get();
+                                       }
+        );
+        if (it != observers.end()) {
+            observers.erase(it);
+        }
     }
 
     ErrorCollectorSubject::~ErrorCollectorSubject() = default;

@@ -4,6 +4,8 @@
 
 #ifndef THESIS_FRAMEWORK_ERRORCOLLECTOR_HPP
 #define THESIS_FRAMEWORK_ERRORCOLLECTOR_HPP
+#include <memory>
+
 #include "Error.hpp"
 #include "ErrorCollectorSubject.hpp"
 
@@ -13,8 +15,8 @@ namespace graphvise {
         static ErrorCollector& getInstance();
         void collectError(Error error);
         Error getCurrentError();
-        void signIn(ErrorCollectorObserver& observer) override;
-        void signOut(ErrorCollectorObserver& observer) override;
+        void signIn(std::shared_ptr<ErrorCollectorObserver> observer) override;
+        void signOut(std::shared_ptr<ErrorCollectorObserver> observer) override;
         ErrorCollector(const ErrorCollector&) = delete;
         ErrorCollector& operator=(const ErrorCollector&) = delete;
     private:
@@ -22,7 +24,8 @@ namespace graphvise {
 
         ErrorCollector() = default;
         std::optional<Error> currentError;
-        std::vector<ErrorCollectorObserver> observers;
+
+        std::vector<std::shared_ptr<ErrorCollectorObserver>> observers;
 
         void notify() override;
     };

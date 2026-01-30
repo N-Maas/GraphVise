@@ -43,7 +43,7 @@ namespace graphvise {
      cylinderEBO(0),
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
-     cameraFocusMode(),
+     lightPos({2.0f, 2.0f, 2.0f}),
      lightSourceMovementBehaviour(),
      performanceMode(),
      mF5Pressed(false) {
@@ -66,7 +66,7 @@ namespace graphvise {
           cylinderEBO(0),
           cylinderRadius(STANDARD_CYLINDER_RADIUS),
           mCamera(),
-          cameraFocusMode(),
+          lightPos({2.0f, 2.0f, 2.0f}),
           lightSourceMovementBehaviour(),
           performanceMode(),
           mF5Pressed(false) {
@@ -137,6 +137,10 @@ namespace graphvise {
             generateCylinder(12);
         }
 
+        //for rendering transparent objects
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         GL_CHECK_ERROR();
     }
 
@@ -200,36 +204,8 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
-        // creating test graph
-        //todo only keep till graph in uploaded properly
-        Graph graph = Graph();
-        std::cout << "DEBUG: Graph created" << std::endl;
-        graph.addVertex(0, glm::vec3(-1.0f, 0.0f, 2.0f));
-        graph.addVertex(1, glm::vec3(1.0f, 0.0f, 2.0f));
-        graph.addVertex(2, glm::vec3(0.0f, 1.0f, 2.0f));
-        std::cout << "DEBUG: Added 3 vertices" << std::endl;
-        graph.addEdge(0,1);
-        graph.addEdge(1, 2);
-        graph.addEdge(2,0);
-        std::cout << "DEBUG: Added 3 edges" << std::endl;
-        std::vector<std::uint32_t> myVerticeIDs = {0,1,2};
-        std::vector<std::uint32_t> myEdgeIDs = {0,1,2};
-        ImVec4 colorVec1= ImColor(225, 183, 25, 255);
-        ImVec4 colorVec2= ImColor(0, 183, 25, 255);
-        ImVec4 colorVec3= ImColor(225, 0, 25, 255);
-        ImVec4 colorVec4= ImColor(0, 0, 255, 255);
-        graph.addGroup("firstBuddies", colorVec1, {0}, {});
-        graph.addGroup("god help us!", colorVec2, {1}, {});
-        graph.addGroup("please lets resolve this!", colorVec3, {2}, {});
-        graph.addGroup("my edges:D", colorVec4, {}, myEdgeIDs);
-        std::cout << "DEBUG: Added groups" << std::endl;
-        GraphSaver::getGraphSaver().setGraph(graph);
-        std::cout << "DEBUG: Graph saved" << std::endl;
-
-        /*
-        // todo make graph std::expected
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
-        */
+
         std::vector<Vertex>& vertices = graph.getVertices();
         std::vector<Edge>& edges = graph.getEdges();
 
@@ -268,8 +244,8 @@ namespace graphvise {
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
-            int fromIdx = edge.getConnectingVerticesIDs()[0];
-            int toIdx = edge.getConnectingVerticesIDs()[1];
+            int fromIdx = edge.getConnectingVerticesIDs().first;
+            int toIdx = edge.getConnectingVerticesIDs().second;
             if (fromIdx < vertices.size() && toIdx < vertices.size()) {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
@@ -443,8 +419,12 @@ namespace graphvise {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sphereIndices.size() * sizeof(unsigned int),
                      sphereIndices.data(), GL_STATIC_DRAW);
 
+        // Enable and set up vertex attributes
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
     }
@@ -528,8 +508,12 @@ namespace graphvise {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinderIndices.size() * sizeof(unsigned int),
                      cylinderIndices.data(), GL_STATIC_DRAW);
 
+        // Enable and set up vertex attributes
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
     }
@@ -557,12 +541,14 @@ namespace graphvise {
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         //debug
         std::cout << "objectColor uniform location: " << colorLoc << std::endl;
         if (colorLoc != -1) {
             glUniform3f(colorLoc, color.r, color.g, color.b);
-            std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
+
+            std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
         } else {
             std::cout << "ERROR: objectColor uniform not found in shader!" << std::endl;
             // Check what uniforms actually exist
@@ -579,11 +565,9 @@ namespace graphvise {
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
-
+        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {
@@ -639,7 +623,6 @@ namespace graphvise {
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
-            glm::vec3 lightPos(2.0f, 2.0f, 2.0f);
             glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
         }
         if (lightColorLoc != -1) {

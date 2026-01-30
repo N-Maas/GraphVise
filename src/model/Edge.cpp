@@ -15,22 +15,19 @@ namespace graphvise {
         connectedGroupID = new_groupID;
     }
 
-    std::vector<std::uint32_t> Edge::getConnectingVerticesIDs() const {
-        std::vector verticesIDs = {firstVertexID, secondVertexID};
+    std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {
+        std::pair verticesIDs = {firstVertexID, secondVertexID};
         return verticesIDs;
     }
 
     ImVec4 Edge::getEdgeVec4() const {
-        ImVec4 edgeVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
-        edgeVec.w = getTransparency();
-        return edgeVec;
+        return GraphSaver::getGraphSaver().getGroupForEdge(*this).getGroupVec4();
     }
 
     float Edge::getTransparency() const {
-        if (ownTransparency.has_value()) {
-            return ownTransparency.value();
-        }
-        return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
+        auto& graphSaver = GraphSaver::getGraphSaver();
+        auto graph = graphSaver.getGraph();
+        return graph.getGroupByID(connectedGroupID).getTransparency();
     }
 
     void Edge::setOwnTransparency(float transparency) {

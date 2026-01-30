@@ -20,8 +20,6 @@
 
 	int main()
 	{
-
-		/*
 		//TODO: Remove when threadController is ready
 		time_t timestamp;
 		time(&timestamp);

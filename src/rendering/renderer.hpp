@@ -74,6 +74,28 @@ namespace graphvise {
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
+        [[nodiscard]] Camera m_camera() const {
+            return mCamera;
+        }
+        void setLightPos(const glm::vec3 &light_pos) {
+            lightPos = light_pos;
+        }
+
+        [[nodiscard]] LightSourceMovementBehaviour light_source_movement_behaviour() const {
+            return lightSourceMovementBehaviour;
+        }
+
+        void set_light_source_movement_behaviour(LightSourceMovementBehaviour light_source_movement_behaviour) {
+            lightSourceMovementBehaviour = light_source_movement_behaviour;
+        }
+
+        [[nodiscard]] PerformanceMode performance_mode() const {
+            return performanceMode;
+        }
+
+        void set_performance_mode(PerformanceMode performance_mode) {
+            performanceMode = performance_mode;
+        }
 
     private:
         Renderer();
@@ -84,8 +106,8 @@ namespace graphvise {
         static inline std::mutex mtx;
 
         std::vector<std::shared_ptr<RendererObserver>> observerList;
-        const float STANDARD_SPHERE_RADIUS = 0.1f;
-        const float STANDARD_CYLINDER_RADIUS = 0.01f;
+        const float STANDARD_SPHERE_RADIUS = 0.05f;
+        const float STANDARD_CYLINDER_RADIUS = 0.03f;
         glm::ivec2 mFramebufferSize;
 
         [[nodiscard]] float getAspectRatio() const {
@@ -123,7 +145,7 @@ namespace graphvise {
         void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
         Camera mCamera;
-        CameraFocusMode cameraFocusMode;
+        glm::vec3 lightPos;
         LightSourceMovementBehaviour lightSourceMovementBehaviour;
         PerformanceMode performanceMode;
 

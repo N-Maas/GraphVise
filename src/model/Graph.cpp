@@ -3,8 +3,6 @@
 #include <iostream>
 #include <stdexcept>
 
-#include <iostream>
-
 namespace graphvise {
     std::vector<Vertex>& Graph::getVertices() {
         return vertices;
@@ -43,9 +41,9 @@ namespace graphvise {
             throw std::out_of_range("An edge requires two different nodes.");
         }
         for (const Edge& edge : edges) {
-            std::vector<std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
-            if (connectingVerticesIDs.at(0) == firstVertexID || connectingVerticesIDs.at(1) == firstVertexID) {
-                if (connectingVerticesIDs.at(0) == secondVertexID || connectingVerticesIDs.at(1) == secondVertexID) {
+            std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
+            if (connectingVerticesIDs.first == firstVertexID || connectingVerticesIDs.second == firstVertexID) {
+                if (connectingVerticesIDs.first == secondVertexID || connectingVerticesIDs.second == secondVertexID) {
                     return edge.getEdgeID();
                 }
             }
@@ -75,16 +73,16 @@ namespace graphvise {
     void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
         for (Vertex& vertex : vertices) {
             if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
-                vertex.setOwnTransparency(0.2);
+                vertex.setOwnTransparency(0.2f);
             } else {
-                vertex.setOwnTransparency(1);
+                vertex.setOwnTransparency(1.0f);
             }
         }
         for (Edge& edge : edges) {
             if (std::ranges::find(edgesIDs, edge.getEdgeID()) == edgesIDs.end()) {
-                edge.setOwnTransparency(0.2);
+                edge.setOwnTransparency(0.2f);
             } else {
-                edge.setOwnTransparency(1);
+                edge.setOwnTransparency(1.0f);
             }
         }
     }
