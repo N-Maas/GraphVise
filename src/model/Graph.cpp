@@ -4,19 +4,19 @@
 #include <stdexcept>
 
 namespace graphvise {
-    std::vector<Vertex>& Graph::getVertices() {
+    const std::vector<Vertex>& Graph::getVertices() {
         return vertices;
     }
 
-    std::vector<Edge>& Graph::getEdges() {
+    const std::vector<Edge>& Graph::getEdges() {
         return edges;
     }
 
-    std::vector<Group>& Graph::getGroups() {
+    const std::vector<Group>& Graph::getGroups() {
         return groups;
     }
 
-    std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
+    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
         return cameraBookmarks;
     }
 
@@ -98,7 +98,7 @@ namespace graphvise {
 
     void Graph::deleteAllGroups() {
         groups.clear();
-        addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         for (Vertex& vertex : vertices) {
             vertex.setGroup(0);
         }
@@ -113,28 +113,5 @@ namespace graphvise {
         } else {
             throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
         }
-    }
-
-    // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
-    void Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-
-        //todo throw out debug code when it works
-        std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
-                  << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
-
-        std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
-                  << ", vertices.capacity() = " << vertices.capacity() << std::endl;
-
-        //todo uncomment when code is corrected
-
-        std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
-
-        // Add to vector
-        size_t index = vertices.size();
-        vertices.emplace_back(vertexID, coords);
-
-        std::cout << "DEBUG: Added vertex ID=" << vertexID
-                  << " at index=" << index
-                  << " coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
     }
 }

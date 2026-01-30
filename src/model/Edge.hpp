@@ -8,8 +8,7 @@ namespace graphvise {
     class Edge {
     public:
         explicit Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
-            : edgeID(edgeID), connectedGroupID(0), firstVertexID(firstVertexID),
-              secondVertexID(secondVertexID) {
+            : edgeID(edgeID), connectedGroupID(0), connectingVerticesIDS(firstVertexID, secondVertexID)  {
         }
 
         [[nodiscard]] std::uint32_t  getEdgeID() const;
@@ -17,7 +16,6 @@ namespace graphvise {
         void setGroup(std::uint32_t groupID);
         [[nodiscard]] std::pair<std::uint32_t, std::uint32_t> getConnectingVerticesIDs() const;
         [[nodiscard]] ImVec4 getEdgeVec4() const;
-        [[nodiscard]] float getTransparency() const;
         void setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 
@@ -26,8 +24,7 @@ namespace graphvise {
         std::uint32_t  edgeID;
         std::uint32_t  connectedGroupID;
         std::optional<float> ownTransparency;
-        std::uint32_t  firstVertexID;
-        std::uint32_t  secondVertexID;
+        std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDS;
     };
 }
 

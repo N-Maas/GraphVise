@@ -1,6 +1,5 @@
 Group 1Group
 0
-1 6
 3 4
 
 Group second-Group 100 100 100

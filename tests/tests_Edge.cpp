@@ -20,7 +20,6 @@ TEST(EdgeTest, CheckGetter) {
     EXPECT_NEAR(edge1.getEdgeVec4().y, 0, 0.0001);  //Value of the Default-Group
     EXPECT_NEAR(edge1.getEdgeVec4().z, 0.133333, 0.0001);  //Value of the Default-Group
     EXPECT_EQ(edge1.getEdgeVec4().w, 1);    //Value of the Default-Group
-    EXPECT_EQ(edge1.getTransparency(), 1);
 }
 
 TEST(EdgeTest, TransparencyTest) {
@@ -30,15 +29,15 @@ TEST(EdgeTest, TransparencyTest) {
         14,
         457);
 
-    EXPECT_NEAR(edge1.getTransparency(), 1.0f, 0.0f);   //Value of the Default-Group
+    EXPECT_NEAR(edge1.getEdgeVec4().w, 1.0f, 0.0f);   //Value of the Default-Group
     edge1.setOwnTransparency(0.6f);
     EXPECT_EQ(GraphSaver::getGraphSaver().getGraph().getGroupByID(0).getGroupVec4().w, 1);
-    EXPECT_NEAR(edge1.getTransparency(), 0.6f, 0.0001f);
+    EXPECT_NEAR(edge1.getEdgeVec4().w, 0.6f, 0.0001f);
     edge1.deleteOwnTransparency();
-    EXPECT_NEAR(edge1.getTransparency(), 1.0f, 0.0f);   //Value of the Default-Group
+    EXPECT_NEAR(edge1.getEdgeVec4().w, 1.0f, 0.0f);   //Value of the Default-Group
     EXPECT_EQ(GraphSaver::getGraphSaver().getGraph().getGroupByID(0).getGroupVec4().w, 1);
     EXPECT_THROW(edge1.setOwnTransparency(4.7f), std::out_of_range);
-    EXPECT_NEAR(edge1.getTransparency(), 1.0f, 0.0f);
+    EXPECT_NEAR(edge1.getEdgeVec4().w, 1.0f, 0.0f);
 }
 
 TEST(EdgeTest, SetGroupTest) {

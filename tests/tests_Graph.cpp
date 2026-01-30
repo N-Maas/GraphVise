@@ -150,20 +150,20 @@ TEST(GraphTest, highlightRemoveHighlightTest) {
     graph.addEdge(0, 2);
 
     graph.highlightByID(std::vector<std::uint32_t>{0,3}, std::vector<std::uint32_t>{1});
-    EXPECT_EQ(graph.getVertexByID(0).getTransparency(), 1);
-    EXPECT_NEAR(graph.getVertexByID(1).getTransparency(), 0.2, 0.00001f);
-    EXPECT_NEAR(graph.getVertexByID(2).getTransparency(), 0.2, 0.00001f);
-    EXPECT_EQ(graph.getVertexByID(3).getTransparency(), 1);
-    EXPECT_NEAR(graph.getEdgeByID(0).getTransparency(), 0.2, 0.00001f);
-    EXPECT_EQ(graph.getEdgeByID(1).getTransparency(), 1);
+    EXPECT_EQ(graph.getVertexByID(0).getVertexVec4().w, 1);
+    EXPECT_NEAR(graph.getVertexByID(1).getVertexVec4().w, 0.2, 0.00001f);
+    EXPECT_NEAR(graph.getVertexByID(2).getVertexVec4().w, 0.2, 0.00001f);
+    EXPECT_EQ(graph.getVertexByID(3).getVertexVec4().w, 1);
+    EXPECT_NEAR(graph.getEdgeByID(0).getEdgeVec4().w, 0.2, 0.00001f);
+    EXPECT_EQ(graph.getEdgeByID(1).getEdgeVec4().w, 1);
 
     graph.removeAllHighlights();
-    EXPECT_EQ(graph.getEdgeByID(0).getTransparency(), graph.getGroupByID(graph.getEdgeByID(0).getGroupID()).getTransparency());
-    EXPECT_EQ(graph.getEdgeByID(1).getTransparency(), graph.getGroupByID(graph.getEdgeByID(1).getGroupID()).getTransparency());
-    EXPECT_EQ(graph.getVertexByID(0).getTransparency(), graph.getGroupByID(graph.getVertexByID(0).getGroupID()).getTransparency());
-    EXPECT_EQ(graph.getVertexByID(1).getTransparency(), graph.getGroupByID(graph.getVertexByID(1).getGroupID()).getTransparency());
-    EXPECT_EQ(graph.getVertexByID(2).getTransparency(), graph.getGroupByID(graph.getVertexByID(2).getGroupID()).getTransparency());
-    EXPECT_EQ(graph.getVertexByID(3).getTransparency(), graph.getGroupByID(graph.getVertexByID(3).getGroupID()).getTransparency());
+    EXPECT_EQ(graph.getEdgeByID(0).getEdgeVec4().w, graph.getGroupByID(graph.getEdgeByID(0).getGroupID()).getGroupVec4().w);
+    EXPECT_EQ(graph.getEdgeByID(1).getEdgeVec4().w, graph.getGroupByID(graph.getEdgeByID(1).getGroupID()).getGroupVec4().w);
+    EXPECT_EQ(graph.getVertexByID(0).getVertexVec4().w, graph.getGroupByID(graph.getVertexByID(0).getGroupID()).getGroupVec4().w);
+    EXPECT_EQ(graph.getVertexByID(1).getVertexVec4().w, graph.getGroupByID(graph.getVertexByID(1).getGroupID()).getGroupVec4().w);
+    EXPECT_EQ(graph.getVertexByID(2).getVertexVec4().w, graph.getGroupByID(graph.getVertexByID(2).getGroupID()).getGroupVec4().w);
+    EXPECT_EQ(graph.getVertexByID(3).getVertexVec4().w, graph.getGroupByID(graph.getVertexByID(3).getGroupID()).getGroupVec4().w);
 }
 
 TEST(GraphTest, deleteAllGroupsTest) {

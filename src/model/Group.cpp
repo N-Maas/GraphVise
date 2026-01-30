@@ -22,15 +22,11 @@ namespace graphvise {
         throw std::out_of_range("Transparency must be between 0 and 1");
     }
 
-    float Group::getTransparency() const {
-        return groupVec4.w;
-    }
-
     void Group::setGroupVec4(const ImVec4& new_groupVec4) {
         groupVec4 = new_groupVec4;
     }
 
-    const ImVec4& Group::getGroupVec4() const {
+    ImVec4 Group::getGroupVec4() const {
         return groupVec4;
     }
 }
