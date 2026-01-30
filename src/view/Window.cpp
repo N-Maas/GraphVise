@@ -28,13 +28,6 @@ namespace graphvise {
 		// Initialize GLFW
 		glfwInit();
 
-
-		glfwSetErrorCallback([](int error, const char* description) {
-		std::cerr << "GLFW Error " << error << ": " << description << std::endl;
-		});
-
-
-
 		// Tell GLFW what version of OpenGL we are using
 		// In this case we are using OpenGL 3.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -92,6 +85,9 @@ namespace graphvise {
 		Camera placeholderCamera = Camera();
 
 		ButtonController controller = ButtonController(placeholderCamera, *renderer);
+
+		controller.importGraph("Testgraph100.txt");
+
 		GUI gui = GUI(&controller);
 
 		ErrorCollector::getInstance().signIn(gui);

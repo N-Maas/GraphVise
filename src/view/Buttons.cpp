@@ -130,7 +130,8 @@ namespace graphvise
     void Buttons::GroupMenu(bool* groupMenu)
     {
 
-        groups = saver->getGraph().getGroups();
+
+        groups = &saver->getGraph().getGroups();
 
         ImGui::SetNextWindowSizeConstraints({170, 0},{MAXFLOAT, 400});
         ImGui::Begin("Groups", groupMenu,
@@ -138,7 +139,7 @@ namespace graphvise
             ImGuiWindowFlags_NoCollapse
             );
 
-        for (auto group : groups)
+        for (auto group : *groups)
         {
             if (ImGui::CollapsingHeader(group.getName().c_str()))
             {

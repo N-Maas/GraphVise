@@ -21,11 +21,12 @@ namespace graphvise
         void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
     private:
+
         const std::vector<std::string> allowedFiles = {".txt"};
         PerformanceMode mode = HIGH_PERFORMANCE;
 
         GraphSaver *saver = &GraphSaver::getGraphSaver();
-        std::vector<Group> groups = saver->getGraph().getGroups();
+        std::vector<Group>* groups = nullptr;
 
         ButtonController *buttonController;
         uint8_t performanceModeSlider = 0;
