@@ -21,7 +21,7 @@ namespace graphvise {
         graph = new_graph;
     }
 
-    //helper methods to get graph
+    //todo helper methods to get graph (Jannis: useless idk why they are here)
     Group& GraphSaver::getGroupForEdge(const Edge& edge) {
         if (!graph.has_value()) {
             throw std::runtime_error("No graph loaded");

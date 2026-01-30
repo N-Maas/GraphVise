@@ -15,7 +15,7 @@ namespace graphvise {
         [[nodiscard]] std::uint32_t  getEdgeID() const;
         [[nodiscard]] std::uint32_t  getGroupID() const;
         void setGroup(std::uint32_t groupID);
-        [[nodiscard]] std::vector<std::uint32_t > getConnectingVerticesIDs() const;
+        [[nodiscard]] std::pair<std::uint32_t, std::uint32_t> getConnectingVerticesIDs() const;
         [[nodiscard]] ImVec4 getEdgeVec4() const;
         [[nodiscard]] float getTransparency() const;
         void setOwnTransparency(float transparency);

@@ -15,15 +15,15 @@ TEST(VertexTest, CheckGetter) {
     EXPECT_EQ(vertex.getCoordsVector().x, 1.0f);
     EXPECT_EQ(vertex.getCoordsVector().y, 3.0f);
     EXPECT_EQ(vertex.getCoordsVector().z, 2.5f);
-    EXPECT_EQ(vertex.getVertexVec4().x, 0);    //Value of the Default-Group
-    EXPECT_EQ(vertex.getVertexVec4().y, 134);  //Value of the Default-Group
-    EXPECT_EQ(vertex.getVertexVec4().z, 139);  //Value of the Default-Group
+    EXPECT_NEAR(vertex.getVertexVec4().x, 0.2, 0.0001);    //Value of the Default-Group
+    EXPECT_NEAR(vertex.getVertexVec4().y, 0, 0.0001);  //Value of the Default-Group
+    EXPECT_NEAR(vertex.getVertexVec4().z, 0.13333, 0.0001);  //Value of the Default-Group
     EXPECT_EQ(vertex.getVertexVec4().w, 1);    //Value of the Default-Group
     EXPECT_EQ(vertex.getTransparency(), 1);
 }
 
 TEST(VertexTest, TransparencyTest) {
-    Graph graph = Graph(std::vector<glm::vec3>{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
     GraphSaver::getGraphSaver().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 

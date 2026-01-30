@@ -243,8 +243,8 @@ namespace graphvise {
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
-            int fromIdx = edge.getConnectingVerticesIDs()[0];
-            int toIdx = edge.getConnectingVerticesIDs()[1];
+            int fromIdx = edge.getConnectingVerticesIDs().first;
+            int toIdx = edge.getConnectingVerticesIDs().second;
             if (fromIdx < vertices.size() && toIdx < vertices.size()) {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();

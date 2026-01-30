@@ -95,8 +95,8 @@ std::optional<Error> ParserController::verifySubgraph(GraphData graphData) {
 
     std::map<std::pair<int, int>, int> graphEdgeMap;
     for (auto edge : currentGraph.getEdges()) {
-        std::vector<uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
-        std::pair<int, int> tempEdge(connectingVerticesIDs[0], connectingVerticesIDs[1]);
+        std::pair<uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
+        std::pair<int, int> tempEdge(connectingVerticesIDs.first, connectingVerticesIDs.second);
         graphEdgeMap[tempEdge] = 1;
     }
 

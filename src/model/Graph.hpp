@@ -15,17 +15,20 @@ namespace graphvise {
             for (glm::vec3 coord : coordinates) {
                 vertices.emplace_back(vertices.size(), coord);
             }
-            addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+            addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         }
+
+        // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
         Graph() = default;
-/*
+        /*
         // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
         explicit Graph(int vertexNumber) {
             vertices.reserve(vertexNumber);
 
         }
         */
-        void addVertex(const std::uint32_t vertexID, const glm::vec3& coords);
+        // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
+        void addVertex(std::uint32_t vertexID, const glm::vec3& coords);
 
         [[nodiscard]] std::vector<Vertex>& getVertices() ;
         [[nodiscard]] std::vector<Edge>& getEdges();

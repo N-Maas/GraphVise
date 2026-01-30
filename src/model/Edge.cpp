@@ -15,8 +15,8 @@ namespace graphvise {
         connectedGroupID = new_groupID;
     }
 
-    std::vector<std::uint32_t> Edge::getConnectingVerticesIDs() const {
-        std::vector verticesIDs = {firstVertexID, secondVertexID};
+    std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {
+        std::pair verticesIDs = {firstVertexID, secondVertexID};
         return verticesIDs;
     }
 
