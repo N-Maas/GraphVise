@@ -4,7 +4,6 @@
 
 #include "ErrorCollector.hpp"
 
-#include <iostream>
 #include <memory>
 #include <utility>
 
