@@ -8,25 +8,32 @@
 //needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
+#include "rendering/renderer.hpp"
+#include "controller/ButtonController.hpp"
 
 namespace graphvise
 {
     class Buttons
     {
     public:
-        Buttons(int buttonController);
+        Buttons(ButtonController *controller);
 
         void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
     private:
         const std::vector<std::string> allowedFiles = {".txt"};
-        int buttonController = 0;
-        int performanceModeSlider = 0;
-        int framebufferWidth = 0;
-        int framebufferHeight = 0;
+        PerformanceMode mode = HIGH_PERFORMANCE;
 
-        int vertex = -1;
-        int edge = -1;
+        GraphSaver *saver = &GraphSaver::getGraphSaver();
+        std::vector<Group> groups = saver->getGraph().getGroups();
+
+        ButtonController *buttonController;
+        uint8_t performanceModeSlider = 0;
+        uint32_t framebufferWidth = 0;
+        uint32_t framebufferHeight = 0;
+
+        int32_t vertex = 0;
+        int32_t edgeVertices[2] = {0, 0};
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();

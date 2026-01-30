@@ -42,12 +42,16 @@
 		std::cout << std::endl;
 		*/
 
+		graphvise::Window window = graphvise::Window();
 
 
-	if (!graphvise::Window().initWindow())
+	if (!window.initWindow())
 	{
 		return -1;
 	}
+
+
+
 	return 0;
 
 }

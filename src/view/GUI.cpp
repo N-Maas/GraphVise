@@ -3,12 +3,14 @@
 //
 
 #include "GUI.hpp"
+
+#include "controller/ErrorCollector.hpp"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
 namespace graphvise
 {
-    GUI::GUI()
+    GUI::GUI(ButtonController *controller) : buttons(controller)
     {
 
     }
@@ -55,20 +57,16 @@ namespace graphvise
 
     }
 
-    void GUI::loadGUI()
-    {
-    }
-
     void GUI::errorPopup()
     {
 
-        static bool errorAvailable = false;
 
         if (errorAvailable)
         {
-            ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize );
+            ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::Text("Wrong Text Format");
+            ImGui::Text("%s",
+                currentError.getErrorType());
             ImGui::Separator();
 
             if (ImGui::Button("Ok"))
@@ -79,37 +77,33 @@ namespace graphvise
             ImGui::EndPopup();
         }
 
-        ImGui::Begin("Error Showing");
-        ImGui::Text("Want to show Error?");
-        if (ImGui::Button("Yes"))
-        {
-            errorAvailable = true;
-        }
-        ImGui::End();
 
     }
 
     void GUI::currentObjInfo()
     {
-
-        static constexpr int id = 15;
-
-        static auto vertexName = "ExampleVertex";
-        static auto groupName = "Main Group";
-        static auto coords = glm::vec3(100.2f, 122.0f, -123.0f);
-        static const ImVec4 exampleColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
-
+        static Vertex currentVertex = GraphSaver::getGraphSaver().getGraph().getVertexByID(currentObjId);
 
 
         ImGui::Begin("Current Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::Text("ObjectID: %d \n ", id);
+        ImGui::Text("ObjectID: %d \n ", currentVertex.getVertexID());
+        const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
             coords.x, coords.y, coords.z);
-        ImGui::Text("Object Name: %s \n ", vertexName);
-        ImGui::Text("Object Group: %s \n ", groupName);
-        ImGui::Text("Object Color:"); ImGui::SameLine(); ImGui::ColorButton("", exampleColor);
+        ImGui::Text("Object Group: %d \n ", currentVertex.getGroupID());
+
+
+        ImGui::Text("Object Color:"); ImGui::SameLine(); ImGui::ColorButton("##Vertex color", currentVertex.getVertexVec4());
         ImGui::End();
 
+
+    }
+
+    void GUI::update()
+    {
+        currentError = ErrorCollector::getInstance().getCurrentError();
+
+        errorAvailable = true;
 
     }
 }

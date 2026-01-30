@@ -4,28 +4,35 @@
 
 #ifndef THESIS_FRAMEWORK_GUI_HPP
 #define THESIS_FRAMEWORK_GUI_HPP
-#include <GLFW/glfw3.h>
 
 #include "Buttons.hpp"
+#include "controller/ButtonController.hpp"
+
+#include <GLFW/glfw3.h>
+
+#include "ErrorCollectorObserver.hpp"
 
 namespace graphvise
 {
-    class GUI
+    class GUI : public ErrorCollectorObserver
     {
     public:
-        GUI();
+        GUI(ButtonController *controller);
         void initGUI(GLFWwindow* window);
         void loadFrame(int framebufferWidth, int framebufferHeight);
         void shutdownGUI();
 
     private:
 
-        int currentObjId = -1;
-        Buttons buttons = Buttons(0);
+        int currentObjId = 0;
+        Buttons buttons;
+        bool errorAvailable = false;
+        Error currentError = Error(ErrorType::NO_ERROR);
 
-        void loadGUI();
         void errorPopup();
         void currentObjInfo();
+        void update() override;
     };
 }
+
 #endif //THESIS_FRAMEWORK_GUI_HPP

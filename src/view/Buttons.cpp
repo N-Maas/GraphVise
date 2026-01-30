@@ -8,13 +8,13 @@
 #include "imgui/imgui.h"
 
 #include "imgui-filebrowser/imfilebrowser.h"
+#include "rendering/renderer.hpp"
 
 namespace graphvise
 {
-    Buttons::Buttons(int buttonController)
+    Buttons::Buttons(ButtonController *controller)
     {
-        this->buttonController = buttonController;
-
+        this->buttonController = controller;
 
         importGraphBrowser.SetTypeFilters(allowedFiles);
         importGroupConfigBrowser.SetTypeFilters(allowedFiles);
@@ -67,7 +67,7 @@ namespace graphvise
         static bool groups;
         static bool performanceMode;
         static bool lightMode;
-        static bool capture;
+
 
         ImVec2 pos;
         pos.x = framebufferWidth;
@@ -104,10 +104,6 @@ namespace graphvise
         }
         ImGui::Spacing();
 
-        if (ImGui::Button("Capture"))
-        {
-            capture = !capture;
-        }
         ImGui::End();
 
         if (search)
@@ -129,30 +125,12 @@ namespace graphvise
             toggleLightSourceMovement(&lightMode);
         }
 
-        if (capture)
-        {
-            //capture functionality
-        }
     }
 
     void Buttons::GroupMenu(bool* groupMenu)
     {
-        struct MockGroup
-        {
-            const char* name;
-            const int groupID;
-            ImVec4 color;
-        };
-        std::vector<MockGroup> groups = {
-            {"Cool Group", 3, ImVec4(1.0f, 0.5f, 0.3f, 0.0f)},
-            {"Not Group", 2, ImVec4(1.0f, 0.8f, 0.2f, 0.5f)},
-            {"Main Group", 1, ImVec4(0.1f, 0.2f, 0.9f, 1.0f)},
 
-        };
-
-
-        // auto size = ImVec2(300, 400);
-        // ImGui::SetNextWindowSize(size);
+        groups = saver->getGraph().getGroups();
 
         ImGui::SetNextWindowSizeConstraints({170, 0},{MAXFLOAT, 400});
         ImGui::Begin("Groups", groupMenu,
@@ -160,13 +138,13 @@ namespace graphvise
             ImGuiWindowFlags_NoCollapse
             );
 
-        for (auto& [name, groupID, color] : groups)
+        for (auto group : groups)
         {
-            if (ImGui::CollapsingHeader(name))
+            if (ImGui::CollapsingHeader(group.getName().c_str()))
             {
-                ImGui::Text("%d", groupID);
+                ImGui::Text("%d", group.getGroupID());
                 ImGui::SameLine();
-                ImGui::ColorButton("",color);
+                ImGui::ColorButton("",group.getGroupVec4());
 
             }
 
@@ -175,42 +153,20 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::findObject(bool* findObject)
-    {
-
-        ImGui::Begin("find Object", findObject,
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
-        );
-
-        ImGui::BeginTabBar("Hello");
-        if (ImGui::BeginTabItem("Edge"))
-        {
-            findEdge();
-            ImGui::Text("Edge ID: %d", edge);
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Vertex"))
-        {
-            findVertex();
-            ImGui::Text("Vertex ID: %d", vertex);
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-
-        ImGui::End();
-
-    }
-
     void Buttons::performanceModeToggle(bool* performanceMode)
     {
-        static const char* mode[] = {"Quality", "Balanced", "Performance"};
+
+        const char* modeText[] = {"High Performance", "High Resolution"};
+
         ImGui::Begin("Performance Mode", performanceMode,
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
         );
 
-        ImGui::SliderInt("", &performanceModeSlider, 0, 2, mode[performanceModeSlider]);
+        if (ImGui::SliderInt("##ModeSlider", (int*)&mode, 0, 1, modeText[mode]))
+        {
+            buttonController->togglePerformanceMode(mode);
+        }
 
         ImGui::End();
     }
@@ -225,23 +181,51 @@ namespace graphvise
 
     void Buttons::toggleLightSourceMovement(bool* lightSourceMovement)
     {
+
+
         ImGui::Begin("Light Source", lightSourceMovement,
                          ImGuiWindowFlags_AlwaysAutoResize |
                          ImGuiWindowFlags_NoCollapse
         );
-
-        ImGui::RadioButton("Light Source 1", &buttonController, 0);
-        ImGui::RadioButton("Light Source 2", &buttonController, 1);
 
         ImGui::End();
     }
 
     void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviour)
     {
+
+
+
     }
 
     void Buttons::setCameraMovementMode(bool* cameraMovementMode)
     {
+
+    }
+
+    void Buttons::findObject(bool* findObject)
+    {
+
+        ImGui::Begin("find Object", findObject,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        ImGui::BeginTabBar("Hello");
+        if (ImGui::BeginTabItem("Edge"))
+        {
+            findEdge();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Vertex"))
+        {
+            findVertex();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
+
+        ImGui::End();
+
     }
 
     void Buttons::findVertex()
@@ -249,16 +233,19 @@ namespace graphvise
         ImGui::InputInt("Vertex ID:", &vertex);
         if (ImGui::Button("Find Vertex"))
         {
+            buttonController->findVertex(vertex);
             vertex = 0;
         }
     }
 
     void Buttons::findEdge()
     {
-        ImGui::InputInt("Edge ID:", &edge);
+        ImGui::InputInt2("Vertex IDs:", edgeVertices);
         if (ImGui::Button("Find Edge"))
         {
-            edge = 0;
+            buttonController->findEdge(edgeVertices[0], edgeVertices[1]);
+            edgeVertices[0] = 0;
+            edgeVertices[1] = 0;
         }
     }
 
@@ -276,6 +263,8 @@ namespace graphvise
         {
             std::filesystem::path result = highlightSubgraphBrowser.GetSelected();
 
+            buttonController->highlightSubgraph(result);
+
             highlightSubgraphBrowser.ClearSelected();
         }
     }
@@ -292,6 +281,8 @@ namespace graphvise
         if (importGraphBrowser.HasSelected())
         {
             std::filesystem::path result = importGraphBrowser.GetSelected();
+
+            buttonController->importGraph(result);
 
             importGraphBrowser.ClearSelected();
         }
@@ -311,6 +302,8 @@ namespace graphvise
         {
             std::filesystem::path result = importGroupConfigBrowser.GetSelected();
 
+            buttonController->importGroupConfiguration(result);
+
             importGroupConfigBrowser.ClearSelected();
         }
     }
@@ -329,6 +322,7 @@ namespace graphvise
         if (exportGraphBrowser.HasSelected())
         {
             std::filesystem::path result = exportGraphBrowser.GetDirectory();
+            buttonController->exportGraph(result, ExportFormat::PNG); //TODO: Make Format selectable
             exportGraphBrowser.ClearSelected();
         }
     }

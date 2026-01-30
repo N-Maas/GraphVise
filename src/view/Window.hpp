@@ -28,7 +28,6 @@ namespace graphvise
 
         Resolution currentRes = HD;
 
-        GUI gui = GUI();
         bool mF5Pressed = false;
 
     };

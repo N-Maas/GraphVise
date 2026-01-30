@@ -63,10 +63,15 @@ namespace graphvise {
         uint32_t maxVertexID = graph.getVertices().size() - 1;
         if (firstVertexID == secondVertexID) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EQUAL_VERTEX_IDS));
-        } else if (firstVertexID > maxVertexID) {
+            return;
+        }
+        if (firstVertexID > maxVertexID) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(firstVertexID)));
-        } else if (secondVertexID > maxVertexID) {
+            return;
+        }
+        if (secondVertexID > maxVertexID) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(secondVertexID)));
+            return;
         }
 
         uint32_t edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);

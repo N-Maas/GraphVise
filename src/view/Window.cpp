@@ -12,6 +12,8 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 
+#include "controller/ButtonController.hpp"
+#include "controller/ErrorCollector.hpp"
 
 
 namespace graphvise {
@@ -26,6 +28,13 @@ namespace graphvise {
 		// Initialize GLFW
 		glfwInit();
 
+
+		glfwSetErrorCallback([](int error, const char* description) {
+		std::cerr << "GLFW Error " << error << ": " << description << std::endl;
+		});
+
+
+
 		// Tell GLFW what version of OpenGL we are using
 		// In this case we are using OpenGL 3.3
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -38,9 +47,9 @@ namespace graphvise {
 		std::string windowTitle = "GraphVise";
 
 
-		int width=1280, height=720;
+		int defaultWidth=1280, defaultHeight=720;
 
-		::GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
+		GLFWwindow* window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
 		// Error check if the window fails to create
 
 		if (window == nullptr)
@@ -49,11 +58,11 @@ namespace graphvise {
 			glfwTerminate();
 			return false;
 		}
+
+
+
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
-
-
-		gui.initGUI(window);
 
 		//Load GLAD so it configures OpenGL
 		gladLoadGL();
@@ -79,6 +88,15 @@ namespace graphvise {
 		// Create the renderer object
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
 		renderer->init();
+
+		Camera placeholderCamera = Camera();
+
+		ButtonController controller = ButtonController(placeholderCamera, *renderer);
+		GUI gui = GUI(&controller);
+
+		ErrorCollector::getInstance().signIn(gui);
+
+		gui.initGUI(window);
 
 		// FPS counter
 		int frameCount = 0;
