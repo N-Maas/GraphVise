@@ -9,7 +9,7 @@
 
 #include "ErrorCollector.hpp"
 
-#define MAX_COLOR_VALUE 255
+#define MAX_COLOR_VALUE 1.0f
 
 namespace graphvise {
     ButtonController::ButtonController(Camera& camera, Renderer& renderer) : camera(camera), renderer(renderer), threadController(renderer) {

@@ -7,11 +7,20 @@
 
 #include "../rendering/camera.hpp"
 
-namespace graphvise {
-    class MovementController {
+namespace graphvise
+{
+    class MovementController
+    {
     public:
         explicit MovementController(Camera& camera);
-        void moveCamera(glm::vec3 direction);
+
+        void moveForward();
+        void moveBackward();
+        void moveLeft();
+        void moveRight();
+        void moveUp();
+        void moveDown();
+
         void rotateCamera(float pitchChange, float yawChange);
         void zoom(float value);
 
