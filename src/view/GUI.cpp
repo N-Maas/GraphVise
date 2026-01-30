@@ -38,6 +38,7 @@ namespace graphvise
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
         currentObjInfo();
 
+
         errorPopup();
 
         // Renders the ImGUI elements
@@ -63,6 +64,8 @@ namespace graphvise
 
         if (errorAvailable)
         {
+            ImGui::Text(currentError.getMessage()->c_str());
+
             ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Text("%s",

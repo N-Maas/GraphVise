@@ -8,7 +8,6 @@
 //needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
-#include "rendering/renderer.hpp"
 #include "controller/ButtonController.hpp"
 
 namespace graphvise
@@ -16,25 +15,30 @@ namespace graphvise
     class Buttons
     {
     public:
-        Buttons(ButtonController *controller);
+        explicit Buttons(ButtonController *controller);
 
         void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
     private:
 
         const std::vector<std::string> allowedFiles = {".txt"};
-        PerformanceMode mode = HIGH_PERFORMANCE;
+
 
         GraphSaver *saver = &GraphSaver::getGraphSaver();
-        std::vector<Group>* groups = nullptr;
-
+        std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
-        uint8_t performanceModeSlider = 0;
+
+        PerformanceMode performanceMode = HIGH_PERFORMANCE;
+        CameraFocusMode cameraMode = FREE;
+        LightSourceMovementBehaviour lightSourceMovementBehaviour = FIXED_POSITION;
+
+
         uint32_t framebufferWidth = 0;
         uint32_t framebufferHeight = 0;
 
         int32_t vertex = 0;
         int32_t edgeVertices[2] = {0, 0};
+
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
@@ -44,11 +48,10 @@ namespace graphvise
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
         void findObject(bool* findObject);
-        void performanceModeToggle(bool* performanceMode);
-        void randomizeColoring(int groupID);
-        void changeColoring(int groupID);
-        void toggleLightSourceMovement(bool* lightSourceMovement);
-        void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviour);
+        void performanceModeToggle(bool* toggle_mode);
+        void randomizeColoring(uint32_t groupID) const;
+        void changeColoring(uint32_t groupID) const;
+        void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle);
         void setCameraMovementMode(bool* cameraMovementMode);
         void findVertex();
         void findEdge();

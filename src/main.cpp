@@ -38,7 +38,7 @@
 		std::cout << std::endl;
 		std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
 		std::cout << std::endl;
-		*/
+
 
 		graphvise::Window window = graphvise::Window();
 

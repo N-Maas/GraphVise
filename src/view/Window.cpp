@@ -42,7 +42,7 @@ namespace graphvise {
 
 		int defaultWidth=1280, defaultHeight=720;
 
-		GLFWwindow* window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
+		window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
 		// Error check if the window fails to create
 
 		if (window == nullptr)
@@ -86,11 +86,12 @@ namespace graphvise {
 
 		ButtonController controller = ButtonController(placeholderCamera, *renderer);
 
-		controller.importGraph("Testgraph100.txt");
+		std::shared_ptr<GUI> guiptr = std::make_shared<GUI>(&controller);
 
-		GUI gui = GUI(&controller);
+		ErrorCollector::getInstance().signIn(guiptr);
 
-		ErrorCollector::getInstance().signIn(gui);
+
+		auto gui = *guiptr.get();
 
 		gui.initGUI(window);
 
@@ -121,6 +122,8 @@ namespace graphvise {
 
 			glfwPollEvents();
 			renderer->processEvents(window);
+
+			processEvents();
 
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
@@ -162,5 +165,38 @@ namespace graphvise {
 		// Terminate GLFW before ending the program
 		glfwTerminate();
 		return true;
+	}
+
+	void Window::processEvents()
+	{
+		  (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
+
+		int right_mouse_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+
+		double mouse_position_double[2];
+        glfwGetCursorPos(window, &mouse_position_double[0], &mouse_position_double[1]);
+
+		float mouse_position[2] = {(float)mouse_position_double[0], (float)mouse_position_double[1]};
+
+		right_mouse_state == GLFW_PRESS; // for rotating camera
+		right_mouse_state == GLFW_RELEASE;
+
+
+		 GLFW_KEY_LEFT_CONTROL == GLFW_PRESS; // for speeding up camera
+         GLFW_KEY_CAPS_LOCK == GLFW_PRESS; // for slowing down camera
+
+
+		float step = 1.0f;
+		float forward = 0.0f, right = 0.0f, vertical = 0.0f;
+
+		forward += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? step : 0.0f;
+        forward -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? step : 0.0f;
+        right += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? step : 0.0f;
+        right -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? step : 0.0f;
+        vertical += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? step : 0.0f;
+        vertical -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? step : 0.0f;
+
+
+
 	}
 }

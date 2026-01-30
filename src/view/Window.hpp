@@ -15,9 +15,12 @@ namespace graphvise
     public:
         Window();
         bool initWindow();
-        void processEvents(GLFWwindow* m_window);
 
     private:
+        void processEvents();
+
+        GLFWwindow* window = nullptr;
+
         struct Resolution
         {
             int width, height;
@@ -27,8 +30,6 @@ namespace graphvise
         Resolution SD = {1280, 720};
 
         Resolution currentRes = HD;
-
-        bool mF5Pressed = false;
 
     };
 }

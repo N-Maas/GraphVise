@@ -4,11 +4,10 @@
 
 #include "Buttons.hpp"
 
+#include <format>
 
 #include "imgui/imgui.h"
-
 #include "imgui-filebrowser/imfilebrowser.h"
-#include "rendering/renderer.hpp"
 
 namespace graphvise
 {
@@ -26,7 +25,9 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        ImGui::ShowDemoWindow();
+
+
+        // ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
@@ -60,13 +61,23 @@ namespace graphvise
 
     }
 
+    void SideBarElement(const char* label, bool* state)
+    {
+        if (ImGui::Button(label))
+        {
+            *state = !*state;
+        }
+        ImGui::Spacing();
+    }
+
     void Buttons::SideBar()
     {
 
         static bool search;
         static bool groups;
-        static bool performanceMode;
-        static bool lightMode;
+        static bool togglePerformanceMode;
+        static bool lightSource;
+        static bool cameraMovement;
 
 
         ImVec2 pos;
@@ -82,27 +93,12 @@ namespace graphvise
                      ImGuiWindowFlags_NoTitleBar
         );
 
-        if (ImGui::Button("Search"))
-        {
-            search = !search;
-        }
-        ImGui::Spacing();
-        if (ImGui::Button("Groups"))
-        {
-            groups = !groups;
-        }
-        ImGui::Spacing();
+        SideBarElement("Search Object", &search);
+        SideBarElement("Groups", &groups);
+        SideBarElement("Performance Mode", &togglePerformanceMode);
+        SideBarElement("Light Source Behaviour", &lightSource);
+        SideBarElement("Camera Movement Mode", &cameraMovement);
 
-        if (ImGui::Button("Performance Mode"))
-        {
-            performanceMode = !performanceMode;
-        }
-        ImGui::Spacing();
-        if (ImGui::Button("Light Mode"))
-        {
-            lightMode = !lightMode;
-        }
-        ImGui::Spacing();
 
         ImGui::End();
 
@@ -116,36 +112,41 @@ namespace graphvise
             GroupMenu(&groups);
         }
 
-        if (performanceMode)
+        if (togglePerformanceMode)
         {
-            performanceModeToggle(&performanceMode);
+            performanceModeToggle(&togglePerformanceMode);
         }
-        if (lightMode)
+        if (lightSource)
         {
-            toggleLightSourceMovement(&lightMode);
+            setLightSourceMovementBehaviour(&lightSource);
         }
-
+        if (cameraMovement)
+        {
+            setCameraMovementMode(&cameraMovement);
+        }
     }
 
     void Buttons::GroupMenu(bool* groupMenu)
     {
 
 
-        groups = &saver->getGraph().getGroups();
+        activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({170, 0},{MAXFLOAT, 400});
+        ImGui::SetNextWindowSizeConstraints({230, 0},{MAXFLOAT, 400});
         ImGui::Begin("Groups", groupMenu,
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoCollapse
             );
 
-        for (auto group : *groups)
+        for (const auto& group : *activeGroups)
         {
             if (ImGui::CollapsingHeader(group.getName().c_str()))
             {
-                ImGui::Text("%d", group.getGroupID());
+                ImGui::Text("Group ID: %d", group.getGroupID());
                 ImGui::SameLine();
-                ImGui::ColorButton("",group.getGroupVec4());
+                ImGui::ColorButton(std::format("Group Color##{}", group.getGroupID()).c_str(),group.getGroupVec4());
+                randomizeColoring(group.getGroupID());
+                changeColoring(group.getGroupID());
 
             }
 
@@ -154,53 +155,99 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::performanceModeToggle(bool* performanceMode)
+    void Buttons::performanceModeToggle(bool* toggle_mode)
     {
 
         const char* modeText[] = {"High Performance", "High Resolution"};
 
-        ImGui::Begin("Performance Mode", performanceMode,
+        ImGui::Begin("Performance Mode", toggle_mode,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
 
-        if (ImGui::SliderInt("##ModeSlider", (int*)&mode, 0, 1, modeText[mode]))
+        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode), HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
         {
-            buttonController->togglePerformanceMode(mode);
+            buttonController->togglePerformanceMode(performanceMode);
         }
 
         ImGui::End();
     }
 
-    void Buttons::randomizeColoring(int groupID)
+    void Buttons::randomizeColoring(uint32_t groupID) const
     {
+
+        if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
+        {
+            buttonController->randomizeColoring(groupID);
+        }
+
     }
 
-    void Buttons::changeColoring(int groupID)
+    void Buttons::changeColoring(uint32_t groupID) const
     {
+
+        static auto groupColors = std::vector<ImVec4>(16);
+
+        if (groupID >= groupColors.size())
+        {
+            groupColors.resize(groupColors.size() * 2);
+        }
+
+        ImVec4& color = groupColors[groupID];
+
+        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        {
+             color = saver->getGraph().getGroupByID(groupID).getGroupVec4();
+        }
+
+
+        ImGui::ColorEdit4(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
+        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, color);
+
+        }
+
     }
 
-    void Buttons::toggleLightSourceMovement(bool* lightSourceMovement)
+
+    void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle)
     {
+        ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoCollapse
+                );
+        const bool first =ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour), FIXED_POSITION);
+        const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour), FOLLOW_CAMERA);
 
+        if (first || second)
+        {
+            buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+        }
 
-        ImGui::Begin("Light Source", lightSourceMovement,
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
-        );
 
         ImGui::End();
-    }
-
-    void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviour)
-    {
-
 
 
     }
 
     void Buttons::setCameraMovementMode(bool* cameraMovementMode)
     {
+
+        ImGui::Begin("Camera Focus", cameraMovementMode,
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoCollapse
+                );
+
+        const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
+        const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);
+
+        if (first || second)
+        {
+            buttonController->setCameraFocusMode(cameraMode);
+        }
+
+        ImGui::End();
 
     }
 
@@ -212,7 +259,7 @@ namespace graphvise
                      ImGuiWindowFlags_NoCollapse
         );
 
-        ImGui::BeginTabBar("Hello");
+        ImGui::BeginTabBar("##FindObjectTabBar");
         if (ImGui::BeginTabItem("Edge"))
         {
             findEdge();
@@ -231,7 +278,7 @@ namespace graphvise
 
     void Buttons::findVertex()
     {
-        ImGui::InputInt("Vertex ID:", &vertex);
+        ImGui::InputInt("##VertexID", &vertex);
         if (ImGui::Button("Find Vertex"))
         {
             buttonController->findVertex(vertex);
@@ -241,7 +288,7 @@ namespace graphvise
 
     void Buttons::findEdge()
     {
-        ImGui::InputInt2("Vertex IDs:", edgeVertices);
+        ImGui::InputInt2("##Vertex IDs:", edgeVertices);
         if (ImGui::Button("Find Edge"))
         {
             buttonController->findEdge(edgeVertices[0], edgeVertices[1]);
@@ -262,7 +309,7 @@ namespace graphvise
 
         if (highlightSubgraphBrowser.HasSelected())
         {
-            std::filesystem::path result = highlightSubgraphBrowser.GetSelected();
+            const std::filesystem::path result = highlightSubgraphBrowser.GetSelected();
 
             buttonController->highlightSubgraph(result);
 
@@ -281,7 +328,7 @@ namespace graphvise
 
         if (importGraphBrowser.HasSelected())
         {
-            std::filesystem::path result = importGraphBrowser.GetSelected();
+            const std::filesystem::path result = importGraphBrowser.GetSelected();
 
             buttonController->importGraph(result);
 
@@ -301,7 +348,7 @@ namespace graphvise
 
         if (importGroupConfigBrowser.HasSelected())
         {
-            std::filesystem::path result = importGroupConfigBrowser.GetSelected();
+            const std::filesystem::path result = importGroupConfigBrowser.GetSelected();
 
             buttonController->importGroupConfiguration(result);
 
@@ -322,7 +369,7 @@ namespace graphvise
 
         if (exportGraphBrowser.HasSelected())
         {
-            std::filesystem::path result = exportGraphBrowser.GetDirectory();
+            const std::filesystem::path result = exportGraphBrowser.GetDirectory();
             buttonController->exportGraph(result, ExportFormat::PNG); //TODO: Make Format selectable
             exportGraphBrowser.ClearSelected();
         }
