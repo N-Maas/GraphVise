@@ -113,8 +113,10 @@ namespace graphvise {
                 Error error(ErrorType::DUPLICATE_EDGE, line, currentLine);
                 return std::unexpected(error);
             }
-            edgeMap[edge] = 1;
 
+            std::pair<int, int> invertedEdge(secondVertexID, firstVertexID);
+            edgeMap[edge] = 1;
+            edgeMap[invertedEdge] = 1;
             edges.push_back(edge);
         }
 
