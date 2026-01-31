@@ -2,7 +2,6 @@
 #include <stdexcept>
 #include "GraphSaver.hpp"
 
-
 namespace graphvise {
     std::uint32_t  Vertex::getVertexID() const {
         return vertexID;
@@ -16,21 +15,16 @@ namespace graphvise {
         connectedGroupID = groupID;
     }
 
-    const glm::vec3& Vertex::getCoordsVector() const {
+    glm::vec3 Vertex::getCoordsVector() const {
         return coordsVector;
     }
 
     ImVec4 Vertex::getVertexVec4() const {
-        ImVec4 vertexVec = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
-        vertexVec.w = getTransparency();
-        return vertexVec;
-    }
-
-    float Vertex::getTransparency() const {
+        ImVec4 vertexVec4 = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
         if (ownTransparency.has_value()) {
-            return ownTransparency.value();
+            vertexVec4.w = ownTransparency.value();
         }
-        return GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getTransparency();
+        return vertexVec4;
     }
 
     void Vertex::setOwnTransparency(float transparency) {

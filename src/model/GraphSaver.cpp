@@ -3,7 +3,6 @@
 
 namespace graphvise {
     GraphSaver GraphSaver::instance;
-
     GraphSaver::GraphSaver() = default;
 
     GraphSaver& GraphSaver::getGraphSaver() {
@@ -20,28 +19,4 @@ namespace graphvise {
     void GraphSaver::setGraph(const Graph& new_graph) {
         graph = new_graph;
     }
-
-    //todo helper methods to get graph (Jannis: useless idk why they are here)
-    Group& GraphSaver::getGroupForEdge(const Edge& edge) {
-        if (!graph.has_value()) {
-            throw std::runtime_error("No graph loaded");
-        }
-        return graph.value().getGroupByID(edge.getGroupID());
-    }
-
-    Group& GraphSaver::getGroupByID(uint32_t groupID) {
-        if (!graph.has_value()) {
-            throw std::runtime_error("No graph loaded");
-        }
-        return graph.value().getGroupByID(groupID);
-    }
-
-
-    std::vector<Vertex>& GraphSaver::getVertices() {
-        if (!graph.has_value()) {
-            throw std::runtime_error("No graph loaded");
-        }
-        return graph.value().getVertices();
-    }
-
 }

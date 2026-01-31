@@ -5,8 +5,8 @@
 #ifndef THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 #define THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 #include "ThreadController.hpp"
-#include "../rendering/camera.hpp"
 #include "../rendering/renderer.hpp"
+#include "../rendering/camera.hpp"
 #include "Enums/ExportFormat.hpp"
 #include "imgui/imgui.h"
 

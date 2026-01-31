@@ -7,6 +7,11 @@
 #include "AdamOptimizer.hpp"
 #include "wembed.h"
 
+#define MAX_SCALE 10
+#define START_VALUE .5
+#define EDGE_GROWTH_FACTOR 0.001
+#define VERTEX_GROWTH_FACTOR 0.1
+
 namespace graphvise {
     Graph WEmbedController::embedGraph(GraphData& graphData) {
         std::map<int, std::set<int>> neighborhoodMap = createNeighborhoodMap(graphData);
@@ -14,6 +19,7 @@ namespace graphvise {
         wembed::Options embedderOptions;
         embedderOptions.embeddingDimension = 3;
         embedderOptions.useWeights = false;
+        embedderOptions.maxIterations = 3000;
         wembed::Embedder embedder = wembed::createEmbedder(graph, embedderOptions);
         embedder.calculateEmbedding();
         std::vector<std::vector<double>> coordinates = embedder.getCoordinates();
@@ -21,6 +27,43 @@ namespace graphvise {
         std::vector<glm::vec3> vertexCoordinates;
         for (auto coord : coordinates) {
             vertexCoordinates.emplace_back(coord[0], coord[1], coord[2]);
+        }
+
+        glm::vec3 average;
+        for (auto vertex : vertexCoordinates) {
+            average.x += vertex.x / vertexCoordinates.size();
+            average.y += vertex.y / vertexCoordinates.size();
+            average.z += vertex.z / vertexCoordinates.size();
+        }
+
+        //std::cout << average.x << " " << average.y << " " << average.z << std::endl;
+
+        //Max Scale amount is based on 10th root of vertex count and edge count
+        float maxEdgeScale = 5 * pow(graphData.edges.size(), static_cast<float>(1)/10);
+        float maxVertexScale = 3 * pow(graphData.vertexCount * 10, static_cast<float>(1)/10);
+
+        //std::cout << "MAX Vertex Scale: " << maxVertexScale << " MAX Edge Scale: " << maxEdgeScale << std::endl;
+
+        //Calculating scaling factor based on logistic growth
+        float vertexScaleFactor = maxVertexScale * (1/(1+pow(std::numbers::e, -VERTEX_GROWTH_FACTOR*maxVertexScale*graphData.vertexCount)*((maxVertexScale/START_VALUE)-1)));
+        float edgeScaleFactor = maxEdgeScale * (1/(1+pow(std::numbers::e, -EDGE_GROWTH_FACTOR*maxEdgeScale*graphData.edges.size())*((maxEdgeScale/START_VALUE)-1)));
+
+        //std::cout << "VSF: " << vertexScaleFactor << " ESF: " << edgeScaleFactor << std::endl;
+
+        /*float vertexScaleFactor = MAX_SCALE * (1/(1+pow(std::numbers::e, -GROWTH_FACTOR*MAX_SCALE*graphData.vertexCount)*((MAX_SCALE/START_VALUE)-1)));
+        float edgeScaleFactor = MAX_SCALE * (1/(1+pow(std::numbers::e, -GROWTH_FACTOR*MAX_SCALE*graphData.edges.size())*((MAX_SCALE/START_VALUE)-1)));
+*/
+        /*float vertexScaleFactor = (pow(graphData.vertexCount * 0.04, static_cast<float>(1)/3));
+        float edgeScaleFactor = (pow(graphData.edges.size(), static_cast<float>(1)/3));*/
+
+        //Moving center of mass to (0, 0, 0) and scaling graph
+        for (auto& vertex : vertexCoordinates) {
+            vertex.x -= average.x;
+            vertex.y -= average.y;
+            vertex.z -= average.z;
+            vertex.x += vertexScaleFactor * edgeScaleFactor * vertex.x;
+            vertex.y += vertexScaleFactor * edgeScaleFactor * vertex.y;
+            vertex.z += vertexScaleFactor * edgeScaleFactor * vertex.z;
         }
 
         Graph embeddedGraph(vertexCoordinates);

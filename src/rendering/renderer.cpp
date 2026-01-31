@@ -25,6 +25,7 @@
 #include <glm/ext/matrix_transform.hpp>
 
 namespace graphvise {
+
     Renderer::Renderer()
     : mFramebufferSize(800, 600),  // Default size
       framebuffer(0),
@@ -205,8 +206,8 @@ namespace graphvise {
 
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
 
-        std::vector<Vertex>& vertices = graph.getVertices();
-        std::vector<Edge>& edges = graph.getEdges();
+        const std::vector<Vertex>& vertices = graph.getVertices();
+        const std::vector<Edge>& edges = graph.getEdges();
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;

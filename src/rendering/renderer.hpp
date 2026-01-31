@@ -15,9 +15,6 @@
 
 #pragma once
 
-#include "camera.hpp"
-#include "../model/GraphSaver.hpp"
-#include "../controller/RendererObserver.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -28,7 +25,9 @@
 
 
 #include "RendererSubject.hpp"
-#include "view/Window.hpp"
+#include "camera.hpp"
+#include "../model/GraphSaver.hpp"
+#include "../controller/RendererObserver.hpp"
 
 namespace graphvise {
 

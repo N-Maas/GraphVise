@@ -12,10 +12,6 @@ namespace graphvise {
         GraphSaver(const GraphSaver&) = delete;
         GraphSaver& operator=(const GraphSaver&) = delete;
 
-        Group& getGroupForEdge(const Edge& edge);
-        Group &getGroupByID(uint32_t groupID);
-        std::vector<Vertex> &getVertices();
-
     private:
         explicit GraphSaver();
         static GraphSaver instance;
