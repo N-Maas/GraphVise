@@ -14,12 +14,7 @@ namespace graphvise
     public:
         explicit MovementController(Camera& camera);
 
-        void moveForward();
-        void moveBackward();
-        void moveLeft();
-        void moveRight();
-        void moveUp();
-        void moveDown();
+        void moveCamera(glm::vec3 direction);
 
         void rotateCamera(float pitchChange, float yawChange);
         void zoom(float value);
