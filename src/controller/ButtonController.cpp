@@ -4,6 +4,7 @@
 
 #include "ButtonController.hpp"
 
+#include <iostream>
 #include <random>
 #include <utility>
 
@@ -12,7 +13,8 @@
 #define MAX_COLOR_VALUE 1.0f
 
 namespace graphvise {
-    ButtonController::ButtonController(Camera& camera, Renderer& renderer) : camera(camera), renderer(renderer), threadController(renderer) {
+    ButtonController::ButtonController(Renderer& renderer) : camera(renderer.m_camera()), renderer(renderer),
+                                                                             threadController(renderer) {
     }
 
     void ButtonController::togglePerformanceMode(PerformanceMode mode) {
@@ -48,17 +50,19 @@ namespace graphvise {
     }
 
     void ButtonController::findVertex(int vertexID) {
-        //TODO: Make camera jump to vertex?
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
-        if (graph.getVertices().size() < vertexID) {
-            graph.highlightByID(std::vector<uint32_t>{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        if (vertexID < graph.getVertices().size()) {
+            graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+            glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
+            vertexPos.x += 1;
+            camera.position_world_space = vertexPos;
+            camera.setRotation(0, 3 * std::numbers::pi/2);
         } else {
             ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
         }
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
-        //TODO: Make camera jump to edge?
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
         uint32_t maxVertexID = graph.getVertices().size() - 1;
 
@@ -75,8 +79,43 @@ namespace graphvise {
             return;
         }
 
-        uint32_t edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
-        graph.highlightByID(std::vector<uint32_t>{}, std::vector<uint32_t>{edgeID});
+        uint32_t edgeID;
+        try {
+            edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
+        } catch (std::out_of_range& e) {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::EDGE_DOES_NOT_EXIST));
+        }
+
+        graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
+        glm::vec3 firstVertexPos = graph.getVertexByID(firstVertexID).getCoordsVector();
+        glm::vec3 secondVertexPos = graph.getVertexByID(secondVertexID).getCoordsVector();
+
+        glm::vec3 dirVec = firstVertexPos - secondVertexPos;
+        glm::vec3 camOffsetDirVec(dirVec.z, 0, -dirVec.x);
+
+        camOffsetDirVec = normalize(camOffsetDirVec);
+
+        //Calculate center point of the edge
+        glm::vec3 averagePos;
+        averagePos.x += (firstVertexPos.x + secondVertexPos.x) / 2;
+        averagePos.y += (firstVertexPos.y + secondVertexPos.y) / 2;
+        averagePos.z += (firstVertexPos.z + secondVertexPos.z) / 2;
+
+        glm::vec3 newCamPos = averagePos - camOffsetDirVec;
+
+        camera.position_world_space = newCamPos;
+
+        glm::vec3 toMiddle = normalize(averagePos - newCamPos);
+
+        //I just noticed, I hate LA II
+        float newAngle;
+
+        if (toMiddle.x < 0) {
+            newAngle = acos(toMiddle.z) + std::numbers::pi;
+        } else {
+            newAngle = acos(-toMiddle.z);
+        }
+        camera.setRotation(0, newAngle);
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {
