@@ -84,9 +84,7 @@ namespace graphvise {
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
 		renderer->init();
 
-		Camera placeholderCamera = Camera();
-
-		ButtonController controller = ButtonController(placeholderCamera, *renderer);
+		ButtonController controller = ButtonController(*renderer);
 
 		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
 
