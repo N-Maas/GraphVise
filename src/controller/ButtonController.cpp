@@ -47,6 +47,7 @@ namespace graphvise {
 
     void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
         //TODO: Implement, when movement for camera is implemented
+        camera.set_camera_focus_mode(mode);
     }
 
     void ButtonController::findVertex(int vertexID) {
@@ -112,9 +113,9 @@ namespace graphvise {
         float newAngle;
 
         if (toMiddle.x < 0) {
-            newAngle = acos(toMiddle.z) + std::numbers::pi;
+            newAngle = acosf(toMiddle.z) + std::numbers::pi;
         } else {
-            newAngle = acos(-toMiddle.z);
+            newAngle = acosf(-toMiddle.z);
         }
         camera.setRotation(0, newAngle);
     }

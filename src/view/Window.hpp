@@ -7,6 +7,7 @@
 
 
 #include "GUI.hpp"
+#include "controller/MovementController.hpp"
 
 namespace graphvise
 {
@@ -20,6 +21,7 @@ namespace graphvise
         void processEvents();
 
         GLFWwindow* window = nullptr;
+        MovementController movementController;
 
         struct Resolution
         {
