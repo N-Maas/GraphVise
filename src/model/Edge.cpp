@@ -13,6 +13,7 @@ namespace graphvise {
 
     void Edge::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
+        GraphSaver::getGraphSaver().getGraph().updateSortedEdges();
     }
 
     std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {
@@ -30,6 +31,7 @@ namespace graphvise {
     void Edge::setOwnTransparency(float transparency) {
         if (transparency >= 0.0f && transparency <= 1.0f) {
             ownTransparency = transparency;
+            GraphSaver::getGraphSaver().getGraph().updateSortedEdges();
             return;
         }
         throw std::out_of_range("Transparency must be between 0 and 1");
@@ -38,6 +40,7 @@ namespace graphvise {
     void Edge::deleteOwnTransparency() {
         if (ownTransparency.has_value()) {
             ownTransparency.reset();
+            GraphSaver::getGraphSaver().getGraph().updateSortedEdges();
         }
     }
 }

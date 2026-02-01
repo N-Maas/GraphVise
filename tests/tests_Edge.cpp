@@ -6,7 +6,7 @@
 
 using namespace graphvise;
 TEST(EdgeTest, CheckGetter) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Edge edge1 = Edge(0,
         14,
@@ -23,7 +23,7 @@ TEST(EdgeTest, CheckGetter) {
 }
 
 TEST(EdgeTest, TransparencyTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Edge edge1 = Edge(0,
         14,
@@ -41,7 +41,7 @@ TEST(EdgeTest, TransparencyTest) {
 }
 
 TEST(EdgeTest, SetGroupTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Edge edge1 = Edge(0,
         14,

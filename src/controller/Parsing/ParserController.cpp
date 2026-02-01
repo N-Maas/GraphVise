@@ -3,7 +3,6 @@
 //
 
 #include "ParserController.hpp"
-
 #include <iostream>
 #include <map>
 #include <ostream>
@@ -53,7 +52,7 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 // }
                 // std::cout << "ConnectingVertexIDs: " << std::endl;
                 // for (std::uint32_t edgeID : groupData.edges) {
-                //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().at(0) << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().at(1) << std::endl;
+                //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().first << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().second << std::endl;
                 // }
                 GraphSaver::getGraphSaver().getGraph().addGroup(groupData.name, groupData.color ,groupData.vertices, groupData.edges);
             }

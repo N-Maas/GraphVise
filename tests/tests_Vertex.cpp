@@ -6,7 +6,7 @@
 
 using namespace graphvise;
 TEST(VertexTest, CheckGetter) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 
@@ -22,7 +22,7 @@ TEST(VertexTest, CheckGetter) {
 }
 
 TEST(VertexTest, TransparencyTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 
@@ -38,7 +38,7 @@ TEST(VertexTest, TransparencyTest) {
 }
 
 TEST(VertexTest, SetGroupTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
     GraphSaver::getGraphSaver().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 
