@@ -84,6 +84,7 @@ namespace graphvise {
             edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
         } catch (std::out_of_range& e) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EDGE_DOES_NOT_EXIST));
+            return;
         }
 
         graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
