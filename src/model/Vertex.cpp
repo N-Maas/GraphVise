@@ -13,6 +13,7 @@ namespace graphvise {
 
     void Vertex::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
+        GraphSaver::getGraphSaver().getGraph().updateSortedVertices();
     }
 
     glm::vec3 Vertex::getCoordsVector() const {
@@ -30,6 +31,7 @@ namespace graphvise {
     void Vertex::setOwnTransparency(float transparency) {
         if (transparency >= 0.0f && transparency <= 1.0f) {
             ownTransparency = transparency;
+            GraphSaver::getGraphSaver().getGraph().updateSortedVertices();
             return;
         }
         throw std::out_of_range("Transparency must be between 0 and 1");
@@ -38,6 +40,7 @@ namespace graphvise {
     void Vertex::deleteOwnTransparency() {
         if (ownTransparency.has_value()) {
             ownTransparency.reset();
+            GraphSaver::getGraphSaver().getGraph().updateSortedVertices();
         }
     }
 }
