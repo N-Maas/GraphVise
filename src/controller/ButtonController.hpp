@@ -13,7 +13,7 @@
 namespace graphvise {
     class ButtonController {
     public:
-        ButtonController(Camera& camera, Renderer& renderer);
+        ButtonController(Renderer& renderer);
         void togglePerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);
         void changeColoring(int groupID, ImVec4 color);

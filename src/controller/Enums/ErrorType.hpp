@@ -7,6 +7,7 @@
 
 namespace graphvise {
     enum class ErrorType {
+        EDGE_DOES_NOT_EXIST,
         NO_ERROR,
         EQUAL_VERTEX_IDS,
         VERTEX_ID_OUT_OF_BOUNDS,

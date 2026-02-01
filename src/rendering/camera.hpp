@@ -56,9 +56,9 @@ namespace graphvise {
             return rotation_x_0;
         }
 
-        void setRotation(float rotation_x_0, float rotation_y_0) {
-            this->rotation_x_0 = rotation_x_0;
-            this->rotation_y_0 = rotation_y_0;
+        void setRotation(float rotation_x, float rotation_y) {
+            this->rotation_x = rotation_x;
+            this->rotation_y = rotation_y;
         }
 
         float rotation_x;

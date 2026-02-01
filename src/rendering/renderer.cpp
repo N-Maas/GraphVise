@@ -149,9 +149,9 @@ namespace graphvise {
      */
     void Renderer::reloadShaders()
     {
-        std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
-        std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
-        std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
+        //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
+        //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
+        //std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
         // Create shader program object and get its reference
         GLuint newProgram = utils::createShaderProgramFromFile(mVertexShaderPath, mFragmentShaderPath);
         if (newProgram != 0)
@@ -202,7 +202,7 @@ namespace graphvise {
     // todo will work properly when Model is implemented
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
-        std::cout << "DEBUG: Renderer::render() called!" << std::endl;
+        //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
 
@@ -234,12 +234,12 @@ namespace graphvise {
             generateCylinder(12);  // 12 segments
         }
 
-        std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
-                  << edges.size() << " edges" << std::endl;
+        //std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
+        //          << edges.size() << " edges" << std::endl;
 
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const auto& vertex : vertices) {
-            std::cout << "iterating through vertices" << std::endl;
+            //std::cout << "iterating through vertices" << std::endl;
             renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
@@ -524,8 +524,8 @@ namespace graphvise {
         if (sphereVAO == 0) return;
 
         //debug
-        std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
-                  << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
+        //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
+        //          << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
 
         // Create model matrix: translate to center, scale by radius
         glm::mat4 model = glm::translate(glm::mat4(1.0f), center);
@@ -544,11 +544,11 @@ namespace graphvise {
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         //debug
-        std::cout << "objectColor uniform location: " << colorLoc << std::endl;
+        //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
         if (colorLoc != -1) {
             glUniform3f(colorLoc, color.r, color.g, color.b);
 
-            std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
+            //std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
         } else {
             std::cout << "ERROR: objectColor uniform not found in shader!" << std::endl;
             // Check what uniforms actually exist
