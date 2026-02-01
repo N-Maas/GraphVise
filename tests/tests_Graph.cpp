@@ -206,47 +206,55 @@ TEST(GraphTest, sortedEdgesAndVertexTest) {
     for (Edge* edge : graph.getEdgesSortedByTransparency()) {
         EXPECT_EQ(edge->getEdgeVec4().w, 1);
     }
-    graph.getVertexByID(1).setOwnTransparency(0);
-    graph.getEdgeByID(1).setOwnTransparency(0);
+    graph.highlightByID(std::vector<std::uint32_t>{1}, std::vector<std::uint32_t>{1});
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(3)->getVertexID(), 1);
+    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexID(), 1);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0.2, 0.0001);
 
     EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(3)->getEdgeID(), 1);
+    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeID(), 1);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.2, 0.0001);
 
     graph.addGroup("first", ImVec4(), std::vector<std::uint32_t>{1,3}, std::vector<std::uint32_t>{1,3});
     graph.getGroupByID(1).setTransparency(0.5);
 
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.5);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(2)->getVertexID(), 3);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(3)->getVertexID(), 1);
+    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
+    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexID(), 1);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0.2, 0.0001);
 
     EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.5);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(2)->getEdgeID(), 3);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(3)->getEdgeID(), 1);
+    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeID(), 1);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.2, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.2, 0.0001);
 
-    graph.getVertexByID(1).deleteOwnTransparency();
-    graph.getEdgeByID(1).deleteOwnTransparency();
+    graph.removeAllHighlights();
 
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.5);
-    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0.5);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.5, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0.5, 0.0001);
 
     EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeVec4().w, 1);
     EXPECT_EQ(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 1);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.5);
-    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.5);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.5, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.5, 0.0001);
+
+    graph.getGroupByID(1).setTransparency(0.4);
+
+    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
+    EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(2)->getVertexVec4().w, 0.4, 0.0001);
+    EXPECT_NEAR(graph.getVerticesSortedByTransparency().at(3)->getVertexVec4().w, 0.4, 0.0001);
+
+    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(0)->getEdgeVec4().w, 1);
+    EXPECT_EQ(graph.getEdgesSortedByTransparency().at(1)->getEdgeVec4().w, 1);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.4, 0.0001);
+    EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.4, 0.0001);
 }

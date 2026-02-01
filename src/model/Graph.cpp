@@ -80,6 +80,8 @@ namespace graphvise {
                 edge.setOwnTransparency(1.0f);
             }
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::removeAllHighlights() {
@@ -89,6 +91,8 @@ namespace graphvise {
         for (Edge& edge : edges) {
             edge.deleteOwnTransparency();
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::deleteAllGroups() {
