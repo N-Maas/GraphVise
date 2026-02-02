@@ -199,7 +199,6 @@ namespace graphvise {
         notify();
     }
 
-    // todo will work properly when Model is implemented
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
