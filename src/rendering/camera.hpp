@@ -74,6 +74,7 @@ namespace graphvise {
         bool rotate_camera;
 
         Camera() :
+            cameraFocusMode(CENTER_OF_MASS),
             position_world_space(0, 0, 5),
             rotation_y(0),
             rotation_x(0),
@@ -83,8 +84,7 @@ namespace graphvise {
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
             speed(2.0f),
-            rotate_camera(false),
-            cameraFocusMode(FREE)
+            rotate_camera(false)
         {
         }
 
@@ -98,5 +98,12 @@ namespace graphvise {
         // Constructs the world to projection space transform for the given camera and
         // the given width / height ratio
         glm::mat4 get_world_to_projection_space(float aspect_ratio) const;
+
+        // Make the camera look at a specific target point (default: origin)
+        void lookAt(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f));
+
+        // Optional: Set camera to orbit around a point
+        void orbitAround(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f), float distance = 5.0f);
+
     };
 }

@@ -120,6 +120,10 @@ namespace graphvise {
         // Load the shader files
         reloadShaders();
 
+        if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
+            mCamera.lookAt(centerCoordinates);// per default camera looks at (0,0,0)
+        }
+
         // Initialize Buffers and Arrays for sphere and cylinder
         glGenVertexArrays(1, &sphereVAO);
         glGenBuffers(1, &sphereVBO);
@@ -185,6 +189,8 @@ namespace graphvise {
         // Tell OpenGL which shader program we want to use
         glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
+
+
 
         // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
