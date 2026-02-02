@@ -10,7 +10,7 @@
 namespace graphvise {
     struct GraphData {
         uint32_t vertexCount;
-        std::vector<std::pair<int, int>> edges;
+        std::vector<std::pair<uint32_t, uint32_t>> edges;
     };
 }
 

@@ -9,14 +9,14 @@
 namespace graphvise {
     class RendererSubject {
     private:
-        std::vector<std::shared_ptr<RendererObserver>> observerList;
+        std::vector<std::reference_wrapper<RendererObserver>> observerList;
 
     public:
         RendererSubject() = default;
         virtual ~RendererSubject();
 
-        virtual void signIn(std::shared_ptr<RendererObserver> observer);
-        virtual void signOut(std::shared_ptr<RendererObserver> observer);
+        virtual void signIn(std::reference_wrapper<RendererObserver> observer);
+        virtual void signOut(std::reference_wrapper<RendererObserver> observer);
         virtual void notify();
 
         [[nodiscard]] const auto& getObserverList() const {return observerList;}
