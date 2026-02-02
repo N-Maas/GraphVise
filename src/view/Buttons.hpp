@@ -8,41 +8,58 @@
 //needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
+#include "controller/ButtonController.hpp"
 
-namespace graphvise {
+namespace graphvise
+{
     class Buttons
     {
     public:
-        Buttons(int buttonController);
+        explicit Buttons(ButtonController *controller);
 
-        void loadButtonFrame();
+        void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
     private:
-        const std::vector<std::string> allowedFiles = {".txt"};
-        int buttonController = 0;
-        int performanceMode = 0;
 
-        int vertex = -1;
-        int edge = -1;
+        const std::vector<std::string> allowedFiles = {".txt"};
+
+
+        GraphSaver *saver = &GraphSaver::getGraphSaver();
+        const std::vector<Group>* activeGroups = nullptr;
+        ButtonController *buttonController;
+
+        PerformanceMode performanceMode = HIGH_PERFORMANCE;
+        CameraFocusMode cameraMode = FREE;
+        LightSourceMovementBehaviour lightSourceMovementBehaviour = FIXED_POSITION;
+
+
+        uint32_t framebufferWidth = 0;
+        uint32_t framebufferHeight = 0;
+
+        int32_t vertex = 0;
+        int32_t edgeVertices[2] = {0, 0};
+
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
 
-        void MenuBar();
-        void GroupMenu();
-        void performanceModeToggle();
-        void randomizeColoring(int groupID);
-        void changeColoring(int groupID);
-        void toggleLightSourceMovement();
-        void setLightSourceMovementBehaviour();
-        void setCameraMovementMode();
+        void MainMenuBar();
+        void GroupMenu(bool* groupMenu);
+        void findObject(bool* findObject);
+        void performanceModeToggle(bool* toggle_mode);
+        void randomizeColoring(uint32_t groupID) const;
+        void changeColoring(uint32_t groupID) const;
+        void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle);
+        void setCameraMovementMode(bool* cameraMovementMode);
         void findVertex();
         void findEdge();
         void highlightSubgraph();
         void importGraph();
         void exportGraph();
+        void SideBar();
+        static void SideBarElement(const char* label, bool* state);
         void importGroupConfiguration();
     };
 }

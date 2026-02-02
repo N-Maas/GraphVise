@@ -6,12 +6,17 @@
 #define THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
 
 #include "../rendering/camera.hpp"
+#include "rendering/renderer.hpp"
 
-namespace graphvise {
+namespace graphvise
+{
     class MovementController {
     public:
-        explicit MovementController(Camera& camera);
-        void moveCamera(glm::vec3 direction);
+        explicit MovementController() : camera(Renderer::getInstance()->m_camera()){
+        }
+
+        void moveCamera(glm::vec3 direction, bool sprinting);
+
         void rotateCamera(float pitchChange, float yawChange);
         void zoom(float value);
 

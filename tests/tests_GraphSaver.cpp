@@ -11,7 +11,7 @@ TEST(GraphSaverTest, getSetGraphTest) {
     test does not throw a false error, it is commented out. */
     //EXPECT_THROW(graphSaver.getGraph(), std::logic_error);
 
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
 
     graphSaver.setGraph(graph);
     EXPECT_NO_THROW(graphSaver.getGraph());

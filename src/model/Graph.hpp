@@ -45,9 +45,9 @@ namespace graphvise {
             }
         }
 
-        [[nodiscard]] const std::vector<Vertex> &getVertices();
-        [[nodiscard]] const std::vector<Edge>& getEdges();
-        [[nodiscard]] const std::vector<Group>& getGroups();
+        [[nodiscard]] const std::vector<Vertex>& getVertices() const;
+        [[nodiscard]] const std::vector<Edge>& getEdges() const;
+        [[nodiscard]] const std::vector<Group>& getGroups() const;
         [[nodiscard]] const std::vector<CameraBookmark>& getCameraBookmarks() const;
         [[nodiscard]] Vertex& getVertexByID(std::uint32_t ID);
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t ID);
@@ -65,6 +65,7 @@ namespace graphvise {
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();
+
 
     private:
         std::vector<Vertex> vertices;

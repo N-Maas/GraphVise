@@ -9,7 +9,7 @@ namespace graphvise {
         name = new_name;
     }
 
-    const glm::vec3& CameraBookmark::getCoordsVector() const {
+    glm::vec3 CameraBookmark::getCoordsVector() const {
         return coordsVector;
     }
 

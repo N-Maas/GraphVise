@@ -12,7 +12,7 @@ namespace graphvise {
 
         [[nodiscard]] const std::string& getName() const;
         void setName(const std::string& name);
-        [[nodiscard]] const glm::vec3& getCoordsVector() const;
+        [[nodiscard]] glm::vec3 getCoordsVector() const;
         [[nodiscard]] float getPitch() const;
         [[nodiscard]] float getYaw() const;
 

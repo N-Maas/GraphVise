@@ -15,9 +15,6 @@
 
 #pragma once
 
-#include "camera.hpp"
-#include "../model/GraphSaver.hpp"
-#include "../controller/RendererObserver.hpp"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -28,7 +25,9 @@
 
 
 #include "RendererSubject.hpp"
-#include "view/Window.hpp"
+#include "camera.hpp"
+#include "../model/GraphSaver.hpp"
+#include "../controller/RendererObserver.hpp"
 
 namespace graphvise {
 
@@ -75,7 +74,7 @@ namespace graphvise {
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
-        [[nodiscard]] Camera m_camera() const {
+        [[nodiscard]] Camera& m_camera() {
             return mCamera;
         }
         void setLightPos(const glm::vec3 &light_pos) {

@@ -18,7 +18,6 @@ namespace graphvise {
 
     void ErrorCollector::collectError(Error error) {
         currentError = std::move(error);
-
         notify();
     }
 

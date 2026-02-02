@@ -7,23 +7,20 @@
 #include "Window.hpp"
 
 #include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
 
-#include "../model/GraphSaver.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ErrorCollector.hpp"
 
 
 namespace graphvise {
+
 	Window::Window()
-	{
-
-	}
-
-	int Window::initWindow()
+	= default;
+	bool Window::initWindow()
 	{
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
@@ -42,24 +39,25 @@ namespace graphvise {
 		// Create GLFW window
 		std::string windowTitle = "GraphVise";
 
+		int defaultWidth = currentRes.width;
+		int defaultHeight = currentRes.height;
 
-		int width=1280, height=720;
-
-		::GLFWwindow* window = glfwCreateWindow(width, height, windowTitle.c_str(), nullptr, NULL);
+		window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
 		// Error check if the window fails to create
 
-		std::cout << "here";
+		glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
+
 		if (window == nullptr)
 		{
 			std::cout << "Failed to create GLFW window" << std::endl;
 			glfwTerminate();
-			return -1;
+			return false;
 		}
+
+
+
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
-
-
-		gui.initGUI(window);
 
 		//Load GLAD so it configures OpenGL
 		gladLoadGL();
@@ -86,6 +84,15 @@ namespace graphvise {
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
 		renderer->init();
 
+		ButtonController controller = ButtonController(*renderer);
+
+		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
+
+		ErrorCollector::getInstance().signIn(gui);
+
+
+		gui->initGUI(window);
+
 		// FPS counter
 		int frameCount = 0;
 		double accumulatedTime = 0.0;
@@ -93,6 +100,7 @@ namespace graphvise {
 		// Main while loop
 		while (!glfwWindowShouldClose(window))
 		{
+
 			double startTime = glfwGetTime();
 
 			// Resize the renderer and viewport if the framebuffer / window size changed
@@ -114,13 +122,15 @@ namespace graphvise {
 			glfwPollEvents();
 			renderer->processEvents(window);
 
+			processEvents();
+
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
 			renderer->runFrame();
 			GL_CHECK_ERROR();
 
 			//load GUI
-			gui.loadFrame();
+			gui->loadFrame(framebufferWidth, framebufferHeight);
 
 			// Swap the back buffer with the front buffer
 			glfwSwapBuffers(window);
@@ -143,7 +153,7 @@ namespace graphvise {
 			}
 		}
 
-		gui.shutdownGUI();
+		gui->shutdownGUI();
 
 		// Renderer cleanup
 		renderer->shutdown();
@@ -153,6 +163,44 @@ namespace graphvise {
 
 		// Terminate GLFW before ending the program
 		glfwTerminate();
-		return 0;
+		return true;
+	}
+
+	void Window::processEvents()
+	{
+		  (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
+
+		//Moving Camera
+		glm::vec3 direction(0, 0, 0);
+		direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+		movementController.moveCamera(direction, sprinting);
+
+		//Rotating Camera
+		static float lastMousePosition[2];
+		static double currentMousePositionDouble[2];
+		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
+		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
+
+		static bool rotatingCamera = false;
+		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
+			rotatingCamera = true;
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera) {
+			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
+			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
+			movementController.rotateCamera(pitchChange, yawChange);
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
+			rotatingCamera = false;
+		}
 	}
 }

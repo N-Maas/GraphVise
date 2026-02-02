@@ -4,19 +4,19 @@
 #include <stdexcept>
 
 namespace graphvise {
-    const std::vector<Vertex>& Graph::getVertices() {
+    std::vector<Vertex>& Graph::getVertices() {
         return vertices;
     }
 
-    const std::vector<Edge>& Graph::getEdges() {
+    std::vector<Edge>& Graph::getEdges() {
         return edges;
     }
 
-    const std::vector<Group>& Graph::getGroups() {
+    std::vector<Group>& Graph::getGroups() {
         return groups;
     }
 
-    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const{
+    std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
         return cameraBookmarks;
     }
 
@@ -98,7 +98,7 @@ namespace graphvise {
 
     void Graph::deleteAllGroups() {
         groups.clear();
-        addGroup("Default-Group", ImVec4{0,134,139,1}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         for (Vertex& vertex : vertices) {
             vertex.setGroup(0);
         }
@@ -139,5 +139,4 @@ namespace graphvise {
             edgesSortedByTransparency.emplace_back(&edge);
         }
     }
-
 }
