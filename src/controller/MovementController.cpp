@@ -42,8 +42,6 @@ namespace graphvise {
         camera.rotation_x += pitchChange * ROTATION_RADIANS_PER_PIXEL;
         camera.rotation_y += yawChange * ROTATION_RADIANS_PER_PIXEL;
 
-        std::cout << camera.rotation_x << " " << camera.rotation_y << std::endl;
-
         if (camera.rotation_x > std::numbers::pi / 2) {
             camera.rotation_x = std::numbers::pi / 2;
         } else if (camera.rotation_x < -std::numbers::pi / 2) {
