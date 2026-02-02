@@ -13,6 +13,7 @@ namespace graphvise {
 
     void Edge::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
+        GraphSaver::getGraphSaver().getGraph().updateSortedEdges();
     }
 
     std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {

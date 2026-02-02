@@ -84,15 +84,11 @@ namespace graphvise {
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
 		renderer->init();
 
-		Camera placeholderCamera = Camera();
-
-		ButtonController controller = ButtonController(placeholderCamera, *renderer);
+		ButtonController controller = ButtonController(*renderer);
 
 		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
 
 		ErrorCollector::getInstance().signIn(gui);
-
-
 
 
 		gui->initGUI(window);
@@ -174,32 +170,37 @@ namespace graphvise {
 	{
 		  (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
-		int right_mouse_state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+		//Moving Camera
+		glm::vec3 direction(0, 0, 0);
+		direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
+		direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+		movementController.moveCamera(direction, sprinting);
 
-		double mouse_position_double[2];
-        glfwGetCursorPos(window, &mouse_position_double[0], &mouse_position_double[1]);
+		//Rotating Camera
+		static float lastMousePosition[2];
+		static double currentMousePositionDouble[2];
+		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
+		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
 
-		float mouse_position[2] = {(float)mouse_position_double[0], (float)mouse_position_double[1]};
-
-		right_mouse_state == GLFW_PRESS; // for rotating camera
-		right_mouse_state == GLFW_RELEASE;
-
-
-		 GLFW_KEY_LEFT_CONTROL == GLFW_PRESS; // for speeding up camera
-         GLFW_KEY_CAPS_LOCK == GLFW_PRESS; // for slowing down camera
-
-
-		float step = 1.0f;
-		float forward = 0.0f, right = 0.0f, vertical = 0.0f;
-
-		forward += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? step : 0.0f;
-        forward -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? step : 0.0f;
-        right += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? step : 0.0f;
-        right -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? step : 0.0f;
-        vertical += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? step : 0.0f;
-        vertical -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? step : 0.0f;
-
-
-
+		static bool rotatingCamera = false;
+		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
+			rotatingCamera = true;
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera) {
+			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
+			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
+			movementController.rotateCamera(pitchChange, yawChange);
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
+			rotatingCamera = false;
+		}
 	}
 }

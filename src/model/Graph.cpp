@@ -1,26 +1,25 @@
 #include "Graph.hpp"
 #include <algorithm>
-#include <iostream>
 #include <stdexcept>
 
 namespace graphvise {
-    const std::vector<Vertex>& Graph::getVertices() {
+    const std::vector<Vertex>& Graph::getVertices() const{
         return vertices;
     }
 
-    const std::vector<Edge>& Graph::getEdges() {
+    const std::vector<Edge>& Graph::getEdges() const{
         return edges;
     }
 
-    const std::vector<Group>& Graph::getGroups() {
+    const std::vector<Group>& Graph::getGroups() const{
         return groups;
     }
 
-    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
+    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const{
         return cameraBookmarks;
     }
 
-    Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
+    Vertex& Graph::getVertexByID(const std::uint32_t ID){
         return vertices.at(ID);
     }
 
@@ -49,10 +48,6 @@ namespace graphvise {
             }
         }
         throw std::out_of_range("There is no edge between the specified nodes.");
-    }
-
-    void Graph::addEdge(std::uint32_t firstVertexID, std::uint32_t secondVertexID) {
-        edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
     }
 
     void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
@@ -85,6 +80,8 @@ namespace graphvise {
                 edge.setOwnTransparency(1.0f);
             }
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::removeAllHighlights() {
@@ -94,6 +91,8 @@ namespace graphvise {
         for (Edge& edge : edges) {
             edge.deleteOwnTransparency();
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::deleteAllGroups() {
@@ -112,6 +111,31 @@ namespace graphvise {
             cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
         } else {
             throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
+        }
+    }
+
+    void Graph::updateSortedVertices(){
+        std::ranges::sort(verticesSortedByTransparency, VertexTransparencyCompare{});
+    }
+
+    void Graph::updateSortedEdges() {
+        std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
+    }
+
+    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
+        return verticesSortedByTransparency;
+    }
+
+    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
+        return edgesSortedByTransparency;
+    }
+
+    void Graph::initSortedVerticesAndEdges() {
+        for (Vertex& vertex : vertices) {
+            verticesSortedByTransparency.emplace_back(&vertex);
+        }
+        for (Edge& edge : edges) {
+            edgesSortedByTransparency.emplace_back(&edge);
         }
     }
 }

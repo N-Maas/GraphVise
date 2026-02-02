@@ -18,5 +18,6 @@ namespace graphvise {
 
     void GraphSaver::setGraph(const Graph& new_graph) {
         graph = new_graph;
+        graph.value().initSortedVerticesAndEdges();
     }
 }

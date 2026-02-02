@@ -74,7 +74,7 @@ namespace graphvise {
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 mColor;
-        [[nodiscard]] Camera m_camera() const {
+        [[nodiscard]] Camera& m_camera() {
             return mCamera;
         }
         void setLightPos(const glm::vec3 &light_pos) {

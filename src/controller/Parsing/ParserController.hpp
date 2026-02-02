@@ -19,6 +19,9 @@ namespace graphvise {
     public:
         void parseFile(std::string filePath, ParseFormat format);
         std::optional<Graph> getGraph();
+        std::optional<GraphData>& getHighlightingSubgraph() {
+            return highlightingSubgraph;
+        }
 
     private:
         std::optional<Error> verifySubgraph(GraphData graphData);

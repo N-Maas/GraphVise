@@ -3,7 +3,6 @@
 //
 
 #include "WEmbedController.hpp"
-
 #include "AdamOptimizer.hpp"
 #include "wembed.h"
 
@@ -66,11 +65,12 @@ namespace graphvise {
             vertex.z += vertexScaleFactor * edgeScaleFactor * vertex.z;
         }
 
-        Graph embeddedGraph(vertexCoordinates);
-
+        std::vector<std::pair<std::uint32_t, std::uint32_t>> edgeConnectingVertices;
         for (auto edge : graphData.edges) {
-            embeddedGraph.addEdge(edge.first, edge.second);
+            edgeConnectingVertices.emplace_back(edge.first, edge.second);
         }
+
+        Graph embeddedGraph(vertexCoordinates, edgeConnectingVertices);
 
         return embeddedGraph;
     }

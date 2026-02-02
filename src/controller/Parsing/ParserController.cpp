@@ -3,7 +3,6 @@
 //
 
 #include "ParserController.hpp"
-
 #include <iostream>
 #include <map>
 #include <ostream>
@@ -53,7 +52,7 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 // }
                 // std::cout << "ConnectingVertexIDs: " << std::endl;
                 // for (std::uint32_t edgeID : groupData.edges) {
-                //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().at(0) << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().at(1) << std::endl;
+                //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().first << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().second << std::endl;
                 // }
                 GraphSaver::getGraphSaver().getGraph().addGroup(groupData.name, groupData.color ,groupData.vertices, groupData.edges);
             }
@@ -73,7 +72,7 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 highlightingSubgraph = parsedGraphData;
                 std::cout << "valid subgraph" << std::endl;
             } else {
-                std::cout << "invalid subgraph" << std::endl;
+                std::cout << "invalid subgraph" << static_cast<int>(verifyResult->getErrorType()) << std::endl;
                 error = verifyResult.value();
             }
 
@@ -97,11 +96,14 @@ std::optional<Error> ParserController::verifySubgraph(GraphData graphData) {
     for (auto edge : currentGraph.getEdges()) {
         std::pair<uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
         std::pair<int, int> tempEdge(connectingVerticesIDs.first, connectingVerticesIDs.second);
+        std::pair<int, int> tempEdgeInverted(connectingVerticesIDs.second, connectingVerticesIDs.first);
         graphEdgeMap[tempEdge] = 1;
+        graphEdgeMap[tempEdgeInverted] = 1;
     }
 
     for (auto edge : graphData.edges) {
         if (!graphEdgeMap.contains(edge)) {
+            std::cout << "invalid edge : " << edge.first << " " << edge.second << std::endl;
             Error newError(ErrorType::INVALID_SUBGRAPH_EDGE, std::to_string(edge.first) + " " + std::to_string(edge.second));
             return newError;
         }
