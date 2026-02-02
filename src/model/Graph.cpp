@@ -4,19 +4,19 @@
 #include <stdexcept>
 
 namespace graphvise {
-    std::vector<Vertex>& Graph::getVertices() {
+    const std::vector<Vertex>& Graph::getVertices() {
         return vertices;
     }
 
-    std::vector<Edge>& Graph::getEdges() {
+    const std::vector<Edge>& Graph::getEdges() {
         return edges;
     }
 
-    std::vector<Group>& Graph::getGroups() {
+    const std::vector<Group>& Graph::getGroups() {
         return groups;
     }
 
-    std::vector<CameraBookmark>& Graph::getCameraBookmarks() {
+    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const{
         return cameraBookmarks;
     }
 
@@ -51,10 +51,6 @@ namespace graphvise {
         throw std::out_of_range("There is no edge between the specified nodes.");
     }
 
-    void Graph::addEdge(std::uint32_t firstVertexID, std::uint32_t secondVertexID) {
-        edges.emplace_back(edges.size(), firstVertexID, secondVertexID);
-    }
-
     void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
         groups.emplace_back(groups.size(), name, groupVec4);
         const std::size_t groupID = groups.size() - 1;
@@ -85,6 +81,8 @@ namespace graphvise {
                 edge.setOwnTransparency(1.0f);
             }
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::removeAllHighlights() {
@@ -94,6 +92,8 @@ namespace graphvise {
         for (Edge& edge : edges) {
             edge.deleteOwnTransparency();
         }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 
     void Graph::deleteAllGroups() {
@@ -115,26 +115,29 @@ namespace graphvise {
         }
     }
 
-    // todo rausschmeissen wenn der Graph eingelesen und gerendered werden kann
-    void Graph::addVertex(const std::uint32_t vertexID, const glm::vec3& coords) {
-
-        //todo throw out debug code when it works
-        std::cout << "DEBUG: Graph::addVertex called with ID=" << vertexID
-                  << ", coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
-
-        std::cout << "DEBUG: Before - vertices.size() = " << vertices.size()
-                  << ", vertices.capacity() = " << vertices.capacity() << std::endl;
-
-        //todo uncomment when code is corrected
-
-        std::cout << "DEBUG: Adding vertex ID=" << vertexID << std::endl;
-
-        // Add to vector
-        size_t index = vertices.size();
-        vertices.emplace_back(vertexID, coords);
-
-        std::cout << "DEBUG: Added vertex ID=" << vertexID
-                  << " at index=" << index
-                  << " coords=(" << coords.x << "," << coords.y << "," << coords.z << ")" << std::endl;
+    void Graph::updateSortedVertices(){
+        std::ranges::sort(verticesSortedByTransparency, VertexTransparencyCompare{});
     }
+
+    void Graph::updateSortedEdges() {
+        std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
+    }
+
+    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
+        return verticesSortedByTransparency;
+    }
+
+    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
+        return edgesSortedByTransparency;
+    }
+
+    void Graph::initSortedVerticesAndEdges() {
+        for (Vertex& vertex : vertices) {
+            verticesSortedByTransparency.emplace_back(&vertex);
+        }
+        for (Edge& edge : edges) {
+            edgesSortedByTransparency.emplace_back(&edge);
+        }
+    }
+
 }
