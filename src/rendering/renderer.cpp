@@ -206,8 +206,8 @@ namespace graphvise {
 
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
 
-        const std::vector<Vertex>& vertices = graph.getVertices();
-        const std::vector<Edge>& edges = graph.getEdges();
+        std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
+        std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
@@ -238,19 +238,19 @@ namespace graphvise {
         //          << edges.size() << " edges" << std::endl;
 
         // ===== RENDER graph.vertices AS SPHERES =====
-        for (const auto& vertex : vertices) {
+        for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVertexVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
-            int fromIdx = edge.getConnectingVerticesIDs().first;
-            int toIdx = edge.getConnectingVerticesIDs().second;
+            int fromIdx = edge->getConnectingVerticesIDs().first;
+            int toIdx = edge->getConnectingVerticesIDs().second;
             if (fromIdx < vertices.size() && toIdx < vertices.size()) {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge.getEdgeVec4(), mvp);
+                              cylinderRadius, edge->getEdgeVec4(), mvp);
             }
         }
 
