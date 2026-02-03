@@ -200,34 +200,37 @@ namespace graphvise
     }
 
 
-    void Buttons::ChangeTransparency(uint32_t groupID) const
+    void Buttons::ChangeTransparency(uint32_t groupID)
     {
-        static auto transparency = std::vector<float>(16);
-
-        if (groupID >= transparency.size())
-        {
-            transparency.resize(transparency.size() * 2);
-        }
-        if (transparency.at(groupID) == 0.0f)
-        {
-            transparency.at(groupID) = saver->getGraph().getGroupByID(groupID).getGroupVec4().w;
-        }
-
-        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency.at(groupID), 0.0f, 1.0f))
-        {
-            buttonController->changeTransparency(groupID, transparency.at(groupID));
-        }
-    }
-
-
-    void Buttons::changeColoring(uint32_t groupID) const
-    {
-
-        static auto groupColors = std::vector<ImVec4>(16);
 
         if (groupID >= groupColors.size())
         {
             groupColors.resize(groupColors.size() * 2);
+        }
+
+        float& transparency = groupColors[groupID].w;
+
+        if (transparency == 0.0f)
+        {
+            transparency = saver->getGraph().getGroupByID(groupID).getGroupVec4().w;
+        }
+
+        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
+        {
+            buttonController->changeTransparency(groupID, transparency);
+        }
+    }
+
+
+    void Buttons::changeColoring(uint32_t groupID)
+    {
+
+
+        if (groupID >= groupColors.size())
+        {
+
+            groupColors.resize(groupColors.size() * 2);
+
         }
 
         ImVec4& color = groupColors[groupID];

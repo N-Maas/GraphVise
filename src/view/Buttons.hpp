@@ -32,6 +32,7 @@ namespace graphvise
         CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
         LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
+        std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
 
         uint32_t framebufferWidth = 0;
         uint32_t framebufferHeight = 0;
@@ -47,11 +48,11 @@ namespace graphvise
 
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
-        void ChangeTransparency(uint32_t groupID) const;
+        void ChangeTransparency(uint32_t groupID);
         void findObject(bool* findObject);
         void performanceModeToggle(bool* toggle_mode);
         void randomizeColoring(uint32_t groupID) const;
-        void changeColoring(uint32_t groupID) const;
+        void changeColoring(uint32_t groupID);
         void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle);
         void setCameraMovementMode(bool* cameraMovementMode);
         void findVertex();
