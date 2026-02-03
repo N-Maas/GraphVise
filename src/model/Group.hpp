@@ -14,7 +14,7 @@ namespace graphvise {
         [[nodiscard]] std::uint32_t getGroupID() const;
         void setName(const std::string& name);
         void setTransparency(float transparency);
-        void setGroupVec4(const ImVec4& groupVec4);
+        void setColor(const ImVec4& groupVec4);
         [[nodiscard]] ImVec4 getGroupVec4() const;
 
 

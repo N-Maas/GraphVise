@@ -47,9 +47,14 @@ TEST(GroupTest, GroupVec4Test) {
     EXPECT_EQ(group.getGroupVec4().y, 99);
     EXPECT_EQ(group.getGroupVec4().z, 5);
     EXPECT_NEAR(group.getGroupVec4().w, 0.8, 0.000001f);
-    group.setGroupVec4(ImVec4(3, 1, 128, 0.0));
+    group.setColor(ImVec4(3, 1, 128, 0.0));
     EXPECT_EQ(group.getGroupVec4().x, 3);
     EXPECT_EQ(group.getGroupVec4().y, 1);
     EXPECT_EQ(group.getGroupVec4().z, 128);
-    EXPECT_EQ(group.getGroupVec4().w, 0.0);
+    EXPECT_NEAR(group.getGroupVec4().w, 0.8, 0.0001f);
+    group.setTransparency(0.0f);
+    EXPECT_EQ(group.getGroupVec4().x, 3);
+    EXPECT_EQ(group.getGroupVec4().y, 1);
+    EXPECT_EQ(group.getGroupVec4().z, 128);
+    EXPECT_EQ(group.getGroupVec4().w, 0.0f);
 }
