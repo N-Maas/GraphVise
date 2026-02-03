@@ -190,9 +190,9 @@ namespace graphvise
         for (size_t i = 0; i < bookmarks.size(); ++i)
         {
             auto & bookmark = bookmarks[i];
-            ImGui::CollapsingHeader(std::format("{}#{}",bookmark.getName(), i).c_str());
+            ImGui::CollapsingHeader(std::format("{}##{}",bookmark.getName(), i).c_str());
             ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y, bookmark.getCoordsVector().z);
-            if (ImGui::Button("Load Bookmark"))
+            if (ImGui::Button(std::format("Load Bookmark##{}", i ).c_str()))
             {
                 buttonController->loadCameraBookmark(bookmark);
             }
