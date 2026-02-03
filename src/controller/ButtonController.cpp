@@ -29,12 +29,12 @@ namespace graphvise {
         std::uniform_real_distribution<> distribution(0, MAX_COLOR_VALUE);
 
         ImVec4 newColor = ImVec4(distribution(generator), distribution(generator), distribution(generator), MAX_COLOR_VALUE);
-        group.setGroupVec4(newColor);
+        group.setColor(newColor);
     }
 
     void ButtonController::changeColoring(int groupID, ImVec4 newColor) {
         Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
-        group.setGroupVec4(newColor);
+        group.setColor(newColor);
     }
 
     void ButtonController::toggleLightSourceMovement() {
@@ -162,5 +162,17 @@ namespace graphvise {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
+    }
+
+    void ButtonController::changeTransparency(const uint32_t groupID, const float newTransparency)
+    {
+
+        Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+        group.setTransparency(newTransparency);
+    }
+
+    void ButtonController::RemoveHighlights()
+    {
+        GraphSaver::getGraphSaver().getGraph().removeAllHighlights();
     }
 }

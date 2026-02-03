@@ -166,11 +166,16 @@ namespace graphvise
 
         activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({230, 300},{MAXFLOAT, 300});
+        ImGui::SetNextWindowSizeConstraints({260, 300},{MAXFLOAT, 300});
         ImGui::Begin("Groups", groupMenu,
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoCollapse
             );
+
+        if (ImGui::Button("Pemove Group Highlights"))
+        {
+            buttonController->RemoveHighlights();
+        }
 
         for (const auto& group : *activeGroups)
         {
@@ -180,8 +185,12 @@ namespace graphvise
                 ImGui::SameLine();
                 ImGui::ColorButton(std::format("Group Color##{}", group.getGroupID()).c_str(),group.getGroupVec4());
                 ImGui::SameLine();
+
                 randomizeColoring(group.getGroupID());
                 changeColoring(group.getGroupID());
+
+                ChangeTransparency(group.getGroupID());
+
 
             }
 
@@ -190,23 +199,55 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::performanceModeToggle(bool* toggle_mode)
+
+    void Buttons::ChangeTransparency(uint32_t groupID)
     {
 
-        const char* modeText[] = {"High Performance", "High Resolution"};
-
-        ImGui::Begin("Performance Mode", toggle_mode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode), HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+        if (groupID >= groupColors.size())
         {
-            buttonController->togglePerformanceMode(performanceMode);
+            groupColors.resize(groupColors.size() * 2);
+        }
+
+        float& transparency = groupColors[groupID].w;
+
+        if (transparency == 0.0f)
+        {
+            transparency = saver->getGraph().getGroupByID(groupID).getGroupVec4().w;
+        }
+
+        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
+        {
+            buttonController->changeTransparency(groupID, transparency);
+        }
+    }
+
+
+    void Buttons::changeColoring(uint32_t groupID)
+    {
+
+
+        if (groupID >= groupColors.size())
+        {
+
+            groupColors.resize(groupColors.size() * 2);
+
+        }
+
+        ImVec4& color = groupColors[groupID];
+
+        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        {
+            color = saver->getGraph().getGroupByID(groupID).getGroupVec4();
         }
 
 
-        ImGui::End();
+        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
+        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, color);
+
+        }
+
     }
 
     void Buttons::randomizeColoring(uint32_t groupID) const
@@ -219,31 +260,24 @@ namespace graphvise
 
     }
 
-    void Buttons::changeColoring(uint32_t groupID) const
+    void Buttons::performanceModeToggle(bool* toggle_mode)
     {
 
-        static auto groupColors = std::vector<ImVec4>(16);
+        const char* modeText[] = {"High Performance", "High Resolution"};
 
-        if (groupID >= groupColors.size())
+        ImGui::Begin("Performance Mode", toggle_mode,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+            HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
         {
-            groupColors.resize(groupColors.size() * 2);
+            buttonController->togglePerformanceMode(performanceMode);
         }
 
-        ImVec4& color = groupColors[groupID];
 
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
-        {
-             color = saver->getGraph().getGroupByID(groupID).getGroupVec4();
-        }
-
-
-        ImGui::ColorEdit4(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, color);
-
-        }
-
+        ImGui::End();
     }
 
 

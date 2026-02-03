@@ -114,6 +114,7 @@ namespace graphvise {
             return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
         }
 
+        const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
         GLuint framebuffer;
         GLuint colorTexture;        // Visual output (RGBA8)
         GLuint depthBuffer;

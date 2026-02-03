@@ -36,6 +36,7 @@ namespace graphvise {
     class Camera {
     private:
         CameraFocusMode cameraFocusMode;
+        const glm::vec3 originCoords = glm::vec3(0.0f, 0.0f, 0.0f);
     public:
         [[nodiscard]] CameraFocusMode camera_focus_mode() const {
             return cameraFocusMode;
@@ -43,6 +44,9 @@ namespace graphvise {
 
         void set_camera_focus_mode(CameraFocusMode camera_focus_mode) {
             cameraFocusMode = camera_focus_mode;
+            if (cameraFocusMode == CENTER_OF_MASS) {
+                lookAt(originCoords);
+            }
         }
 
         // The position of the camera in world space
@@ -75,20 +79,26 @@ namespace graphvise {
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
             speed(2.0f),
-            rotate_camera(false),
-            cameraFocusMode(FREE)
+            rotate_camera(false)
         {
+            set_camera_focus_mode(CENTER_OF_MASS);
         }
 
         // Constructs the world to view space transform for the given camera
-        glm::mat4 get_world_to_view_space() const;
+        [[nodiscard]] glm::mat4 get_world_to_view_space() const;
 
         // Constructs the view to projection space transform for the given camera and
         // the given width / height ratio
-        glm::mat4 get_view_to_projection_space(float aspect_ratio) const;
+        [[nodiscard]] glm::mat4 get_view_to_projection_space(float aspect_ratio) const;
 
         // Constructs the world to projection space transform for the given camera and
         // the given width / height ratio
-        glm::mat4 get_world_to_projection_space(float aspect_ratio) const;
+        [[nodiscard]] glm::mat4 get_world_to_projection_space(float aspect_ratio) const;
+
+        // Make the camera look at a specific target point (default: origin)
+        void lookAt(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f));
+
+        // optinal: Set camera to orbit around a point
+        void orbitAround(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f), float distance = 5.0f);
     };
 }

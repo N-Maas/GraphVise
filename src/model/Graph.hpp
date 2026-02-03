@@ -1,5 +1,6 @@
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
+#include <memory>
 #include <string>
 #include <vector>
 #include "CameraBookmark.hpp"
@@ -34,7 +35,8 @@ namespace graphvise {
     class Graph {
     public:
         explicit Graph(const std::vector<glm::vec3>& verticesCoordinates, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& edgesConnectedVerticesIDs) {
-            addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+            addGroup("Default-VertexGroup", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+            addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
             vertices.reserve(verticesCoordinates.size());
             edges.reserve(edgesConnectedVerticesIDs.size());
             for (glm::vec3 coord : verticesCoordinates) {
@@ -49,6 +51,7 @@ namespace graphvise {
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;
         [[nodiscard]] const std::vector<CameraBookmark>& getCameraBookmarks() const;
+
         [[nodiscard]] Vertex& getVertexByID(std::uint32_t ID);
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t ID);
         [[nodiscard]] Group& getGroupByID(std::uint32_t ID);
@@ -61,7 +64,7 @@ namespace graphvise {
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
-        [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
+        [[nodiscard]] std::vector<Edge *> getEdgesSortedByTransparency() const;
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();

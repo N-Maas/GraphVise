@@ -1,25 +1,26 @@
 #include "Graph.hpp"
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 namespace graphvise {
-    const std::vector<Vertex>& Graph::getVertices() const{
+    const std::vector<Vertex>& Graph::getVertices() const {
         return vertices;
     }
 
-    const std::vector<Edge>& Graph::getEdges() const{
+    const std::vector<Edge>& Graph::getEdges() const {
         return edges;
     }
 
-    const std::vector<Group>& Graph::getGroups() const{
+    const std::vector<Group>& Graph::getGroups() const {
         return groups;
     }
 
-    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const{
+    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const {
         return cameraBookmarks;
     }
 
-    Vertex& Graph::getVertexByID(const std::uint32_t ID){
+    Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
         return vertices.at(ID);
     }
 
@@ -97,12 +98,13 @@ namespace graphvise {
 
     void Graph::deleteAllGroups() {
         groups.clear();
-        addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        addGroup("Default-VertexGroup", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
         for (Vertex& vertex : vertices) {
             vertex.setGroup(0);
         }
         for (Edge& edge : edges) {
-            edge.setGroup(0);
+            edge.setGroup(1);
         }
     }
 
@@ -122,11 +124,11 @@ namespace graphvise {
         std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
     }
 
-    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
+    std::vector<Vertex *> Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }
 
-    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
+    std::vector<Edge *> Graph::getEdgesSortedByTransparency() const{
         return edgesSortedByTransparency;
     }
 

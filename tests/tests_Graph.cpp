@@ -30,8 +30,8 @@ TEST(GraphTest, CheckGetterAndInitialization) {
     EXPECT_THROW(graph.getVertices().at(4), std::out_of_range);
 
     EXPECT_EQ(graph.getEdges().size(), 1);
-    EXPECT_STREQ(graph.getGroups().at(0).getName().c_str(), "Default-Group");
-    EXPECT_THROW(graph.getGroups().at(1), std::out_of_range);
+    EXPECT_STREQ(graph.getGroups().at(0).getName().c_str(), "Default-VertexGroup");
+    EXPECT_THROW(graph.getGroups().at(2), std::out_of_range);
     EXPECT_EQ(graph.getCameraBookmarks().empty(), true);
 
     EXPECT_EQ(graph.getVertexByID(2).getCoordsVector().x, 5.2f);
@@ -39,7 +39,7 @@ TEST(GraphTest, CheckGetterAndInitialization) {
     EXPECT_EQ(graph.getVertexByID(2).getCoordsVector().z, 2.0f);
 
     EXPECT_THROW(graph.getEdgeByID(1), std::out_of_range);
-    EXPECT_STREQ(graph.getGroupByID(0).getName().c_str(), "Default-Group");
+    EXPECT_STREQ(graph.getGroupByID(0).getName().c_str(), "Default-VertexGroup");
     EXPECT_THROW(graph.getCameraBookmarkByID(0), std::out_of_range);
 
     EXPECT_THROW(graph.getEdgeIDByConnectingVerticesIDs(0,1), std::out_of_range);
@@ -89,27 +89,27 @@ TEST(GraphTest, addGroupTest) {
         glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3}}));
     Graph graph = GraphSaver::getGraphSaver().getGraph();
 
-    EXPECT_EQ(graph.getGroups().size(), 1);
+    EXPECT_EQ(graph.getGroups().size(), 2);
     graph.addGroup("first-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{1,3}, std::vector<std::uint32_t>{0});
     EXPECT_EQ(graph.getGroups().at(1).getGroupID(), 1);
-    EXPECT_STREQ(graph.getGroups().at(1).getName().c_str(), "first-Group");
-    EXPECT_STREQ(graph.getGroupByID(1).getName().c_str(), "first-Group");
-    EXPECT_EQ(graph.getEdgeByID(0).getGroupID(), 1);
-    EXPECT_EQ(graph.getVertexByID(0).getGroupID(), 0);
-    EXPECT_EQ(graph.getVertexByID(1).getGroupID(), 1);
-    EXPECT_EQ(graph.getVertexByID(2).getGroupID(), 0);
-    EXPECT_EQ(graph.getVertexByID(3).getGroupID(), 1);
-    EXPECT_THROW(graph.getGroups().at(2), std::out_of_range);
-    graph.addGroup("second-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{1,2}, std::vector<std::uint32_t>{0});
-    EXPECT_EQ(graph.getGroups().at(2).getGroupID(), 2);
-    EXPECT_STREQ(graph.getGroups().at(2).getName().c_str(), "second-Group");
-    EXPECT_STREQ(graph.getGroupByID(2).getName().c_str(), "second-Group");
+    EXPECT_STREQ(graph.getGroups().at(2).getName().c_str(), "first-Group");
+    EXPECT_STREQ(graph.getGroupByID(2).getName().c_str(), "first-Group");
     EXPECT_EQ(graph.getEdgeByID(0).getGroupID(), 2);
     EXPECT_EQ(graph.getVertexByID(0).getGroupID(), 0);
     EXPECT_EQ(graph.getVertexByID(1).getGroupID(), 2);
-    EXPECT_EQ(graph.getVertexByID(2).getGroupID(), 2);
-    EXPECT_EQ(graph.getVertexByID(3).getGroupID(), 1);
+    EXPECT_EQ(graph.getVertexByID(2).getGroupID(), 0);
+    EXPECT_EQ(graph.getVertexByID(3).getGroupID(), 2);
     EXPECT_THROW(graph.getGroups().at(3), std::out_of_range);
+    graph.addGroup("second-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{1,2}, std::vector<std::uint32_t>{0});
+    EXPECT_EQ(graph.getGroups().at(2).getGroupID(), 2);
+    EXPECT_STREQ(graph.getGroups().at(3).getName().c_str(), "second-Group");
+    EXPECT_STREQ(graph.getGroupByID(3).getName().c_str(), "second-Group");
+    EXPECT_EQ(graph.getEdgeByID(0).getGroupID(), 3);
+    EXPECT_EQ(graph.getVertexByID(0).getGroupID(), 0);
+    EXPECT_EQ(graph.getVertexByID(1).getGroupID(), 3);
+    EXPECT_EQ(graph.getVertexByID(2).getGroupID(), 3);
+    EXPECT_EQ(graph.getVertexByID(3).getGroupID(), 2);
+    EXPECT_THROW(graph.getGroups().at(4), std::out_of_range);
 }
 
 TEST(GraphTest, addCameeraBookmarkTest) {
@@ -166,9 +166,9 @@ TEST(GraphTest, deleteAllGroupsTest) {
 
     graph.addGroup("first-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{0,1}, std::vector<std::uint32_t>{});
     graph.addGroup("second-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{2,3}, std::vector<std::uint32_t>{});
-    EXPECT_EQ(graph.getGroups().size(), 3);
+    EXPECT_EQ(graph.getGroups().size(), 4);
     graph.deleteAllGroups();
-    EXPECT_EQ(graph.getGroups().size(), 1);
+    EXPECT_EQ(graph.getGroups().size(), 2);
     EXPECT_EQ(graph.getVertexByID(0).getGroupID(), 0);
     EXPECT_EQ(graph.getVertexByID(1).getGroupID(), 0);
     EXPECT_EQ(graph.getVertexByID(2).getGroupID(), 0);
@@ -220,7 +220,7 @@ TEST(GraphTest, sortedEdgesAndVertexTest) {
     EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.2, 0.0001);
 
     graph.addGroup("first", ImVec4(), std::vector<std::uint32_t>{1,3}, std::vector<std::uint32_t>{1,3});
-    graph.getGroupByID(1).setTransparency(0.5);
+    graph.getGroupByID(2).setTransparency(0.5);
 
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexID(), 1);
@@ -246,7 +246,7 @@ TEST(GraphTest, sortedEdgesAndVertexTest) {
     EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(2)->getEdgeVec4().w, 0.5, 0.0001);
     EXPECT_NEAR(graph.getEdgesSortedByTransparency().at(3)->getEdgeVec4().w, 0.5, 0.0001);
 
-    graph.getGroupByID(1).setTransparency(0.4);
+    graph.getGroupByID(2).setTransparency(0.4);
 
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(0)->getVertexVec4().w, 1);
     EXPECT_EQ(graph.getVerticesSortedByTransparency().at(1)->getVertexVec4().w, 1);
