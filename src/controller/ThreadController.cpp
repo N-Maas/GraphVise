@@ -20,7 +20,7 @@ namespace graphvise {
         if (operationDone) {
             std::optional<std::vector<GroupData>> groupData = parserController.getGroups();
             if (groupData.has_value()) {
-                Graph& graph = GraphSaver::getGraphSaver().getGraph();
+                Graph& graph = GraphSaver::getInstance().getGraph();
                 graph.deleteAllGroups();
                 for (const auto&[name, color, vertices, edges] : groupData.value()) {
                     graph.addGroup(name, color, vertices, edges);
@@ -29,12 +29,12 @@ namespace graphvise {
 
             std::optional<Graph> parsedGraph = parserController.getParsedGraph();
             if (parsedGraph.has_value()) {
-                GraphSaver::getGraphSaver().setGraph(parsedGraph.value());
+                GraphSaver::getInstance().setGraph(parsedGraph.value());
             }
 
             std::optional<HighlightingData> highlightingSubgraph = parserController.getHighlightingSubgraph();
             if (highlightingSubgraph.has_value()) {
-                Graph& graph = GraphSaver::getGraphSaver().getGraph();
+                Graph& graph = GraphSaver::getInstance().getGraph();
                 std::cout << "highlighting " << highlightingSubgraph.value().vertices.size() << " vertices" << std::endl;
                 std::cout << "and " << highlightingSubgraph.value().edges.size() << " edges" << std::endl;
 

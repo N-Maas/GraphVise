@@ -44,7 +44,7 @@ namespace graphvise {
             std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
             if (connectingVerticesIDs.first == firstVertexID || connectingVerticesIDs.second == firstVertexID) {
                 if (connectingVerticesIDs.first == secondVertexID || connectingVerticesIDs.second == secondVertexID) {
-                    return edge.getEdgeID();
+                    return edge.getID();
                 }
             }
         }
@@ -68,14 +68,14 @@ namespace graphvise {
 
     void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
         for (Vertex& vertex : vertices) {
-            if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
+            if (std::ranges::find(verticesIDs, vertex.getID()) == verticesIDs.end()) {
                 vertex.setOwnTransparency(0.2f);
             } else {
                 vertex.setOwnTransparency(1.0f);
             }
         }
         for (Edge& edge : edges) {
-            if (std::ranges::find(edgesIDs, edge.getEdgeID()) == edgesIDs.end()) {
+            if (std::ranges::find(edgesIDs, edge.getID()) == edgesIDs.end()) {
                 edge.setOwnTransparency(0.2f);
             } else {
                 edge.setOwnTransparency(1.0f);

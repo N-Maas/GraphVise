@@ -4,7 +4,7 @@
 
 using namespace graphvise;
 TEST(GraphSaverTest, getSetGraphTest) {
-    GraphSaver& graphSaver = GraphSaver::getGraphSaver();
+    GraphSaver& graphSaver = GraphSaver::getInstance();
 
     /*This test case works in isolation. However, because
     singletons are synchronized via Test, no error is thrown here due to the order of the tests. To ensure that this

@@ -3,7 +3,7 @@
 #include "GraphSaver.hpp"
 
 namespace graphvise {
-    std::uint32_t  Vertex::getVertexID() const {
+    std::uint32_t  Vertex::getID() const {
         return vertexID;
     }
 
@@ -13,15 +13,15 @@ namespace graphvise {
 
     void Vertex::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
-        GraphSaver::getGraphSaver().getGraph().updateSortedVertices();
+        GraphSaver::getInstance().getGraph().updateSortedVertices();
     }
 
     glm::vec3 Vertex::getCoordsVector() const {
         return coordsVector;
     }
 
-    ImVec4 Vertex::getVertexVec4() const {
-        ImVec4 vertexVec4 = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    ImVec4 Vertex::getVec4() const {
+        ImVec4 vertexVec4 = GraphSaver::getInstance().getGraph().getGroupByID(connectedGroupID).getVec4();
         if (ownTransparency.has_value()) {
             vertexVec4.w = ownTransparency.value();
         }

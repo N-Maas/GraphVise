@@ -24,7 +24,7 @@ namespace graphvise
         const std::vector<std::string> allowedFiles = {".txt"};
 
 
-        GraphSaver *saver = &GraphSaver::getGraphSaver();
+        GraphSaver *saver = &GraphSaver::getInstance();
         const std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
 

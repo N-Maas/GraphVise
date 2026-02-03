@@ -10,11 +10,11 @@ namespace graphvise {
             : vertexID(vertexID), connectedGroupID(0),
             coordsVector(coords) {}
 
-        [[nodiscard]] std::uint32_t  getVertexID() const;
+        [[nodiscard]] std::uint32_t  getID() const;
         [[nodiscard]] std::uint32_t  getGroupID() const;
         void setGroup(std::uint32_t  groupID);
         [[nodiscard]] glm::vec3 getCoordsVector() const;
-        [[nodiscard]] ImVec4 getVertexVec4() const;
+        [[nodiscard]] ImVec4 getVec4() const;
         void setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 

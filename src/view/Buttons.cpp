@@ -181,15 +181,15 @@ namespace graphvise
         {
             if (ImGui::CollapsingHeader(group.getName().c_str()))
             {
-                ImGui::Text("Group ID: %d", group.getGroupID());
+                ImGui::Text("Group ID: %d", group.getID());
                 ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getGroupID()).c_str(),group.getGroupVec4());
+                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(),group.getVec4());
                 ImGui::SameLine();
 
-                randomizeColoring(group.getGroupID());
-                changeColoring(group.getGroupID());
+                randomizeColoring(group.getID());
+                changeColoring(group.getID());
 
-                ChangeTransparency(group.getGroupID());
+                ChangeTransparency(group.getID());
 
 
             }
@@ -212,7 +212,7 @@ namespace graphvise
 
         if (transparency == 0.0f)
         {
-            transparency = saver->getGraph().getGroupByID(groupID).getGroupVec4().w;
+            transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
         }
 
         if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
@@ -237,7 +237,7 @@ namespace graphvise
 
         if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
         {
-            color = saver->getGraph().getGroupByID(groupID).getGroupVec4();
+            color = saver->getGraph().getGroupByID(groupID).getVec4();
         }
 
 

@@ -209,7 +209,7 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        Graph& graph = GraphSaver::getInstance().getGraph();
 
         std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
         std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
@@ -245,7 +245,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVertexVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -255,7 +255,7 @@ namespace graphvise {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge->getEdgeVec4(), mvp);
+                              cylinderRadius, edge->getVec4(), mvp);
             }
         }
 

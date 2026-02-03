@@ -92,11 +92,11 @@ namespace graphvise
 
     void GUI::currentObjInfo()
     {
-        static Vertex currentVertex = GraphSaver::getGraphSaver().getGraph().getVertexByID(currentObjId);
+        static Vertex currentVertex = GraphSaver::getInstance().getGraph().getVertexByID(currentObjId);
 
 
         ImGui::Begin("Current Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::Text("ObjectID: %d", currentVertex.getVertexID());
+        ImGui::Text("ObjectID: %d", currentVertex.getID());
         const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
                     coords.x, coords.y, coords.z);
@@ -105,7 +105,7 @@ namespace graphvise
 
         ImGui::Text("Object Color:");
         ImGui::SameLine();
-        ImGui::ColorButton("##Vertex color", currentVertex.getVertexVec4());
+        ImGui::ColorButton("##Vertex color", currentVertex.getVec4());
         ImGui::End();
     }
 

@@ -3,25 +3,25 @@
 #include "GraphSaver.hpp"
 
 namespace graphvise {
-    std::uint32_t  Edge::getEdgeID() const {
+    std::uint32_t  Edge::getID() const {
         return edgeID;
     }
 
-    std::uint32_t  Edge::getGroupID() const {
+    std::uint32_t  Edge::getConnectedGroupID() const {
         return connectedGroupID;
     }
 
     void Edge::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
-        GraphSaver::getGraphSaver().getGraph().updateSortedEdges();
+        GraphSaver::getInstance().getGraph().updateSortedEdges();
     }
 
     std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {
         return connectingVerticesIDS;
     }
 
-    ImVec4 Edge::getEdgeVec4() const {
-        ImVec4 edgeVec4 = GraphSaver::getGraphSaver().getGraph().getGroupByID(connectedGroupID).getGroupVec4();
+    ImVec4 Edge::getVec4() const {
+        ImVec4 edgeVec4 = GraphSaver::getInstance().getGraph().getGroupByID(connectedGroupID).getVec4();
         if (ownTransparency.has_value()) {
             edgeVec4.w = ownTransparency.value();
         }

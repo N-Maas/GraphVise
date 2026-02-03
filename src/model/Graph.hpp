@@ -12,23 +12,23 @@
 namespace graphvise {
     struct VertexTransparencyCompare {
         bool operator()(const Vertex* firstVertex, const Vertex* secondVertex) const {
-            float firstTransparencyValue = firstVertex->getVertexVec4().w;
-            float secondTransparencyValue = secondVertex->getVertexVec4().w;
+            float firstTransparencyValue = firstVertex->getVec4().w;
+            float secondTransparencyValue = secondVertex->getVec4().w;
             if (std::abs(firstTransparencyValue - secondTransparencyValue) > 1e-6f) {
                 return firstTransparencyValue > secondTransparencyValue;
             }
-            return firstVertex->getVertexID() < secondVertex->getVertexID();
+            return firstVertex->getID() < secondVertex->getID();
         }
     };
 
     struct EdgeTransparencyCompare {
         bool operator()(const Edge* firstEdge, const Edge* secondEdge) const {
-            float firstTransparencyValue = firstEdge->getEdgeVec4().w;
-            float secondTransparencyValue = secondEdge->getEdgeVec4().w;
+            float firstTransparencyValue = firstEdge->getVec4().w;
+            float secondTransparencyValue = secondEdge->getVec4().w;
             if (firstTransparencyValue != secondTransparencyValue) {
                 return firstTransparencyValue > secondTransparencyValue;
             }
-            return firstEdge->getEdgeID() < secondEdge->getEdgeID();
+            return firstEdge->getID() < secondEdge->getID();
         }
     };
 
@@ -57,14 +57,16 @@ namespace graphvise {
         [[nodiscard]] Group& getGroupByID(std::uint32_t ID);
         [[nodiscard]] CameraBookmark& getCameraBookmarkByID(std::uint32_t ID);
         [[nodiscard]] std::uint32_t getEdgeIDByConnectingVerticesIDs(std::uint32_t firstVertexID, std::uint32_t secondVertexID) const;
+
         void addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs);
         void addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw);
         void highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs);
         void removeAllHighlights();
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
+
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
-        [[nodiscard]] std::vector<Edge *> getEdgesSortedByTransparency() const;
+        [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();

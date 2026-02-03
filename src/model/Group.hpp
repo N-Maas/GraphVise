@@ -11,11 +11,11 @@ namespace graphvise {
             : groupID(groupID), name(std::move(name)), groupVec4(groupVec4) {}
 
         [[nodiscard]] const std::string& getName() const;
-        [[nodiscard]] std::uint32_t getGroupID() const;
         void setName(const std::string& name);
+        [[nodiscard]] std::uint32_t getID() const;
         void setTransparency(float transparency);
         void setColor(const ImVec4& groupVec4);
-        [[nodiscard]] ImVec4 getGroupVec4() const;
+        [[nodiscard]] ImVec4 getVec4() const;
 
 
     private:

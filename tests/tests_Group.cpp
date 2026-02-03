@@ -9,11 +9,11 @@ TEST(GroupTest, CheckGetter) {
         ImVec4(255, 99, 5, 0.8));
 
     EXPECT_STREQ("Test-Group", group.getName().c_str());
-    EXPECT_EQ(group.getGroupID(), 4);
-    EXPECT_EQ(group.getGroupVec4().x, 255);
-    EXPECT_EQ(group.getGroupVec4().y, 99);
-    EXPECT_EQ(group.getGroupVec4().z, 5);
-    EXPECT_NEAR(group.getGroupVec4().w, 0.8f, 0.000001f);
+    EXPECT_EQ(group.getID(), 4);
+    EXPECT_EQ(group.getVec4().x, 255);
+    EXPECT_EQ(group.getVec4().y, 99);
+    EXPECT_EQ(group.getVec4().z, 5);
+    EXPECT_NEAR(group.getVec4().w, 0.8f, 0.000001f);
 }
 
 TEST(GroupTest, SetNameTest) {
@@ -31,11 +31,11 @@ TEST(GroupTest, TransparencyTest) {
         "Test-Group",
         ImVec4(255, 99, 5, 0.8));
 
-    EXPECT_NEAR(group.getGroupVec4().w, 0.8f, 0.0f);
+    EXPECT_NEAR(group.getVec4().w, 0.8f, 0.0f);
     group.setTransparency(0.5f);
-    EXPECT_NEAR(group.getGroupVec4().w, 0.5f, 0.0f);
+    EXPECT_NEAR(group.getVec4().w, 0.5f, 0.0f);
     EXPECT_THROW(group.setTransparency(1.5f), std::out_of_range);
-    EXPECT_NEAR(group.getGroupVec4().w, 0.5f, 0.0f);
+    EXPECT_NEAR(group.getVec4().w, 0.5f, 0.0f);
 }
 
 TEST(GroupTest, GroupVec4Test) {
@@ -43,18 +43,18 @@ TEST(GroupTest, GroupVec4Test) {
         "Test-Group",
         ImVec4(255, 99, 5, 0.8));
 
-    EXPECT_EQ(group.getGroupVec4().x, 255);
-    EXPECT_EQ(group.getGroupVec4().y, 99);
-    EXPECT_EQ(group.getGroupVec4().z, 5);
-    EXPECT_NEAR(group.getGroupVec4().w, 0.8, 0.000001f);
+    EXPECT_EQ(group.getVec4().x, 255);
+    EXPECT_EQ(group.getVec4().y, 99);
+    EXPECT_EQ(group.getVec4().z, 5);
+    EXPECT_NEAR(group.getVec4().w, 0.8, 0.000001f);
     group.setColor(ImVec4(3, 1, 128, 0.0));
-    EXPECT_EQ(group.getGroupVec4().x, 3);
-    EXPECT_EQ(group.getGroupVec4().y, 1);
-    EXPECT_EQ(group.getGroupVec4().z, 128);
-    EXPECT_NEAR(group.getGroupVec4().w, 0.8, 0.0001f);
+    EXPECT_EQ(group.getVec4().x, 3);
+    EXPECT_EQ(group.getVec4().y, 1);
+    EXPECT_EQ(group.getVec4().z, 128);
+    EXPECT_NEAR(group.getVec4().w, 0.8, 0.0001f);
     group.setTransparency(0.0f);
-    EXPECT_EQ(group.getGroupVec4().x, 3);
-    EXPECT_EQ(group.getGroupVec4().y, 1);
-    EXPECT_EQ(group.getGroupVec4().z, 128);
-    EXPECT_EQ(group.getGroupVec4().w, 0.0f);
+    EXPECT_EQ(group.getVec4().x, 3);
+    EXPECT_EQ(group.getVec4().y, 1);
+    EXPECT_EQ(group.getVec4().z, 128);
+    EXPECT_EQ(group.getVec4().w, 0.0f);
 }

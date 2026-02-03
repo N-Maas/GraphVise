@@ -5,7 +5,7 @@ namespace graphvise {
     GraphSaver GraphSaver::instance;
     GraphSaver::GraphSaver() = default;
 
-    GraphSaver& GraphSaver::getGraphSaver() {
+    GraphSaver& GraphSaver::getInstance() {
         return instance;
     }
 
