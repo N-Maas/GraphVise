@@ -598,14 +598,14 @@ namespace graphvise {
         glBindVertexArray(0);
     }
 
-    void RendererSubject::signIn(std::shared_ptr<RendererObserver> observer) {
-        this->observerList.push_back(std::move(observer));
+    void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
+        this->observerList.push_back(observer);
     };
 
-    void RendererSubject::signOut(std::shared_ptr<RendererObserver> observer) {;
+    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {;
         auto it = std::ranges::find_if(observerList,
-                                       [observer](const std::shared_ptr<RendererObserver>& ptr) {
-                                           return ptr.get() == observer.get();
+                                       [observer](const std::reference_wrapper<RendererObserver> ref) {
+                                           return &ref.get() == &observer.get();
                                        }
         );
         if (it != observerList.end()) {
@@ -615,7 +615,7 @@ namespace graphvise {
 
     void RendererSubject::notify() {
         for (const auto& observer : observerList) {
-            observer->update();  // Call update on each observer
+            observer.get().update();  // Call update on each observer
         }
     };
 
