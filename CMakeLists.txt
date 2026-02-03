@@ -78,6 +78,7 @@ set(HEADERS
         src/model/Vertex.hpp
         src/model/Edge.hpp
         src/controller/Parsing/GroupParser.hpp
+        src/controller/Structs/HighlightingData.hpp
 )
 
 set(SOURCES
@@ -86,7 +87,6 @@ set(SOURCES
         src/rendering/renderer.cpp
         src/utils.cpp
         src/view/Window.cpp
-        src/controller/RendererObserver.cpp
         src/controller/ButtonController.cpp
         src/controller/ThreadController.cpp
         src/controller/Parsing/ParserController.cpp

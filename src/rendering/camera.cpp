@@ -37,4 +37,42 @@ namespace graphvise {
     {
         return get_view_to_projection_space(aspect_ratio) * get_world_to_view_space();
     }
+
+    void Camera::lookAt(const glm::vec3& target) {
+        // Calculate direction from camera to target
+        glm::vec3 direction = target - position_world_space;
+
+        // Calculate horizontal distance
+        float horizontalDistance = sqrt(direction.x * direction.x + direction.z * direction.z);
+
+        // Calculate y rotation (around Y-axis)
+        // atan2 gives angle from x-axis, but we need angle from z-axis
+        // Camera's default forward is negative z, so we adjust
+        rotation_y = atan2f(-direction.x, -direction.z);
+
+        // Calculate x rotation (around X-axis)
+        // atan2(y, horizontalDistance) gives vertical angle
+        rotation_x = atan2f(direction.y, horizontalDistance);
+
+        // Store these as the "zero" rotations for mouse interaction
+        rotation_y_0 = rotation_y;
+        rotation_x_0 = rotation_x;
+    }
+
+    void Camera::orbitAround(const glm::vec3& target, float distance) {
+        // First, make the camera look at the target
+        lookAt(target);
+
+        // Then move the camera to orbit distance along the view direction
+        // View direction is (sin(rotation_y), tan(rotation_x), -cos(rotation_y))
+        glm::vec3 viewDirection(
+            sinf(rotation_y) * cosf(rotation_x),
+            sinf(rotation_x),
+            -cosf(rotation_y) * cosf(rotation_x)
+        );
+
+        // Position camera at target minus distance along view direction
+        // (since view direction points from camera to target)
+        position_world_space = target - viewDirection * distance;
+    }
 }

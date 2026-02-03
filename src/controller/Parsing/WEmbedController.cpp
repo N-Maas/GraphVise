@@ -28,7 +28,7 @@ namespace graphvise {
             vertexCoordinates.emplace_back(coord[0], coord[1], coord[2]);
         }
 
-        glm::vec3 average;
+        glm::vec3 average(0, 0, 0);
         for (auto vertex : vertexCoordinates) {
             average.x += vertex.x / vertexCoordinates.size();
             average.y += vertex.y / vertexCoordinates.size();

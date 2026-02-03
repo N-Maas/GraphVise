@@ -105,7 +105,7 @@ namespace graphvise {
         static inline std::shared_ptr<Renderer> rendererInstance = nullptr;
         static inline std::mutex mtx;
 
-        std::vector<std::shared_ptr<RendererObserver>> observerList;
+        std::vector<std::reference_wrapper<RendererObserver>> observerList;
         const float STANDARD_SPHERE_RADIUS = 0.05f;
         const float STANDARD_CYLINDER_RADIUS = 0.03f;
         glm::ivec2 mFramebufferSize;
@@ -114,6 +114,7 @@ namespace graphvise {
             return static_cast<float>(mFramebufferSize.x) / static_cast<float>(mFramebufferSize.y);
         }
 
+        const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
         GLuint framebuffer;
         GLuint colorTexture;        // Visual output (RGBA8)
         GLuint depthBuffer;

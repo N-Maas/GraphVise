@@ -59,8 +59,8 @@ namespace graphvise {
         std::regex edgeRegex(EDGE_REGEX);
         std::regex emptyLineRegex(EMPTY_LINE_REGEX);
 
-        std::vector<std::pair<int, int>> edges;
-        std::map<std::pair<int, int>, int> edgeMap;
+        std::vector<std::pair<uint32_t, uint32_t>> edges;
+        std::map<std::pair<uint32_t, uint32_t>, int> edgeMap;
         edges.reserve(edgeCount);
 
         for (std::string line; std::getline(fileStream, line);) {
@@ -106,7 +106,7 @@ namespace graphvise {
                 return std::unexpected(error);
             }
 
-            std::pair<int, int> edge(firstVertexID, secondVertexID);
+            std::pair edge(firstVertexID, secondVertexID);
 
             //Check for duplicate edges
             if (edgeMap.contains(edge)) {
@@ -114,7 +114,7 @@ namespace graphvise {
                 return std::unexpected(error);
             }
 
-            std::pair<int, int> invertedEdge(secondVertexID, firstVertexID);
+            std::pair invertedEdge(secondVertexID, firstVertexID);
             edgeMap[edge] = 1;
             edgeMap[invertedEdge] = 1;
             edges.push_back(edge);

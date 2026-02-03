@@ -17,25 +17,26 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
             throw std::invalid_argument("Provided ParseFormat has not yet been defined");
         case ParseFormat::TXT: {
             std::expected<GraphData, Error> result = txtParser.parseFile(std::move(filePath));
-            GraphData parsedGraphData;
-            if (result.has_value()) {
-                parsedGraphData = std::move(result.value());
-            } else {
-                error = result.error();
+
+            if (!result.has_value()) {
+                setError(result.error());
                 return;
             }
-            parsedGraph = wembedController.embedGraph(parsedGraphData);
+
+            Graph embeddedGraph = wembedController.embedGraph(result.value());
+            setParsedGraph(embeddedGraph);
             break;
         }
+
         case ParseFormat::GROUP: {
             std::expected<std::vector<GroupData>, Error> result = groupParser.parseFile(filePath);
-            std::vector<GroupData> parsedGroupData;
-            if (result.has_value()) {
-                parsedGroupData = std::move(result.value());
-            } else {
-                error = result.error();
+            if (!result.has_value()) {
+                std::cout << "Group threw error" << std::endl;
+                setError(result.error());
                 return;
             }
+            setGroups(result.value());
+            /*
             for (const GroupData& groupData : parsedGroupData) {
                 //ToDo remove Debugging Stuff, if not needed anymore
 
@@ -55,25 +56,42 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().first << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().second << std::endl;
                 // }
                 GraphSaver::getGraphSaver().getGraph().addGroup(groupData.name, groupData.color ,groupData.vertices, groupData.edges);
-            }
+            }*/
             break;
         }
         case ParseFormat::SUBGRAPH: {
             std::expected<GraphData, Error> result = txtParser.parseFile(std::move(filePath));
-            GraphData parsedGraphData;
-            if (result.has_value()) {
-                parsedGraphData = std::move(result.value());
-            } else {
-                error = result.error();
+
+            if (!result.has_value()) {
+                setError(result.error());
+                std::cout << "Subgraph threw error" << std::endl;
+                return;
             }
 
-            std::optional<Error> verifyResult = verifySubgraph(parsedGraphData);
+            std::optional<Error> verifyResult = verifySubgraph(result.value());
             if (!verifyResult.has_value()) {
-                highlightingSubgraph = parsedGraphData;
+
+                HighlightingData data;
+                std::map<int, bool> usedVertexIDs;
+                Graph& graph = GraphSaver::getGraphSaver().getGraph();
+                for (auto edge : result.value().edges) {
+                    if (!usedVertexIDs.contains(edge.first)) {
+                        data.vertices.emplace_back(edge.first);
+                        usedVertexIDs[edge.first] = true;
+                    }
+                    if (!usedVertexIDs.contains(edge.second)) {
+                        data.vertices.emplace_back(edge.second);
+                        usedVertexIDs[edge.second] = true;
+                    }
+                    uint32_t edgeID = graph.getEdgeIDByConnectingVerticesIDs(edge.first, edge.second);
+                    data.edges.emplace_back(edgeID);
+                }
+
+                setHighlightingSubgraph(data);
                 std::cout << "valid subgraph" << std::endl;
             } else {
+                setError(verifyResult.value());
                 std::cout << "invalid subgraph" << static_cast<int>(verifyResult->getErrorType()) << std::endl;
-                error = verifyResult.value();
             }
 
             break;
@@ -111,8 +129,4 @@ std::optional<Error> ParserController::verifySubgraph(GraphData graphData) {
 
     return {};
 }
-
-std::optional<Graph> ParserController::getGraph() {
-        return parsedGraph;
-    }
 }
