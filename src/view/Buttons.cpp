@@ -166,11 +166,16 @@ namespace graphvise
 
         activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({230, 300},{MAXFLOAT, 300});
+        ImGui::SetNextWindowSizeConstraints({260, 300},{MAXFLOAT, 300});
         ImGui::Begin("Groups", groupMenu,
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoCollapse
             );
+
+        if (ImGui::Button("Pemove Group Highlights"))
+        {
+            buttonController->RemoveHighlights();
+        }
 
         for (const auto& group : *activeGroups)
         {
@@ -183,8 +188,8 @@ namespace graphvise
 
                 randomizeColoring(group.getGroupID());
                 changeColoring(group.getGroupID());
+
                 ChangeTransparency(group.getGroupID());
-                ResetHighlights(group.getGroupID());
 
 
             }
@@ -194,13 +199,6 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::ResetHighlights(uint32_t groupID) const
-    {
-        if (ImGui::Button("Reset Highlights"))
-        {
-            buttonController->ResetHighlights(groupID);
-        }
-    }
 
     void Buttons::ChangeTransparency(uint32_t groupID) const
     {
@@ -269,7 +267,8 @@ namespace graphvise
                      ImGuiWindowFlags_NoCollapse
         );
 
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode), HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+            HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
         {
             buttonController->togglePerformanceMode(performanceMode);
         }

@@ -28,9 +28,9 @@ namespace graphvise
         const std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
 
-        PerformanceMode performanceMode = HIGH_PERFORMANCE;
-        CameraFocusMode cameraMode = FREE;
-        LightSourceMovementBehaviour lightSourceMovementBehaviour = FIXED_POSITION;
+        PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
+        CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
+        LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
 
         uint32_t framebufferWidth = 0;
@@ -47,7 +47,6 @@ namespace graphvise
 
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
-        void ResetHighlights(uint32_t groupID) const;
         void ChangeTransparency(uint32_t groupID) const;
         void findObject(bool* findObject);
         void performanceModeToggle(bool* toggle_mode);

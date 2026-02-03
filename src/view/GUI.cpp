@@ -40,7 +40,7 @@ namespace graphvise
 
         if (ImGui::Button("Press For Error"))
         {
-            ErrorCollector::getInstance().collectError(Error(ErrorType::NO_ERROR, "This is a Test Error Message"));
+            ErrorCollector::getInstance().collectError(Error(ErrorType::FILE_NOT_FOUND, "This is a Test Error Message"));
         }
 
         ImGui::Text("Width: %d Height: %d", framebufferWidth, framebufferHeight);
@@ -68,17 +68,17 @@ namespace graphvise
         ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-        if (currentError.getMessage().has_value())
+        if (currentError->getMessage().has_value())
         {
             ImGui::Text("Message: %s",
-                        currentError.getMessage()->c_str());
+                        currentError->getMessage()->c_str());
         }
         ImGui::Separator();
 
-        if (currentError.getLine().has_value())
+        if (currentError->getLine().has_value())
         {
             ImGui::Text("At line: %s",
-                        currentError.getMessage()->c_str());
+                        currentError->getMessage()->c_str());
         }
         ImGui::Separator();
 

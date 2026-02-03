@@ -27,7 +27,7 @@ namespace graphvise
         int currentObjId = 0;
         Buttons buttons;
         bool errorAvailable;
-        Error currentError = Error(ErrorType::NO_ERROR);
+        std::optional<Error> currentError = std::nullopt;
 
         void errorPopup();
         void currentObjInfo();

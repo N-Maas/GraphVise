@@ -27,7 +27,7 @@ namespace graphvise {
         void exportGraph(std::string filePath, ExportFormat format);
         void importGroupConfiguration(std::string filePath);
         void changeTransparency(uint32_t groupID, float newTransparency);
-        void ResetHighlights(uint32_t groupID);
+        void RemoveHighlights();
 
     private:
         Camera& camera;

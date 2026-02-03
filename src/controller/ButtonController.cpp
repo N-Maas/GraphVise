@@ -168,13 +168,11 @@ namespace graphvise {
     {
 
         Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
-        ImVec4 groupColor = group.getGroupVec4();
-        groupColor.w = newTransparency;
-        group.setGroupVec4(groupColor);
+        group.setTransparency(newTransparency);
     }
 
-    void ButtonController::ResetHighlights(uint32_t groupID)
+    void ButtonController::RemoveHighlights()
     {
-        changeTransparency(groupID, 1.0f);
+        GraphSaver::getGraphSaver().getGraph().removeAllHighlights();
     }
 }
