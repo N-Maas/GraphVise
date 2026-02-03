@@ -1,5 +1,6 @@
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
+#include <memory>
 #include <string>
 #include <vector>
 #include "CameraBookmark.hpp"
@@ -49,6 +50,7 @@ namespace graphvise {
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;
         [[nodiscard]] const std::vector<CameraBookmark>& getCameraBookmarks() const;
+
         [[nodiscard]] Vertex& getVertexByID(std::uint32_t ID);
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t ID);
         [[nodiscard]] Group& getGroupByID(std::uint32_t ID);
@@ -61,7 +63,7 @@ namespace graphvise {
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
-        [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
+        [[nodiscard]] std::vector<Edge *> getEdgesSortedByTransparency() const;
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();

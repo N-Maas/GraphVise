@@ -1,25 +1,26 @@
 #include "Graph.hpp"
 #include <algorithm>
+#include <iostream>
 #include <stdexcept>
 
 namespace graphvise {
-    const std::vector<Vertex>& Graph::getVertices() const{
+    const std::vector<Vertex>& Graph::getVertices() const {
         return vertices;
     }
 
-    const std::vector<Edge>& Graph::getEdges() const{
+    const std::vector<Edge>& Graph::getEdges() const {
         return edges;
     }
 
-    const std::vector<Group>& Graph::getGroups() const{
+    const std::vector<Group>& Graph::getGroups() const {
         return groups;
     }
 
-    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const{
+    const std::vector<CameraBookmark>& Graph::getCameraBookmarks() const {
         return cameraBookmarks;
     }
 
-    Vertex& Graph::getVertexByID(const std::uint32_t ID){
+    Vertex& Graph::getVertexByID(const std::uint32_t  ID) {
         return vertices.at(ID);
     }
 
@@ -122,11 +123,11 @@ namespace graphvise {
         std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
     }
 
-    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
+    std::vector<Vertex *> Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }
 
-    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
+    std::vector<Edge *> Graph::getEdgesSortedByTransparency() const{
         return edgesSortedByTransparency;
     }
 

@@ -120,6 +120,10 @@ namespace graphvise {
         // Load the shader files
         reloadShaders();
 
+        if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
+            mCamera.lookAt(centerCoordinates);// per default camera looks at (0,0,0)
+        }
+
         // Initialize Buffers and Arrays for sphere and cylinder
         glGenVertexArrays(1, &sphereVAO);
         glGenBuffers(1, &sphereVBO);
@@ -186,6 +190,8 @@ namespace graphvise {
         glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
 
+
+
         // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
@@ -199,15 +205,14 @@ namespace graphvise {
         notify();
     }
 
-    // todo will work properly when Model is implemented
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
         Graph& graph = GraphSaver::getGraphSaver().getGraph();
 
-        const std::vector<Vertex>& vertices = graph.getVertices();
-        const std::vector<Edge>& edges = graph.getEdges();
+        std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
+        std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
@@ -238,19 +243,19 @@ namespace graphvise {
         //          << edges.size() << " edges" << std::endl;
 
         // ===== RENDER graph.vertices AS SPHERES =====
-        for (const auto& vertex : vertices) {
+        for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex.getCoordsVector(), sphereRadius, vertex.getVertexVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVertexVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
-            int fromIdx = edge.getConnectingVerticesIDs().first;
-            int toIdx = edge.getConnectingVerticesIDs().second;
+            int fromIdx = edge->getConnectingVerticesIDs().first;
+            int toIdx = edge->getConnectingVerticesIDs().second;
             if (fromIdx < vertices.size() && toIdx < vertices.size()) {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge.getEdgeVec4(), mvp);
+                              cylinderRadius, edge->getEdgeVec4(), mvp);
             }
         }
 
@@ -593,14 +598,14 @@ namespace graphvise {
         glBindVertexArray(0);
     }
 
-    void RendererSubject::signIn(std::shared_ptr<RendererObserver> observer) {
-        this->observerList.push_back(std::move(observer));
+    void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
+        this->observerList.push_back(observer);
     };
 
-    void RendererSubject::signOut(std::shared_ptr<RendererObserver> observer) {;
+    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {;
         auto it = std::ranges::find_if(observerList,
-                                       [observer](const std::shared_ptr<RendererObserver>& ptr) {
-                                           return ptr.get() == observer.get();
+                                       [observer](const std::reference_wrapper<RendererObserver> ref) {
+                                           return &ref.get() == &observer.get();
                                        }
         );
         if (it != observerList.end()) {
@@ -610,7 +615,7 @@ namespace graphvise {
 
     void RendererSubject::notify() {
         for (const auto& observer : observerList) {
-            observer->update();  // Call update on each observer
+            observer.get().update();  // Call update on each observer
         }
     };
 
