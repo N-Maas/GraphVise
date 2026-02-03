@@ -88,14 +88,13 @@ namespace graphvise
             ImGui::Text("Message: %s",
                         currentError->getMessage()->c_str());
         }
-        ImGui::Separator();
 
         if (currentError->getLine().has_value())
         {
+            ImGui::Separator();
             ImGui::Text("At line: %s",
                         currentError->getMessage()->c_str());
         }
-        ImGui::Separator();
 
         if (ImGui::Button("OK##Error Confirm"))
         {
