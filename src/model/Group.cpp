@@ -1,6 +1,5 @@
 #include "Group.hpp"
 #include <stdexcept>
-#include "GraphSaver.hpp"
 
 namespace graphvise {
     const std::string& Group::getName() const {
@@ -18,8 +17,6 @@ namespace graphvise {
     void Group::setTransparency(const float transparency) {
         if (transparency >= 0.0f && transparency <= 1.0f) {
             groupVec4.w = transparency;
-            GraphSaver::getInstance().getGraph().updateSortedVertices();
-            GraphSaver::getInstance().getGraph().updateSortedEdges();
             return;
         }
         throw std::out_of_range("Transparency must be between 0 and 1");

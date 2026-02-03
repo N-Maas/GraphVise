@@ -33,6 +33,19 @@ namespace graphvise
         this->framebufferHeight = framebufferHeight;
 
 
+        static float cylinderRadius = 0.03f;
+        static float sphereRadius = 0.05f;
+
+        if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
+        {
+            Renderer::getInstance()->setCylinderRadius(cylinderRadius);
+        };
+        if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
+        {
+            Renderer::getInstance()->setSphereRadius(sphereRadius);
+        }
+
+
 
         // ImGui::ShowDemoWindow();
 

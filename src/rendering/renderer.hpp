@@ -97,6 +97,14 @@ namespace graphvise {
             performanceMode = performance_mode;
         }
 
+        void setCylinderRadius(const float radius) {
+            cylinderRadius = radius;
+        }
+        void setSphereRadius(const float radius)
+        {
+            sphereRadius = radius;
+        }
+
     private:
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);

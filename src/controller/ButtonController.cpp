@@ -166,9 +166,7 @@ namespace graphvise {
 
     void ButtonController::changeTransparency(const uint32_t groupID, const float newTransparency)
     {
-
-        Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
-        group.setTransparency(newTransparency);
+        GraphSaver::getInstance().getGraph().setGroupTransparency(groupID, newTransparency);
     }
 
     void ButtonController::RemoveHighlights()
