@@ -73,7 +73,7 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
 
                 HighlightingData data;
                 std::map<int, bool> usedVertexIDs;
-                Graph& graph = GraphSaver::getGraphSaver().getGraph();
+                Graph& graph = GraphSaver::getInstance().getGraph();
                 for (auto edge : result.value().edges) {
                     if (!usedVertexIDs.contains(edge.first)) {
                         data.vertices.emplace_back(edge.first);
@@ -103,7 +103,7 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
 }
 
 std::optional<Error> ParserController::verifySubgraph(GraphData graphData) {
-    Graph& currentGraph = GraphSaver::getGraphSaver().getGraph();
+    Graph& currentGraph = GraphSaver::getInstance().getGraph();
 
     if (graphData.vertexCount > currentGraph.getEdges().size()) {
         Error newError(ErrorType::TOO_MANY_VERTICES_IN_SUBGRAPH);

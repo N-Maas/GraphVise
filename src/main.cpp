@@ -29,10 +29,7 @@ int main()
 
     graphvise::ParserController pc; //Testing TXT parser
     pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
-    graphvise::GraphSaver::getGraphSaver().setGraph(pc.getParsedGraph().value());
-
-    graphvise::ParserController parser; //Testing Group parser
-    parser.parseFile("../TestGroup.txt", graphvise::ParseFormat::GROUP);
+    graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
 
     time(&timestamp);
     std::cout << std::endl;

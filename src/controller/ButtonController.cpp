@@ -22,7 +22,7 @@ namespace graphvise {
     }
 
     void ButtonController::randomizeColoring(int groupID) {
-        Group& group= GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+        Group& group= GraphSaver::getInstance().getGraph().getGroupByID(groupID);
 
         std::random_device random;
         std::mt19937 generator(random());
@@ -33,7 +33,7 @@ namespace graphvise {
     }
 
     void ButtonController::changeColoring(int groupID, ImVec4 newColor) {
-        Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+        Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
         group.setColor(newColor);
     }
 
@@ -51,7 +51,7 @@ namespace graphvise {
     }
 
     void ButtonController::findVertex(int vertexID) {
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        Graph& graph = GraphSaver::getInstance().getGraph();
         if (vertexID < graph.getVertices().size()) {
             graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
             glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
@@ -64,7 +64,7 @@ namespace graphvise {
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        Graph& graph = GraphSaver::getInstance().getGraph();
         uint32_t maxVertexID = graph.getVertices().size() - 1;
 
         if (firstVertexID == secondVertexID) {
@@ -166,13 +166,11 @@ namespace graphvise {
 
     void ButtonController::changeTransparency(const uint32_t groupID, const float newTransparency)
     {
-
-        Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
-        group.setTransparency(newTransparency);
+        GraphSaver::getInstance().getGraph().setGroupTransparency(groupID, newTransparency);
     }
 
     void ButtonController::RemoveHighlights()
     {
-        GraphSaver::getGraphSaver().getGraph().removeAllHighlights();
+        GraphSaver::getInstance().getGraph().removeAllHighlights();
     }
 }
