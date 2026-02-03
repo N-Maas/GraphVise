@@ -114,7 +114,7 @@ namespace graphvise
         const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
                     coords.x, coords.y, coords.z);
-        const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getGroupID()).getName();
+        const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID()).getName();
         ImGui::Text("Object Group: %s", groupname.c_str());
 
 
