@@ -64,6 +64,7 @@ namespace graphvise {
         void removeAllHighlights();
         void deleteAllGroups();
         void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
+        void setGroupTransparency(std::uint32_t groupID, float transparency);
 
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
         [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;

@@ -31,9 +31,6 @@ int main()
     pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
     graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
 
-    graphvise::ParserController parser; //Testing Group parser
-    parser.parseFile("../TestGroup.txt", graphvise::ParseFormat::GROUP);
-
     time(&timestamp);
     std::cout << std::endl;
     std::cout << "Finished Loading Graph at current time: " << ctime(&timestamp) << std::endl;
@@ -45,9 +42,8 @@ int main()
 
     if (!window.initWindow())
     {
-    std::exit(1);
+        std::_Exit(1);
     }
 
-    std::exit(0);
-
+    std::_Exit(0);
 }

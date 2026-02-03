@@ -11,7 +11,7 @@ TEST(VertexTest, CheckGetter) {
     Vertex vertex = graph.getVertexByID(0);
 
     EXPECT_EQ(vertex.getID(), 0);
-    EXPECT_EQ(vertex.getGroupID(), 0);
+    EXPECT_EQ(vertex.getConnectedGroupID(), 0);
     EXPECT_EQ(vertex.getCoordsVector().x, 1.0f);
     EXPECT_EQ(vertex.getCoordsVector().y, 3.0f);
     EXPECT_EQ(vertex.getCoordsVector().z, 2.5f);
@@ -43,7 +43,7 @@ TEST(VertexTest, SetGroupTest) {
     Vertex vertex = graph.getVertexByID(0);
 
     vertex.setGroup(34);
-    EXPECT_EQ(vertex.getGroupID(), 34);
+    EXPECT_EQ(vertex.getConnectedGroupID(), 34);
     vertex.setGroup(6);
-    EXPECT_EQ(vertex.getGroupID(), 6);
+    EXPECT_EQ(vertex.getConnectedGroupID(), 6);
 }

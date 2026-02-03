@@ -115,7 +115,7 @@ namespace graphvise
         const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
                     coords.x, coords.y, coords.z);
-        ImGui::Text("Object Group: %d", currentVertex.getGroupID());
+        ImGui::Text("Object Group: %d", currentVertex.getConnectedGroupID());
 
 
         ImGui::Text("Object Color:");

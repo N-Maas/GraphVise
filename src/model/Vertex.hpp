@@ -11,7 +11,7 @@ namespace graphvise {
             coordsVector(coords) {}
 
         [[nodiscard]] std::uint32_t  getID() const;
-        [[nodiscard]] std::uint32_t  getGroupID() const;
+        [[nodiscard]] std::uint32_t  getConnectedGroupID() const;
         void setGroup(std::uint32_t  groupID);
         [[nodiscard]] glm::vec3 getCoordsVector() const;
         [[nodiscard]] ImVec4 getVec4() const;

@@ -7,13 +7,12 @@ namespace graphvise {
         return vertexID;
     }
 
-    std::uint32_t  Vertex::getGroupID() const {
+    std::uint32_t  Vertex::getConnectedGroupID() const {
         return connectedGroupID;
     }
 
     void Vertex::setGroup(const std::uint32_t groupID) {
         connectedGroupID = groupID;
-        GraphSaver::getInstance().getGraph().updateSortedVertices();
     }
 
     glm::vec3 Vertex::getCoordsVector() const {
