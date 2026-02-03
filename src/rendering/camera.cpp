@@ -53,10 +53,6 @@ namespace graphvise {
         // Calculate x rotation (around X-axis)
         // atan2(y, horizontalDistance) gives vertical angle
         rotation_x = atan2f(direction.y, horizontalDistance);
-
-        // Store these as the "zero" rotations for mouse interaction
-        rotation_y_0 = rotation_y;
-        rotation_x_0 = rotation_x;
     }
 
     void Camera::orbitAround(const glm::vec3& target, float distance) {
