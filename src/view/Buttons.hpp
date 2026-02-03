@@ -34,6 +34,8 @@ namespace graphvise
 
         std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
 
+        std::vector<char> bookmarkName = std::vector<char>(16);
+
         uint32_t framebufferWidth = 0;
         uint32_t framebufferHeight = 0;
 
@@ -60,6 +62,7 @@ namespace graphvise
         void highlightSubgraph();
         void importGraph();
         void exportGraph();
+        void cameraBookmarkMenu(bool* visible);
         void SideBar();
         static void SideBarElement(const char* label, bool* state);
         void importGroupConfiguration();

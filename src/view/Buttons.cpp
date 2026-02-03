@@ -76,6 +76,7 @@ namespace graphvise
         static bool togglePerformanceMode;
         static bool lightSource;
         static bool cameraMovement;
+        static bool cameraBookmarks;
 
 
         ImVec2 pos;
@@ -99,6 +100,7 @@ namespace graphvise
         SideBarElement("Performance Mode", &togglePerformanceMode);
         SideBarElement("Light Source Behaviour", &lightSource);
         SideBarElement("Camera Movement Mode", &cameraMovement);
+        SideBarElement("Camera bookmarks", &cameraBookmarks);
 
 
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
@@ -113,7 +115,7 @@ namespace graphvise
 
         if (search)
         {
-            ImGui::SetNextWindowPos(pos,ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos,ImGuiCond_Appearing, windowPivot);
             findObject(&search);
         }
 
@@ -121,7 +123,7 @@ namespace graphvise
 
         if (groups)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
             GroupMenu(&groups);
         }
 
@@ -129,7 +131,7 @@ namespace graphvise
 
         if (togglePerformanceMode)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             performanceModeToggle(&togglePerformanceMode);
         }
@@ -137,7 +139,7 @@ namespace graphvise
 
         if (lightSource)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             setLightSourceMovementBehaviour(&lightSource);
         }
@@ -145,9 +147,15 @@ namespace graphvise
         pos.y += MovementLightSourceHeight + widgetSpacing;
         if (cameraMovement)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             setCameraMovementMode(&cameraMovement);
+        }
+
+        if (cameraBookmarks)
+        {
+
+            cameraBookmarkMenu(&cameraBookmarks);
         }
     }
 
@@ -158,6 +166,59 @@ namespace graphvise
             *state = !*state;
         }
         ImGui::Spacing();
+    }
+
+    void Buttons::cameraBookmarkMenu(bool* visible)
+    {
+        static bool addBookmarkWindow = false;
+
+        auto bookmarks = GraphSaver::getInstance().getGraph().getCameraBookmarks();
+
+        ImGui::Begin("Bookmarks", visible,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        if (ImGui::Button("Add Bookmark"))
+        {
+            addBookmarkWindow = true;
+        }
+        for (size_t i = 0; i < bookmarks.size(); ++i)
+        {
+            auto & bookmark = bookmarks[i];
+            ImGui::CollapsingHeader(std::format("{}#{}",bookmark.getName(), i).c_str());
+            ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y, bookmark.getCoordsVector().z);
+            if (ImGui::Button("Load Bookmark"))
+            {
+                buttonController->loadCameraBookmark(bookmark);
+            }
+        }
+        ImGui::End();
+
+        if (addBookmarkWindow)
+        {
+            ImGui::OpenPopup("Add Bookmark",
+                         ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoCollapse
+            );
+            if (ImGui::BeginPopupModal("Add Bookmark",&addBookmarkWindow,
+                ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoCollapse))
+            {
+                ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
+                if (ImGui::Button("Add"))
+                {
+                    buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
+                    bookmarkName = std::vector<char>(16);
+                    addBookmarkWindow = false;
+
+                }
+                ImGui::EndPopup();
+            }
+        }
+
+
+
     }
 
     void Buttons::GroupMenu(bool* groupMenu)
@@ -172,7 +233,7 @@ namespace graphvise
             ImGuiWindowFlags_NoCollapse
             );
 
-        if (ImGui::Button("Pemove Group Highlights"))
+        if (ImGui::Button("Remove Group Highlights"))
         {
             buttonController->RemoveHighlights();
         }
