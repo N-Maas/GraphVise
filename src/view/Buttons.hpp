@@ -47,6 +47,8 @@ namespace graphvise
 
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
+        void ResetHighlights(uint32_t groupID) const;
+        void ChangeTransparency(uint32_t groupID) const;
         void findObject(bool* findObject);
         void performanceModeToggle(bool* toggle_mode);
         void randomizeColoring(uint32_t groupID) const;

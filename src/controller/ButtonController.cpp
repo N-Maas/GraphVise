@@ -163,4 +163,18 @@ namespace graphvise {
             ErrorCollector::getInstance().collectError(error);
         }
     }
+
+    void ButtonController::changeTransparency(const uint32_t groupID, const float newTransparency)
+    {
+
+        Group& group = GraphSaver::getGraphSaver().getGraph().getGroupByID(groupID);
+        ImVec4 groupColor = group.getGroupVec4();
+        groupColor.w = newTransparency;
+        group.setGroupVec4(groupColor);
+    }
+
+    void ButtonController::ResetHighlights(uint32_t groupID)
+    {
+        changeTransparency(groupID, 1.0f);
+    }
 }
