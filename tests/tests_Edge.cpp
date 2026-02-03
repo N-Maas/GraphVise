@@ -13,12 +13,12 @@ TEST(EdgeTest, CheckGetter) {
         457);
 
     EXPECT_EQ(edge1.getEdgeID(), 0);
-    EXPECT_EQ(edge1.getGroupID(), 0);
+    EXPECT_EQ(edge1.getGroupID(), 1);
     EXPECT_EQ(edge1.getConnectingVerticesIDs().first, 14);
     EXPECT_EQ(edge1.getConnectingVerticesIDs().second, 457);
-    EXPECT_NEAR(edge1.getEdgeVec4().x, 0.2, 0.0001);    //Value of the Default-Group
-    EXPECT_NEAR(edge1.getEdgeVec4().y, 0, 0.0001);  //Value of the Default-Group
-    EXPECT_NEAR(edge1.getEdgeVec4().z, 0.133333, 0.0001);  //Value of the Default-Group
+    EXPECT_NEAR(edge1.getEdgeVec4().x, 1, 0.0001);    //Value of the Default-Group
+    EXPECT_NEAR(edge1.getEdgeVec4().y, 0.60784316, 0.0001);  //Value of the Default-Group
+    EXPECT_NEAR(edge1.getEdgeVec4().z, 0, 0.0001);  //Value of the Default-Group
     EXPECT_EQ(edge1.getEdgeVec4().w, 1);    //Value of the Default-Group
 }
 

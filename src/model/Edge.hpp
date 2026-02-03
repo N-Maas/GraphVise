@@ -8,7 +8,7 @@ namespace graphvise {
     class Edge {
     public:
         explicit Edge(const std::uint32_t  edgeID, const std::uint32_t  firstVertexID, const std::uint32_t  secondVertexID)
-            : edgeID(edgeID), connectedGroupID(0), connectingVerticesIDS(firstVertexID, secondVertexID)  {
+            : edgeID(edgeID), connectedGroupID(1), connectingVerticesIDS(firstVertexID, secondVertexID)  {
         }
 
         [[nodiscard]] std::uint32_t  getEdgeID() const;
