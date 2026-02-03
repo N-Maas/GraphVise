@@ -52,18 +52,12 @@ namespace graphvise {
         // rotation the camera looks into the negative z-direction.
         float rotation_y;
 
-        [[nodiscard]] float getRotation() const {
-            return rotation_x_0;
-        }
-
         void setRotation(float rotation_x, float rotation_y) {
             this->rotation_x = rotation_x;
             this->rotation_y = rotation_y;
         }
 
         float rotation_x;
-        // The rotation that the camera would have if the cursor were moved to coordinate (0, 0) with rotate_camera enabled
-        float rotation_y_0, rotation_x_0;
         // The distance of the near plane and the far plane to the camera position
         float near, far;
         // The vertical field of view (top to bottom) in radians
@@ -77,8 +71,6 @@ namespace graphvise {
             position_world_space(0, 0, 5),
             rotation_y(0),
             rotation_x(0),
-            rotation_y_0(0),
-            rotation_x_0(0),
             near(0.01f),
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
