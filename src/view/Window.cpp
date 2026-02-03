@@ -145,9 +145,9 @@ namespace graphvise {
 			++frameCount;
 			if (1.0 < accumulatedTime) {
 				assert(0 < frameCount);
-				std::ostringstream oss;
-				oss << windowTitle << " - " << frameCount / accumulatedTime << " fps";
-				glfwSetWindowTitle(window, oss.str().c_str());
+
+				gui->setFps(frameCount / accumulatedTime);
+
 				accumulatedTime = 0.0;
 				frameCount = 0;
 			}
@@ -168,20 +168,23 @@ namespace graphvise {
 
 	void Window::processEvents()
 	{
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+		{
 
-		(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
+			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
-		//Moving Camera
-		glm::vec3 direction(0, 0, 0);
-		direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-		movementController.moveCamera(direction, sprinting);
+			//Moving Camera
+			glm::vec3 direction(0, 0, 0);
+			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+			bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+			movementController.moveCamera(direction, sprinting);
 
+		}
 		//Rotating Camera
 		static float lastMousePosition[2];
 		static double currentMousePositionDouble[2];

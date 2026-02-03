@@ -175,4 +175,18 @@ namespace graphvise {
     {
         GraphSaver::getInstance().getGraph().removeAllHighlights();
     }
+
+    void ButtonController::addCurrentPosAsBookmark(const std::string& name)
+    {
+        GraphSaver::getInstance().getGraph().addCameraBookmark(name, camera.position_world_space, camera.rotation_x, camera.rotation_y);
+        //TODO: KP Mit rotation was da abgeht lol
+    }
+
+    void ButtonController::loadCameraBookmark(CameraBookmark cam)
+    {
+        //TODO
+        camera.position_world_space = cam.getCoordsVector();
+        camera.setRotation(camera.rotation_x, camera.rotation_y);
+
+    }
 }

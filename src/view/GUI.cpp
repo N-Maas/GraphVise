@@ -35,22 +35,32 @@ namespace graphvise
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        currentObjInfo();
 
+        currentObjInfo();
 
         if (ImGui::Button("Press For Error"))
         {
             ErrorCollector::getInstance().collectError(Error(ErrorType::FILE_NOT_FOUND, "This is a Test Error Message"));
         }
 
-        ImGui::Text("Width: %d Height: %d", framebufferWidth, framebufferHeight);
         if (errorAvailable)
         {
             errorPopup();
         }
 
+        ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+        ImGui::Begin("##FPS window", nullptr,
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoCollapse
+        );
+        ImGui::Text("FPS: %.2f", fps);
+        ImGui::End();
+
+
+
+
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
-        // Renders the ImGUI elements
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -61,6 +71,11 @@ namespace graphvise
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
+    }
+
+    void GUI::setFps(double newFps)
+    {
+        fps = newFps;
     }
 
     void GUI::errorPopup()
