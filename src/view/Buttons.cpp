@@ -172,7 +172,7 @@ namespace graphvise
     {
         static bool addBookmarkWindow = false;
 
-        auto bookmarks = GraphSaver::getInstance().getGraph().getCameraBookmarks();
+        auto bookmarks = saver->getGraph().getCameraBookmarks();
 
         ImGui::Begin("Bookmarks", visible,
                      ImGuiWindowFlags_AlwaysAutoResize |
