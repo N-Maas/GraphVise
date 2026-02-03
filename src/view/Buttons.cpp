@@ -71,14 +71,6 @@ namespace graphvise
     void Buttons::SideBar()
     {
 
-        static bool search;
-        static bool groups;
-        static bool togglePerformanceMode;
-        static bool lightSource;
-        static bool cameraMovement;
-        static bool cameraBookmarks;
-
-
         ImVec2 pos;
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
@@ -170,7 +162,6 @@ namespace graphvise
 
     void Buttons::cameraBookmarkMenu(bool* visible)
     {
-        static bool addBookmarkWindow = false;
 
         auto bookmarks = saver->getGraph().getCameraBookmarks();
 

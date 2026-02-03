@@ -21,6 +21,15 @@ namespace graphvise
 
     private:
 
+        bool search = false;
+        bool groups = false;
+        bool togglePerformanceMode = false;
+        bool lightSource = false;
+        bool cameraMovement = false;
+        bool cameraBookmarks = false;
+        bool addBookmarkWindow = false;
+
+
         const std::vector<std::string> allowedFiles = {".txt"};
 
 
