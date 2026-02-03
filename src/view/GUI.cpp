@@ -53,7 +53,7 @@ namespace graphvise
             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoCollapse
         );
-        ImGui::Text("FPS: %.2f", fps);
+        ImGui::Text("%.2f fps", fps);
         ImGui::End();
 
 
