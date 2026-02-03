@@ -45,8 +45,9 @@ int main()
 
     if (!window.initWindow())
     {
-        return -1;
+    std::exit(1);
     }
 
-    return 0;
+    std::exit(0);
+
 }
