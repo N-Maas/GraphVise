@@ -69,6 +69,11 @@ namespace graphvise {
             lookAtFocus();
         }
 
+        void resetFocusPoint() {
+            focusPoint = originCoords;
+            lookAtFocus();
+        }
+
         float rotation_x;
         // The distance of the near plane and the far plane to the camera position
         float near, far;

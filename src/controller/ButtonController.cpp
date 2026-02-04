@@ -37,12 +37,8 @@ namespace graphvise {
         group.setColor(newColor);
     }
 
-    void ButtonController::toggleLightSourceMovement() {
-        //TODO: Implement, when movement for light source is implemented
-    }
-
     void ButtonController::setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour) {
-        //TODO: Implement, when movement for light source is implemented
+        renderer.set_light_source_movement_behaviour(behaviour);
     }
 
     void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
@@ -123,7 +119,6 @@ namespace graphvise {
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {
-        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -132,7 +127,6 @@ namespace graphvise {
     }
 
     void ButtonController::importGraph(std::string filePath) {
-        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -171,9 +165,9 @@ namespace graphvise {
         GraphSaver::getInstance().getGraph().setGroupTransparency(groupID, newTransparency);
     }
 
-    void ButtonController::RemoveHighlights()
-    {
+    void ButtonController::RemoveHighlights() {
         GraphSaver::getInstance().getGraph().removeAllHighlights();
+        camera.resetFocusPoint();
     }
 
     void ButtonController::addCurrentPosAsBookmark(const std::string& name)

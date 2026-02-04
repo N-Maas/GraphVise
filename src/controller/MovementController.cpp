@@ -14,6 +14,8 @@
 #define ZOOM_SPRINT_MULTIPLIER 10
 #define MIN_DISTANCE 0.3
 
+#define LIGHT_SOURCE_OFFSET glm::vec3(0, 0, 0)
+
 namespace graphvise {
 
     //Using a 3D vector as direction
@@ -37,6 +39,12 @@ namespace graphvise {
             camera.position_world_space[2] += -cos_y * direction.z * step;
             camera.position_world_space[2] +=  sin_y * direction.x * step;
             camera.position_world_space[1] +=  direction.y * step;
+        }
+
+        std::shared_ptr<Renderer> renderer = Renderer::getInstance();
+
+        if (renderer->light_source_movement_behaviour() == FOLLOW_CAMERA) {
+            Renderer::getInstance()->setLightPos(camera.position_world_space + LIGHT_SOURCE_OFFSET);
         }
     }
 
