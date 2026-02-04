@@ -46,7 +46,6 @@ namespace graphvise {
     }
 
     void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
-        //TODO: Implement, when movement for camera is implemented
         camera.set_camera_focus_mode(mode);
     }
 
@@ -180,14 +179,12 @@ namespace graphvise {
     void ButtonController::addCurrentPosAsBookmark(const std::string& name)
     {
         GraphSaver::getInstance().getGraph().addCameraBookmark(name, camera.position_world_space, camera.rotation_x, camera.rotation_y);
-        //TODO: KP Mit rotation was da abgeht lol
     }
 
     void ButtonController::loadCameraBookmark(CameraBookmark cam)
     {
-        //TODO
         camera.position_world_space = cam.getCoordsVector();
-        camera.setRotation(camera.rotation_x, camera.rotation_y);
-
+        camera.rotation_x = cam.getPitch();
+        camera.rotation_y = cam.getYaw();
     }
 }
