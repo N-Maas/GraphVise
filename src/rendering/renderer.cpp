@@ -44,7 +44,7 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(),
+     lightSourceMovementBehaviour(FIXED_POSITION),
      performanceMode(),
      mF5Pressed(false) {
     }
