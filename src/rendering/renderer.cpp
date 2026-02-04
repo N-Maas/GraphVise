@@ -121,7 +121,7 @@ namespace graphvise {
         reloadShaders();
 
         if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
-            mCamera.lookAt(centerCoordinates);// per default camera looks at (0,0,0)
+            mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
         // Initialize Buffers and Arrays for sphere and cylinder

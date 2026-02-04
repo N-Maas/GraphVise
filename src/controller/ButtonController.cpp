@@ -52,15 +52,17 @@ namespace graphvise {
 
     void ButtonController::findVertex(int vertexID) {
         Graph& graph = GraphSaver::getInstance().getGraph();
-        if (vertexID < graph.getVertices().size()) {
-            graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
-            glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
-            vertexPos.x += 1;
-            camera.position_world_space = vertexPos;
-            camera.setRotation(0, 3 * std::numbers::pi/2);
-        } else {
+        if (vertexID >= graph.getVertices().size()) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
         }
+
+        graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
+        vertexPos.x += 1;
+        camera.position_world_space = vertexPos;
+        camera.setRotation(0, 3 * std::numbers::pi/2);
+
+        camera.focusPoint = graph.getVertexByID(vertexID).getCoordsVector();
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
@@ -118,6 +120,7 @@ namespace graphvise {
             newAngle = acosf(-toMiddle.z);
         }
         camera.setRotation(0, newAngle);
+        camera.focusPoint = averagePos;
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {

@@ -18,10 +18,11 @@
 
 namespace graphvise {
 
+	double Window::scrollYOffset = 0;
+
 	Window::Window()
 	= default;
-	bool Window::initWindow()
-	{
+	bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
@@ -54,7 +55,7 @@ namespace graphvise {
 			return false;
 		}
 
-
+		glfwSetScrollCallback(window, scrollCallback);
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -166,8 +167,8 @@ namespace graphvise {
 		return true;
 	}
 
-	void Window::processEvents()
-	{
+	void Window::processEvents() {
+		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
 
@@ -181,7 +182,6 @@ namespace graphvise {
 			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
 			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
 			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-			bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 			movementController.moveCamera(direction, sprinting);
 
 		}
@@ -206,5 +206,12 @@ namespace graphvise {
 		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
 			rotatingCamera = false;
 		}
+
+		movementController.zoom(-scrollYOffset, sprinting);
+		scrollYOffset = 0;
+	}
+
+	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+		scrollYOffset = yoffset;
 	}
 }

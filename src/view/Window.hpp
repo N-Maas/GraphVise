@@ -15,10 +15,14 @@ namespace graphvise
     {
     public:
         Window();
+
+        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
         bool initWindow();
 
     private:
         void processEvents();
+        //void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         GLFWwindow* window = nullptr;
         MovementController movementController;
@@ -33,6 +37,7 @@ namespace graphvise
 
         Resolution currentRes = HD;
 
+        static double scrollYOffset;
     };
 }
 #endif //THESIS_FRAMEWORK_WINDOW_HPP

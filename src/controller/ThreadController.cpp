@@ -9,6 +9,7 @@
 
 #include "ErrorCollector.hpp"
 #include "model/GraphSaver.hpp"
+#include "rendering/renderer.hpp"
 
 namespace graphvise {
 
@@ -38,6 +39,7 @@ namespace graphvise {
             std::optional<Graph> parsedGraph = parserController.getParsedGraph();
             if (parsedGraph.has_value()) {
                 GraphSaver::getInstance().setGraph(parsedGraph.value());
+                Renderer::getInstance()->m_camera().resetPosition();
             }
 
             std::optional<HighlightingData> highlightingSubgraph = parserController.getHighlightingSubgraph();

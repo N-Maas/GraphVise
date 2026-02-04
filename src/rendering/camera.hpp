@@ -19,6 +19,8 @@
 
 #include <glm/glm.hpp>
 
+#define DEFAULT_COORDINATES glm::vec3(0, 0, 5)
+
 /**
  * Holds state for a first person camera that characterizes the world to
  * projection space transform completely, except for the aspect ratio. It also
@@ -45,7 +47,7 @@ namespace graphvise {
         void set_camera_focus_mode(CameraFocusMode camera_focus_mode) {
             cameraFocusMode = camera_focus_mode;
             if (cameraFocusMode == CENTER_OF_MASS) {
-                lookAt(originCoords);
+                lookAtFocus();
             }
         }
 
@@ -61,6 +63,12 @@ namespace graphvise {
             this->rotation_y = rotation_y;
         }
 
+        void resetPosition() {
+            position_world_space = DEFAULT_COORDINATES;
+            focusPoint = originCoords;
+            lookAtFocus();
+        }
+
         float rotation_x;
         // The distance of the near plane and the far plane to the camera position
         float near, far;
@@ -71,15 +79,18 @@ namespace graphvise {
         // 1 iff mouse movements are currently used to rotate the camera
         bool rotate_camera;
 
+        glm::vec3 focusPoint;
+
         Camera() :
-            position_world_space(0, 0, 5),
+            position_world_space(DEFAULT_COORDINATES),
             rotation_y(0),
             rotation_x(0),
             near(0.01f),
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
             speed(2.0f),
-            rotate_camera(false)
+            rotate_camera(false),
+            focusPoint(0, 0, 0)
         {
             set_camera_focus_mode(CENTER_OF_MASS);
         }
@@ -96,9 +107,6 @@ namespace graphvise {
         [[nodiscard]] glm::mat4 get_world_to_projection_space(float aspect_ratio) const;
 
         // Make the camera look at a specific target point (default: origin)
-        void lookAt(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f));
-
-        // optinal: Set camera to orbit around a point
-        void orbitAround(const glm::vec3& target = glm::vec3(0.0f, 0.0f, 0.0f), float distance = 5.0f);
+        void lookAtFocus();
     };
 }
