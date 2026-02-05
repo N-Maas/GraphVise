@@ -82,13 +82,17 @@ namespace graphvise {
 
 		// Create the renderer object
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+
+		// todo test changing render quality
+		renderer->setQualityPreset(QualityPreset::MEDIUM);
+
 		renderer->init();
 
 		ButtonController controller = ButtonController(*renderer);
 
 		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
 
-		ErrorCollector::getInstance().signIn(gui);
+		//ErrorCollector::getInstance().signIn(gui);
 
 
 		gui->initGUI(window);
@@ -97,9 +101,17 @@ namespace graphvise {
 		int frameCount = 0;
 		double accumulatedTime = 0.0;
 
+		// Main loop with delta time calculation for changing render quality
+		float deltaTime = 0.0f;
+		auto lastFrame = std::chrono::high_resolution_clock::now();
+
 		// Main while loop
 		while (!glfwWindowShouldClose(window))
 		{
+			// todo test changing render quality
+			auto currentFrame = std::chrono::high_resolution_clock::now();
+			deltaTime = std::chrono::duration<float>(currentFrame - lastFrame).count();
+			lastFrame = currentFrame;
 
 			double startTime = glfwGetTime();
 
@@ -126,8 +138,13 @@ namespace graphvise {
 
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
-			renderer->runFrame();
+			//renderer->runFrame();
+			renderer->runFrame(deltaTime);
 			GL_CHECK_ERROR();
+
+			// todo debugging Display FPS
+			std::cout << "FPS: " << renderer->getCurrentFPS()
+					  << " Frame time: " << renderer->getFrameTime() << "ms" << std::endl;
 
 			//load GUI
 			gui->loadFrame(framebufferWidth, framebufferHeight);
