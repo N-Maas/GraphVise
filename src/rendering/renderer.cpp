@@ -44,7 +44,7 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(),
+     lightSourceMovementBehaviour(FIXED_POSITION),
      performanceMode(),
      mF5Pressed(false)
     {
@@ -135,7 +135,7 @@ namespace graphvise {
         reloadShaders();
 
         if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
-            mCamera.lookAt(centerCoordinates);// per default camera looks at (0,0,0)
+            mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
         // Initialize Buffers and Arrays for sphere and cylinder
@@ -293,7 +293,7 @@ namespace graphvise {
     void Renderer::render(const glm::mat4& mvp) {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
 
-        Graph& graph = GraphSaver::getGraphSaver().getGraph();
+        Graph& graph = GraphSaver::getInstance().getGraph();
 
         std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
         std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
@@ -329,7 +329,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVertexVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp);
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -339,7 +339,7 @@ namespace graphvise {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge->getEdgeVec4(), mvp);
+                              cylinderRadius, edge->getVec4(), mvp);
             }
         }
 
@@ -662,10 +662,12 @@ namespace graphvise {
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
+        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
 
 
         // Set lighting (use same light as cube)

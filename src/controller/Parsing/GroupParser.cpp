@@ -88,7 +88,7 @@ namespace graphvise {
                     Error error(ErrorType::INVALID_VERTEX_ID, line, currentLine);
                     return std::unexpected(error);
                 }
-                if (vertexID > GraphSaver::getGraphSaver().getGraph().getVertices().size() - 1) {
+                if (vertexID > GraphSaver::getInstance().getGraph().getVertices().size() - 1) {
                     Error error(ErrorType::INVALID_VERTEX_ID, line, currentLine);
                     return std::unexpected(error);
                 }
@@ -105,12 +105,12 @@ namespace graphvise {
                     Error error(ErrorType::INVALID_EDGE_ID, line, currentLine);
                     return std::unexpected(error);
                 }
-                if (firstVertexID > GraphSaver::getGraphSaver().getGraph().getVertices().size() - 1 || secondVertexID > GraphSaver::getGraphSaver().getGraph().getVertices().size() - 1) {
+                if (firstVertexID > GraphSaver::getInstance().getGraph().getVertices().size() - 1 || secondVertexID > GraphSaver::getInstance().getGraph().getVertices().size() - 1) {
                     Error error(ErrorType::INVALID_EDGE_ID, line, currentLine);
                     return std::unexpected(error);
                 }
                 try {
-                    currentGroupData.edges.emplace_back(GraphSaver::getGraphSaver().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID));
+                    currentGroupData.edges.emplace_back(GraphSaver::getInstance().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID));
                 } catch (const std::out_of_range& exception) {
                     Error error(ErrorType::INVALID_EDGE_ID, line, currentLine);
                     return std::unexpected(error);

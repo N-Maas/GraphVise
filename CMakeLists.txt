@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(thesis-framework VERSION 1.1 DESCRIPTION "CG Thesis Framework" LANGUAGES CXX)
+project(GraphVise VERSION 1.1 DESCRIPTION "GraphVise" LANGUAGES CXX)
 
 # Require out-of-source builds (this is good practice)
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
@@ -120,11 +120,11 @@ set(SHADERS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 
 # add executable
 # this is the build target that we create in the end and that we link all libraries to
-add_executable(thesis-framework ${SOURCES} ${HEADERS})
+add_executable(GraphVise ${SOURCES} ${HEADERS})
 
 # set defines that can be used in the project code
 # SHADERS_PATH points to the shader files directory
-target_compile_definitions(thesis-framework PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shader/")
+target_compile_definitions(GraphVise PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shader/")
 
 # external dependencies and libraries ------------------------------------
 
@@ -150,14 +150,14 @@ FetchContent_MakeAvailable(wembed)
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
 
-target_include_directories(thesis-framework PRIVATE
+target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         src/view/imgui-filebrowser
         )
 
 # link required libraries
-target_link_libraries(thesis-framework PRIVATE
+target_link_libraries(GraphVise PRIVATE
     imgui
     glad
     glfw
@@ -170,8 +170,8 @@ target_link_libraries(thesis-framework PRIVATE
 )
 # link optional libraries
 if(OpenMP_CXX_FOUND)
-    target_link_libraries(thesis-framework PUBLIC OpenMP::OpenMP_CXX)
+    target_link_libraries(GraphVise PUBLIC OpenMP::OpenMP_CXX)
 endif()
 
 # Install target (optional but good practice)
-# install(TARGETS thesis-framework RUNTIME DESTINATION bin)
+# install(TARGETS GraphVise RUNTIME DESTINATION bin)

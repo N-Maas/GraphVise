@@ -33,6 +33,19 @@ namespace graphvise
         this->framebufferHeight = framebufferHeight;
 
 
+        static float cylinderRadius = 0.03f;
+        static float sphereRadius = 0.05f;
+
+        if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
+        {
+            Renderer::getInstance()->setCylinderRadius(cylinderRadius);
+        };
+        if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
+        {
+            Renderer::getInstance()->setSphereRadius(sphereRadius);
+        }
+
+
 
         // ImGui::ShowDemoWindow();
 
@@ -71,13 +84,6 @@ namespace graphvise
     void Buttons::SideBar()
     {
 
-        static bool search;
-        static bool groups;
-        static bool togglePerformanceMode;
-        static bool lightSource;
-        static bool cameraMovement;
-
-
         ImVec2 pos;
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
@@ -99,6 +105,7 @@ namespace graphvise
         SideBarElement("Performance Mode", &togglePerformanceMode);
         SideBarElement("Light Source Behaviour", &lightSource);
         SideBarElement("Camera Movement Mode", &cameraMovement);
+        SideBarElement("Camera bookmarks", &cameraBookmarks);
 
 
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
@@ -113,7 +120,7 @@ namespace graphvise
 
         if (search)
         {
-            ImGui::SetNextWindowPos(pos,ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos,ImGuiCond_Appearing, windowPivot);
             findObject(&search);
         }
 
@@ -121,7 +128,7 @@ namespace graphvise
 
         if (groups)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
             GroupMenu(&groups);
         }
 
@@ -129,7 +136,7 @@ namespace graphvise
 
         if (togglePerformanceMode)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             performanceModeToggle(&togglePerformanceMode);
         }
@@ -137,7 +144,7 @@ namespace graphvise
 
         if (lightSource)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             setLightSourceMovementBehaviour(&lightSource);
         }
@@ -145,9 +152,15 @@ namespace graphvise
         pos.y += MovementLightSourceHeight + widgetSpacing;
         if (cameraMovement)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Always, windowPivot);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
 
             setCameraMovementMode(&cameraMovement);
+        }
+
+        if (cameraBookmarks)
+        {
+
+            cameraBookmarkMenu(&cameraBookmarks);
         }
     }
 
@@ -160,28 +173,89 @@ namespace graphvise
         ImGui::Spacing();
     }
 
+    void Buttons::cameraBookmarkMenu(bool* visible)
+    {
+
+        auto bookmarks = saver->getGraph().getCameraBookmarks();
+
+        ImGui::Begin("Bookmarks", visible,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        if (ImGui::Button("Add Bookmark"))
+        {
+            addBookmarkWindow = true;
+        }
+        for (size_t i = 0; i < bookmarks.size(); ++i)
+        {
+            auto & bookmark = bookmarks[i];
+            ImGui::CollapsingHeader(std::format("{}##{}",bookmark.getName(), i).c_str());
+            ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y, bookmark.getCoordsVector().z);
+            if (ImGui::Button(std::format("Load Bookmark##{}", i ).c_str()))
+            {
+                buttonController->loadCameraBookmark(bookmark);
+            }
+        }
+        ImGui::End();
+
+        if (addBookmarkWindow)
+        {
+            ImGui::OpenPopup("Add Bookmark",
+                         ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoCollapse
+            );
+            if (ImGui::BeginPopupModal("Add Bookmark",&addBookmarkWindow,
+                ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoCollapse))
+            {
+                ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
+                if (ImGui::Button("Add"))
+                {
+                    buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
+                    bookmarkName = std::vector<char>(16);
+                    addBookmarkWindow = false;
+
+                }
+                ImGui::EndPopup();
+            }
+        }
+
+
+
+    }
+
     void Buttons::GroupMenu(bool* groupMenu)
     {
 
 
         activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({230, 300},{MAXFLOAT, 300});
+        ImGui::SetNextWindowSizeConstraints({260, 300},{MAXFLOAT, 300});
         ImGui::Begin("Groups", groupMenu,
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoCollapse
             );
 
+        if (ImGui::Button("Remove Group Highlights"))
+        {
+            buttonController->RemoveHighlights();
+        }
+
         for (const auto& group : *activeGroups)
         {
             if (ImGui::CollapsingHeader(group.getName().c_str()))
             {
-                ImGui::Text("Group ID: %d", group.getGroupID());
+                ImGui::Text("Group ID: %d", group.getID());
                 ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getGroupID()).c_str(),group.getGroupVec4());
+                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(),group.getVec4());
                 ImGui::SameLine();
-                randomizeColoring(group.getGroupID());
-                changeColoring(group.getGroupID());
+
+                randomizeColoring(group.getID());
+                changeColoring(group.getID());
+
+                ChangeTransparency(group.getID());
+
 
             }
 
@@ -190,23 +264,55 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::performanceModeToggle(bool* toggle_mode)
+
+    void Buttons::ChangeTransparency(uint32_t groupID)
     {
 
-        const char* modeText[] = {"High Performance", "High Resolution"};
-
-        ImGui::Begin("Performance Mode", toggle_mode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode), HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+        if (groupID >= groupColors.size())
         {
-            buttonController->togglePerformanceMode(performanceMode);
+            groupColors.resize(groupColors.size() * 2);
+        }
+
+        float& transparency = groupColors[groupID].w;
+
+        if (transparency == 0.0f)
+        {
+            transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
+        }
+
+        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
+        {
+            buttonController->changeTransparency(groupID, transparency);
+        }
+    }
+
+
+    void Buttons::changeColoring(uint32_t groupID)
+    {
+
+
+        if (groupID >= groupColors.size())
+        {
+
+            groupColors.resize(groupColors.size() * 2);
+
+        }
+
+        ImVec4& color = groupColors[groupID];
+
+        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        {
+            color = saver->getGraph().getGroupByID(groupID).getVec4();
         }
 
 
-        ImGui::End();
+        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
+        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, color);
+
+        }
+
     }
 
     void Buttons::randomizeColoring(uint32_t groupID) const
@@ -219,31 +325,24 @@ namespace graphvise
 
     }
 
-    void Buttons::changeColoring(uint32_t groupID) const
+    void Buttons::performanceModeToggle(bool* toggle_mode)
     {
 
-        static auto groupColors = std::vector<ImVec4>(16);
+        const char* modeText[] = {"High Performance", "High Resolution"};
 
-        if (groupID >= groupColors.size())
+        ImGui::Begin("Performance Mode", toggle_mode,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+            HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
         {
-            groupColors.resize(groupColors.size() * 2);
+            buttonController->togglePerformanceMode(performanceMode);
         }
 
-        ImVec4& color = groupColors[groupID];
 
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
-        {
-             color = saver->getGraph().getGroupByID(groupID).getGroupVec4();
-        }
-
-
-        ImGui::ColorEdit4(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, color);
-
-        }
-
+        ImGui::End();
     }
 
 

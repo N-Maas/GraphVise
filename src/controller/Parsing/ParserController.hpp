@@ -7,6 +7,8 @@
 #include <mutex>
 #include <string>
 #include <utility>
+
+#include "CNFParser.hpp"
 #include "GroupParser.hpp"
 #include "TXTParser.hpp"
 #include "WEmbedController.hpp"
@@ -53,6 +55,7 @@ namespace graphvise {
 
         //TODO: Felder deklarieren, sobald die Klassen existieren
         TXTParser txtParser;
+        CNFParser cnfParser;
         GroupParser groupParser;
         WEmbedController wembedController;
 

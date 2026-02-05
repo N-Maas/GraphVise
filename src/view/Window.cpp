@@ -18,10 +18,11 @@
 
 namespace graphvise {
 
+	double Window::scrollYOffset = 0;
+
 	Window::Window()
 	= default;
-	bool Window::initWindow()
-	{
+	bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
@@ -54,7 +55,7 @@ namespace graphvise {
 			return false;
 		}
 
-
+		glfwSetScrollCallback(window, scrollCallback);
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -162,9 +163,9 @@ namespace graphvise {
 			++frameCount;
 			if (1.0 < accumulatedTime) {
 				assert(0 < frameCount);
-				std::ostringstream oss;
-				oss << windowTitle << " - " << frameCount / accumulatedTime << " fps";
-				glfwSetWindowTitle(window, oss.str().c_str());
+
+				gui->setFps(frameCount / accumulatedTime);
+
 				accumulatedTime = 0.0;
 				frameCount = 0;
 			}
@@ -183,21 +184,24 @@ namespace graphvise {
 		return true;
 	}
 
-	void Window::processEvents()
-	{
-		  (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
-
-		//Moving Camera
-		glm::vec3 direction(0, 0, 0);
-		direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-		direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+	void Window::processEvents() {
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-		movementController.moveCamera(direction, sprinting);
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+		{
 
+			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
+
+			//Moving Camera
+			glm::vec3 direction(0, 0, 0);
+			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+			movementController.moveCamera(direction, sprinting);
+
+		}
 		//Rotating Camera
 		static float lastMousePosition[2];
 		static double currentMousePositionDouble[2];
@@ -219,5 +223,12 @@ namespace graphvise {
 		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
 			rotatingCamera = false;
 		}
+
+		movementController.zoom(-scrollYOffset, sprinting);
+		scrollYOffset = 0;
+	}
+
+	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+		scrollYOffset = yoffset;
 	}
 }

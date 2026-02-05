@@ -44,7 +44,7 @@ namespace graphvise {
             std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
             if (connectingVerticesIDs.first == firstVertexID || connectingVerticesIDs.second == firstVertexID) {
                 if (connectingVerticesIDs.first == secondVertexID || connectingVerticesIDs.second == secondVertexID) {
-                    return edge.getEdgeID();
+                    return edge.getID();
                 }
             }
         }
@@ -54,11 +54,17 @@ namespace graphvise {
     void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
         groups.emplace_back(groups.size(), name, groupVec4);
         const std::size_t groupID = groups.size() - 1;
-        for (const std::uint32_t ID : verticesIDs) {
-            vertices.at(ID).setGroup(groupID);
+        if (!verticesIDs.empty()) {
+            for (const std::uint32_t ID : verticesIDs) {
+                vertices.at(ID).setGroup(groupID);
+            }
+            updateSortedVertices();
         }
-        for (const std::uint32_t ID : edgesIDs) {
-            edges.at(ID).setGroup(groupID);
+        if (!edgesIDs.empty()) {
+            for (const std::uint32_t ID : edgesIDs) {
+                edges.at(ID).setGroup(groupID);
+            }
+            updateSortedEdges();
         }
     }
 
@@ -68,14 +74,14 @@ namespace graphvise {
 
     void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
         for (Vertex& vertex : vertices) {
-            if (std::ranges::find(verticesIDs, vertex.getVertexID()) == verticesIDs.end()) {
+            if (std::ranges::find(verticesIDs, vertex.getID()) == verticesIDs.end()) {
                 vertex.setOwnTransparency(0.2f);
             } else {
                 vertex.setOwnTransparency(1.0f);
             }
         }
         for (Edge& edge : edges) {
-            if (std::ranges::find(edgesIDs, edge.getEdgeID()) == edgesIDs.end()) {
+            if (std::ranges::find(edgesIDs, edge.getID()) == edgesIDs.end()) {
                 edge.setOwnTransparency(0.2f);
             } else {
                 edge.setOwnTransparency(1.0f);
@@ -98,13 +104,16 @@ namespace graphvise {
 
     void Graph::deleteAllGroups() {
         groups.clear();
-        addGroup("Default-Group", ImVec4{51 / 255.0f, 0.0f, 34 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
+        std::vector<std::uint32_t> verticesIDs;
+        std::vector<std::uint32_t> edgesIDs;
         for (Vertex& vertex : vertices) {
-            vertex.setGroup(0);
+            verticesIDs.push_back(vertex.getID());
         }
         for (Edge& edge : edges) {
-            edge.setGroup(0);
+            edgesIDs.push_back(edge.getID());
         }
+        addGroup("Default-VertexGroup", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, verticesIDs, std::vector<std::uint32_t>{});
+        addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, edgesIDs);
     }
 
     void Graph::deleteCameraBookmarks(const std::uint32_t cameraBookmarkID) {
@@ -123,11 +132,11 @@ namespace graphvise {
         std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
     }
 
-    std::vector<Vertex *> Graph::getVerticesSortedByTransparency() const{
+    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }
 
-    std::vector<Edge *> Graph::getEdgesSortedByTransparency() const{
+    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
         return edgesSortedByTransparency;
     }
 
@@ -138,5 +147,15 @@ namespace graphvise {
         for (Edge& edge : edges) {
             edgesSortedByTransparency.emplace_back(&edge);
         }
+    }
+
+    void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
+        try {
+            groups.at(groupID).setTransparency(transparency);
+        } catch (std::out_of_range& e) {
+            throw std::out_of_range("Group transparency is out of range [0,1]");
+        }
+        updateSortedVertices();
+        updateSortedEdges();
     }
 }

@@ -5,7 +5,7 @@
 namespace graphvise {
     class GraphSaver {
     public:
-        static GraphSaver& getGraphSaver();
+        static GraphSaver& getInstance();
         [[nodiscard]] Graph& getGraph();
         void setGraph(const Graph& new_graph);
 

@@ -8,7 +8,6 @@
 namespace graphvise {
     enum class ErrorType {
         EDGE_DOES_NOT_EXIST,
-        NO_ERROR,
         EQUAL_VERTEX_IDS,
         VERTEX_ID_OUT_OF_BOUNDS,
         TOO_MANY_VERTICES_IN_SUBGRAPH,
@@ -24,6 +23,9 @@ namespace graphvise {
         BACKGROUND_THREAD_ALREADY_BUSY,
         INVALID_EDGE_ID,
         INVALID_VERTEX_ID,
+        INVALID_CLAUSE_COUNT,
+        INVALID_VARIABLE_COUNT,
+        INVALID_VARIABLE_ID
     };
 }
 

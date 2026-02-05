@@ -26,6 +26,10 @@ namespace graphvise {
         void importGraph(std::string filePath);
         void exportGraph(std::string filePath, ExportFormat format);
         void importGroupConfiguration(std::string filePath);
+        void changeTransparency(uint32_t groupID, float newTransparency);
+        void RemoveHighlights();
+        void addCurrentPosAsBookmark(const std::string& name);
+        void loadCameraBookmark(CameraBookmark cam);
 
     private:
         Camera& camera;

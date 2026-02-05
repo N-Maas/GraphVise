@@ -132,6 +132,14 @@ namespace graphvise {
 
         void setQualityPreset(QualityPreset preset);
 
+        void setCylinderRadius(const float radius) {
+            cylinderRadius = radius;
+        }
+        void setSphereRadius(const float radius)
+        {
+            sphereRadius = radius;
+        }
+
     private:
         //variables for render quality settings
         RenderSettings mSettings;

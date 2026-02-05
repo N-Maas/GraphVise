@@ -25,6 +25,8 @@ namespace graphvise {
         ErrorType errorType;
         std::optional<uint32_t> line;
         std::optional<std::string> message;
+
+        void setMessage();
     };
 }
 

@@ -9,6 +9,7 @@
 namespace graphvise {
     enum class ThreadOperationType {
         PARSE_TXT,
+        PARSE_CNF,
         PARSE_SUBGRAPH,
         PARSE_GROUPS,
         EXPORT_PNG

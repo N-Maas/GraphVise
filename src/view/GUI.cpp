@@ -35,22 +35,32 @@ namespace graphvise
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        currentObjInfo();
 
+        currentObjInfo();
 
         if (ImGui::Button("Press For Error"))
         {
-            ErrorCollector::getInstance().collectError(Error(ErrorType::NO_ERROR, "This is a Test Error Message"));
+            ErrorCollector::getInstance().collectError(Error(ErrorType::FILE_NOT_FOUND, "This is a Test Error Message"));
         }
 
-        ImGui::Text("Width: %d Height: %d", framebufferWidth, framebufferHeight);
         if (errorAvailable)
         {
             errorPopup();
         }
 
+        ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+        ImGui::Begin("##FPS window", nullptr,
+            ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoCollapse
+        );
+        ImGui::Text("%.2f fps", fps);
+        ImGui::End();
+
+
+
+
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
-        // Renders the ImGUI elements
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
@@ -63,24 +73,28 @@ namespace graphvise
         ImGui::DestroyContext();
     }
 
+    void GUI::setFps(double newFps)
+    {
+        fps = newFps;
+    }
+
     void GUI::errorPopup()
     {
         ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-        if (currentError.getMessage().has_value())
+        if (currentError->getMessage().has_value())
         {
             ImGui::Text("Message: %s",
-                        currentError.getMessage()->c_str());
+                        currentError->getMessage()->c_str());
         }
-        ImGui::Separator();
 
-        if (currentError.getLine().has_value())
+        if (currentError->getLine().has_value())
         {
+            ImGui::Separator();
             ImGui::Text("At line: %s",
-                        currentError.getMessage()->c_str());
+                        currentError->getMessage()->c_str());
         }
-        ImGui::Separator();
 
         if (ImGui::Button("OK##Error Confirm"))
         {
@@ -92,20 +106,21 @@ namespace graphvise
 
     void GUI::currentObjInfo()
     {
-        static Vertex currentVertex = GraphSaver::getGraphSaver().getGraph().getVertexByID(currentObjId);
+        static Vertex currentVertex = GraphSaver::getInstance().getGraph().getVertexByID(currentObjId);
 
 
         ImGui::Begin("Current Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::Text("ObjectID: %d", currentVertex.getVertexID());
+        ImGui::Text("ObjectID: %d", currentVertex.getID());
         const glm::vec3 coords = currentVertex.getCoordsVector();
         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
                     coords.x, coords.y, coords.z);
-        ImGui::Text("Object Group: %d", currentVertex.getGroupID());
+        const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID()).getName();
+        ImGui::Text("Object Group: %s", groupname.c_str());
 
 
         ImGui::Text("Object Color:");
         ImGui::SameLine();
-        ImGui::ColorButton("##Vertex color", currentVertex.getVertexVec4());
+        ImGui::ColorButton("##Vertex color", currentVertex.getVec4());
         ImGui::End();
     }
 
