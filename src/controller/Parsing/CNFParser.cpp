@@ -26,6 +26,7 @@ namespace graphvise {
 
         uint32_t currentLine = 1;
 
+        //Check Header Line
         std::regex headerRegex(HEADER_REGEX);
         std::smatch matches;
         std::string headerLine;
@@ -72,6 +73,7 @@ namespace graphvise {
                 return std::unexpected(error);
             }
 
+
             std::vector<uint32_t> currentVariables;
             std::stringstream lineStream(line);
             std::string variable;
@@ -80,6 +82,7 @@ namespace graphvise {
                     variable = variable.substr(1);
                 }
 
+                //Add all variables of current line to currentVariables
                 uint32_t variableInt = std::stoi(variable);
                 if (variableInt == 0) break;
                 if (variableInt > variableCount) {
@@ -91,10 +94,12 @@ namespace graphvise {
 
             for (int i = 0; i < currentVariables.size(); i++) {
                 std::set<uint32_t> neighborhood;
+                //Create neighborhood for current variable
                 for (int j = 0; j < currentVariables.size(); j++) {
                     if (i == j) continue;
                     neighborhood.insert(currentVariables.at(j));
                 }
+                //Check if variable already has some previously parsed neighbors
                 if (!neighborhoods.contains(currentVariables.at(i))) {
                     neighborhoods[currentVariables.at(i)] = neighborhood;
                 } else {
@@ -112,9 +117,9 @@ namespace graphvise {
             return std::unexpected(error);
         }
 
+        //Convert neighborhood to edge list
         std::vector<std::pair<uint32_t, uint32_t>> edges;
         std::map<std::pair<uint32_t, uint32_t>, bool> edgeMap;
-
         for (int i = 1; i < neighborhoods.size(); i++) {
             for (auto neighbor : neighborhoods[i]) {
                 std::pair edge(i - 1, neighbor - 1);

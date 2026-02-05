@@ -105,6 +105,13 @@ namespace graphvise {
             sphereRadius = radius;
         }
 
+        int getFramebufferWidth() {
+            return mFramebufferSize.x;
+        }
+        int getFramebufferHeight() {
+            return mFramebufferSize.y;
+        }
+
     private:
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);

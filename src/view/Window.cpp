@@ -116,7 +116,8 @@ namespace graphvise {
 			}
 
 			// Specify the color of the background
-			glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
 			// Clean the back buffer and assign the new color to it
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
