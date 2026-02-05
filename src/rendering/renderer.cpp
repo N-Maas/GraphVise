@@ -24,8 +24,10 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
-namespace graphvise {
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
+namespace graphvise {
     Renderer::Renderer()
     : mFramebufferSize(800, 600),  // Default size
       framebuffer(0),
@@ -88,6 +90,7 @@ namespace graphvise {
     }
 
     // Singleton getters
+
     std::shared_ptr<Renderer> Renderer::getInstance(int framebufferWidth, int framebufferHeight) {
         std::lock_guard<std::mutex> lock(mtx);
         if (!rendererInstance) {
@@ -171,6 +174,22 @@ namespace graphvise {
         glGenBuffers(1, &vertexVBO);
         glGenVertexArrays(1, &edgeVAO);
         glGenBuffers(1, &edgeVBO);
+
+    }
+
+    void Renderer::exportFrameBufferToPng(char* filepath, int frameBufferWidth, int frameBufferHeight)
+    {
+        GLsizei nrChannels = 3;
+        GLsizei stride = nrChannels * frameBufferWidth;
+        stride += (stride % 4) ? (4 - stride % 4) : 0;
+        GLsizei bufferSize = stride * frameBufferHeight;
+        std::vector<char> buffer(bufferSize);
+        glPixelStorei(GL_PACK_ALIGNMENT, 4);
+        glReadBuffer(GL_FRONT);
+        glReadPixels(0, 0, frameBufferWidth, frameBufferHeight, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+        stbi_flip_vertically_on_write(true);
+        stbi_write_png(filepath, frameBufferWidth, frameBufferHeight, nrChannels, buffer.data(), stride);
+
 
     }
 
@@ -597,6 +616,7 @@ namespace graphvise {
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
+
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);

@@ -38,6 +38,7 @@ namespace graphvise
 
         currentObjInfo();
 
+
         if (ImGui::Button("Press For Error"))
         {
             ErrorCollector::getInstance().collectError(Error(ErrorType::FILE_NOT_FOUND, "This is a Test Error Message"));

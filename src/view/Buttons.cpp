@@ -507,6 +507,9 @@ namespace graphvise
         if (exportGraphBrowser.HasSelected())
         {
             const std::filesystem::path result = exportGraphBrowser.GetDirectory();
+
+            Renderer::getInstance()->exportFrameBufferToPng("Hello.png", framebufferWidth, framebufferHeight);
+
             buttonController->exportGraph(result, ExportFormat::PNG); //TODO: Make Format selectable
             exportGraphBrowser.ClearSelected();
         }
