@@ -30,7 +30,8 @@ namespace graphvise
         bool addBookmarkWindow = false;
 
 
-        const std::vector<std::string> allowedFiles = {".txt"};
+        const std::vector<std::string> allowedImportFiles = {".txt"};
+        const std::vector<std::string> allowedExportFiles = {".png"};
 
 
         GraphSaver *saver = &GraphSaver::getInstance();
@@ -55,7 +56,7 @@ namespace graphvise
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
-        ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+        ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);

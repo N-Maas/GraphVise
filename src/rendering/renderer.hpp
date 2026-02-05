@@ -105,7 +105,7 @@ namespace graphvise {
             sphereRadius = radius;
         }
 
-        void exportFrameBufferToPng(char* filepath, int frameBufferWidth, int frameBufferHeight);
+        void exportFrameBufferToPng(char* filepath);
 
 
     private:

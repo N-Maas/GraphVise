@@ -15,6 +15,8 @@
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "rendering/stb_image_write.h"
 
 namespace graphvise {
 
@@ -128,6 +130,8 @@ namespace graphvise {
 			GL_CHECK_ERROR();
 			renderer->runFrame();
 			GL_CHECK_ERROR();
+
+
 
 			//load GUI
 			gui->loadFrame(framebufferWidth, framebufferHeight);

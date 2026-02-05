@@ -177,18 +177,19 @@ namespace graphvise {
 
     }
 
-    void Renderer::exportFrameBufferToPng(char* filepath, int frameBufferWidth, int frameBufferHeight)
+    void Renderer::exportFrameBufferToPng(char* filepath)
     {
         GLsizei nrChannels = 3;
-        GLsizei stride = nrChannels * frameBufferWidth;
+        GLsizei stride = nrChannels * mFramebufferSize.x;
+
         stride += (stride % 4) ? (4 - stride % 4) : 0;
-        GLsizei bufferSize = stride * frameBufferHeight;
+        GLsizei bufferSize = stride * mFramebufferSize.y;
         std::vector<char> buffer(bufferSize);
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glReadBuffer(GL_FRONT);
-        glReadPixels(0, 0, frameBufferWidth, frameBufferHeight, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+        glReadPixels(0, 0, mFramebufferSize.x, mFramebufferSize.y, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
         stbi_flip_vertically_on_write(true);
-        stbi_write_png(filepath, frameBufferWidth, frameBufferHeight, nrChannels, buffer.data(), stride);
+        stbi_write_png(filepath, mFramebufferSize.x, mFramebufferSize.y, nrChannels, buffer.data(), stride);
 
 
     }

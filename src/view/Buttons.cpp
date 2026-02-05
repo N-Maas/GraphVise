@@ -5,6 +5,7 @@
 #include "Buttons.hpp"
 
 #include <format>
+#include <iostream>
 
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
@@ -22,9 +23,12 @@ namespace graphvise
     {
         this->buttonController = controller;
 
-        importGraphBrowser.SetTypeFilters(allowedFiles);
-        importGroupConfigBrowser.SetTypeFilters(allowedFiles);
-        highlightSubgraphBrowser.SetTypeFilters(allowedFiles);
+        importGraphBrowser.SetTypeFilters(allowedImportFiles);
+        importGroupConfigBrowser.SetTypeFilters(allowedImportFiles);
+        highlightSubgraphBrowser.SetTypeFilters(allowedImportFiles);
+
+        exportGraphBrowser.SetTypeFilters(allowedExportFiles);
+        exportGraphBrowser.SetInputName("graph.png""aaa");
     }
 
     void Buttons::loadButtonFrame(int framebufferWidth,int framebufferHeight)
@@ -506,11 +510,10 @@ namespace graphvise
 
         if (exportGraphBrowser.HasSelected())
         {
-            const std::filesystem::path result = exportGraphBrowser.GetDirectory();
+            auto filename = exportGraphBrowser.GetSelected();
 
-            Renderer::getInstance()->exportFrameBufferToPng("Hello.png", framebufferWidth, framebufferHeight);
 
-            buttonController->exportGraph(result, ExportFormat::PNG); //TODO: Make Format selectable
+            buttonController->exportGraph(filename, ExportFormat::PNG); //TODO: Make Format selectable
             exportGraphBrowser.ClearSelected();
         }
     }
