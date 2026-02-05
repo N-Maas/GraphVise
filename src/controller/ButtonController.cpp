@@ -37,30 +37,27 @@ namespace graphvise {
         group.setColor(newColor);
     }
 
-    void ButtonController::toggleLightSourceMovement() {
-        //TODO: Implement, when movement for light source is implemented
-    }
-
     void ButtonController::setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour) {
-        //TODO: Implement, when movement for light source is implemented
+        renderer.set_light_source_movement_behaviour(behaviour);
     }
 
     void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
-        //TODO: Implement, when movement for camera is implemented
         camera.set_camera_focus_mode(mode);
     }
 
     void ButtonController::findVertex(int vertexID) {
         Graph& graph = GraphSaver::getInstance().getGraph();
-        if (vertexID < graph.getVertices().size()) {
-            graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
-            glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
-            vertexPos.x += 1;
-            camera.position_world_space = vertexPos;
-            camera.setRotation(0, 3 * std::numbers::pi/2);
-        } else {
+        if (vertexID >= graph.getVertices().size()) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
         }
+
+        graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
+        vertexPos.x += 1;
+        camera.position_world_space = vertexPos;
+        camera.setRotation(0, 3 * std::numbers::pi/2);
+
+        camera.focusPoint = graph.getVertexByID(vertexID).getCoordsVector();
     }
 
     void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
@@ -118,10 +115,10 @@ namespace graphvise {
             newAngle = acosf(-toMiddle.z);
         }
         camera.setRotation(0, newAngle);
+        camera.focusPoint = averagePos;
     }
 
     void ButtonController::highlightSubgraph(std::string filePath) {
-        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -130,7 +127,6 @@ namespace graphvise {
     }
 
     void ButtonController::importGraph(std::string filePath) {
-        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -169,22 +165,20 @@ namespace graphvise {
         GraphSaver::getInstance().getGraph().setGroupTransparency(groupID, newTransparency);
     }
 
-    void ButtonController::RemoveHighlights()
-    {
+    void ButtonController::RemoveHighlights() {
         GraphSaver::getInstance().getGraph().removeAllHighlights();
+        camera.resetFocusPoint();
     }
 
     void ButtonController::addCurrentPosAsBookmark(const std::string& name)
     {
         GraphSaver::getInstance().getGraph().addCameraBookmark(name, camera.position_world_space, camera.rotation_x, camera.rotation_y);
-        //TODO: KP Mit rotation was da abgeht lol
     }
 
     void ButtonController::loadCameraBookmark(CameraBookmark cam)
     {
-        //TODO
         camera.position_world_space = cam.getCoordsVector();
-        camera.setRotation(camera.rotation_x, camera.rotation_y);
-
+        camera.rotation_x = cam.getPitch();
+        camera.rotation_y = cam.getYaw();
     }
 }
