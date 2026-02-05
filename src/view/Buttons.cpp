@@ -47,6 +47,8 @@ namespace graphvise
 
 
 
+
+
         // ImGui::ShowDemoWindow();
 
         MainMenuBar();
@@ -237,10 +239,6 @@ namespace graphvise
             ImGuiWindowFlags_NoCollapse
             );
 
-        if (ImGui::Button("Remove Group Highlights"))
-        {
-            buttonController->RemoveHighlights();
-        }
 
         for (const auto& group : *activeGroups)
         {
@@ -389,13 +387,18 @@ namespace graphvise
 
     void Buttons::findObject(bool* findObject)
     {
-
-        ImGui::Begin("find Object", findObject,
+        ImGui::Begin("Highlight Object", findObject,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
 
+        if (ImGui::Button("Remove Highlighting"))
+        {
+            buttonController->RemoveHighlights();
+        }
+
         ImGui::BeginTabBar("##FindObjectTabBar");
+
         if (ImGui::BeginTabItem("Edge"))
         {
             findEdge();
@@ -495,6 +498,8 @@ namespace graphvise
 
     void Buttons::exportGraph()
     {
+
+
         if (ImGui::BeginMenu("Export Graph"))
         {
             exportGraphBrowser.SetTitle("Choose Export Location");
