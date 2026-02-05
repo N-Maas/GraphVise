@@ -97,6 +97,14 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
             break;
         }
         case ParseFormat::CNF: {
+            std::expected<GraphData, Error> result = cnfParser.parseFile(std::move(filePath));
+            if (!result.has_value()) {
+                setError(result.error());
+                return;
+            }
+
+            Graph embeddedGraph = wembedController.embedGraph(result.value());
+            setParsedGraph(embeddedGraph);
             break;
         }
     }

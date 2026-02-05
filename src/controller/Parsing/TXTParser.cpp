@@ -33,7 +33,7 @@ namespace graphvise {
         std::getline(fileStream, headerLine);
 
         if (!std::regex_match(headerLine, matches, headerRegex)) {
-            Error error(ErrorType::INVALID_FORMATTING);
+            Error error(ErrorType::INVALID_FORMATTING, headerLine, currentLine);
             return std::unexpected(error);
         }
 
@@ -60,7 +60,7 @@ namespace graphvise {
         std::regex emptyLineRegex(EMPTY_LINE_REGEX);
 
         std::vector<std::pair<uint32_t, uint32_t>> edges;
-        std::map<std::pair<uint32_t, uint32_t>, int> edgeMap;
+        std::map<std::pair<uint32_t, uint32_t>, bool> edgeMap;
         edges.reserve(edgeCount);
 
         for (std::string line; std::getline(fileStream, line);) {
@@ -115,8 +115,8 @@ namespace graphvise {
             }
 
             std::pair invertedEdge(secondVertexID, firstVertexID);
-            edgeMap[edge] = 1;
-            edgeMap[invertedEdge] = 1;
+            edgeMap[edge] = true;
+            edgeMap[invertedEdge] = true;
             edges.push_back(edge);
         }
 

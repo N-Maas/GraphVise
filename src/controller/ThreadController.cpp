@@ -85,11 +85,7 @@ namespace graphvise {
             conditionVariable.wait(lock, [] { return threadOperation.has_value() && !operationDone; });
             std::cout << "Received new Data" << std::endl;
 
-            /*if (terminateThread) {
-                break;
-            }*/
-
-            ThreadOperation operation = threadOperation.value();
+            ThreadOperation& operation = threadOperation.value();
 
             switch (operation.requestedOperation) {
                 default: std::cout << "Invalid requested operation" << std::endl; operationDone = true; break;
@@ -105,6 +101,11 @@ namespace graphvise {
                 }
                 case ThreadOperationType::PARSE_SUBGRAPH: {
                     parserController.parseFile(operation.filePath, ParseFormat::SUBGRAPH);
+                    operationDone = true;
+                    break;
+                }
+                case ThreadOperationType::PARSE_CNF: {
+                    parserController.parseFile(operation.filePath, ParseFormat::CNF);
                     operationDone = true;
                     break;
                 }
