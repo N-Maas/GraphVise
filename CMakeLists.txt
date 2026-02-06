@@ -79,6 +79,10 @@ set(HEADERS
         src/model/Edge.hpp
         src/controller/Parsing/GroupParser.hpp
         src/controller/Structs/HighlightingData.hpp
+        ext/lodepng/lodepng.h
+        src/controller/Exporting/ExporterController.hpp
+        src/controller/Exporting/PNGExporter.hpp
+        src/controller/Structs/PNGExportData.hpp
 )
 
 set(SOURCES
@@ -105,6 +109,9 @@ set(SOURCES
         src/view/Buttons.cpp
         src/controller/Parsing/WEmbedController.cpp
         src/controller/Parsing/GroupParser.cpp
+        ext/lodepng/lodepng.cpp
+        src/controller/Exporting/ExporterController.cpp
+        src/controller/Exporting/PNGExporter.cpp
 )
 
 set(SHADERS

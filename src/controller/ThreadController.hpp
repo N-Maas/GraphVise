@@ -7,6 +7,7 @@
 #include <condition_variable>
 #include "RendererObserver.hpp"
 #include "../rendering/RendererSubject.hpp"
+#include "Exporting/ExporterController.hpp"
 #include "Parsing/ParserController.hpp"
 #include "Structs/ThreadOperation.hpp"
 
@@ -20,9 +21,11 @@ namespace graphvise {
     private:
         std::thread backgroundThread;
         static ParserController parserController;
+        static ExporterController exporterController;
         static std::mutex mutex;
         static std::condition_variable conditionVariable;
         static std::optional<ThreadOperation> threadOperation;
+        static std::optional<PNGExportData> pngExportData;
         static bool operationDone;
         static void threadMain();
     };
