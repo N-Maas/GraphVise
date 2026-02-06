@@ -88,12 +88,11 @@ namespace graphvise {
 
         ButtonController controller = ButtonController(*renderer);
 
-        std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
+		GUI gui(&controller);
 
         ErrorCollector::getInstance().signIn(gui);
 
-
-        gui->initGUI(window);
+        gui.initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -135,7 +134,7 @@ namespace graphvise {
 
 
             //load GUI
-            gui->loadFrame(framebufferWidth, framebufferHeight);
+            gui.loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -152,14 +151,14 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui->setFps(frameCount / accumulatedTime);
+                gui.setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui->shutdownGUI();
+        gui.shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
