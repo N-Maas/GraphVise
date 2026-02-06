@@ -5,6 +5,7 @@
 #include "ButtonController.hpp"
 
 #include <filesystem>
+#include <iostream>
 #include <random>
 #include <utility>
 
@@ -96,7 +97,7 @@ namespace graphvise {
         camOffsetDirVec = normalize(camOffsetDirVec);
 
         //Calculate center point of the edge
-        glm::vec3 averagePos;
+        glm::vec3 averagePos(0, 0, 0);
         averagePos.x += (firstVertexPos.x + secondVertexPos.x) / 2;
         averagePos.y += (firstVertexPos.y + secondVertexPos.y) / 2;
         averagePos.z += (firstVertexPos.z + secondVertexPos.z) / 2;
@@ -117,6 +118,7 @@ namespace graphvise {
         }
         camera.setRotation(0, newAngle);
         camera.focusPoint = averagePos;
+        std::cout << "New Pos: " << newCamPos.x << " " << newCamPos.y << " " << newCamPos.z << std::endl;
     }
 
     void ButtonController::highlightSubgraph(std::filesystem::path filePath) {
@@ -130,8 +132,6 @@ namespace graphvise {
     void ButtonController::importGraph(std::filesystem::path filePath, ImportFormat importFormat) {
 
         ThreadOperation threadOperation;
-
-
 
         switch (importFormat)
         {
@@ -151,7 +151,6 @@ namespace graphvise {
     }
 
     void ButtonController::exportGraph(std::filesystem::path filePath, ExportFormat exportFormat) {
-        //TODO: Finish when GUI and ThreadController are ready
         ThreadOperationType operationType;
         switch (exportFormat) {
             case ExportFormat::PNG: operationType = ThreadOperationType::EXPORT_PNG;
