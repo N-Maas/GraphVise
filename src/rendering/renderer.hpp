@@ -54,7 +54,7 @@ namespace graphvise {
         Renderer& operator=(const Renderer&) = delete;
 
         void init();            // Initialize all buffers, called before the main loop
-        void reloadShaders();   // Reload shader programs from source files
+        void loadShaders();   // Load shader programs from source files
         void runFrame();        // Called once per Frame
         void shutdown();        // Cleanup resources, called after the main loop
 

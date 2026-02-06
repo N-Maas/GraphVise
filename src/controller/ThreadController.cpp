@@ -23,8 +23,7 @@ namespace graphvise {
     bool ThreadController::operationDone = false;
 
     ThreadController::ThreadController(RendererSubject &renderer) : backgroundThread(&ThreadController::threadMain) {
-        std::reference_wrapper<RendererObserver> observer = std::ref(*this);
-        renderer.signIn(observer);
+        renderer.signIn(std::ref(*this));
         backgroundThread.detach();
     }
 
@@ -48,12 +47,6 @@ namespace graphvise {
             std::optional<HighlightingData> highlightingSubgraph = parserController.getHighlightingSubgraph();
             if (highlightingSubgraph.has_value()) {
                 Graph& graph = GraphSaver::getInstance().getGraph();
-                std::cout << "highlighting " << highlightingSubgraph.value().vertices.size() << " vertices" << std::endl;
-                std::cout << "and " << highlightingSubgraph.value().edges.size() << " edges" << std::endl;
-
-                for (auto edge : highlightingSubgraph.value().edges) {
-                    std::cout << edge << std::endl;
-                }
 
                 graph.highlightByID(highlightingSubgraph.value().vertices, highlightingSubgraph.value().edges);
             }
@@ -101,17 +94,15 @@ namespace graphvise {
         }
 
         conditionVariable.notify_all();
-        std::cout << "Notified Background Thread" << std::endl;
         return true;
     }
 
    void ThreadController::threadMain() {
         while (true) {
-            std::cout << "Waiting for new operation..." << std::endl;
+            //Wait for new operation
             std::unique_lock lock(mutex);
             conditionVariable.wait(lock, [] { return threadOperation.has_value() && !operationDone; });
-            std::cout << "Received new Data" << std::endl;
-
+            //Received new operation
             ThreadOperation& operation = threadOperation.value();
 
             switch (operation.requestedOperation) {
@@ -137,7 +128,6 @@ namespace graphvise {
                     break;
                 }
                 case ThreadOperationType::EXPORT_PNG: {
-                    std::cout << "Exporting PNG..." << std::endl;
                     exporterController.setPNGExportData(pngExportData.value());
                     exporterController.exportGraph(operation.filePath, ExportFormat::PNG);
                     operationDone = true;

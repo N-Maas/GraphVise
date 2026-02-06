@@ -9,7 +9,6 @@
 #include "imgui-filebrowser/imfilebrowser.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <iostream>
 
 #include "stb_image.h"
 

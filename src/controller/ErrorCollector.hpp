@@ -15,8 +15,8 @@ namespace graphvise {
         static ErrorCollector& getInstance();
         void collectError(Error error);
         Error getCurrentError();
-        void signIn(std::shared_ptr<ErrorCollectorObserver> observer) override;
-        void signOut(std::shared_ptr<ErrorCollectorObserver> observer) override;
+        void signIn(std::reference_wrapper<ErrorCollectorObserver> observer) override;
+        void signOut(std::reference_wrapper<ErrorCollectorObserver> observer) override;
         ErrorCollector(const ErrorCollector&) = delete;
         ErrorCollector& operator=(const ErrorCollector&) = delete;
     private:
@@ -25,7 +25,7 @@ namespace graphvise {
         ErrorCollector() = default;
         std::optional<Error> currentError;
 
-        std::vector<std::shared_ptr<ErrorCollectorObserver>> observers;
+        std::vector<std::reference_wrapper<ErrorCollectorObserver>> observers;
 
         void notify() override;
     };

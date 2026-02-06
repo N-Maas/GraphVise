@@ -88,12 +88,11 @@ namespace graphvise {
 
         ButtonController controller = ButtonController(*renderer);
 
-        std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
+		GUI gui(&controller);
 
         ErrorCollector::getInstance().signIn(gui);
 
-
-        gui->initGUI(window);
+        gui.initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -122,7 +121,6 @@ namespace graphvise {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glfwPollEvents();
-			renderer->processEvents(window);
 
             processEvents();
 
@@ -136,7 +134,7 @@ namespace graphvise {
 
 
             //load GUI
-            gui->loadFrame(framebufferWidth, framebufferHeight);
+            gui.loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -153,14 +151,14 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui->setFps(frameCount / accumulatedTime);
+                gui.setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui->shutdownGUI();
+        gui.shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
@@ -180,8 +178,6 @@ namespace graphvise {
 
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
-
-			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
 			//Moving Camera
 			glm::vec3 direction(0, 0, 0);

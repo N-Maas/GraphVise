@@ -25,7 +25,7 @@ namespace graphvise {
         bool operator()(const Edge* firstEdge, const Edge* secondEdge) const {
             float firstTransparencyValue = firstEdge->getVec4().w;
             float secondTransparencyValue = secondEdge->getVec4().w;
-            if (firstTransparencyValue != secondTransparencyValue) {
+            if (std::abs(firstTransparencyValue - secondTransparencyValue) > 1e-6f) {
                 return firstTransparencyValue > secondTransparencyValue;
             }
             return firstEdge->getID() < secondEdge->getID();
@@ -74,9 +74,8 @@ namespace graphvise {
 
         void setCurrentVertexID(uint32_t vertexID);
         void setCurrentEdgeID(uint32_t edgeID);
-
-        std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
-        std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
+        [[nodiscard]] std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
+        [[nodiscard]] std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
 
 
     private:

@@ -28,18 +28,18 @@ namespace graphvise {
 
     void ErrorCollector::notify() {
         for (auto& observer : observers) {
-            observer.get()->update();
+            observer.get().update();
         }
     }
 
-    void ErrorCollector::signIn(std::shared_ptr<ErrorCollectorObserver> observer) {
+    void ErrorCollector::signIn(std::reference_wrapper<ErrorCollectorObserver> observer) {
         this->observers.push_back(std::move(observer));
     }
 
-    void ErrorCollector::signOut(std::shared_ptr<ErrorCollectorObserver> observer) {
+    void ErrorCollector::signOut(std::reference_wrapper<ErrorCollectorObserver> observer) {
         auto it = std::ranges::find_if(observers,
-                                       [observer](const std::shared_ptr<ErrorCollectorObserver>& ptr) {
-                                           return ptr.get() == observer.get();
+                                       [observer](const std::reference_wrapper<ErrorCollectorObserver> ref) {
+                                           return &ref.get() == &observer.get();
                                        }
         );
         if (it != observers.end()) {
