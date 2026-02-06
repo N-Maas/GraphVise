@@ -24,13 +24,12 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "model/GraphSaver.hpp"
+
 namespace graphvise {
 
     Renderer::Renderer()
     : mFramebufferSize(800, 600),  // Default size
-      framebuffer(0),
-      colorTexture(0),
-      depthBuffer(0),
       mShaderProgram(0),
       mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
      mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
@@ -44,23 +43,18 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(FIXED_POSITION),
+     lightSourceMovementBehaviour(LightSourceMovementBehaviour::FIXED_POSITION),
      performanceMode(),
      mF5Pressed(false)
     {
         // Default quality settings
         mSettings.targetFPS = 60;
-        mSettings.msaaSamples = 4;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
-        mSettings.textureQuality = 1;
     }
 
     Renderer::Renderer(int framebufferWidth, int framebufferHeight)
         : mFramebufferSize(framebufferWidth, framebufferHeight),
-          framebuffer(0),
-          colorTexture(0),
-          depthBuffer(0),
           mShaderProgram(0),
           mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
           mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
@@ -80,10 +74,8 @@ namespace graphvise {
     {
         // Default quality settings
         mSettings.targetFPS = 60;
-        mSettings.msaaSamples = 4;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
-        mSettings.textureQuality = 1;
     }
 
 
@@ -134,7 +126,7 @@ namespace graphvise {
         // Load the shader files
         reloadShaders();
 
-        if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
+        if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
@@ -154,19 +146,6 @@ namespace graphvise {
         if (cylinderVertices.empty()) {
             generateCylinder(12);
         }
-
-        // Create MSAA framebuffer if needed
-        if (mSettings.msaaSamples > 1) {
-            createMSAAFramebuffer();
-        }
-
-        // Create FXAA framebuffer if needed
-        if (mSettings.enableFXAA) {
-            createFXAAFramebuffer();
-        }
-
-        // Generate geometry based on quality settings
-        generateGeometryBasedOnQuality();
 
         //for rendering transparent objects
         glEnable(GL_BLEND);
@@ -201,71 +180,27 @@ namespace graphvise {
 
     }
 
-    //todo will work properly when Model is implemented
+
     /**
      * Called in the main loop to render a new frame.
      */
     void Renderer::runFrame()
     {
-        if(mShaderProgram == 0)
-        {
-            std::cerr << "No shader program!" << std::endl;
-            return;
+        // DEBUG: Print size every 60 frames
+        static int frameCount = 0;
+        if (frameCount++ % 60 == 0) {
+            std::cout << "Rendering at: " << mFramebufferSize.x
+            << "x" << mFramebufferSize.y << std::endl;
         }
 
-        // Tell OpenGL which shader program we want to use
-        glUseProgram(mShaderProgram);
-        GL_CHECK_ERROR();
+        // Bind to DEFAULT framebuffer (screen)
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // MVP matrix
-        glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        if (mvpLoc != -1) {
-            glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        }
+        // Set viewport to current window size
+        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
 
-        //rendering graph
-        render(mvp);
-        GL_CHECK_ERROR();
-        notify();
-    }
-
-    void Renderer::runFrame(float deltaTime)
-{
-    // Framerate limiting logic
-    mAccumulatedTime += deltaTime;
-    mFrameCounter++;
-
-    float targetFrameTime = 1.0f / mSettings.targetFPS;
-
-    // Check if we should render this frame
-    bool shouldRender = true;
-    if (mSettings.targetFPS > 0 && mAccumulatedTime < targetFrameTime) {
-        // Skip rendering if we're ahead of schedule
-        shouldRender = false;
-    }
-
-    if (shouldRender) {
-        // Reset accumulation
-        mAccumulatedTime = std::fmod(mAccumulatedTime, targetFrameTime);
-
-        // Calculate actual FPS for monitoring
-        if (mFrameCounter >= 60) { // Update FPS every 60 frames
-            mFrameTime = deltaTime * 1000.0f; // Convert to milliseconds
-            mFrameCounter = 0;
-        }
-
-        // Bind appropriate framebuffer
-        if (mSettings.msaaSamples > 1) {
-            glBindFramebuffer(GL_FRAMEBUFFER, mMSAAFramebuffer);
-            glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
-        } else {
-            glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-            glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
-        }
-
-        // Clear buffer
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        // Clear screen with blue
+        glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Render scene
@@ -273,21 +208,9 @@ namespace graphvise {
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
         render(mvp);
 
-        // Apply MSAA resolve if needed
-        if (mSettings.msaaSamples > 1) {
-            resolveMSAA();
-        }
-
-        /*
-        // Apply FXAA if enabled
-        if (mSettings.enableFXAA) {
-            applyFXAA();
-        }
-        */
-
         notify();
     }
-}
+
 
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
@@ -383,12 +306,23 @@ namespace graphvise {
         }
     }
 
+
     void Renderer::resize(int framebufferWidth, int framebufferHeight)
     {
+        if (framebufferWidth <= 0 || framebufferHeight <= 0) {
+            std::cerr << "Invalid resize dimensions!" << std::endl;
+            return;
+        }
+        std::cout << "Renderer::resize(" << framebufferWidth
+             << ", " << framebufferHeight << ")" << std::endl;
+
+        // Update stored size
         mFramebufferSize.x = framebufferWidth;
         mFramebufferSize.y = framebufferHeight;
-    }
 
+        // Viewport is set in runFrame()
+        // Camera aspect ratio will update automatically when get_world_to_projection_space is called
+    }
 
     void Renderer::generateIcosphere(int subdivisions) {
         // Icosahedron vertices (12 vertices)
@@ -686,161 +620,66 @@ namespace graphvise {
 
     void Renderer::generateGeometryBasedOnQuality()
     {
+        /*
         // Clear existing geometry
         sphereVertices.clear();
         sphereIndices.clear();
         cylinderVertices.clear();
         cylinderIndices.clear();
-
-        // Set detail levels based on settings
+*/
         int sphereSubdivisions;
-        int cylinderSegments;
 
         switch (mSettings.geometryDetail) {
             case 0:  // Low quality
                 sphereSubdivisions = 1;
-                cylinderSegments = 8;
+                mSettings.cylinderSegments = 8;
                 break;
             case 1:  // Medium quality
                 sphereSubdivisions = 2;
-                cylinderSegments = 12;
+                mSettings.cylinderSegments = 12;
                 break;
             case 2:  // High quality
                 sphereSubdivisions = 3;
-                cylinderSegments = 16;
+                mSettings.cylinderSegments = 16;
                 break;
             default:
                 sphereSubdivisions = 2;
-                cylinderSegments = 12;
+                mSettings.cylinderSegments = 12;
         }
 
-        mSettings.cylinderSegments = cylinderSegments;
-
-        // Generate new geometry
+        // Regenerate geometry
         generateIcosphere(sphereSubdivisions);
-        generateCylinder(cylinderSegments);
+        generateCylinder(mSettings.cylinderSegments);
     }
-
-    void Renderer::createMSAAFramebuffer()
-{
-    if (mMSAAFramebuffer) {
-        glDeleteFramebuffers(1, &mMSAAFramebuffer);
-        glDeleteTextures(1, &mMSAAColorTexture);
-        glDeleteRenderbuffers(1, &mMSAADepthBuffer);
-    }
-
-    glGenFramebuffers(1, &mMSAAFramebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, mMSAAFramebuffer);
-
-    // Create MSAA color texture
-    glGenTextures(1, &mMSAAColorTexture);
-    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, mMSAAColorTexture);
-    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, mSettings.msaaSamples,
-                           GL_RGBA, mFramebufferSize.x, mFramebufferSize.y, GL_TRUE);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                          GL_TEXTURE_2D_MULTISAMPLE, mMSAAColorTexture, 0);
-
-    // Create MSAA depth buffer
-    glGenRenderbuffers(1, &mMSAADepthBuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, mMSAADepthBuffer);
-    glRenderbufferStorageMultisample(GL_RENDERBUFFER, mSettings.msaaSamples,
-                                    GL_DEPTH_COMPONENT, mFramebufferSize.x, mFramebufferSize.y);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                             GL_RENDERBUFFER, mMSAADepthBuffer);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "MSAA Framebuffer not complete!" << std::endl;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Renderer::createFXAAFramebuffer()
-{
-    if (mFXAAFramebuffer) {
-        glDeleteFramebuffers(1, &mFXAAFramebuffer);
-        glDeleteTextures(1, &mFXAAColorTexture);
-    }
-
-    glGenFramebuffers(1, &mFXAAFramebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, mFXAAFramebuffer);
-
-    // Create FXAA color texture
-    glGenTextures(1, &mFXAAColorTexture);
-    glBindTexture(GL_TEXTURE_2D, mFXAAColorTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mFramebufferSize.x, mFramebufferSize.y,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                          GL_TEXTURE_2D, mFXAAColorTexture, 0);
-
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "FXAA Framebuffer not complete!" << std::endl;
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
     void Renderer::setQualityPreset(QualityPreset preset)
     {
         switch (preset) {
             case QualityPreset::LOW:
-                mSettings.msaaSamples = 1;
                 mSettings.geometryDetail = 0;
-                mSettings.textureQuality = 0;
-                mSettings.enableFXAA = false;
-                mSettings.enableBloom = false;
+                mSettings.targetFPS = 30;
                 break;
 
             case QualityPreset::MEDIUM:
-                mSettings.msaaSamples = 4;
                 mSettings.geometryDetail = 2;
-                mSettings.textureQuality = 2;
-                mSettings.enableFXAA = true;
-                mSettings.enableBloom = true;
+                mSettings.targetFPS = 60;
                 break;
 
             case QualityPreset::HIGH:
-                mSettings.msaaSamples = 8;
                 mSettings.geometryDetail = 3;
-                mSettings.textureQuality = 2;
-                mSettings.enableFXAA = true;
-                mSettings.enableBloom = true;
-                mSettings.enableSSAA = true;
-                mSettings.ssaaFactor = 2;
+                mSettings.targetFPS = 80;
                 break;
         }
+        // Regenerate geometry with new quality
+        generateGeometryBasedOnQuality();
 
         // Reinitialize resources with new settings
-        init();
-    }
-
-    void Renderer::resolveMSAA()
-    {
-        // Blit from MSAA to main framebuffer
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, mMSAAFramebuffer);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer);
-        glBlitFramebuffer(0, 0, mFramebufferSize.x, mFramebufferSize.y,
-                          0, 0, mFramebufferSize.x, mFramebufferSize.y,
-                          GL_COLOR_BUFFER_BIT, GL_LINEAR);
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        //init();
     }
 
     void Renderer::setTargetFPS(int fps)
     {
         mSettings.targetFPS = std::max(1, std::min(fps, 240)); // Clamp to reasonable range
-    }
-
-    void Renderer::setMSAASamples(int samples)
-    {
-        samples = std::max(1, std::min(samples, 8)); // Clamp to 1-8
-        if (mSettings.msaaSamples != samples) {
-            mSettings.msaaSamples = samples;
-            if (mSettings.msaaSamples > 1) {
-                createMSAAFramebuffer();
-            }
-        }
     }
 
     void Renderer::setGeometryDetail(int detail)
@@ -850,29 +689,13 @@ void Renderer::createFXAAFramebuffer()
             mSettings.geometryDetail = detail;
             generateGeometryBasedOnQuality();
         }
-    }      void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
+    }
+
+    void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);
     };
 
-    float Renderer::getCurrentFPS() const
-    {
-        if (mFrameTime > 0) {
-            return 1000.0f / mFrameTime;
-        }
-        return 0.0f;
-    }
-
-    float Renderer::getFrameTime() const
-    {
-        return mFrameTime;
-    }
-
-    const RenderSettings& Renderer::getSettings() const
-    {
-        return mSettings;
-    }
-
-    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {;
+    void graphvise::RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::reference_wrapper<RendererObserver> ref) {
                                            return &ref.get() == &observer.get();
@@ -883,7 +706,7 @@ void Renderer::createFXAAFramebuffer()
         }
     };
 
-    void RendererSubject::notify() {
+    void graphvise::RendererSubject::notify() {
         for (const auto& observer : observerList) {
             observer.get().update();  // Call update on each observer
         }

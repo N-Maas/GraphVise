@@ -38,6 +38,8 @@ namespace graphvise
         Resolution currentRes = HD;
 
         static double scrollYOffset;
+
+        static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
     };
 }
 #endif //THESIS_FRAMEWORK_WINDOW_HPP

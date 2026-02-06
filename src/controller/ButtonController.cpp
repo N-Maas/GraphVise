@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "ErrorCollector.hpp"
+#include "model/GraphSaver.hpp"
 
 #define MAX_COLOR_VALUE 1.0f
 

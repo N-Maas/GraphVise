@@ -55,6 +55,8 @@ namespace graphvise {
 			return false;
 		}
 
+		glfwSetFramebufferSizeCallback(window, Window::framebufferSizeCallback);
+
 		glfwSetScrollCallback(window, scrollCallback);
 
 		// Introduce the window into the current context
@@ -109,7 +111,7 @@ namespace graphvise {
 		// Main while loop
 		while (!glfwWindowShouldClose(window))
 		{
-			// todo test changing render quality
+			//introducing different render qualities
 			auto currentFrame = std::chrono::high_resolution_clock::now();
 			deltaTime = std::chrono::duration<float>(currentFrame - lastFrame).count();
 			lastFrame = currentFrame;
@@ -127,11 +129,6 @@ namespace graphvise {
 				renderer->resize(framebufferWidth, framebufferHeight);
 			}
 
-			// Specify the color of the background
-			glClearColor(0.f, 0.14f, 0.28f, 1.0f);
-			// Clean the back buffer and assign the new color to it
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 			glfwPollEvents();
 			renderer->processEvents(window);
 
@@ -139,13 +136,9 @@ namespace graphvise {
 
 			// Draw frame from renderer
 			GL_CHECK_ERROR();
-			//renderer->runFrame();
-			renderer->runFrame(deltaTime);
+			renderer->runFrame();
+			//renderer->runFrame(deltaTime);
 			GL_CHECK_ERROR();
-
-			// todo debugging Display FPS
-			std::cout << "FPS: " << renderer->getCurrentFPS()
-					  << " Frame time: " << renderer->getFrameTime() << "ms" << std::endl;
 
 			//load GUI
 			gui->loadFrame(framebufferWidth, framebufferHeight);
@@ -230,5 +223,19 @@ namespace graphvise {
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		scrollYOffset = yoffset;
+	}
+
+	void Window::framebufferSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		std::cout << "RESIZE CALLBACK: " << width << "x" << height << std::endl;
+		// Also update the viewport
+		glViewport(0, 0, width, height);
+
+		// Update renderer
+		auto renderer = Renderer::getInstance();
+		if (renderer) {
+			renderer->resize(width, height);
+		}
+		(void)window; // Suppress warning
 	}
 }

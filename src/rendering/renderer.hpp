@@ -22,25 +22,14 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <glm/ext/matrix_clip_space.hpp>
 
 
 #include "RendererSubject.hpp"
 #include "camera.hpp"
-#include "../model/GraphSaver.hpp"
 #include "../controller/RendererObserver.hpp"
 
 namespace graphvise {
-
-    enum LightSourceMovementBehaviour {
-        FOLLOW_CAMERA,
-        FIXED_POSITION
-    };
-
-    enum PerformanceMode {
-        HIGH_PERFORMANCE,
-        HIGH_RESOLUTION
-    };
-
     struct VertexData {
         glm::vec3 position;
         glm::vec3 normal;
@@ -48,21 +37,8 @@ namespace graphvise {
 
     struct RenderSettings {
         int targetFPS = 60;           // Target frames per second
-        int msaaSamples = 4;          // MSAA samples (1 = no anti-aliasing)
-        bool enableSSAA = false;      // Supersampling anti-aliasing
-        int ssaaFactor = 2;           // SSAA scaling factor (2 = 2x2)
-        int textureQuality = 1;       // 0: low, 1: medium, 2: high
         int geometryDetail = 2;       // Sphere subdivisions
         int cylinderSegments = 12;    // Cylinder segments
-        bool enableFXAA = false;      // Fast approximate anti-aliasing
-        bool enableBloom = false;     // Bloom effect
-        float renderScale = 1.0f;     // Resolution scaling (0.5 = half res)
-    };
-
-    enum class QualityPreset {
-        LOW,
-        MEDIUM,
-        HIGH
     };
 
     class Renderer : public RendererSubject {
@@ -74,28 +50,20 @@ namespace graphvise {
         void init();            // Initialize all buffers, called before the main loop
         void reloadShaders();   // Reload shader programs from source files
         void runFrame();        // Called once per Frame
-        void runFrame(float deltaTime);
+        //void runFrame(float deltaTime); //remove
 
         void shutdown();        // Cleanup resources, called after the main loop
 
         void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
         void resize(int framebufferWidth, int framebufferHeight);
+        void render(const glm::mat4& mvp); // Render graph
 
-        void resolveMSAA();
-
+        // Quality settings
+        void setQualityPreset(QualityPreset preset);
         void setTargetFPS(int fps);
-
-        void setMSAASamples(int samples);
-
-        void setGeometryDetail(int detail);
-
-        float getCurrentFPS() const;
-
-        float getFrameTime() const;
+        void setGeometryDetail(int detail);  // 0-2
 
         const RenderSettings &getSettings() const;
-
-        void render(const glm::mat4& mvp); // Render graph
 
         void adjustPerformanceMode(PerformanceMode newMode) {
             performanceMode = newMode;
@@ -130,8 +98,6 @@ namespace graphvise {
             performanceMode = performance_mode;
         }
 
-        void setQualityPreset(QualityPreset preset);
-
         void setCylinderRadius(const float radius) {
             cylinderRadius = radius;
         }
@@ -146,22 +112,11 @@ namespace graphvise {
         float mFrameTime = 0.0f;
         float mAccumulatedTime = 0.0f;
         int mFrameCounter = 0;
-        GLuint mMSAAFramebuffer = 0;
-        GLuint mMSAAColorTexture = 0;
-        GLuint mMSAADepthBuffer = 0;
-        GLuint mFXAAFramebuffer = 0;
-        GLuint mFXAAColorTexture = 0;
 
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);
 
         void generateGeometryBasedOnQuality();
-
-        void createMSAAFramebuffer();
-
-        void createFXAAFramebuffer();
-
-
 
         ~Renderer() override;
         // Static pointer to the Singleton instance
@@ -178,9 +133,6 @@ namespace graphvise {
         }
 
         const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
-        GLuint framebuffer;
-        GLuint colorTexture;        // Visual output (RGBA8)
-        GLuint depthBuffer;
 
         GLuint mShaderProgram;
         // Path to shader source files

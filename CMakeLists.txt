@@ -46,6 +46,7 @@ gtest_discover_tests(my_tests)
 set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
+        src/rendering/enums.hpp
         src/utils.hpp
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.hpp
@@ -105,6 +106,7 @@ set(SOURCES
         src/view/Buttons.cpp
         src/controller/Parsing/WEmbedController.cpp
         src/controller/Parsing/GroupParser.cpp
+        src/rendering/enums.hpp
 )
 
 set(SHADERS

@@ -32,7 +32,8 @@ namespace graphvise {
 
     glm::mat4 Camera::get_view_to_projection_space(float aspect_ratio) const
     {
-        return glm::perspective(vertical_fov, aspect_ratio, this->near, this->far);
+        mProjectionMatrix = glm::perspective(vertical_fov, aspect_ratio, this->near, this->far);
+        return mProjectionMatrix;
     }
 
     glm::mat4 Camera::get_world_to_projection_space(float aspect_ratio) const

@@ -7,8 +7,12 @@
 
 //needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
-#include "imfilebrowser.h"
+#include "imgui-filebrowser/imfilebrowser.h"
+#include "model/Group.hpp"
+#include "rendering/renderer.hpp"
+#include "../rendering/enums.hpp"
 #include "controller/ButtonController.hpp"
+#include "model/GraphSaver.hpp"
 
 namespace graphvise
 {
@@ -29,17 +33,24 @@ namespace graphvise
         bool cameraBookmarks = false;
         bool addBookmarkWindow = false;
 
-
         const std::vector<std::string> allowedFiles = {".txt"};
 
+        // Helper function to get renderer (defined inline)
+        static Renderer* getRenderer() {
+            auto instance = Renderer::getInstance();
+            return instance ? instance.get() : nullptr;
+        }
 
-        GraphSaver *saver = &GraphSaver::getInstance();
-        const std::vector<Group>* activeGroups = nullptr;
+        // Initialize using helper function
+        GraphSaver *saver = &graphvise::GraphSaver::getInstance();
         ButtonController *buttonController;
 
-        PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
-        CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
-        LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
+        // Use ternary operator to handle nullptr
+        PerformanceMode performanceMode = getRenderer() ? getRenderer()->performance_mode() : PerformanceMode::BALANCE;
+        CameraFocusMode cameraMode = getRenderer() ? getRenderer()->m_camera().camera_focus_mode() : CameraFocusMode::CENTER_OF_MASS;
+        LightSourceMovementBehaviour lightSourceMovementBehaviour = getRenderer() ? getRenderer()->light_source_movement_behaviour() : LightSourceMovementBehaviour::FIXED_POSITION;
+
+        const std::vector<Group>* activeGroups = nullptr;
 
         std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
 
@@ -50,7 +61,6 @@ namespace graphvise
 
         int32_t vertex = 0;
         int32_t edgeVertices[2] = {0, 0};
-
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
