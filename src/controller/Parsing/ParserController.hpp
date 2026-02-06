@@ -53,7 +53,6 @@ namespace graphvise {
     private:
         std::optional<Error> verifySubgraph(GraphData graphData);
 
-        //TODO: Felder deklarieren, sobald die Klassen existieren
         TXTParser txtParser;
         CNFParser cnfParser;
         GroupParser groupParser;

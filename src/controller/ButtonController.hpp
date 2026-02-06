@@ -20,7 +20,6 @@ namespace graphvise {
         void togglePerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);
         void changeColoring(int groupID, ImVec4 color);
-        void toggleLightSourceMovement();
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
         void setCameraFocusMode(CameraFocusMode mode);
         void findVertex(int vertexID);
