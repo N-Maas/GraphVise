@@ -18,7 +18,7 @@ namespace graphvise
         void moveCamera(glm::vec3 direction, bool sprinting);
 
         void rotateCamera(float pitchChange, float yawChange);
-        void zoom(float value);
+        void zoom(float zoomValue, bool sprinting);
 
     private:
         Camera& camera;

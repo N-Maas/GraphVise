@@ -5,7 +5,6 @@
 #include "Buttons.hpp"
 
 #include <format>
-#include <iostream>
 
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
@@ -52,6 +51,8 @@ namespace graphvise
         {
             Renderer::getInstance()->setSphereRadius(sphereRadius);
         }
+
+
 
 
 
@@ -245,10 +246,6 @@ namespace graphvise
             ImGuiWindowFlags_NoCollapse
             );
 
-        if (ImGui::Button("Remove Group Highlights"))
-        {
-            buttonController->RemoveHighlights();
-        }
 
         for (const auto& group : *activeGroups)
         {
@@ -397,13 +394,18 @@ namespace graphvise
 
     void Buttons::findObject(bool* findObject)
     {
-
-        ImGui::Begin("find Object", findObject,
+        ImGui::Begin("Highlight Object", findObject,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
 
+        if (ImGui::Button("Remove Highlighting"))
+        {
+            buttonController->RemoveHighlights();
+        }
+
         ImGui::BeginTabBar("##FindObjectTabBar");
+
         if (ImGui::BeginTabItem("Edge"))
         {
             findEdge();
@@ -505,6 +507,8 @@ namespace graphvise
 
     void Buttons::exportGraph()
     {
+
+
         exportGraphBrowser.SetTitle("Choose Export Location");
 
         if (ImGui::BeginMenu("Export Graph"))

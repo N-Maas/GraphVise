@@ -44,7 +44,7 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(),
+     lightSourceMovementBehaviour(FIXED_POSITION),
      performanceMode(),
      mF5Pressed(false) {
     }
@@ -122,7 +122,7 @@ namespace graphvise {
         reloadShaders();
 
         if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
-            mCamera.lookAt(centerCoordinates);// per default camera looks at (0,0,0)
+            mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
         // Initialize Buffers and Arrays for sphere and cylinder
@@ -589,10 +589,12 @@ namespace graphvise {
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
+        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
 
 
         // Set lighting (use same light as cube)

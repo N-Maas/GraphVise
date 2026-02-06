@@ -16,15 +16,15 @@
 #include "controller/ErrorCollector.hpp"
 
 
-namespace graphvise
-{
-    Window::Window()
-    = default;
+namespace graphvise {
 
-    bool Window::initWindow()
-    {
-        // If OpenMP is installed we can use it for parallelization
-        utils::printOpenMPVersion();
+	double Window::scrollYOffset = 0;
+
+	Window::Window()
+	= default;
+	bool Window::initWindow() {
+		// If OpenMP is installed we can use it for parallelization
+		utils::printOpenMPVersion();
 
         // Initialize GLFW
         glfwInit();
@@ -55,9 +55,10 @@ namespace graphvise
             return false;
         }
 
+		glfwSetScrollCallback(window, scrollCallback);
 
-        // Introduce the window into the current context
-        glfwMakeContextCurrent(window);
+		// Introduce the window into the current context
+		glfwMakeContextCurrent(window);
 
         //Load GLAD so it configures OpenGL
         gladLoadGL();
@@ -114,8 +115,14 @@ namespace graphvise
                 renderer->resize(framebufferWidth, framebufferHeight);
             }
 
-            glfwPollEvents();
-            renderer->processEvents(window);
+			// Specify the color of the background
+			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
+			// Clean the back buffer and assign the new color to it
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			glfwPollEvents();
+			renderer->processEvents(window);
 
             processEvents();
 
@@ -166,48 +173,51 @@ namespace graphvise
         return true;
     }
 
-    void Window::processEvents()
-    {
-        if (!ImGui::GetIO().WantCaptureKeyboard)
-        {
-            (glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
+	void Window::processEvents() {
+		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+		if (!ImGui::GetIO().WantCaptureKeyboard)
+		{
 
-            //Moving Camera
-            glm::vec3 direction(0, 0, 0);
-            direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-            bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-            movementController.moveCamera(direction, sprinting);
-        }
-        //Rotating Camera
-        static float lastMousePosition[2];
-        static double currentMousePositionDouble[2];
-        glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
-        float currentMousePositionFloat[2] = {
-            static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1])
-        };
+			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
-        static bool rotatingCamera = false;
-        int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-        if (!rotatingCamera && rightMouseState == GLFW_PRESS)
-        {
-            rotatingCamera = true;
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera)
-        {
-            float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-            float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-            movementController.rotateCamera(pitchChange, yawChange);
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera && rightMouseState == GLFW_RELEASE)
-        {
-            rotatingCamera = false;
-        }
-    }
+			//Moving Camera
+			glm::vec3 direction(0, 0, 0);
+			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
+			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+			movementController.moveCamera(direction, sprinting);
+
+		}
+		//Rotating Camera
+		static float lastMousePosition[2];
+		static double currentMousePositionDouble[2];
+		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
+		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
+
+		static bool rotatingCamera = false;
+		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
+			rotatingCamera = true;
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera) {
+			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
+			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
+			movementController.rotateCamera(pitchChange, yawChange);
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
+			rotatingCamera = false;
+		}
+
+		movementController.zoom(-scrollYOffset, sprinting);
+		scrollYOffset = 0;
+	}
+
+	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+		scrollYOffset = yoffset;
+	}
 }

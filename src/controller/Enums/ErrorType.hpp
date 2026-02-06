@@ -23,6 +23,9 @@ namespace graphvise {
         BACKGROUND_THREAD_ALREADY_BUSY,
         INVALID_EDGE_ID,
         INVALID_VERTEX_ID,
+        INVALID_CLAUSE_COUNT,
+        INVALID_VARIABLE_COUNT,
+        INVALID_VARIABLE_ID
     };
 }
 
