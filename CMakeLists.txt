@@ -112,6 +112,7 @@ set(SOURCES
         ext/lodepng/lodepng.cpp
         src/controller/Exporting/ExporterController.cpp
         src/controller/Exporting/PNGExporter.cpp
+        src/controller/Enums/ImportFormat.hpp
 )
 
 set(SHADERS

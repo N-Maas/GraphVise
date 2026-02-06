@@ -21,13 +21,9 @@ namespace graphvise
 
     Buttons::Buttons(ButtonController *controller)
     {
-        const std::vector<std::string> allowedGroupInfoFormat = {".txt"};
-        const std::vector<std::string> allowedImportFormat = {".txt", ".cnf"};
-        const std::vector<std::string> allowedExportFormat = {".png"};
 
         this->buttonController = controller;
 
-        importGraphBrowser.SetTypeFilters(allowedImportFormat);
         importGroupConfigBrowser.SetTypeFilters(allowedGroupInfoFormat);
         highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
 
@@ -446,20 +442,36 @@ namespace graphvise
 
     void Buttons::importGraph()
     {
+
         if (ImGui::BeginMenu("import Graph"))
         {
-            importGraphBrowser.SetTitle("import Graph");
-            importGraphBrowser.Open();
+            if (ImGui::MenuItem("Import as TXT"))
+            {
+                importFormat = ImportFormat::TXT;
+                importGraphBrowser.SetTypeFilters(txtImportFormat);
+                importGraphBrowser.SetTitle("import Graph from .txt");
+                importGraphBrowser.Open();
+
+
+            }
+                if (ImGui::MenuItem("Import as CNF"))
+                {
+                    importFormat = ImportFormat::CNF;
+                    importGraphBrowser.SetTypeFilters(cnfImportFormat);
+                    importGraphBrowser.SetTitle("import Graph from .cnf");
+                    importGraphBrowser.Open();
+
+                }
             ImGui::EndMenu();
-        }
+            }
 
         if (importGraphBrowser.HasSelected())
         {
             const std::filesystem::path result = importGraphBrowser.GetSelected();
 
-            result.extension();
 
-            buttonController->importGraph(result);
+
+            buttonController->importGraph(result, importFormat);
 
             importGraphBrowser.ClearSelected();
         }
@@ -467,11 +479,11 @@ namespace graphvise
 
     void Buttons::highlightSubgraph()
     {
-        if (ImGui::BeginMenu("Highlight Subgraph"))
+        if (ImGui::MenuItem("Highlight Subgraph"))
         {
             highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
             highlightSubgraphBrowser.Open();
-            ImGui::EndMenu();
+
         }
 
 
@@ -487,11 +499,11 @@ namespace graphvise
 
     void Buttons::importGroupConfiguration()
     {
-        if (ImGui::BeginMenu("Import Group Config"))
+        if (ImGui::MenuItem("Import Group Config"))
         {
             importGroupConfigBrowser.SetTitle("Import Group Config");
             importGroupConfigBrowser.Open();
-            ImGui::EndMenu();
+
         }
 
 
@@ -519,13 +531,13 @@ namespace graphvise
                 exportGraphBrowser.SetInputName("graph.png");
                 exportGraphBrowser.Open();
             }
-            if (ImGui::MenuItem("Export as JPG"))
-            {
-
-                exportGraphBrowser.SetInputName("graph.jpg");
-                exportGraphBrowser.Open();
-
-            }
+            // if (ImGui::MenuItem("Export as JPG"))
+            // {
+            //
+            //     exportGraphBrowser.SetInputName("graph.jpg");
+            //     exportGraphBrowser.Open();
+            //
+            // }
 
             ImGui::EndMenu();
         }
@@ -535,6 +547,8 @@ namespace graphvise
         if (exportGraphBrowser.HasSelected())
         {
             auto filename = exportGraphBrowser.GetSelected();
+
+
 
 
             buttonController->exportGraph(filename, format);

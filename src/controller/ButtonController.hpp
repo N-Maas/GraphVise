@@ -4,10 +4,13 @@
 
 #ifndef THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 #define THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
+
+
 #include "ThreadController.hpp"
 #include "../rendering/renderer.hpp"
 #include "../rendering/camera.hpp"
 #include "Enums/ExportFormat.hpp"
+#include "Enums/ImportFormat.hpp"
 #include "imgui/imgui.h"
 
 namespace graphvise {
@@ -23,7 +26,7 @@ namespace graphvise {
         void findVertex(int vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
         void highlightSubgraph(std::string filePath);
-        void importGraph(std::string filePath);
+        void importGraph(std::string filePath, ImportFormat importFormat);
         void exportGraph(std::string filePath, ExportFormat format);
         void importGroupConfiguration(std::string filePath);
         void changeTransparency(uint32_t groupID, float newTransparency);

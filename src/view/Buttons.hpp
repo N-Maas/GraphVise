@@ -21,6 +21,13 @@ namespace graphvise
 
     private:
 
+
+        const std::vector<std::string> allowedGroupInfoFormat = {".txt"};
+        const std::vector<std::string> txtImportFormat = {".txt"};
+        const std::vector<std::string> cnfImportFormat = {".cnf"};
+        const std::vector<std::string> allowedExportFormat = {".png"};
+
+
         bool search = false;
         bool groups = false;
         bool togglePerformanceMode = false;
@@ -31,7 +38,7 @@ namespace graphvise
 
 
 
-
+        ImportFormat importFormat = ImportFormat::TXT;
         ExportFormat format = ExportFormat::PNG;
 
         GraphSaver *saver = &GraphSaver::getInstance();

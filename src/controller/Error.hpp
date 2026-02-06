@@ -20,13 +20,15 @@ namespace graphvise {
         [[nodiscard]] ErrorType getErrorType() const;
         [[nodiscard]] std::optional<int> getLine() const;
         [[nodiscard]] std::optional<std::string> getMessage() const;
+        std::string getErrorMessage() const;
 
     private:
         ErrorType errorType;
         std::optional<uint32_t> line;
         std::optional<std::string> message;
+        std::string errorMessage;
 
-        void setMessage();
+        void setErrorMessage();
     };
 }
 

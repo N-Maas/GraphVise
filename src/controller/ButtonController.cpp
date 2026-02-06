@@ -4,11 +4,12 @@
 
 #include "ButtonController.hpp"
 
-#include <iostream>
+#include <filesystem>
 #include <random>
 #include <utility>
 
 #include "ErrorCollector.hpp"
+#include "Enums/ImportFormat.hpp"
 
 #define MAX_COLOR_VALUE 1.0f
 
@@ -126,8 +127,23 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::importGraph(std::string filePath) {
-        ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
+    void ButtonController::importGraph(std::string filePath, ImportFormat importFormat) {
+
+        ThreadOperation threadOperation;
+
+
+
+        switch (importFormat)
+        {
+            case ImportFormat::TXT: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
+            break;
+            case ImportFormat::CNF: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_CNF};
+            break;
+            default: Error error(ErrorType::INVALID_IMPORT_FORMAT);
+                ErrorCollector::getInstance().collectError(error);
+                return;
+        }
+
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);

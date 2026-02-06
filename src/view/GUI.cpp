@@ -84,9 +84,11 @@ namespace graphvise
         ImGui::OpenPopup("Error", ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::BeginPopupModal("Error", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
+        ImGui::Text("Message: %s", currentError->getErrorMessage().c_str());
+
         if (currentError->getMessage().has_value())
         {
-            ImGui::Text("Message: %s",
+            ImGui::Text("Info: %s",
                         currentError->getMessage()->c_str());
         }
 
