@@ -30,9 +30,9 @@ namespace graphvise
         bool addBookmarkWindow = false;
 
 
-        const std::vector<std::string> allowedImportFiles = {".txt"};
-        const std::vector<std::string> allowedExportFiles = {".png"};
 
+
+        ExportFormat format = ExportFormat::PNG;
 
         GraphSaver *saver = &GraphSaver::getInstance();
         const std::vector<Group>* activeGroups = nullptr;

@@ -24,8 +24,6 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 
 namespace graphvise {
     Renderer::Renderer()
@@ -177,22 +175,6 @@ namespace graphvise {
 
     }
 
-    void Renderer::exportFrameBufferToPng(char* filepath)
-    {
-        GLsizei nrChannels = 3;
-        GLsizei stride = nrChannels * mFramebufferSize.x;
-
-        stride += (stride % 4) ? (4 - stride % 4) : 0;
-        GLsizei bufferSize = stride * mFramebufferSize.y;
-        std::vector<char> buffer(bufferSize);
-        glPixelStorei(GL_PACK_ALIGNMENT, 4);
-        glReadBuffer(GL_FRONT);
-        glReadPixels(0, 0, mFramebufferSize.x, mFramebufferSize.y, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
-        stbi_flip_vertically_on_write(true);
-        stbi_write_png(filepath, mFramebufferSize.x, mFramebufferSize.y, nrChannels, buffer.data(), stride);
-
-
-    }
 
     //todo will work properly when Model is implemented
     /**
@@ -200,6 +182,15 @@ namespace graphvise {
      */
     void Renderer::runFrame()
     {
+
+        //migrated from Window
+
+        // Specify the color of the background
+        glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+        // Clean the back buffer and assign the new color to it
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
         if(mShaderProgram == 0)
         {
             std::cerr << "No shader program!" << std::endl;
