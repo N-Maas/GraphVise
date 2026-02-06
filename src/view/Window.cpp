@@ -122,7 +122,6 @@ namespace graphvise {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glfwPollEvents();
-			renderer->processEvents(window);
 
             processEvents();
 
@@ -180,8 +179,6 @@ namespace graphvise {
 
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
-
-			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
 			//Moving Camera
 			glm::vec3 direction(0, 0, 0);

@@ -1,7 +1,6 @@
 #ifndef THESIS_FRAMEWORK_EDGE_HPP
 #define THESIS_FRAMEWORK_EDGE_HPP
 #include <optional>
-#include <vector>
 #include "imgui/imgui.h"
 
 namespace graphvise {

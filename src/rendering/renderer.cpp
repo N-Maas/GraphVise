@@ -119,7 +119,7 @@ namespace graphvise {
     {
         // contains OpenGL initialization
         // Load the shader files
-        reloadShaders();
+        loadShaders();
 
         if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
@@ -150,9 +150,9 @@ namespace graphvise {
     }
 
     /**
-     * Reloads the shaders from the file paths and compiles a new shader program to use.
+     * Loads the shaders from the file paths and compiles a new shader program to use.
      */
-    void Renderer::reloadShaders()
+    void Renderer::loadShaders()
     {
         //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
         //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
@@ -175,8 +175,6 @@ namespace graphvise {
 
     }
 
-
-    //todo will work properly when Model is implemented
     /**
      * Called in the main loop to render a new frame.
      */
@@ -200,8 +198,6 @@ namespace graphvise {
         // Tell OpenGL which shader program we want to use
         glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
-
-
 
         // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
@@ -286,28 +282,6 @@ namespace graphvise {
         glDeleteVertexArrays(1, &cylinderVAO);
         glDeleteBuffers(1, &cylinderVBO);
         glDeleteBuffers(1, &cylinderEBO);
-    }
-
-
-    void Renderer::processEvents(GLFWwindow* m_window)
-    {
-
-        //TODO: Do we really need reload shaders?
-
-        // alternatively: use GLFW's glfwSetKeyCallback
-
-        // F5 to reload shaders
-        if (glfwGetKey(m_window, GLFW_KEY_F5) == GLFW_RELEASE)
-        {
-            mF5Pressed = false;
-        } else
-        {
-            if (!mF5Pressed)
-            {
-                reloadShaders();
-            }
-            mF5Pressed = true;
-        }
     }
 
     void Renderer::resize(int framebufferWidth, int framebufferHeight)

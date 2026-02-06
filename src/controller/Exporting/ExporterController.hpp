@@ -4,7 +4,6 @@
 
 #ifndef GRAPHVISE_EXPORTERCONTROLLER_HPP
 #define GRAPHVISE_EXPORTERCONTROLLER_HPP
-#include <string>
 
 #include "PNGExporter.hpp"
 #include "controller/Enums/ExportFormat.hpp"
