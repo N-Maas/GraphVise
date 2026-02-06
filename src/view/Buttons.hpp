@@ -59,16 +59,21 @@ namespace graphvise
         int32_t vertex = 0;
         int32_t edgeVertices[2] = {0, 0};
 
+        float cylinderRadius = Renderer::getInstance()->getCylinderRadius();
+        float sphereRadius = Renderer::getInstance()->getSphereRadius();
+
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
+        void changeObjSize();
+        void graphSettings();
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
         void ChangeTransparency(uint32_t groupID);
-        void findObject(bool* findObject);
+        void findObject();
         void performanceModeToggle(bool* toggle_mode);
         void randomizeColoring(uint32_t groupID) const;
         void changeColoring(uint32_t groupID);

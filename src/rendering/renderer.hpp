@@ -105,6 +105,16 @@ namespace graphvise {
             sphereRadius = radius;
         }
 
+        float getSphereRadius()
+        {
+            return sphereRadius;
+        }
+
+        float getCylinderRadius()
+        {
+            return cylinderRadius;
+        }
+
         int getFramebufferWidth() {
             return mFramebufferSize.x;
         }

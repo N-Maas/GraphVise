@@ -173,8 +173,11 @@ namespace graphvise {
         return true;
     }
 
-	void Window::processEvents() {
+	void Window::processEvents()
+	{
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+
+
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
 
@@ -213,8 +216,10 @@ namespace graphvise {
 			rotatingCamera = false;
 		}
 
-		movementController.zoom(-scrollYOffset, sprinting);
-		scrollYOffset = 0;
+		if (!ImGui::GetIO().WantCaptureMouse){
+			movementController.zoom(-scrollYOffset, sprinting);
+			scrollYOffset = 0;
+		}
 	}
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
