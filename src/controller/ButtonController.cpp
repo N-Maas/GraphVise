@@ -204,4 +204,9 @@ namespace graphvise {
         camera.rotation_x = cam.getPitch();
         camera.rotation_y = cam.getYaw();
     }
+
+    void ButtonController::deleteCameraBookmark(size_t bookmarkID)
+    {
+        GraphSaver::getInstance().getGraph().deleteCameraBookmark(bookmarkID);
+    }
 }

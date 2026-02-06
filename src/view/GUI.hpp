@@ -26,7 +26,6 @@ namespace graphvise
     private:
 
         double fps = 0.0;
-        uint64_t currentObjId = 0;
         Buttons buttons;
         bool errorAvailable;
         std::optional<Error> currentError = std::nullopt;

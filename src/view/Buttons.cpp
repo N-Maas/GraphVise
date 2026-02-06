@@ -261,16 +261,22 @@ namespace graphvise
         {
             addBookmarkWindow = true;
         }
-        for (size_t i = 0; i < bookmarks.size(); ++i)
+        for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
         {
-            auto& bookmark = bookmarks[i];
-            if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), i).c_str()))
+            auto& bookmark = bookmarks[bookmarkID];
+            if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
             {
                 ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y,
                             bookmark.getCoordsVector().z);
-                if (ImGui::Button(std::format("Load Bookmark##{}", i).c_str()))
+                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
                 {
                     buttonController->loadCameraBookmark(bookmark);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                {
+
+                    buttonController->deleteCameraBookmark(bookmarkID);
                 }
             }
         }
@@ -550,7 +556,7 @@ namespace graphvise
         {
             if (ImGui::MenuItem("Export as PNG"))
             {
-                format = ExportFormat::PNG;
+                exportFormat = ExportFormat::PNG;
                 exportGraphBrowser.SetInputName("graph.png");
                 exportGraphBrowser.Open();
             }
@@ -571,7 +577,7 @@ namespace graphvise
             auto filename = exportGraphBrowser.GetSelected();
 
 
-            buttonController->exportGraph(filename, format);
+            buttonController->exportGraph(filename, exportFormat);
             exportGraphBrowser.ClearSelected();
         }
     }

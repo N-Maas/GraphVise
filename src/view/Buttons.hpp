@@ -10,7 +10,7 @@
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
 
-#define FILE_PATH "../ext/GUIIcons/"
+#define ICON_FILE_PATH "../ext/GUIIcons/"
 
 
 namespace graphvise
@@ -49,7 +49,7 @@ namespace graphvise
 
 
         ImportFormat importFormat = ImportFormat::TXT;
-        ExportFormat format = ExportFormat::PNG;
+        ExportFormat exportFormat = ExportFormat::PNG;
 
         GraphSaver *saver = &GraphSaver::getInstance();
         const std::vector<Group>* activeGroups = nullptr;
@@ -78,13 +78,13 @@ namespace graphvise
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
-        Texture cameraBookmarkIcon = loadTextureFromFile(FILE_PATH "bookmark.png");
-        Texture randomize = loadTextureFromFile(FILE_PATH "Randomize Color button.png");
-        Texture searchIcon = loadTextureFromFile(FILE_PATH "Suche.png");
-        Texture groupIcon = loadTextureFromFile(FILE_PATH "Gruppen.png");
-        Texture performanceIcon = loadTextureFromFile(FILE_PATH "Performance.png");
-        Texture cameraMovementIcon = loadTextureFromFile(FILE_PATH "cameraMovement.png");
-        Texture lightSourceIcon = loadTextureFromFile(FILE_PATH "Light Source Switch Button.png");
+        Texture cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
+        Texture randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
+        Texture searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
+        Texture groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
+        Texture performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
+        Texture cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
+        Texture lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
 
         Texture loadTextureFromFile(const char* filename);
 

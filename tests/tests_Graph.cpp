@@ -186,10 +186,10 @@ TEST(GraphTest, deleteCameraBookmarksTest) {
     graph.addCameraBookmark("first-CameraBookmark", glm::vec3(5.2f, -3.1f, 2.0f), 0.5f, 4.3f);
     graph.addCameraBookmark("second-CameraBookmark", glm::vec3(5.2f, -3.1f, 2.0f), 0.5f, 4.3f);
     EXPECT_EQ(graph.getCameraBookmarks().size(), 2);
-    EXPECT_THROW(graph.deleteCameraBookmarks(2), std::out_of_range);
-    graph.deleteCameraBookmarks(1);
+    EXPECT_THROW(graph.deleteCameraBookmark(2), std::out_of_range);
+    graph.deleteCameraBookmark(1);
     EXPECT_EQ(graph.getCameraBookmarks().size(), 1);
-    EXPECT_THROW(graph.deleteCameraBookmarks(1), std::out_of_range);
+    EXPECT_THROW(graph.deleteCameraBookmark(1), std::out_of_range);
 }
 
 TEST(GraphTest, sortedEdgesAndVertexTest) {

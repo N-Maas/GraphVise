@@ -116,7 +116,7 @@ namespace graphvise {
         addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, edgesIDs);
     }
 
-    void Graph::deleteCameraBookmarks(const std::uint32_t cameraBookmarkID) {
+    void Graph::deleteCameraBookmark(const std::uint32_t cameraBookmarkID) {
         if (cameraBookmarkID < cameraBookmarks.size()) {
             cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
         } else {
