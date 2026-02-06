@@ -26,5 +26,4 @@ namespace graphvise {
         std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs;
     };
 }
-
 #endif

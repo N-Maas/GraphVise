@@ -26,5 +26,4 @@ namespace graphvise {
         glm::vec3 coordsVector;
     };
 }
-
 #endif

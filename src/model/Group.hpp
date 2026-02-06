@@ -24,5 +24,4 @@ namespace graphvise {
         ImVec4 groupVec4;
     };
 }
-
 #endif
