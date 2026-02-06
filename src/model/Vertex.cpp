@@ -3,11 +3,11 @@
 #include "GraphSaver.hpp"
 
 namespace graphvise {
-    std::uint32_t  Vertex::getID() const {
+    std::uint32_t Vertex::getID() const {
         return vertexID;
     }
 
-    std::uint32_t  Vertex::getConnectedGroupID() const {
+    std::uint32_t Vertex::getConnectedGroupID() const {
         return connectedGroupID;
     }
 
