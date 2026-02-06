@@ -10,8 +10,18 @@
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
 
+#define FILE_PATH "../ext/GUIIcons/"
+
+
 namespace graphvise
 {
+    struct Texture
+    {
+        ImTextureID id;
+        int width;
+        int height;
+    };
+
     class Buttons
     {
     public:
@@ -68,6 +78,16 @@ namespace graphvise
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
+        Texture cameraBookmarkIcon = loadTextureFromFile(FILE_PATH "bookmark.png");
+        Texture randomize = loadTextureFromFile(FILE_PATH "Randomize Color button.png");
+        Texture searchIcon = loadTextureFromFile(FILE_PATH "Suche.png");
+        Texture groupIcon = loadTextureFromFile(FILE_PATH "Gruppen.png");
+        Texture performanceIcon = loadTextureFromFile(FILE_PATH "Performance.png");
+        Texture cameraMovementIcon = loadTextureFromFile(FILE_PATH "cameraMovement.png");
+        Texture lightSourceIcon = loadTextureFromFile(FILE_PATH "Light Source Switch Button.png");
+
+        Texture loadTextureFromFile(const char* filename);
+
         void changeObjSize();
         void graphSettings();
         void MainMenuBar();
@@ -86,7 +106,7 @@ namespace graphvise
         void exportGraph();
         void cameraBookmarkMenu(bool* visible);
         void SideBar();
-        static void SideBarElement(const char* label, bool* state);
+        static void SideBarElement(Texture texture, bool* state);
         void importGroupConfiguration();
     };
 }

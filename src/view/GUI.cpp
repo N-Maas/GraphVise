@@ -38,8 +38,6 @@ namespace graphvise
 
         currentObjInfo();
 
-
-
         if (errorAvailable)
         {
             errorPopup();

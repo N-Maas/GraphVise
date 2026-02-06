@@ -2,12 +2,16 @@
 // Created by Emile Brückner on 1/19/26.
 //
 
+
 #include "Buttons.hpp"
-
 #include <format>
-
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
+
+#define STB_IMAGE_IMPLEMENTATION
+#include <iostream>
+
+#include "stb_image.h"
 
 #define MainMenuBarHeight 19
 #define findObjectHeight 115
@@ -15,6 +19,7 @@
 #define PerformanceHeight 54
 #define MovementLightSourceHeight 77
 #define MovementCameraHeight 77
+
 
 namespace graphvise
 {
@@ -26,13 +31,13 @@ namespace graphvise
         highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
 
         exportGraphBrowser.SetTypeFilters(allowedExportFormat);
+
     }
 
     void Buttons::loadButtonFrame(int framebufferWidth, int framebufferHeight)
     {
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
-
 
         // ImGui::ShowDemoWindow();
 
@@ -81,12 +86,12 @@ namespace graphvise
                      ImGuiWindowFlags_NoTitleBar
         );
 
-        SideBarElement("Search Object", &search);
-        SideBarElement("Groups", &groups);
-        SideBarElement("Performance Mode", &togglePerformanceMode);
-        SideBarElement("Light Source Behaviour", &lightSource);
-        SideBarElement("Camera Movement Mode", &cameraMovement);
-        SideBarElement("Camera bookmarks", &cameraBookmarks);
+        SideBarElement(searchIcon, &search);
+        SideBarElement(groupIcon, &groups);
+        SideBarElement(performanceIcon, &togglePerformanceMode);
+        SideBarElement(lightSourceIcon, &lightSource);
+        SideBarElement(cameraMovementIcon, &cameraMovement);
+        SideBarElement(cameraBookmarkIcon, &cameraBookmarks);
 
 
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
@@ -94,7 +99,7 @@ namespace graphvise
 
         constexpr float widgetSpacing = 3.0f;
 
-        pos.x = pos.x - sideBarSize.x;
+        pos.x = pos.x - sideBarSize.x - 20;
         pos.y = MainMenuBarHeight;
 
         windowPivot = {1.0f, 0.0f};
@@ -147,9 +152,9 @@ namespace graphvise
         }
     }
 
-    void Buttons::SideBarElement(const char* label, bool* state)
+    void Buttons::SideBarElement(Texture texture, bool* state)
     {
-        if (ImGui::Button(label))
+        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
             *state = !*state;
         }
@@ -187,6 +192,35 @@ namespace graphvise
 
             importGroupConfigBrowser.ClearSelected();
         }
+    }
+
+    Texture Buttons::loadTextureFromFile(const char* filename)
+    {
+        int width, height, channels;
+        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+
+
+        if (!data)
+        {
+            return Texture(0,0,0);
+        }
+
+        GLuint texture;
+
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+        return Texture((ImTextureID) texture, width, height);
     }
 
     void Buttons::changeObjSize()
@@ -383,7 +417,7 @@ namespace graphvise
 
     void Buttons::setCameraMovementMode(bool* cameraMovementMode)
     {
-        ImGui::Begin("Camera Focus", cameraMovementMode,
+        ImGui::Begin("Camera Movement", cameraMovementMode,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );

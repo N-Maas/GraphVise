@@ -69,7 +69,7 @@ set(HEADERS
         src/controller/Structs/GraphData.hpp
         src/controller/Structs/ThreadOperation.hpp
         src/view/ErrorCollectorObserver.hpp
-        src/view/imgui-filebrowser/imfilebrowser.h
+        ext/imgui-filebrowser/imfilebrowser.h
         src/view/Window.hpp
         src/model/GraphSaver.hpp
         src/model/Graph.hpp
@@ -161,7 +161,7 @@ add_subdirectory(ext)
 target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        src/view/imgui-filebrowser
+        ext/imgui-filebrowser
         )
 
 # link required libraries
