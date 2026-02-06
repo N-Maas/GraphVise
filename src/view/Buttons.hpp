@@ -106,7 +106,7 @@ namespace graphvise
         void exportGraph();
         void cameraBookmarkMenu(bool* visible);
         void SideBar();
-        static void SideBarElement(Texture texture, bool* state);
+        static void SideBarElement(Texture texture, const char* hoverMsg, bool* state);
         void importGroupConfiguration();
     };
 }
