@@ -132,6 +132,16 @@ namespace graphvise {
         std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
     }
 
+    void Graph::setCurrentVertexID(uint32_t vertexID)
+    {
+        currentVertexID = vertexID;
+    }
+
+    void Graph::setCurrentEdgeID(uint32_t edgeID)
+    {
+        currentEdgeID = edgeID;
+    }
+
     std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }

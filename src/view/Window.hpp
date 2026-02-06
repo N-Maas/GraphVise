@@ -29,7 +29,7 @@ namespace graphvise
 
         struct Resolution
         {
-            int width, height;
+            uint64_t width, height;
         };
 
         Resolution HD = {1920, 1080};

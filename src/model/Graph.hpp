@@ -72,6 +72,12 @@ namespace graphvise {
         void updateSortedVertices();
         void updateSortedEdges();
 
+        void setCurrentVertexID(uint32_t vertexID);
+        void setCurrentEdgeID(uint32_t edgeID);
+
+        std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
+        std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
+
 
     private:
         std::vector<Vertex> vertices;
@@ -80,6 +86,9 @@ namespace graphvise {
         std::vector<Edge*> edgesSortedByTransparency;
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
+
+        std::optional<uint32_t> currentVertexID;
+        std::optional<uint32_t> currentEdgeID;
     };
 }
 #endif

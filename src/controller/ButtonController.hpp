@@ -22,7 +22,7 @@ namespace graphvise {
         void changeColoring(int groupID, ImVec4 color);
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
         void setCameraFocusMode(CameraFocusMode mode);
-        void findVertex(int vertexID);
+        void findVertex(uint32_t vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
         void highlightSubgraph(std::filesystem::path filePath);
         void importGraph(std::filesystem::path filePath, ImportFormat importFormat);

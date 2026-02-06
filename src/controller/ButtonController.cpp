@@ -47,13 +47,16 @@ namespace graphvise {
         camera.set_camera_focus_mode(mode);
     }
 
-    void ButtonController::findVertex(int vertexID) {
+    void ButtonController::findVertex(uint32_t vertexID) {
+
         Graph& graph = GraphSaver::getInstance().getGraph();
         if (vertexID >= graph.getVertices().size()) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
         }
 
-        graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        graph.highlightByID(std::vector{vertexID}, std::vector<uint32_t>{});
+        graph.setCurrentVertexID(vertexID);
+
         glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
         vertexPos.x += 1;
         camera.position_world_space = vertexPos;
@@ -86,6 +89,11 @@ namespace graphvise {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EDGE_DOES_NOT_EXIST));
             return;
         }
+
+        graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
+        graph.setCurrentEdgeID(edgeID);
+
+
 
         graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
         glm::vec3 firstVertexPos = graph.getVertexByID(firstVertexID).getCoordsVector();
