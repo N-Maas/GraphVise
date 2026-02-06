@@ -4,34 +4,37 @@
 
 #include "PNGExporter.hpp"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
 #include "lodepng/lodepng.h"
 
-#define STANDARD_FILE_NAME "/GraphVise Export"
 #define FILE_ENDING ".png"
 #define OPTIONAL_FILE_SUFFIX(...) ("(" + __VA_ARGS__ + ")")
 
 namespace graphvise {
-    void PNGExporter::exportGraph(std::string path) {
-        std::string fileName = path + STANDARD_FILE_NAME + FILE_ENDING;
+    void PNGExporter::exportGraph(std::filesystem::path path) {
+
+
+        std::string oldNameWithoutExtension = path.filename().replace_extension();
 
         //If file with same name already exists,
-        if (checkFileExists(fileName)) {
+        if (checkFileExists(path)) {
             int fileNumber = 1;
             do {
-                fileName = path + STANDARD_FILE_NAME + OPTIONAL_FILE_SUFFIX(std::to_string(fileNumber)) + FILE_ENDING;
+
+                path = path.replace_filename(oldNameWithoutExtension + OPTIONAL_FILE_SUFFIX(std::to_string(fileNumber)) + path.extension().string());
                 fileNumber++;
-            } while (checkFileExists(fileName));
+            } while (checkFileExists(path));
         }
 
         std::lock_guard lock(mutex);
         std::vector<unsigned char> pixels = pngExportData->pixels;
         int width = pngExportData->screenWidth;
         int height = pngExportData->screenHeight;
-        lodepng::encode(fileName, pixels.data(), width, height);
-        std::cout << "Exported to: " << fileName << std::endl;
+        lodepng::encode(path, pixels.data(), width, height);
+        std::cout << "Exported to: " << path << std::endl;
         pngExportData.reset();
     }
 

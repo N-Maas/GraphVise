@@ -119,7 +119,7 @@ namespace graphvise {
         camera.focusPoint = averagePos;
     }
 
-    void ButtonController::highlightSubgraph(std::string filePath) {
+    void ButtonController::highlightSubgraph(std::filesystem::path filePath) {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -127,7 +127,7 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::importGraph(std::string filePath, ImportFormat importFormat) {
+    void ButtonController::importGraph(std::filesystem::path filePath, ImportFormat importFormat) {
 
         ThreadOperation threadOperation;
 
@@ -150,7 +150,7 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::exportGraph(std::string filePath, ExportFormat exportFormat) {
+    void ButtonController::exportGraph(std::filesystem::path filePath, ExportFormat exportFormat) {
         //TODO: Finish when GUI and ThreadController are ready
         ThreadOperationType operationType;
         switch (exportFormat) {
@@ -167,7 +167,7 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::importGroupConfiguration(std::string filePath) {
+    void ButtonController::importGroupConfiguration(std::filesystem::path filePath) {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_GROUPS};
 
         if (!threadController.notifyBackgroundThread(threadOperation)) {

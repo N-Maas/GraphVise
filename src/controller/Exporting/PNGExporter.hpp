@@ -7,14 +7,13 @@
 #include <condition_variable>
 #include <optional>
 #include <string>
-#include <vector>
-
+#include <filesystem>
 #include "controller/Structs/PNGExportData.hpp"
 
 namespace graphvise {
     class PNGExporter {
     public:
-        void exportGraph(std::string path);
+        void exportGraph(std::filesystem::path path);
         void setPNGExportData(PNGExportData exportData);
 
     private:

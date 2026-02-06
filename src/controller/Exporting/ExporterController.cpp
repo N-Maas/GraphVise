@@ -8,7 +8,7 @@
 #include <utility>
 
 namespace graphvise {
-    void ExporterController::exportGraph(std::string path, ExportFormat format) {
+    void ExporterController::exportGraph(std::filesystem::path path, ExportFormat format) {
         if (format == ExportFormat::PNG) {
             pngExporter.exportGraph(std::move(path));
         } else {

@@ -11,7 +11,7 @@
 namespace graphvise {
     class ExporterController {
     public:
-        void exportGraph(std::string path, ExportFormat format);
+        void exportGraph(std::filesystem::path path, ExportFormat format);
         void setPNGExportData(PNGExportData exportData);
 
     private:

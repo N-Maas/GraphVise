@@ -25,10 +25,10 @@ namespace graphvise {
         void setCameraFocusMode(CameraFocusMode mode);
         void findVertex(int vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
-        void highlightSubgraph(std::string filePath);
-        void importGraph(std::string filePath, ImportFormat importFormat);
-        void exportGraph(std::string filePath, ExportFormat format);
-        void importGroupConfiguration(std::string filePath);
+        void highlightSubgraph(std::filesystem::path filePath);
+        void importGraph(std::filesystem::path filePath, ImportFormat importFormat);
+        void exportGraph(std::filesystem::path filePath, ExportFormat exportFormat);
+        void importGroupConfiguration(std::filesystem::path filePath);
         void changeTransparency(uint32_t groupID, float newTransparency);
         void RemoveHighlights();
         void addCurrentPosAsBookmark(const std::string& name);
