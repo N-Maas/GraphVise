@@ -32,7 +32,8 @@
 namespace graphvise {
     enum CameraFocusMode {
         CENTER_OF_MASS,
-        FREE
+        FREE,
+        FOCUS_MODE_COUNT_LAST_ITEM
     };
 
     class Camera {

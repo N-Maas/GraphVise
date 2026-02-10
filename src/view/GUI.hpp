@@ -31,7 +31,7 @@ namespace graphvise
         std::optional<Error> currentError = std::nullopt;
 
         void errorPopup();
-        void currentObjInfo();
+        static void currentObjInfo();
         void update() override;
     };
 }

@@ -6,6 +6,8 @@
 #define THESIS_FRAMEWORK_WINDOW_HPP
 
 
+#include <functional>
+
 #include "GUI.hpp"
 #include "controller/MovementController.hpp"
 
@@ -22,10 +24,33 @@ namespace graphvise
 
     private:
         void processEvents();
-        //void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+        void processHotkeys();
+
+
+        struct Hotkey {
+            std::vector<int> keys;
+            std::function<void()> action;
+            bool pressed = false;
+
+        };
+
+        std::vector<Hotkey> hotkeys = {
+                {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_Q}, [this]() { buttonController.togglePerformanceMode(); }},
+                {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_L}, [this]() { buttonController.toggleLightSourceMovementBehaviour(); }},
+                {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_K}, [this]() { buttonController.toggleCameraFocusMode(); }}
+            // {{},},
+            // {{},},
+            // {{},},
+            // {{},}
+
+        };
+
+
 
         GLFWwindow* window = nullptr;
+        ButtonController buttonController;
         MovementController movementController;
+        std::optional<GUI> gui = std::nullopt;
 
         struct Resolution
         {

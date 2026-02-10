@@ -25,7 +25,6 @@ namespace graphvise
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
 
-
     }
 
     void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
@@ -37,6 +36,17 @@ namespace graphvise
 
 
         currentObjInfo();
+
+        if (ThreadController::backGroundThreadBusy())
+        {
+            ImGui::SetNextWindowPos(ImVec2(0, framebufferHeight), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+            ImGui::Begin("##Loading window", nullptr,
+                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoCollapse
+            );
+            ImGui::Text("Loading...");
+            ImGui::End();
+        }
 
         if (errorAvailable)
         {

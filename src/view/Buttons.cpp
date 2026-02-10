@@ -394,10 +394,12 @@ namespace graphvise
                      ImGuiWindowFlags_NoCollapse
         );
 
+        performanceMode = Renderer::getInstance() -> performance_mode();
+
         if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
                              HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
         {
-            buttonController->togglePerformanceMode(performanceMode);
+            buttonController->setPerformanceMode(performanceMode);
         }
 
 
@@ -410,7 +412,10 @@ namespace graphvise
         ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
-        );
+                     );
+
+        lightSourceMovementBehaviour = Renderer::getInstance() -> light_source_movement_behaviour();
+
         const bool first = ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
                                               FIXED_POSITION);
         const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
@@ -431,6 +436,8 @@ namespace graphvise
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
+
+        cameraMode = Renderer::getInstance() -> m_camera().camera_focus_mode();
 
         const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
         const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);

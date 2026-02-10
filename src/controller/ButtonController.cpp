@@ -19,8 +19,17 @@ namespace graphvise {
                                                                              threadController(renderer) {
     }
 
-    void ButtonController::togglePerformanceMode(PerformanceMode mode) {
+    void ButtonController::togglePerformanceMode() {
+
+
+        auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer.performance_mode()) + 1) % static_cast<int>(
+            PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+        renderer.adjustPerformanceMode(newMode);
+    }
+    void ButtonController::setPerformanceMode(PerformanceMode mode) {
+
         renderer.adjustPerformanceMode(mode);
+
     }
 
     void ButtonController::randomizeColoring(int groupID) {
@@ -43,9 +52,26 @@ namespace graphvise {
         renderer.set_light_source_movement_behaviour(behaviour);
     }
 
+    void ButtonController::toggleLightSourceMovementBehaviour() {
+
+        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer.light_source_movement_behaviour()) + 1) % static_cast<int>(
+            MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
+        renderer.set_light_source_movement_behaviour(newMode);
+
+    }
+
     void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
         camera.set_camera_focus_mode(mode);
     }
+
+    void ButtonController::toggleCameraFocusMode() {
+
+        auto newMode = static_cast<CameraFocusMode>((static_cast<int>(camera.camera_focus_mode()) + 1) % static_cast<int>(
+            FOCUS_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+        camera.set_camera_focus_mode(newMode);
+
+    }
+
 
     void ButtonController::findVertex(uint32_t vertexID) {
 

@@ -17,11 +17,14 @@ namespace graphvise {
     class ButtonController {
     public:
         ButtonController(Renderer& renderer);
-        void togglePerformanceMode(PerformanceMode mode);
+        void togglePerformanceMode();
+        void setPerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);
         void changeColoring(int groupID, ImVec4 color);
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
+        void toggleLightSourceMovementBehaviour();
         void setCameraFocusMode(CameraFocusMode mode);
+        void toggleCameraFocusMode();
         void findVertex(uint32_t vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
         void highlightSubgraph(std::filesystem::path filePath);

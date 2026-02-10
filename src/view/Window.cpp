@@ -20,8 +20,10 @@ namespace graphvise {
 
 	double Window::scrollYOffset = 0;
 
-	Window::Window()
-	= default;
+	Window::Window() : buttonController(*Renderer::getInstance().get())
+	{
+	}
+
 	bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
@@ -40,8 +42,8 @@ namespace graphvise {
         // Create GLFW window
         std::string windowTitle = "GraphVise";
 
-        int defaultWidth = currentRes.width;
-        int defaultHeight = currentRes.height;
+        auto defaultWidth = currentRes.width;
+        auto defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
         // Error check if the window fails to create
@@ -83,16 +85,14 @@ namespace graphvise {
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
         // Create the renderer object
-        std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+        auto renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
         renderer->init();
 
-        ButtonController controller = ButtonController(*renderer);
+		gui.emplace(&buttonController);
 
-		GUI gui(&controller);
+        ErrorCollector::getInstance().signIn(*gui);
 
-        ErrorCollector::getInstance().signIn(gui);
-
-        gui.initGUI(window);
+        gui -> initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -120,6 +120,7 @@ namespace graphvise {
 			// Clean the back buffer and assign the new color to it
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        	// Take care of all GLFW events
 			glfwPollEvents();
 
             processEvents();
@@ -129,18 +130,11 @@ namespace graphvise {
             renderer->runFrame();
             GL_CHECK_ERROR();
 
-
-            renderer->runFrame();
-
-
             //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
+            gui -> loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
-
-            // Take care of all GLFW events
-            glfwPollEvents();
 
 
             // FPS counter
@@ -151,14 +145,14 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui.setFps(frameCount / accumulatedTime);
+                gui -> setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui.shutdownGUI();
+        gui -> shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
@@ -173,6 +167,9 @@ namespace graphvise {
 
 	void Window::processEvents()
 	{
+
+		processHotkeys();
+
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 
 
@@ -190,11 +187,13 @@ namespace graphvise {
 			movementController.moveCamera(direction, sprinting);
 
 		}
+
 		//Rotating Camera
 		static float lastMousePosition[2];
 		static double currentMousePositionDouble[2];
 		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
 		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
+
 
 		static bool rotatingCamera = false;
 		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
@@ -216,6 +215,37 @@ namespace graphvise {
 			movementController.zoom(-scrollYOffset, sprinting);
 			scrollYOffset = 0;
 		}
+	}
+
+	void Window::processHotkeys()
+	{
+		for (auto& [keys, function, pressedInPrevFrame] : hotkeys)
+		{
+			bool allKeysPressed = true;
+
+			for (const int key : keys)
+			{
+
+				if (glfwGetKey(window, key) != GLFW_PRESS)
+				{
+					allKeysPressed = false;
+					break;
+				}
+
+			}
+			if (allKeysPressed && !pressedInPrevFrame)
+			{
+				function();
+				pressedInPrevFrame = true;
+			}
+			else if (!allKeysPressed)
+			{
+				pressedInPrevFrame = false;
+			}
+
+		}
+
+
 	}
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {

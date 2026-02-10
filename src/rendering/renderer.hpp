@@ -33,12 +33,14 @@ namespace graphvise {
 
     enum LightSourceMovementBehaviour {
         FOLLOW_CAMERA,
-        FIXED_POSITION
+        FIXED_POSITION,
+        MOVE_BEHAVIOUR_COUNT_LAST_ITEM
     };
 
     enum PerformanceMode {
         HIGH_PERFORMANCE,
-        HIGH_RESOLUTION
+        HIGH_RESOLUTION,
+        PERFORMANCE_MODE_COUNT_LAST_ITEM
     };
 
     struct VertexData {
