@@ -90,6 +90,7 @@ namespace graphvise
 
         void changeObjSize();
         void graphSettings();
+        void generalSettings();
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
         void ChangeTransparency(uint32_t groupID);

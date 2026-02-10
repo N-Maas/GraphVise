@@ -57,6 +57,8 @@ namespace graphvise
         ImGui::Separator();
         graphSettings();
         ImGui::Separator();
+        generalSettings();
+        ImGui::Separator();
 
 
         ImGui::EndMainMenuBar();
@@ -196,6 +198,26 @@ namespace graphvise
 
             importGroupConfigBrowser.ClearSelected();
         }
+    }
+
+    void Buttons::generalSettings()
+    {
+        if (ImGui::BeginMenu("General Settings"))
+        {
+            if (ImGui::BeginMenu("Change Background Color"))
+            {
+
+                   ImGui::ColorEdit3("##Background Color", &Renderer::getInstance()->backgroundColor.x);
+
+                ImGui::EndMenu();
+            }
+
+
+
+            ImGui::EndMenu();
+        }
+
+
     }
 
     Texture Buttons::loadTextureFromFile(const char* filename)

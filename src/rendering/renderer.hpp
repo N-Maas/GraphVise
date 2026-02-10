@@ -75,7 +75,7 @@ namespace graphvise {
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
 
         // Variables to be changed in the ImGUI windows
-        glm::vec4 mColor;
+        glm::vec4 backgroundColor = glm::vec4(0.392f, 0.785f, 0.824f, 1.000f);
         [[nodiscard]] Camera& m_camera() {
             return mCamera;
         }
