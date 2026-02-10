@@ -23,7 +23,7 @@ namespace graphvise {
         renderer.adjustPerformanceMode(mode);
     }
 
-    void ButtonController::randomizeColoring(int groupID) {
+    void ButtonController::randomizeColoring(uint32_t groupID) {
         Group& group= GraphSaver::getInstance().getGraph().getGroupByID(groupID);
 
         std::random_device random;
@@ -34,7 +34,7 @@ namespace graphvise {
         group.setColor(newColor);
     }
 
-    void ButtonController::changeColoring(int groupID, ImVec4 newColor) {
+    void ButtonController::changeColoring(uint32_t groupID, ImVec4 newColor) {
         Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
         group.setColor(newColor);
     }

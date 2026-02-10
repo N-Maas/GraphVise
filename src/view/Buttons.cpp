@@ -111,6 +111,7 @@ namespace graphvise
 
         pos.y += findObjectHeight + widgetSpacing;
 
+
         if (groups)
         {
             ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
@@ -207,7 +208,7 @@ namespace graphvise
 
         if (!data)
         {
-            return Texture(0,0,0);
+            throw std::runtime_error("Texture did not load.");
         }
 
         GLuint texture;
@@ -323,7 +324,6 @@ namespace graphvise
                 ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
                 ImGui::SameLine();
 
-                randomizeColoring(group.getID());
                 changeColoring(group.getID());
 
                 ChangeTransparency(group.getID());
@@ -336,12 +336,12 @@ namespace graphvise
 
     void Buttons::ChangeTransparency(uint32_t groupID)
     {
-        if (groupID >= groupColors.size())
+        if (groupID >= oldGroupColors.size())
         {
-            groupColors.resize(groupColors.size() * 2);
+            oldGroupColors.resize(oldGroupColors.size() * 2);
         }
 
-        float& transparency = groupColors[groupID].w;
+        float& transparency = oldGroupColors[groupID].w;
 
         if (transparency == 0.0f)
         {
@@ -357,33 +357,43 @@ namespace graphvise
 
     void Buttons::changeColoring(uint32_t groupID)
     {
-        if (groupID >= groupColors.size())
+        if (groupID >= oldGroupColors.size())
         {
-            groupColors.resize(groupColors.size() * 2);
+            oldGroupColors.resize(oldGroupColors.size() * 2);
+            newGroupColors.resize(newGroupColors.size() * 2);
         }
 
-        ImVec4& color = groupColors[groupID];
+        ImVec4& oldColor = oldGroupColors[groupID];
+        ImVec4& newColor = newGroupColors[groupID];
 
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        if (oldColor.x == 0 && oldColor.y == 0 && oldColor.z == 0 && oldColor.w == 0)
         {
-            color = saver->getGraph().getGroupByID(groupID).getVec4();
+            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
+            newColor = oldColor;
         }
 
 
-        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, color);
-        }
-    }
-
-    void Buttons::randomizeColoring(uint32_t groupID) const
-    {
         if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
         {
             buttonController->randomizeColoring(groupID);
         }
+
+        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &newColor.x))
+        {
+            buttonController->changeColoring(groupID, newColor);
+        }
+        if (ImGui::Button(std::format("Accept##{}", groupID).c_str()))
+        {
+            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(std::format("Cancel##{}", groupID).c_str()))
+        {
+            newColor = oldColor;
+            buttonController->changeColoring(groupID, oldColor);
+        }
     }
+
 
     void Buttons::performanceModeToggle(bool* toggle_mode)
     {
