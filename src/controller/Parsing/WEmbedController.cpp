@@ -19,6 +19,7 @@ namespace graphvise {
         embedderOptions.embeddingDimension = 3;
         embedderOptions.useWeights = false;
         embedderOptions.maxIterations = 3000;
+        embedderOptions.layeredEmbedding = true;
         wembed::Embedder embedder = wembed::createEmbedder(graph, embedderOptions);
         embedder.calculateEmbedding();
         std::vector<std::vector<double>> coordinates = embedder.getCoordinates();
