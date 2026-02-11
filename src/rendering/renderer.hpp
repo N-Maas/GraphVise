@@ -29,7 +29,11 @@
 #include "../model/GraphSaver.hpp"
 #include "../controller/RendererObserver.hpp"
 
+#define STANDARD_SPHERE_RADIUS 0.05f
+#define STANDARD_CYLINDER_RADIUS 0.03f
+
 namespace graphvise {
+
 
     enum LightSourceMovementBehaviour {
         FOLLOW_CAMERA,
@@ -76,6 +80,12 @@ namespace graphvise {
 
         // Variables to be changed in the ImGUI windows
         glm::vec4 backgroundColor = glm::vec4(0.392f, 0.785f, 0.824f, 1.000f);
+        LightSourceMovementBehaviour lightSourceMovementBehaviour;
+        PerformanceMode performanceMode;
+        float sphereRadius{};
+        float cylinderRadius{};
+
+
         [[nodiscard]] Camera& m_camera() {
             return mCamera;
         }
@@ -133,8 +143,7 @@ namespace graphvise {
         static inline std::mutex mtx;
 
         std::vector<std::reference_wrapper<RendererObserver>> observerList;
-        const float STANDARD_SPHERE_RADIUS = 0.05f;
-        const float STANDARD_CYLINDER_RADIUS = 0.03f;
+
         glm::ivec2 mFramebufferSize;
 
         [[nodiscard]] float getAspectRatio() const {
@@ -159,7 +168,6 @@ namespace graphvise {
         std::vector<unsigned int> sphereIndices;
         GLuint sphereVAO{}, sphereVBO{}, sphereEBO{};
         // generate sphere mesh data(icosphere)
-        float sphereRadius{};
         void generateIcosphere(int subdivisions = 2);
         void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
 
@@ -168,14 +176,11 @@ namespace graphvise {
         std::vector<unsigned int> cylinderIndices;
         GLuint cylinderVAO{}, cylinderVBO{}, cylinderEBO{};
 
-        float cylinderRadius{};
         void generateCylinder(int segments = 16);
         void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
 
         Camera mCamera;
         glm::vec3 lightPos;
-        LightSourceMovementBehaviour lightSourceMovementBehaviour;
-        PerformanceMode performanceMode;
 
         bool mF5Pressed;
 

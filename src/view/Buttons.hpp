@@ -31,6 +31,7 @@ namespace graphvise
 
     private:
 
+        std::shared_ptr<Renderer> renderer = Renderer::getInstance();
 
         const std::vector<std::string> allowedGroupInfoFormat = {".txt"};
         const std::vector<std::string> txtImportFormat = {".txt"};

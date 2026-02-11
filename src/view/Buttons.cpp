@@ -207,12 +207,10 @@ namespace graphvise
             if (ImGui::BeginMenu("Change Background Color"))
             {
 
-                   ImGui::ColorEdit3("##Background Color", &Renderer::getInstance()->backgroundColor.x);
+                   ImGui::ColorEdit3("##Background Color", &renderer->backgroundColor.x);
 
                 ImGui::EndMenu();
             }
-
-
 
             ImGui::EndMenu();
         }
@@ -253,14 +251,10 @@ namespace graphvise
     {
         if (ImGui::BeginMenu("Object Size"))
         {
-            if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
-            {
-                Renderer::getInstance()->setCylinderRadius(cylinderRadius);
-            };
-            if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
-            {
-                Renderer::getInstance()->setSphereRadius(sphereRadius);
-            }
+            ImGui::DragFloat("Edge Size", &renderer->cylinderRadius, 0.001f, 0.001f, 10.0f);
+            ImGui::SliderFloat("Edge Size", &renderer->cylinderRadius, 0.001f, 10.0f);
+            ImGui::DragFloat("Vertex Size", &renderer->sphereRadius, 0.001f, 0.001f, 10.0f);
+
 
             ImGui::EndMenu();
         }
