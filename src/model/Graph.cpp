@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "controller/ErrorCollector.hpp"
+
 namespace graphvise {
     const std::vector<Vertex>& Graph::getVertices() const {
         return vertices;
@@ -161,7 +163,10 @@ namespace graphvise {
         try {
             groups.at(groupID).setTransparency(transparency);
         } catch (std::out_of_range& e) {
-            throw std::out_of_range("Group transparency is out of range [0,1]");
+
+            auto error = Error(ErrorType::INVALID_NUMBER, "Group transparency is out of range [0,1]");
+            ErrorCollector::getInstance().collectError(error);
+            return;
         }
         updateSortedVertices();
         updateSortedEdges();

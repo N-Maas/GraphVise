@@ -26,7 +26,8 @@ namespace graphvise {
         INVALID_CLAUSE_COUNT,
         INVALID_VARIABLE_COUNT,
         INVALID_VARIABLE_ID,
-        INVALID_IMPORT_FORMAT
+        INVALID_IMPORT_FORMAT,
+        INVALID_NUMBER
     };
 }
 

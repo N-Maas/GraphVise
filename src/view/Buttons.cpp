@@ -252,7 +252,6 @@ namespace graphvise
         if (ImGui::BeginMenu("Object Size"))
         {
             ImGui::DragFloat("Edge Size", &renderer->cylinderRadius, 0.001f, 0.001f, 10.0f);
-            ImGui::SliderFloat("Edge Size", &renderer->cylinderRadius, 0.001f, 10.0f);
             ImGui::DragFloat("Vertex Size", &renderer->sphereRadius, 0.001f, 0.001f, 10.0f);
 
 
@@ -366,6 +365,14 @@ namespace graphvise
 
         if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
         {
+            if (transparency < 0.0f)
+            {
+                transparency = 0.0f;
+            }
+            else if (transparency > 1.0f)
+            {
+                transparency = 1.0f;
+            }
             buttonController->changeTransparency(groupID, transparency);
         }
     }

@@ -43,7 +43,7 @@ namespace graphvise {
         group.setColor(newColor);
     }
 
-    void ButtonController::changeColoring(int groupID, ImVec4 newColor) {
+    void ButtonController::changeColoring(uint32_t groupID, ImVec4 newColor) {
         Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
         group.setColor(newColor);
     }
