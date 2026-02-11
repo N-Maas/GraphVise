@@ -51,6 +51,10 @@ namespace graphvise {
         mSettings.targetFPS = 60;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
+        std::cerr << "Renderer constructor - setting up sphere..." << std::endl;
+        std::cerr << "Renderer constructor - sphereVAO = " << sphereVAO << std::endl;
+        std::cerr << "Renderer constructor - sphereVBO = " << sphereVBO << std::endl;
+        std::cerr << "Renderer constructor - sphereEBO = " << sphereEBO << std::endl;
     }
 
     Renderer::Renderer(int framebufferWidth, int framebufferHeight)
@@ -76,6 +80,10 @@ namespace graphvise {
         mSettings.targetFPS = 60;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
+        std::cerr << "Renderer constructor - setting up sphere..." << std::endl;
+        std::cerr << "Renderer constructor - sphereVAO = " << sphereVAO << std::endl;
+        std::cerr << "Renderer constructor - sphereVBO = " << sphereVBO << std::endl;
+        std::cerr << "Renderer constructor - sphereEBO = " << sphereEBO << std::endl;
     }
 
 

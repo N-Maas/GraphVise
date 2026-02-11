@@ -142,7 +142,7 @@ include(FetchContent)
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG        1305d30ff5ee26dd637fb127a9a7bd0ab0c6fc00
+        GIT_TAG        cpp-library-interface
         GIT_SHALLOW TRUE
 )
 
