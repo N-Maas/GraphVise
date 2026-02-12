@@ -4,10 +4,13 @@
 
 #ifndef THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 #define THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
+
+
 #include "ThreadController.hpp"
 #include "../rendering/renderer.hpp"
 #include "../rendering/camera.hpp"
 #include "Enums/ExportFormat.hpp"
+#include "Enums/ImportFormat.hpp"
 #include "imgui/imgui.h"
 
 namespace graphvise {
@@ -17,19 +20,19 @@ namespace graphvise {
         void togglePerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);
         void changeColoring(int groupID, ImVec4 color);
-        void toggleLightSourceMovement();
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
         void setCameraFocusMode(CameraFocusMode mode);
-        void findVertex(int vertexID);
+        void findVertex(uint32_t vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
-        void highlightSubgraph(std::string filePath);
-        void importGraph(std::string filePath);
-        void exportGraph(std::string filePath, ExportFormat format);
-        void importGroupConfiguration(std::string filePath);
+        void highlightSubgraph(std::filesystem::path filePath);
+        void importGraph(std::filesystem::path filePath, ImportFormat importFormat);
+        void exportGraph(std::filesystem::path filePath, ExportFormat exportFormat);
+        void importGroupConfiguration(std::filesystem::path filePath);
         void changeTransparency(uint32_t groupID, float newTransparency);
         void RemoveHighlights();
         void addCurrentPosAsBookmark(const std::string& name);
         void loadCameraBookmark(CameraBookmark cam);
+        void deleteCameraBookmark(size_t bookmarkID);
 
     private:
         Camera& camera;

@@ -14,8 +14,18 @@
 #include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
 
+#define ICON_FILE_PATH "../ext/GUIIcons/"
+
+
 namespace graphvise
 {
+    struct Texture
+    {
+        ImTextureID id;
+        int width;
+        int height;
+    };
+
     class Buttons
     {
     public:
@@ -25,6 +35,13 @@ namespace graphvise
 
     private:
 
+
+        const std::vector<std::string> allowedGroupInfoFormat = {".txt"};
+        const std::vector<std::string> txtImportFormat = {".txt"};
+        const std::vector<std::string> cnfImportFormat = {".cnf"};
+        const std::vector<std::string> allowedExportFormat = {".png"};
+
+
         bool search = false;
         bool groups = false;
         bool togglePerformanceMode = false;
@@ -33,24 +50,18 @@ namespace graphvise
         bool cameraBookmarks = false;
         bool addBookmarkWindow = false;
 
-        const std::vector<std::string> allowedFiles = {".txt"};
 
-        // Helper function to get renderer (defined inline)
-        static Renderer* getRenderer() {
-            auto instance = Renderer::getInstance();
-            return instance ? instance.get() : nullptr;
-        }
 
-        // Initialize using helper function
-        GraphSaver *saver = &graphvise::GraphSaver::getInstance();
+        ImportFormat importFormat = ImportFormat::TXT;
+        ExportFormat exportFormat = ExportFormat::PNG;
+
+        GraphSaver *saver = &GraphSaver::getInstance();
+        const std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
 
-        // Use ternary operator to handle nullptr
-        PerformanceMode performanceMode = getRenderer() ? getRenderer()->performance_mode() : PerformanceMode::BALANCE;
-        CameraFocusMode cameraMode = getRenderer() ? getRenderer()->m_camera().camera_focus_mode() : CameraFocusMode::CENTER_OF_MASS;
-        LightSourceMovementBehaviour lightSourceMovementBehaviour = getRenderer() ? getRenderer()->light_source_movement_behaviour() : LightSourceMovementBehaviour::FIXED_POSITION;
-
-        const std::vector<Group>* activeGroups = nullptr;
+        PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
+        CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
+        LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
         std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
 
@@ -62,15 +73,31 @@ namespace graphvise
         int32_t vertex = 0;
         int32_t edgeVertices[2] = {0, 0};
 
+        float cylinderRadius = Renderer::getInstance()->getCylinderRadius();
+        float sphereRadius = Renderer::getInstance()->getSphereRadius();
+
+
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser importGroupConfigBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
-        ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_SelectDirectory);
+        ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
+        Texture cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
+        Texture randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
+        Texture searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
+        Texture groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
+        Texture performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
+        Texture cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
+        Texture lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
+
+        Texture loadTextureFromFile(const char* filename);
+
+        void changeObjSize();
+        void graphSettings();
         void MainMenuBar();
         void GroupMenu(bool* groupMenu);
         void ChangeTransparency(uint32_t groupID);
-        void findObject(bool* findObject);
+        void findObject();
         void performanceModeToggle(bool* toggle_mode);
         void randomizeColoring(uint32_t groupID) const;
         void changeColoring(uint32_t groupID);
@@ -83,7 +110,7 @@ namespace graphvise
         void exportGraph();
         void cameraBookmarkMenu(bool* visible);
         void SideBar();
-        static void SideBarElement(const char* label, bool* state);
+        static void SideBarElement(Texture texture, const char* hoverMsg, bool* state);
         void importGroupConfiguration();
     };
 }

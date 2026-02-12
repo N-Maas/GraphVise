@@ -3,11 +3,11 @@
 #include "GraphSaver.hpp"
 
 namespace graphvise {
-    std::uint32_t  Edge::getID() const {
+    std::uint32_t Edge::getID() const {
         return edgeID;
     }
 
-    std::uint32_t  Edge::getConnectedGroupID() const {
+    std::uint32_t Edge::getConnectedGroupID() const {
         return connectedGroupID;
     }
 
@@ -16,7 +16,7 @@ namespace graphvise {
     }
 
     std::pair<std::uint32_t, std::uint32_t> Edge::getConnectingVerticesIDs() const {
-        return connectingVerticesIDS;
+        return connectingVerticesIDs;
     }
 
     ImVec4 Edge::getVec4() const {

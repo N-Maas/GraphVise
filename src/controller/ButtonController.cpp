@@ -4,11 +4,13 @@
 
 #include "ButtonController.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <random>
 #include <utility>
 
 #include "ErrorCollector.hpp"
+#include "Enums/ImportFormat.hpp"
 #include "model/GraphSaver.hpp"
 
 #define MAX_COLOR_VALUE 1.0f
@@ -46,13 +48,16 @@ namespace graphvise {
         camera.set_camera_focus_mode(mode);
     }
 
-    void ButtonController::findVertex(int vertexID) {
+    void ButtonController::findVertex(uint32_t vertexID) {
+
         Graph& graph = GraphSaver::getInstance().getGraph();
         if (vertexID >= graph.getVertices().size()) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
         }
 
-        graph.highlightByID(std::vector{static_cast<uint32_t>(vertexID)}, std::vector<uint32_t>{});
+        graph.highlightByID(std::vector{vertexID}, std::vector<uint32_t>{});
+        graph.setCurrentVertexID(vertexID);
+
         glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
         vertexPos.x += 1;
         camera.position_world_space = vertexPos;
@@ -96,7 +101,7 @@ namespace graphvise {
         camOffsetDirVec = normalize(camOffsetDirVec);
 
         //Calculate center point of the edge
-        glm::vec3 averagePos;
+        glm::vec3 averagePos(0, 0, 0);
         averagePos.x += (firstVertexPos.x + secondVertexPos.x) / 2;
         averagePos.y += (firstVertexPos.y + secondVertexPos.y) / 2;
         averagePos.z += (firstVertexPos.z + secondVertexPos.z) / 2;
@@ -119,7 +124,7 @@ namespace graphvise {
         camera.focusPoint = averagePos;
     }
 
-    void ButtonController::highlightSubgraph(std::string filePath) {
+    void ButtonController::highlightSubgraph(std::filesystem::path filePath) {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
@@ -127,16 +132,28 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::importGraph(std::string filePath) {
-        ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
+    void ButtonController::importGraph(std::filesystem::path filePath, ImportFormat importFormat) {
+
+        ThreadOperation threadOperation;
+
+        switch (importFormat)
+        {
+            case ImportFormat::TXT: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
+            break;
+            case ImportFormat::CNF: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_CNF};
+            break;
+            default: Error error(ErrorType::INVALID_IMPORT_FORMAT);
+                ErrorCollector::getInstance().collectError(error);
+                return;
+        }
+
         if (!threadController.notifyBackgroundThread(threadOperation)) {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
     }
 
-    void ButtonController::exportGraph(std::string filePath, ExportFormat exportFormat) {
-        //TODO: Finish when GUI and ThreadController are ready
+    void ButtonController::exportGraph(std::filesystem::path filePath, ExportFormat exportFormat) {
         ThreadOperationType operationType;
         switch (exportFormat) {
             case ExportFormat::PNG: operationType = ThreadOperationType::EXPORT_PNG;
@@ -152,7 +169,7 @@ namespace graphvise {
         }
     }
 
-    void ButtonController::importGroupConfiguration(std::string filePath) {
+    void ButtonController::importGroupConfiguration(std::filesystem::path filePath) {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_GROUPS};
 
         if (!threadController.notifyBackgroundThread(threadOperation)) {
@@ -181,5 +198,10 @@ namespace graphvise {
         camera.position_world_space = cam.getCoordsVector();
         camera.rotation_x = cam.getPitch();
         camera.rotation_y = cam.getYaw();
+    }
+
+    void ButtonController::deleteCameraBookmark(size_t bookmarkID)
+    {
+        GraphSaver::getInstance().getGraph().deleteCameraBookmark(bookmarkID);
     }
 }

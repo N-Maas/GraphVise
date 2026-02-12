@@ -18,5 +18,4 @@ namespace graphvise {
         std::optional<Graph> graph;
     };
 }
-
 #endif

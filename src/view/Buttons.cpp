@@ -3,9 +3,7 @@
 //
 
 #include "Buttons.hpp"
-
 #include <format>
-
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
 #include "../rendering/enums.hpp"
@@ -13,8 +11,12 @@
 #include "../model/Graph.hpp"
 #include "../model/Group.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "stb_image.h"
+
 #define MainMenuBarHeight 19
-#define findObjectHeight 100
+#define findObjectHeight 115
 #define GroupMenuHeight 300
 #define PerformanceHeight 54
 #define MovementLightSourceHeight 77
@@ -22,42 +24,27 @@
 
 namespace graphvise
 {
-    Buttons::Buttons(ButtonController *controller)
+    Buttons::Buttons(ButtonController* controller)
     {
         this->buttonController = controller;
 
-        importGraphBrowser.SetTypeFilters(allowedFiles);
-        importGroupConfigBrowser.SetTypeFilters(allowedFiles);
-        highlightSubgraphBrowser.SetTypeFilters(allowedFiles);
+        importGroupConfigBrowser.SetTypeFilters(allowedGroupInfoFormat);
+        highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
+
+        exportGraphBrowser.SetTypeFilters(allowedExportFormat);
+
     }
 
-    void Buttons::loadButtonFrame(int framebufferWidth,int framebufferHeight)
+    void Buttons::loadButtonFrame(int framebufferWidth, int framebufferHeight)
     {
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
-
-
-        static float cylinderRadius = 0.03f;
-        static float sphereRadius = 0.05f;
-
-        if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
-        {
-            Renderer::getInstance()->setCylinderRadius(cylinderRadius);
-        };
-        if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
-        {
-            Renderer::getInstance()->setSphereRadius(sphereRadius);
-        }
-
-
 
         // ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
         SideBar();
-
-
     }
 
     void Buttons::MainMenuBar()
@@ -68,11 +55,9 @@ namespace graphvise
 
         importGraph();
         ImGui::Separator();
-        importGroupConfiguration();
-        ImGui::Separator();
-        highlightSubgraph();
-        ImGui::Separator();
         exportGraph();
+        ImGui::Separator();
+        graphSettings();
         ImGui::Separator();
 
 
@@ -87,7 +72,6 @@ namespace graphvise
 
     void Buttons::SideBar()
     {
-
         ImVec2 pos;
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
@@ -111,21 +95,20 @@ namespace graphvise
         SideBarElement("Camera Movement Mode", &cameraMovement);
         SideBarElement("Camera bookmarks", &cameraBookmarks);
 
-
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
         ImGui::End();
 
-        float widgetSpacing = 3.0f;
+        constexpr float widgetSpacing = 3.0f;
 
-        pos.x = pos.x - sideBarSize.x;
+        pos.x = pos.x - sideBarSize.x - 20;
         pos.y = MainMenuBarHeight;
 
         windowPivot = {1.0f, 0.0f};
 
         if (search)
         {
-            ImGui::SetNextWindowPos(pos,ImGuiCond_Appearing, windowPivot);
-            findObject(&search);
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
+            findObject();
         }
 
         pos.y += findObjectHeight + widgetSpacing;
@@ -136,7 +119,7 @@ namespace graphvise
             GroupMenu(&groups);
         }
 
-        pos.y +=  GroupMenuHeight + widgetSpacing;
+        pos.y += GroupMenuHeight + widgetSpacing;
 
         if (togglePerformanceMode)
         {
@@ -161,26 +144,114 @@ namespace graphvise
             setCameraMovementMode(&cameraMovement);
         }
 
+        pos.y += MovementCameraHeight + widgetSpacing;
+
         if (cameraBookmarks)
         {
-
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
             cameraBookmarkMenu(&cameraBookmarks);
         }
     }
 
-    void Buttons::SideBarElement(const char* label, bool* state)
+    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, bool* state)
     {
-        if (ImGui::Button(label))
+
+        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
             *state = !*state;
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip(hoverMsg);
         }
         ImGui::Spacing();
     }
 
+    void Buttons::graphSettings()
+    {
+        if (ImGui::BeginMenu("Graph Settings"))
+        {
+            highlightSubgraph();
+            ImGui::Separator();
+            importGroupConfiguration();
+            ImGui::Separator();
+            changeObjSize();
+
+
+            ImGui::EndMenu();
+        }
+
+        if (highlightSubgraphBrowser.HasSelected())
+        {
+            const std::filesystem::path result = highlightSubgraphBrowser.GetSelected();
+
+            buttonController->highlightSubgraph(result);
+
+            highlightSubgraphBrowser.ClearSelected();
+        }
+
+        if (importGroupConfigBrowser.HasSelected())
+        {
+            const std::filesystem::path result = importGroupConfigBrowser.GetSelected();
+
+            buttonController->importGroupConfiguration(result);
+
+            importGroupConfigBrowser.ClearSelected();
+        }
+    }
+
+    Texture Buttons::loadTextureFromFile(const char* filename)
+    {
+        int width, height, channels;
+        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+
+
+        if (!data)
+        {
+            return Texture(0,0,0);
+        }
+
+        GLuint texture;
+
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+        return Texture((ImTextureID) texture, width, height);
+    }
+
+    void Buttons::changeObjSize()
+    {
+        if (ImGui::BeginMenu("Object Size"))
+        {
+            if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
+            {
+                Renderer::getInstance()->setCylinderRadius(cylinderRadius);
+            };
+            if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
+            {
+                Renderer::getInstance()->setSphereRadius(sphereRadius);
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
     void Buttons::cameraBookmarkMenu(bool* visible)
     {
-
         auto bookmarks = saver->getGraph().getCameraBookmarks();
+
+        auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
+        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0),ImVec2(x, MAXFLOAT) );
 
         ImGui::Begin("Bookmarks", visible,
                      ImGuiWindowFlags_AlwaysAutoResize |
@@ -191,14 +262,23 @@ namespace graphvise
         {
             addBookmarkWindow = true;
         }
-        for (size_t i = 0; i < bookmarks.size(); ++i)
+        for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
         {
-            auto & bookmark = bookmarks[i];
-            ImGui::CollapsingHeader(std::format("{}##{}",bookmark.getName(), i).c_str());
-            ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y, bookmark.getCoordsVector().z);
-            if (ImGui::Button(std::format("Load Bookmark##{}", i ).c_str()))
+            auto& bookmark = bookmarks[bookmarkID];
+            if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
             {
-                buttonController->loadCameraBookmark(bookmark);
+                ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y,
+                            bookmark.getCoordsVector().z);
+                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
+                {
+                    buttonController->loadCameraBookmark(bookmark);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                {
+
+                    buttonController->deleteCameraBookmark(bookmarkID);
+                }
             }
         }
         ImGui::End();
@@ -206,12 +286,12 @@ namespace graphvise
         if (addBookmarkWindow)
         {
             ImGui::OpenPopup("Add Bookmark",
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
+                             ImGuiWindowFlags_AlwaysAutoResize |
+                             ImGuiWindowFlags_NoCollapse
             );
-            if (ImGui::BeginPopupModal("Add Bookmark",&addBookmarkWindow,
-                ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse))
+            if (ImGui::BeginPopupModal("Add Bookmark", &addBookmarkWindow,
+                                       ImGuiWindowFlags_AlwaysAutoResize |
+                                       ImGuiWindowFlags_NoCollapse))
             {
                 ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
                 if (ImGui::Button("Add"))
@@ -219,32 +299,22 @@ namespace graphvise
                     buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
                     bookmarkName = std::vector<char>(16);
                     addBookmarkWindow = false;
-
                 }
                 ImGui::EndPopup();
             }
         }
-
-
-
     }
 
     void Buttons::GroupMenu(bool* groupMenu)
     {
-
-
         activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({260, 300},{MAXFLOAT, 300});
+        ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
         ImGui::Begin("Groups", groupMenu,
-            ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoCollapse
-            );
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
 
-        if (ImGui::Button("Remove Group Highlights"))
-        {
-            buttonController->RemoveHighlights();
-        }
 
         for (const auto& group : *activeGroups)
         {
@@ -252,17 +322,14 @@ namespace graphvise
             {
                 ImGui::Text("Group ID: %d", group.getID());
                 ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(),group.getVec4());
+                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
                 ImGui::SameLine();
 
                 randomizeColoring(group.getID());
                 changeColoring(group.getID());
 
                 ChangeTransparency(group.getID());
-
-
             }
-
         }
 
         ImGui::End();
@@ -271,7 +338,6 @@ namespace graphvise
 
     void Buttons::ChangeTransparency(uint32_t groupID)
     {
-
         if (groupID >= groupColors.size())
         {
             groupColors.resize(groupColors.size() * 2);
@@ -293,13 +359,9 @@ namespace graphvise
 
     void Buttons::changeColoring(uint32_t groupID)
     {
-
-
         if (groupID >= groupColors.size())
         {
-
             groupColors.resize(groupColors.size() * 2);
-
         }
 
         ImVec4& color = groupColors[groupID];
@@ -314,19 +376,15 @@ namespace graphvise
         if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
         {
             buttonController->changeColoring(groupID, color);
-
         }
-
     }
 
     void Buttons::randomizeColoring(uint32_t groupID) const
     {
-
         if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
         {
             buttonController->randomizeColoring(groupID);
         }
-
     }
 
     void Buttons::performanceModeToggle(bool* toggle_mode)
@@ -354,7 +412,6 @@ namespace graphvise
 
     void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle)
     {
-
         ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
                                  ImGuiWindowFlags_AlwaysAutoResize |
                                  ImGuiWindowFlags_NoCollapse
@@ -375,8 +432,6 @@ namespace graphvise
 
 
         ImGui::End();
-
-
     }
 
     void Buttons::setCameraMovementMode(bool* cameraMovementMode) {
@@ -404,15 +459,20 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::findObject(bool* findObject)
+    void Buttons::findObject()
     {
-
-        ImGui::Begin("find Object", findObject,
+        ImGui::Begin("Highlight Object", &search,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
 
+        if (ImGui::Button("Remove Highlighting"))
+        {
+            buttonController->RemoveHighlights();
+        }
+
         ImGui::BeginTabBar("##FindObjectTabBar");
+
         if (ImGui::BeginTabItem("Edge"))
         {
             findEdge();
@@ -425,9 +485,7 @@ namespace graphvise
         }
         ImGui::EndTabBar();
 
-
         ImGui::End();
-
     }
 
     void Buttons::findVertex()
@@ -451,32 +509,27 @@ namespace graphvise
         }
     }
 
-    void Buttons::highlightSubgraph()
-    {
-        if (ImGui::BeginMenu("Highlight Subgraph"))
-        {
-            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
-            highlightSubgraphBrowser.Open();
-            ImGui::EndMenu();
-        }
-
-
-        if (highlightSubgraphBrowser.HasSelected())
-        {
-            const std::filesystem::path result = highlightSubgraphBrowser.GetSelected();
-
-            buttonController->highlightSubgraph(result);
-
-            highlightSubgraphBrowser.ClearSelected();
-        }
-    }
-
     void Buttons::importGraph()
     {
         if (ImGui::BeginMenu("import Graph"))
         {
-            importGraphBrowser.SetTitle("import Graph");
-            importGraphBrowser.Open();
+            if (ImGui::MenuItem("Import as TXT"))
+            {
+                importFormat = ImportFormat::TXT;
+                importGraphBrowser.SetTypeFilters(txtImportFormat);
+                importGraphBrowser.SetTitle("import Graph from .txt");
+                importGraphBrowser.Open();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Import as CNF"))
+            {
+                importFormat = ImportFormat::CNF;
+                importGraphBrowser.SetTypeFilters(cnfImportFormat);
+                importGraphBrowser.SetTitle("import Graph from .cnf");
+                importGraphBrowser.Open();
+            }
             ImGui::EndMenu();
         }
 
@@ -484,38 +537,50 @@ namespace graphvise
         {
             const std::filesystem::path result = importGraphBrowser.GetSelected();
 
-            buttonController->importGraph(result);
+
+            buttonController->importGraph(result, importFormat);
 
             importGraphBrowser.ClearSelected();
         }
     }
 
+    void Buttons::highlightSubgraph()
+    {
+        if (ImGui::MenuItem("Highlight Subgraph"))
+        {
+            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
+            highlightSubgraphBrowser.Open();
+        }
+    }
+
     void Buttons::importGroupConfiguration()
     {
-        if (ImGui::BeginMenu("Import Group Config"))
+        if (ImGui::MenuItem("Import Group Config"))
         {
             importGroupConfigBrowser.SetTitle("Import Group Config");
             importGroupConfigBrowser.Open();
-            ImGui::EndMenu();
-        }
-
-
-        if (importGroupConfigBrowser.HasSelected())
-        {
-            const std::filesystem::path result = importGroupConfigBrowser.GetSelected();
-
-            buttonController->importGroupConfiguration(result);
-
-            importGroupConfigBrowser.ClearSelected();
         }
     }
 
     void Buttons::exportGraph()
     {
+        exportGraphBrowser.SetTitle("Choose Export Location");
+
         if (ImGui::BeginMenu("Export Graph"))
         {
-            exportGraphBrowser.SetTitle("Choose Export Location");
-            exportGraphBrowser.Open();
+            if (ImGui::MenuItem("Export as PNG"))
+            {
+                exportFormat = ExportFormat::PNG;
+                exportGraphBrowser.SetInputName("graph.png");
+                exportGraphBrowser.Open();
+            }
+            // if (ImGui::MenuItem("Export as JPG"))
+            // {
+            //
+            //     exportGraphBrowser.SetInputName("graph.jpg");
+            //     exportGraphBrowser.Open();
+            //
+            // }
 
             ImGui::EndMenu();
         }
@@ -523,8 +588,10 @@ namespace graphvise
 
         if (exportGraphBrowser.HasSelected())
         {
-            const std::filesystem::path result = exportGraphBrowser.GetDirectory();
-            buttonController->exportGraph(result, ExportFormat::PNG); //TODO: Make Format selectable
+            auto filename = exportGraphBrowser.GetSelected();
+
+
+            buttonController->exportGraph(filename, exportFormat);
             exportGraphBrowser.ClearSelected();
         }
     }

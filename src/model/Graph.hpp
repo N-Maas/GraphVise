@@ -25,7 +25,7 @@ namespace graphvise {
         bool operator()(const Edge* firstEdge, const Edge* secondEdge) const {
             float firstTransparencyValue = firstEdge->getVec4().w;
             float secondTransparencyValue = secondEdge->getVec4().w;
-            if (firstTransparencyValue != secondTransparencyValue) {
+            if (std::abs(firstTransparencyValue - secondTransparencyValue) > 1e-6f) {
                 return firstTransparencyValue > secondTransparencyValue;
             }
             return firstEdge->getID() < secondEdge->getID();
@@ -63,7 +63,7 @@ namespace graphvise {
         void highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs);
         void removeAllHighlights();
         void deleteAllGroups();
-        void deleteCameraBookmarks(std::uint32_t  cameraBookmarkID);
+        void deleteCameraBookmark(std::uint32_t  cameraBookmarkID);
         void setGroupTransparency(std::uint32_t groupID, float transparency);
 
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
@@ -71,6 +71,11 @@ namespace graphvise {
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();
+
+        void setCurrentVertexID(uint32_t vertexID);
+        void setCurrentEdgeID(uint32_t edgeID);
+        [[nodiscard]] std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
+        [[nodiscard]] std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
 
 
     private:
@@ -80,6 +85,9 @@ namespace graphvise {
         std::vector<Edge*> edgesSortedByTransparency;
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
+
+        std::optional<uint32_t> currentVertexID;
+        std::optional<uint32_t> currentEdgeID;
     };
 }
 #endif

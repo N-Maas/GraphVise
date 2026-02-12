@@ -51,10 +51,6 @@ namespace graphvise {
         mSettings.targetFPS = 60;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
-        std::cerr << "Renderer constructor - setting up sphere..." << std::endl;
-        std::cerr << "Renderer constructor - sphereVAO = " << sphereVAO << std::endl;
-        std::cerr << "Renderer constructor - sphereVBO = " << sphereVBO << std::endl;
-        std::cerr << "Renderer constructor - sphereEBO = " << sphereEBO << std::endl;
     }
 
     Renderer::Renderer(int framebufferWidth, int framebufferHeight)
@@ -80,10 +76,6 @@ namespace graphvise {
         mSettings.targetFPS = 60;
         mSettings.geometryDetail = 2;
         mSettings.cylinderSegments = 12;
-        std::cerr << "Renderer constructor - setting up sphere..." << std::endl;
-        std::cerr << "Renderer constructor - sphereVAO = " << sphereVAO << std::endl;
-        std::cerr << "Renderer constructor - sphereVBO = " << sphereVBO << std::endl;
-        std::cerr << "Renderer constructor - sphereEBO = " << sphereEBO << std::endl;
     }
 
 
@@ -132,7 +124,7 @@ namespace graphvise {
     {
         // contains OpenGL initialization
         // Load the shader files
-        reloadShaders();
+        loadShaders();
 
         if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
@@ -156,7 +148,7 @@ namespace graphvise {
     /**
      * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
-    void Renderer::reloadShaders()
+    void Renderer::loadShaders()
     {
         //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
         //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
@@ -179,17 +171,24 @@ namespace graphvise {
 
     }
 
-
     /**
      * Called in the main loop to render a new frame.
      */
     void Renderer::runFrame()
     {
-        // DEBUG: Print size every 60 frames
-        static int frameCount = 0;
-        if (frameCount++ % 60 == 0) {
-            std::cout << "Rendering at: " << mFramebufferSize.x
-            << "x" << mFramebufferSize.y << std::endl;
+
+        //migrated from Window
+
+        // Specify the color of the background
+        glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+        // Clean the back buffer and assign the new color to it
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        if(mShaderProgram == 0)
+        {
+            std::cerr << "No shader program!" << std::endl;
+            return;
         }
 
         // Bind to DEFAULT framebuffer (screen)
@@ -198,18 +197,16 @@ namespace graphvise {
         // Set viewport to current window size
         glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
 
-        // Clear screen with blue
-        glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         // Render scene
         glUseProgram(mShaderProgram);
+        GL_CHECK_ERROR();
+
+        // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
         render(mvp);
-
+        GL_CHECK_ERROR();
         notify();
     }
-
 
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
@@ -228,11 +225,8 @@ namespace graphvise {
         glUseProgram(mShaderProgram);
 
         // Set uniforms
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
-        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
@@ -266,7 +260,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp, vertex->getVertexID());
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -298,29 +292,6 @@ namespace graphvise {
         glDeleteBuffers(1, &cylinderEBO);
     }
 
-
-    void Renderer::processEvents(GLFWwindow* m_window)
-    {
-
-        //TODO: Do we really need reload shaders?
-
-        // alternatively: use GLFW's glfwSetKeyCallback
-
-        // F5 to reload shaders
-        if (glfwGetKey(m_window, GLFW_KEY_F5) == GLFW_RELEASE)
-        {
-            mF5Pressed = false;
-        } else
-        {
-            if (!mF5Pressed)
-            {
-                reloadShaders();
-            }
-            mF5Pressed = true;
-        }
-    }
-
-
     void Renderer::resize(int framebufferWidth, int framebufferHeight)
     {
         if (framebufferWidth <= 0 || framebufferHeight <= 0) {
@@ -333,13 +304,9 @@ namespace graphvise {
         // Update stored size
         mFramebufferSize.x = framebufferWidth;
         mFramebufferSize.y = framebufferHeight;
-
-        // Viewport is set in runFrame()
-        // Camera aspect ratio will update automatically when get_world_to_projection_space is called
     }
 
     void Renderer::generateIcosphere(int subdivisions) {
-        std::cerr << "generateIcosphere() started" << std::endl;
         // Icosahedron vertices (12 vertices)
         const float t = (1.0f + std::sqrt(5.0f)) / 2.0f;
 
@@ -423,12 +390,9 @@ namespace graphvise {
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
-
-        std::cerr << "generateIcosphere() completed - VAO: " << sphereVAO << std::endl;
     }
 
     void Renderer::generateCylinder(int segments) {
-        std::cerr << "generateCylinder() started - VAO: " << cylinderVAO << std::endl;
         cylinderVertices.clear();
         cylinderIndices.clear();
 
@@ -515,23 +479,19 @@ namespace graphvise {
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
-
-        std::cerr << "generateCylinder() completed - VAO: " << cylinderVAO << std::endl;
     }
 
 
     void Renderer::renderSphere(const glm::vec3& center, float radius,
-                                    const glm::vec4& color, const glm::mat4& viewProj) {
+                                    const glm::vec4& color, const glm::mat4& viewProj, const uint32_t vertexId) {
         if (sphereVAO == 0) {
             std::cerr << "    ERROR: sphereVAO is 0!" << std::endl;
             return;
         }
 
         //debug
-        std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
-                << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
-        std::cerr << "    radius: " << radius << std::endl;
-        std::cerr << "    sphereVAO: " << sphereVAO << std::endl;
+        //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
+        //          << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
 
         // Create model matrix: translate to center, scale by radius
         glm::mat4 model = glm::translate(glm::mat4(1.0f), center);
@@ -544,6 +504,7 @@ namespace graphvise {
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
+        GLint objectIdLoc = glGetUniformLocation(mShaderProgram, "objectId");
 
         //debug
         //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
@@ -568,7 +529,7 @@ namespace graphvise {
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-
+        if (objectIdLoc != -1) glUniform1ui(objectIdLoc, vertexId);
 
         // Render
         glBindVertexArray(sphereVAO);
@@ -620,7 +581,7 @@ namespace graphvise {
 
     void Renderer::generateGeometryBasedOnQuality()
     {
-        
+
         int sphereSubdivisions;
 
         switch (mSettings.geometryDetail) {
@@ -689,7 +650,7 @@ namespace graphvise {
         this->observerList.push_back(observer);
     };
 
-    void graphvise::RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
+    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::reference_wrapper<RendererObserver> ref) {
                                            return &ref.get() == &observer.get();
@@ -700,7 +661,7 @@ namespace graphvise {
         }
     };
 
-    void graphvise::RendererSubject::notify() {
+    void RendererSubject::notify() {
         for (const auto& observer : observerList) {
             observer.get().update();  // Call update on each observer
         }

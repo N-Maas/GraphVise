@@ -26,62 +26,61 @@ namespace graphvise {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
-		// Initialize GLFW
-		glfwInit();
+        // Initialize GLFW
+        glfwInit();
 
-		// Tell GLFW what version of OpenGL we are using
-		// In this case we are using OpenGL 3.3
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-		// Tell GLFW we are using the CORE profile
-		// So that means we only have the modern functions
-		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        // Tell GLFW what version of OpenGL we are using
+        // In this case we are using OpenGL 3.3
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        // Tell GLFW we are using the CORE profile
+        // So that means we only have the modern functions
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		// Create GLFW window
-		std::string windowTitle = "GraphVise";
+        // Create GLFW window
+        std::string windowTitle = "GraphVise";
 
-		int defaultWidth = currentRes.width;
-		int defaultHeight = currentRes.height;
+        int defaultWidth = currentRes.width;
+        int defaultHeight = currentRes.height;
 
-		window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-		// Error check if the window fails to create
+        window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
+        // Error check if the window fails to create
 
-		glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
+        glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
-		if (window == nullptr)
-		{
-			std::cout << "Failed to create GLFW window" << std::endl;
-			glfwTerminate();
-			return false;
-		}
-
-		glfwSetFramebufferSizeCallback(window, Window::framebufferSizeCallback);
+        if (window == nullptr)
+        {
+            std::cout << "Failed to create GLFW window" << std::endl;
+            glfwTerminate();
+            return false;
+        }
 
 		glfwSetScrollCallback(window, scrollCallback);
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
 
-		//Load GLAD so it configures OpenGL
-		gladLoadGL();
+        //Load GLAD so it configures OpenGL
+        gladLoadGL();
 
-		// enable depth testing for rendering
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
+        // enable depth testing for rendering
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
 
-		// TEMPORARY: Disable depth test
-		//glDisable(GL_DEPTH_TEST);
+        // TEMPORARY: Disable depth test
+        //glDisable(GL_DEPTH_TEST);
 
-		// Initialize ImGUI
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		ImGui::StyleColorsDark();
+        // Initialize ImGUI
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
+        ImGui::StyleColorsDark();
 
 
-		// Query the framebuffer size, this can differ from the window size on some systems
-		int framebufferWidth, framebufferHeight;
-		glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+        // Query the framebuffer size, this can differ from the window size on some systems
+        int framebufferWidth, framebufferHeight;
+        glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
 		// Create the renderer object
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
@@ -91,18 +90,18 @@ namespace graphvise {
 
 		renderer->init();
 
-		ButtonController controller = ButtonController(*renderer);
+        ButtonController controller = ButtonController(*renderer);
 
-		std::shared_ptr<GUI> gui = std::make_shared<GUI>(&controller);
+		GUI gui(&controller);
 
-		//ErrorCollector::getInstance().signIn(gui);
+		// todo this line produces an error gui not recognized, please check
+        //ErrorCollector::getInstance().signIn(gui);
 
+        gui.initGUI(window);
 
-		gui->initGUI(window);
-
-		// FPS counter
-		int frameCount = 0;
-		double accumulatedTime = 0.0;
+        // FPS counter
+        int frameCount = 0;
+        double accumulatedTime = 0.0;
 
 		// Main loop with delta time calculation for changing render quality
 		float deltaTime = 0.0f;
@@ -118,71 +117,79 @@ namespace graphvise {
 
 			double startTime = glfwGetTime();
 
-			// Resize the renderer and viewport if the framebuffer / window size changed
-			int newFramebufferWidth, newFramebufferHeight;
-			glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
-			if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
-			{
-				framebufferWidth = newFramebufferWidth;
-				framebufferHeight = newFramebufferHeight;
-				glViewport(0, 0, framebufferWidth, framebufferHeight);
-				renderer->resize(framebufferWidth, framebufferHeight);
-			}
+            // Resize the renderer and viewport if the framebuffer / window size changed
+            int newFramebufferWidth, newFramebufferHeight;
+            glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
+            if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
+            {
+                framebufferWidth = newFramebufferWidth;
+                framebufferHeight = newFramebufferHeight;
+                glViewport(0, 0, framebufferWidth, framebufferHeight);
+                renderer->resize(framebufferWidth, framebufferHeight);
+            }
+
+			// Specify the color of the background
+			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
+			// Clean the back buffer and assign the new color to it
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glfwPollEvents();
-			renderer->processEvents(window);
 
-			processEvents();
+            processEvents();
 
-			// Draw frame from renderer
-			GL_CHECK_ERROR();
-			renderer->runFrame();
-			//renderer->runFrame(deltaTime);
-			GL_CHECK_ERROR();
-
-			//load GUI
-			gui->loadFrame(framebufferWidth, framebufferHeight);
-
-			// Swap the back buffer with the front buffer
-			glfwSwapBuffers(window);
-
-			// Take care of all GLFW events
-			glfwPollEvents();
+            // Draw frame from renderer
+            GL_CHECK_ERROR();
+            renderer->runFrame();
+            GL_CHECK_ERROR();
 
 
-			// FPS counter
-			double endTime = glfwGetTime();
-			accumulatedTime += endTime - startTime;
-			++frameCount;
-			if (1.0 < accumulatedTime) {
-				assert(0 < frameCount);
+            renderer->runFrame();
 
-				gui->setFps(frameCount / accumulatedTime);
 
-				accumulatedTime = 0.0;
-				frameCount = 0;
-			}
-		}
+            //load GUI
+            gui.loadFrame(framebufferWidth, framebufferHeight);
 
-		gui->shutdownGUI();
+            // Swap the back buffer with the front buffer
+            glfwSwapBuffers(window);
 
-		// Renderer cleanup
-		renderer->shutdown();
+            // Take care of all GLFW events
+            glfwPollEvents();
 
-		// Delete window before ending the program
-		glfwDestroyWindow(window);
 
-		// Terminate GLFW before ending the program
-		glfwTerminate();
-		return true;
-	}
+            // FPS counter
+            double endTime = glfwGetTime();
+            accumulatedTime += endTime - startTime;
+            ++frameCount;
+            if (1.0 < accumulatedTime)
+            {
+                assert(0 < frameCount);
 
-	void Window::processEvents() {
+                gui.setFps(frameCount / accumulatedTime);
+
+                accumulatedTime = 0.0;
+                frameCount = 0;
+            }
+        }
+
+        gui.shutdownGUI();
+
+        // Renderer cleanup
+        renderer->shutdown();
+
+        // Delete window before ending the program
+        glfwDestroyWindow(window);
+
+        // Terminate GLFW before ending the program
+        glfwTerminate();
+        return true;
+    }
+
+	void Window::processEvents()
+	{
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
-
-			(glfwGetKey(window, GLFW_KEY_F5) == GLFW_RELEASE); // for reloading shaders
 
 			//Moving Camera
 			glm::vec3 direction(0, 0, 0);
@@ -217,25 +224,13 @@ namespace graphvise {
 			rotatingCamera = false;
 		}
 
-		movementController.zoom(-scrollYOffset, sprinting);
-		scrollYOffset = 0;
+		if (!ImGui::GetIO().WantCaptureMouse){
+			movementController.zoom(-scrollYOffset, sprinting);
+			scrollYOffset = 0;
+		}
 	}
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		scrollYOffset = yoffset;
-	}
-
-	void Window::framebufferSizeCallback(GLFWwindow* window, int width, int height)
-	{
-		std::cout << "RESIZE CALLBACK: " << width << "x" << height << std::endl;
-		// Also update the viewport
-		glViewport(0, 0, width, height);
-
-		// Update renderer
-		auto renderer = Renderer::getInstance();
-		if (renderer) {
-			renderer->resize(width, height);
-		}
-		(void)window; // Suppress warning
 	}
 }

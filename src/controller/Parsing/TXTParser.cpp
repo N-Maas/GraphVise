@@ -8,7 +8,6 @@
 #include <expected>
 #include <iostream>
 #include <regex>
-#include <unordered_map>
 #include <vector>
 
 #include "controller/Error.hpp"

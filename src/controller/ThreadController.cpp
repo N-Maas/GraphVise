@@ -4,6 +4,7 @@
 
 #include "ThreadController.hpp"
 
+#include <algorithm>
 #include <iostream>
 #include <thread>
 
@@ -14,14 +15,15 @@
 namespace graphvise {
 
     ParserController ThreadController::parserController;
+    ExporterController ThreadController::exporterController;
     std::mutex ThreadController::mutex;
     std::condition_variable ThreadController::conditionVariable;
     std::optional<ThreadOperation> ThreadController::threadOperation;
+    std::optional<PNGExportData> ThreadController::pngExportData;
     bool ThreadController::operationDone = false;
 
     ThreadController::ThreadController(RendererSubject &renderer) : backgroundThread(&ThreadController::threadMain) {
-        std::reference_wrapper<RendererObserver> observer = std::ref(*this);
-        renderer.signIn(observer);
+        renderer.signIn(std::ref(*this));
         backgroundThread.detach();
     }
 
@@ -45,12 +47,6 @@ namespace graphvise {
             std::optional<HighlightingData> highlightingSubgraph = parserController.getHighlightingSubgraph();
             if (highlightingSubgraph.has_value()) {
                 Graph& graph = GraphSaver::getInstance().getGraph();
-                std::cout << "highlighting " << highlightingSubgraph.value().vertices.size() << " vertices" << std::endl;
-                std::cout << "and " << highlightingSubgraph.value().edges.size() << " edges" << std::endl;
-
-                for (auto edge : highlightingSubgraph.value().edges) {
-                    std::cout << edge << std::endl;
-                }
 
                 graph.highlightByID(highlightingSubgraph.value().vertices, highlightingSubgraph.value().edges);
             }
@@ -73,18 +69,40 @@ namespace graphvise {
 
         std::lock_guard lock(mutex);
         ThreadController::threadOperation = threadOperation;
+
+        if (threadOperation.requestedOperation == ThreadOperationType::EXPORT_PNG) {
+            std::shared_ptr<Renderer> renderer = Renderer::getInstance();
+            int width = renderer.get()->getFramebufferWidth();
+            int height = renderer.get()->getFramebufferHeight();
+            std::vector<unsigned char> pixels;
+            pixels.resize(4 * width * height);
+
+            //Read Pixels from Screen
+            glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+            //Flip Picture upside down (made by AI)
+            const int bytesPerPixel = 4;
+            const int stride = width * bytesPerPixel;
+            for (int y = 0; y < height / 2; ++y) {
+                auto rowTop = pixels.begin() + (y * stride);
+                auto rowBottom = pixels.begin() + ((height - 1 - y) * stride);
+                std::swap_ranges(rowTop, rowTop + stride, rowBottom);
+            }
+
+            PNGExportData pngExportData(std::move(pixels), width, height);
+            ThreadController::pngExportData = std::move(pngExportData);
+        }
+
         conditionVariable.notify_all();
-        std::cout << "Notified Background Thread" << std::endl;
         return true;
     }
 
    void ThreadController::threadMain() {
         while (true) {
-            std::cout << "Waiting for new operation..." << std::endl;
+            //Wait for new operation
             std::unique_lock lock(mutex);
             conditionVariable.wait(lock, [] { return threadOperation.has_value() && !operationDone; });
-            std::cout << "Received new Data" << std::endl;
-
+            //Received new operation
             ThreadOperation& operation = threadOperation.value();
 
             switch (operation.requestedOperation) {
@@ -106,6 +124,12 @@ namespace graphvise {
                 }
                 case ThreadOperationType::PARSE_CNF: {
                     parserController.parseFile(operation.filePath, ParseFormat::CNF);
+                    operationDone = true;
+                    break;
+                }
+                case ThreadOperationType::EXPORT_PNG: {
+                    exporterController.setPNGExportData(pngExportData.value());
+                    exporterController.exportGraph(operation.filePath, ExportFormat::PNG);
                     operationDone = true;
                     break;
                 }

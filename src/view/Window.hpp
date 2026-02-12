@@ -16,9 +16,9 @@ namespace graphvise
     public:
         Window();
 
-        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         bool initWindow();
+        static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
     private:
         void processEvents();
@@ -29,7 +29,7 @@ namespace graphvise
 
         struct Resolution
         {
-            int width, height;
+            uint64_t width, height;
         };
 
         Resolution HD = {1920, 1080};

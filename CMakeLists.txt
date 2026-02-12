@@ -70,7 +70,7 @@ set(HEADERS
         src/controller/Structs/GraphData.hpp
         src/controller/Structs/ThreadOperation.hpp
         src/view/ErrorCollectorObserver.hpp
-        src/view/imgui-filebrowser/imfilebrowser.h
+        ext/imgui-filebrowser/imfilebrowser.h
         src/view/Window.hpp
         src/model/GraphSaver.hpp
         src/model/Graph.hpp
@@ -80,6 +80,10 @@ set(HEADERS
         src/model/Edge.hpp
         src/controller/Parsing/GroupParser.hpp
         src/controller/Structs/HighlightingData.hpp
+        ext/lodepng/lodepng.h
+        src/controller/Exporting/ExporterController.hpp
+        src/controller/Exporting/PNGExporter.hpp
+        src/controller/Structs/PNGExportData.hpp
 )
 
 set(SOURCES
@@ -106,6 +110,10 @@ set(SOURCES
         src/view/Buttons.cpp
         src/controller/Parsing/WEmbedController.cpp
         src/controller/Parsing/GroupParser.cpp
+        ext/lodepng/lodepng.cpp
+        src/controller/Exporting/ExporterController.cpp
+        src/controller/Exporting/PNGExporter.cpp
+        src/controller/Enums/ImportFormat.hpp
         src/rendering/enums.hpp
 )
 
@@ -155,7 +163,7 @@ add_subdirectory(ext)
 target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
-        src/view/imgui-filebrowser
+        ext/imgui-filebrowser
         )
 
 # link required libraries

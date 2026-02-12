@@ -48,7 +48,7 @@ namespace graphvise {
         Renderer& operator=(const Renderer&) = delete;
 
         void init();            // Initialize all buffers, called before the main loop
-        void reloadShaders();   // Reload shader programs from source files
+        void loadShaders();   // Load shader programs from source files
         void runFrame();        // Called once per Frame
         //void runFrame(float deltaTime); //remove
 
@@ -104,6 +104,23 @@ namespace graphvise {
         void setSphereRadius(const float radius)
         {
             sphereRadius = radius;
+        }
+
+        float getSphereRadius()
+        {
+            return sphereRadius;
+        }
+
+        float getCylinderRadius()
+        {
+            return cylinderRadius;
+        }
+
+        int getFramebufferWidth() {
+            return mFramebufferSize.x;
+        }
+        int getFramebufferHeight() {
+            return mFramebufferSize.y;
         }
 
     private:

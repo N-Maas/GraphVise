@@ -36,27 +36,6 @@ void ParserController::parseFile(std::string filePath, ParseFormat format) {
                 return;
             }
             setGroups(result.value());
-            /*
-            for (const GroupData& groupData : parsedGroupData) {
-                //ToDo remove Debugging Stuff, if not needed anymore
-
-                // std::cout << "----------Group declaration----------" << std::endl;
-                // std::cout << "Groupname: "  << groupData.name << std::endl;
-                // std::cout << "GroupColor: "  << groupData.color.x << " " << groupData.color.y << " " << groupData.color.z << " " << groupData.color.w << " " << std::endl;
-                // std::cout << "VertexIDs: " << std::endl;
-                // for (std::uint32_t vertexID : groupData.vertices) {
-                //     std::cout << vertexID << " " << std::endl;
-                // }
-                // std::cout << "EdgeIDs: " << std::endl;
-                // for (std::uint32_t edgeID : groupData.edges) {
-                //     std::cout << edgeID << " " << std::endl;
-                // }
-                // std::cout << "ConnectingVertexIDs: " << std::endl;
-                // for (std::uint32_t edgeID : groupData.edges) {
-                //     std::cout << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().first << "   " << GraphSaver::getGraphSaver().getGraph().getEdgeByID(edgeID).getConnectingVerticesIDs().second << std::endl;
-                // }
-                GraphSaver::getGraphSaver().getGraph().addGroup(groupData.name, groupData.color ,groupData.vertices, groupData.edges);
-            }*/
             break;
         }
         case ParseFormat::SUBGRAPH: {
