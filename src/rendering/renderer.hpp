@@ -156,7 +156,7 @@ namespace graphvise {
         std::string mVertexShaderPath;
         std::string mFragmentShaderPath;
 
-        // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
+        // Reference containers for the vertex array object and the vertex buffer object for edges and vertices
         GLuint vertexVAO = 0, vertexVBO = 0;
         GLuint edgeVAO = 0, edgeVBO = 0;
         // Sphere mesh data (icosphere)
@@ -166,7 +166,7 @@ namespace graphvise {
         // generate sphere mesh data(icosphere)
         float sphereRadius{};
         void generateIcosphere(int subdivisions = 2);
-        void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
+        void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp, const uint32_t vertexID);
 
         // Cylinder mesh (reusable)
         std::vector<glm::vec3> cylinderVertices;

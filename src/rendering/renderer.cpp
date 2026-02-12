@@ -196,9 +196,6 @@ namespace graphvise {
 
         // Set viewport to current window size
         glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
-
-        // Render scene
-        glUseProgram(mShaderProgram);
         GL_CHECK_ERROR();
 
         // MVP matrix
@@ -260,7 +257,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp, vertex->getVertexID());
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp, vertex->getID());
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -581,7 +578,6 @@ namespace graphvise {
 
     void Renderer::generateGeometryBasedOnQuality()
     {
-
         int sphereSubdivisions;
 
         switch (mSettings.geometryDetail) {
@@ -650,7 +646,7 @@ namespace graphvise {
         this->observerList.push_back(observer);
     };
 
-    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
+    void graphvise::RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::reference_wrapper<RendererObserver> ref) {
                                            return &ref.get() == &observer.get();
@@ -661,7 +657,7 @@ namespace graphvise {
         }
     };
 
-    void RendererSubject::notify() {
+    void graphvise::RendererSubject::notify() {
         for (const auto& observer : observerList) {
             observer.get().update();  // Call update on each observer
         }
