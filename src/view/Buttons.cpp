@@ -87,13 +87,14 @@ namespace graphvise
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoTitleBar
         );
+        
+        SideBarElement(searchIcon, "Search for Objects", &search);
+        SideBarElement(groupIcon, "Show Groups", &groups);
+        SideBarElement(performanceIcon, "Toggle Performance Mode", &togglePerformanceMode);
+        SideBarElement(lightSourceIcon, "Toggle Light Source", &lightSource);
+        SideBarElement(cameraMovementIcon, "Toggle Camera Movement", &cameraMovement);
+        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks", &cameraBookmarks);
 
-        SideBarElement("Search Object", &search);
-        SideBarElement("Groups", &groups);
-        SideBarElement("Performance Mode", &togglePerformanceMode);
-        SideBarElement("Light Source Behaviour", &lightSource);
-        SideBarElement("Camera Movement Mode", &cameraMovement);
-        SideBarElement("Camera bookmarks", &cameraBookmarks);
 
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
         ImGui::End();
