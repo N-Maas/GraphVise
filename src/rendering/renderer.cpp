@@ -227,8 +227,6 @@ namespace graphvise {
 
         glUseProgram(mShaderProgram);
 
-        glUseProgram(mShaderProgram);
-
         // Set uniforms
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
