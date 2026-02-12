@@ -9,6 +9,7 @@
 #include "Vertex.hpp"
 #include "imgui/imgui.h"
 
+
 namespace graphvise {
     struct VertexTransparencyCompare {
         bool operator()(const Vertex* firstVertex, const Vertex* secondVertex) const {
@@ -74,9 +75,22 @@ namespace graphvise {
 
         void setCurrentVertexID(uint32_t vertexID);
         void setCurrentEdgeID(uint32_t edgeID);
-        [[nodiscard]] std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
-        [[nodiscard]] std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
+        [[nodiscard]] boost::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
+        [[nodiscard]] boost::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
 
+        template<class Archive>
+void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & vertices;
+            ar & verticesSortedByTransparency;
+            ar & edges;
+            ar & edgesSortedByTransparency;
+            ar & groups;
+            ar & cameraBookmarks;
+            ar & currentVertexID;
+            ar &  currentEdgeID;
+
+        }
 
     private:
         std::vector<Vertex> vertices;
@@ -86,8 +100,8 @@ namespace graphvise {
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
 
-        std::optional<uint32_t> currentVertexID;
-        std::optional<uint32_t> currentEdgeID;
+        boost::optional<uint32_t> currentVertexID;
+        boost::optional<uint32_t> currentEdgeID;
     };
 }
 #endif

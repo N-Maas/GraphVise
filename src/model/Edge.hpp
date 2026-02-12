@@ -1,6 +1,8 @@
 #ifndef THESIS_FRAMEWORK_EDGE_HPP
 #define THESIS_FRAMEWORK_EDGE_HPP
-#include <optional>
+
+#include <boost/optional/optional.hpp>
+
 #include "imgui/imgui.h"
 
 namespace graphvise {
@@ -9,6 +11,7 @@ namespace graphvise {
         explicit Edge(const std::uint32_t edgeID, const std::uint32_t firstVertexID, const std::uint32_t secondVertexID)
             : edgeID(edgeID), connectedGroupID(1), connectingVerticesIDs(firstVertexID, secondVertexID)  {
         }
+        Edge(){}
 
         [[nodiscard]] std::uint32_t getID() const;
         [[nodiscard]] std::uint32_t getConnectedGroupID() const;
@@ -19,10 +22,22 @@ namespace graphvise {
         void deleteOwnTransparency();
 
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar & edgeID;
+            ar & connectedGroupID;
+            ar & ownTransparency;
+            ar & connectingVerticesIDs.first;
+            ar & connectingVerticesIDs.second;
+
+
+        }
+
     private:
         std::uint32_t edgeID;
         std::uint32_t connectedGroupID;
-        std::optional<float> ownTransparency;
+        boost::optional<float> ownTransparency;
         std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs;
     };
 }
