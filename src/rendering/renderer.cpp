@@ -138,15 +138,6 @@ namespace graphvise {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
-        // Initialize Buffers and Arrays for sphere and cylinder
-        glGenVertexArrays(1, &sphereVAO);
-        glGenBuffers(1, &sphereVBO);
-        glGenBuffers(1, &sphereEBO);
-
-        glGenVertexArrays(1, &cylinderVAO);
-        glGenBuffers(1, &cylinderVBO);
-        glGenBuffers(1, &cylinderEBO);
-
         // Generate meshes if needed
         if (sphereVertices.empty()) {
             generateIcosphere(2);
@@ -235,6 +226,23 @@ namespace graphvise {
         }
 
         glUseProgram(mShaderProgram);
+
+        glUseProgram(mShaderProgram);
+
+        // Set uniforms
+        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
+        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
+        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
+        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
+
+        // Set lighting (use same light as cube)
+        if (lightPosLoc != -1) {
+            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+        }
+        if (lightColorLoc != -1) {
+            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
+        }
 
         // Set MVP uniform
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
@@ -333,6 +341,7 @@ namespace graphvise {
     }
 
     void Renderer::generateIcosphere(int subdivisions) {
+        std::cerr << "generateIcosphere() started" << std::endl;
         // Icosahedron vertices (12 vertices)
         const float t = (1.0f + std::sqrt(5.0f)) / 2.0f;
 
@@ -416,9 +425,12 @@ namespace graphvise {
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
+
+        std::cerr << "generateIcosphere() completed - VAO: " << sphereVAO << std::endl;
     }
 
     void Renderer::generateCylinder(int segments) {
+        std::cerr << "generateCylinder() started - VAO: " << cylinderVAO << std::endl;
         cylinderVertices.clear();
         cylinderIndices.clear();
 
@@ -505,16 +517,23 @@ namespace graphvise {
         glEnableVertexAttribArray(1);
 
         glBindVertexArray(0);
+
+        std::cerr << "generateCylinder() completed - VAO: " << cylinderVAO << std::endl;
     }
 
 
     void Renderer::renderSphere(const glm::vec3& center, float radius,
                                     const glm::vec4& color, const glm::mat4& viewProj) {
-        if (sphereVAO == 0) return;
+        if (sphereVAO == 0) {
+            std::cerr << "    ERROR: sphereVAO is 0!" << std::endl;
+            return;
+        }
 
         //debug
-        //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
-        //          << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
+        std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
+                << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
+        std::cerr << "    radius: " << radius << std::endl;
+        std::cerr << "    sphereVAO: " << sphereVAO << std::endl;
 
         // Create model matrix: translate to center, scale by radius
         glm::mat4 model = glm::translate(glm::mat4(1.0f), center);
@@ -522,14 +541,10 @@ namespace graphvise {
 
         glm::mat4 mvp = viewProj * model;
 
-        glUseProgram(mShaderProgram);
-
         // Set uniforms
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         //debug
@@ -555,13 +570,7 @@ namespace graphvise {
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        // Set lighting (use same light as cube)
-        if (lightPosLoc != -1) {
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        }
-        if (lightColorLoc != -1) {
-            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
-        }
+
 
         // Render
         glBindVertexArray(sphereVAO);
@@ -595,31 +604,16 @@ namespace graphvise {
 
         glm::mat4 mvp = viewProj * model;
 
-        // Set uniforms and render
-        glUseProgram(mShaderProgram);
-
         // Set uniforms
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-
-
-        // Set lighting (use same light as cube)
-        if (lightPosLoc != -1) {
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        }
-        if (lightColorLoc != -1) {
-            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
-        }
-
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
@@ -628,13 +622,7 @@ namespace graphvise {
 
     void Renderer::generateGeometryBasedOnQuality()
     {
-        /*
-        // Clear existing geometry
-        sphereVertices.clear();
-        sphereIndices.clear();
-        cylinderVertices.clear();
-        cylinderIndices.clear();
-*/
+        
         int sphereSubdivisions;
 
         switch (mSettings.geometryDetail) {
