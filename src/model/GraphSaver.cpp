@@ -1,6 +1,7 @@
 #include "GraphSaver.hpp"
 #include <iostream>
 
+
 namespace graphvise {
     GraphSaver GraphSaver::instance;
     GraphSaver::GraphSaver() = default;

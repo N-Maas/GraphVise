@@ -7,6 +7,7 @@
 
 
 #include "GUI.hpp"
+#include "../controller/Exporting/CachingController.hpp"
 #include "controller/MovementController.hpp"
 
 namespace graphvise
@@ -26,6 +27,7 @@ namespace graphvise
 
         GLFWwindow* window = nullptr;
         MovementController movementController;
+        CachingController cachingController;
 
         struct Resolution
         {

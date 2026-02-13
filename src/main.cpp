@@ -14,46 +14,14 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-#include <fstream>
 #include <iostream>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/optional.hpp>
 
-
-#include "RTree.hpp"
 #include "controller/Parsing/ParserController.hpp"
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
 
 int main()
 {
-    graphvise::ParserController pc;
-    pc.parseFile("../Testgraph100.txt", graphvise::ParseFormat::TXT);
-    graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
-
-    auto filename = "Test.bin";
-
-    auto graph = graphvise::GraphSaver::getInstance().getGraph();
-
-    // std::ofstream ofs(filename);
-    //
-    // boost::archive::binary_oarchive oa(ofs);
-    //
-    // oa << graph;
-    //
-    // ofs.close();
-
-    std::ifstream ifs(filename);
-    boost::archive::binary_iarchive ia(ifs);
-
-    auto newGraph = graphvise::Graph({}, {});
-    ia >> newGraph;
-
-    graphvise::GraphSaver::getInstance().setGraph(newGraph);
 
     graphvise::Window window = graphvise::Window();
 

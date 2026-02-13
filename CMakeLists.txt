@@ -113,6 +113,8 @@ set(SOURCES
         src/controller/Exporting/ExporterController.cpp
         src/controller/Exporting/PNGExporter.cpp
         src/controller/Enums/ImportFormat.hpp
+        src/controller/Exporting/CachingController.cpp
+        src/controller/Exporting/CachingController.hpp
 )
 
 set(SHADERS
@@ -139,7 +141,7 @@ target_compile_definitions(GraphVise PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOU
 # find required packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem serialization)
+find_package(Boost REQUIRED COMPONENTS filesystem serialization CONFIG)
 
 # find optional packages
 find_package(OpenMP)
@@ -149,7 +151,7 @@ include(FetchContent)
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG 1305d30ff5ee26dd637fb127a9a7bd0ab0c6fc00
+        GIT_TAG ab85434f38d52167bbf94b2e46cc898e55c71a97
         GIT_SHALLOW TRUE
 )
 
@@ -165,6 +167,13 @@ target_include_directories(GraphVise PRIVATE
         ext/imgui-filebrowser
 )
 
+include(ExternalProject)
+FetchContent_Declare(
+        platform_folders
+        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
+)
+
+FetchContent_MakeAvailable(platform_folders)
 # link required libraries
 target_link_libraries(GraphVise PRIVATE
         imgui
@@ -178,6 +187,7 @@ target_link_libraries(GraphVise PRIVATE
         utilLib # will be available from wembed
         Boost::filesystem
         Boost::serialization
+        platform_folders
 )
 # link optional libraries
 if (OpenMP_CXX_FOUND)
