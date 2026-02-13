@@ -5,6 +5,7 @@
 #ifndef THESIS_FRAMEWORK_CNFPARSER_HPP
 #define THESIS_FRAMEWORK_CNFPARSER_HPP
 #include <expected>
+#include <filesystem>
 #include <string>
 
 #include "GraphParser.hpp"
@@ -16,7 +17,7 @@ namespace graphvise {
         //Destruktor
         virtual ~CNFParser() = default;
 
-        std::expected<GraphData, Error> parseFile(std::string filePath) override;
+        std::expected<GraphData, Error> parseFile(std::filesystem::path filePath) override;
     };
 }
 

@@ -5,6 +5,8 @@
 #ifndef THESIS_FRAMEWORK_THREADOPERATION_HPP
 #define THESIS_FRAMEWORK_THREADOPERATION_HPP
 
+#include <filesystem>
+
 #include "../Enums/ThreadOperationType.hpp"
 
 namespace graphvise {

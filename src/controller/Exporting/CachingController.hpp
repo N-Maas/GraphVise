@@ -4,8 +4,8 @@
 
 #ifndef GRAPHVISE_CACHINGCONTROLLER_HPP
 #define GRAPHVISE_CACHINGCONTROLLER_HPP
+
 #include <filesystem>
-#include <boost/geometry/index/detail/predicates.hpp>
 
 #include "platform_folders.h"
 #include "model/Graph.hpp"
@@ -18,21 +18,21 @@ namespace graphvise
         bool hasCachedGraphs() const;
 
         void cacheCurrentGraph() const;
-        void cacheGraph(Graph graph) const;
+        void cacheGraph(const Graph& graph) const;
         void loadLastCachedGraph() const;
         static void loadDefaultGraph();
         static void loadCachedGraph(std::filesystem::path filename);
         void clearCache() const;
 
     private:
-
+        const std::string fileExtention = ".bin";
         const std::filesystem::path cacheDir = sago::getCacheDir();
         const std::filesystem::path cachePath = cacheDir / "graphVise";
         const std::filesystem::path graphCachePath = cachePath / "graphs";
         const std::filesystem::path dataDir = sago::getDataHome();
 
-        const std::filesystem::path settingsFile = dataDir / "GraphVise"/"settings.bin";
-        const std::string defaultCacheFilename = "cached_graph.bin";
+        const std::filesystem::path settingsFile = dataDir / "GraphVise"/ ("settings" + fileExtention);
+        const std::string defaultCacheFilename = "example_graph" + fileExtention;
 
     };
 

@@ -17,7 +17,7 @@
 #define NEGATION_SIGN '-'
 
 namespace graphvise {
-    std::expected<GraphData, Error> CNFParser::parseFile(std::string filePath) {
+    std::expected<GraphData, Error> CNFParser::parseFile(std::filesystem::path filePath) {
         std::ifstream fileStream(filePath, std::ios::in);
         if (!fileStream.is_open()) {
             Error error(ErrorType::FILE_NOT_FOUND);
@@ -131,8 +131,11 @@ namespace graphvise {
                 }
             }
         }
+        fileStream.close();
 
-        GraphData graphData(variableCount, edges);
+        auto name = filePath.stem().string();
+
+        GraphData graphData(variableCount, edges, name);
         return graphData;
     }
 }

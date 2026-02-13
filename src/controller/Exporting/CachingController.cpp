@@ -28,7 +28,7 @@ namespace graphvise
         cacheGraph(GraphSaver::getInstance().getGraph());
     }
 
-    void CachingController::cacheGraph(Graph graph) const
+    void CachingController::cacheGraph(const Graph& graph) const
     {
 
         if (!std::filesystem::exists(graphCachePath))
@@ -36,7 +36,7 @@ namespace graphvise
             std::filesystem::create_directories(graphCachePath);
         }
 
-        std::ofstream ofs(graphCachePath / defaultCacheFilename);
+        std::ofstream ofs(graphCachePath / (graph.getName() + fileExtention));
 
         boost::archive::binary_oarchive oa(ofs);
 
@@ -77,7 +77,7 @@ namespace graphvise
 
         boost::archive::binary_iarchive ia(ifs);
 
-        auto newGraph = Graph({}, {});
+        auto newGraph = Graph({}, {}, "");
         ia >> newGraph;
         ifs.close();
 
@@ -90,7 +90,7 @@ namespace graphvise
 
         boost::archive::binary_iarchive ia(ifs);
 
-        auto newGraph = Graph({}, {});
+        auto newGraph = Graph({}, {}, "");
         ia >> newGraph;
         ifs.close();
 
