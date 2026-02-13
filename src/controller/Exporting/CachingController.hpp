@@ -5,6 +5,7 @@
 #ifndef GRAPHVISE_CACHINGCONTROLLER_HPP
 #define GRAPHVISE_CACHINGCONTROLLER_HPP
 #include <filesystem>
+#include <boost/geometry/index/detail/predicates.hpp>
 
 #include "platform_folders.h"
 #include "model/Graph.hpp"
@@ -25,11 +26,12 @@ namespace graphvise
 
     private:
 
-
         const std::filesystem::path cacheDir = sago::getCacheDir();
         const std::filesystem::path cachePath = cacheDir / "graphVise";
         const std::filesystem::path graphCachePath = cachePath / "graphs";
-        const std::filesystem::path settings = static_cast<std::filesystem::path>(sago::getDataHome()) / "settings";
+        const std::filesystem::path dataDir = sago::getDataHome();
+
+        const std::filesystem::path settingsFile = dataDir / "GraphVise"/"settings.bin";
         const std::string defaultCacheFilename = "cached_graph.bin";
 
     };
