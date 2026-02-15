@@ -23,12 +23,18 @@ namespace graphvise
         void shutdownGUI();
         void setFps(double newFps);
 
+        void showVertexInfo(uint32_t vertexId);
+
     private:
 
         double fps = 0.0;
         Buttons buttons;
         bool errorAvailable;
         std::optional<Error> currentError = std::nullopt;
+
+        // for vertex picking
+        bool m_showVertexInfo;
+        uint32_t m_selectedVertexId;
 
         void errorPopup();
         void currentObjInfo();

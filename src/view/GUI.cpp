@@ -10,7 +10,8 @@
 
 namespace graphvise
 {
-    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false)
+    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false),
+    m_showVertexInfo(false), m_selectedVertexId(0)
     {
     }
 
@@ -51,14 +52,30 @@ namespace graphvise
         ImGui::Text("%.2f fps", fps);
         ImGui::End();
 
-
-
-
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        // vertex picking
+        if (m_showVertexInfo) {
+            ImGui::Begin("Vertex Information", &m_showVertexInfo);
+            ImGui::Text("Selected Vertex ID: %u", m_selectedVertexId);
+
+            // Add more vertex information here
+            auto& graph = GraphSaver::getInstance().getGraph();
+            auto& vertex = graph.getVertexByID(m_selectedVertexId);
+            glm::vec4 color = vertex.getVec4();
+
+            ImGui::Text("Position: (%.2f, %.2f, %.2f)",
+                        vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
+            ImGui::Text("Color: (%.2f, %.2f, %.2f)",
+                        color.r, color.g, color.b);
+
+            ImGui::End();
+        }
     }
+
 
     void GUI::shutdownGUI()
     {
@@ -152,7 +169,7 @@ namespace graphvise
                             coords.x, coords.y, coords.z);
                     const glm::vec3 coords2 = secondVertex.getCoordsVector();
                 ImGui::Text("Vertex 2 Coords: x: %.2f y: %.2f z: %.2f",
-                           coords.x, coords.y, coords.z);
+                           coords2.x, coords2.y, coords2.z);
 
                 const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID()).getName();
                 ImGui::Text("Edge Group: %s", groupname.c_str());
@@ -173,5 +190,10 @@ namespace graphvise
     {
         errorAvailable = true;
         currentError = ErrorCollector::getInstance().getCurrentError();
+    }
+
+    void GUI::showVertexInfo(uint32_t vertexId) {
+        m_selectedVertexId = vertexId;
+        m_showVertexInfo = true;
     }
 }

@@ -19,13 +19,16 @@ namespace graphvise
 
         bool initWindow();
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+        static void mouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
+
+        void handleMouseClick(int button, int action, int mods, double xpos, double ypos);
 
     private:
         void processEvents();
-        //void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         GLFWwindow* window = nullptr;
         MovementController movementController;
+        std::unique_ptr<GUI> gui;
 
         struct Resolution
         {

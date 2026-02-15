@@ -138,10 +138,66 @@ namespace graphvise {
             generateCylinder(12);
         }
 
+        // Create picking framebuffer
+        createPickingFramebuffer();
+
         //for rendering transparent objects
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        GL_CHECK_ERROR();
+    }
+
+    void Renderer::createPickingFramebuffer()
+    {
+        // Delete old if exists
+        if (pickingFramebuffer) {
+            glDeleteFramebuffers(1, &pickingFramebuffer);
+            glDeleteTextures(1, &pickingTexture);
+            glDeleteTextures(1, &colorTexture);
+        }
+
+        // Create framebuffer
+        glGenFramebuffers(1, &pickingFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+
+        // --- ATTACHMENT 0: Color texture (RGBA8) - required for location 0 output ---
+        glGenTextures(1, &colorTexture);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mFramebufferSize.x, mFramebufferSize.y,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Attach to framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+        // --- ATTACHMENT 1: Picking texture (R32UI) - for vertex IDs ---
+        glGenTextures(1, &pickingTexture);
+        glBindTexture(GL_TEXTURE_2D, pickingTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, mFramebufferSize.x, mFramebufferSize.y,
+                     0, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Attach to framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, pickingTexture, 0);
+
+        // --- Depth buffer (required for depth testing) ---
+        GLuint depthBuffer;
+        glGenRenderbuffers(1, &depthBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mFramebufferSize.x, mFramebufferSize.y);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+        // Set draw buffers
+        GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, drawBuffers);
+
+        // Check completeness
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "ERROR: Picking framebuffer not complete!" << std::endl;
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         GL_CHECK_ERROR();
     }
 
@@ -177,26 +233,37 @@ namespace graphvise {
     void Renderer::runFrame()
     {
 
-        //migrated from Window
+        // --- FIRST PASS: Render to picking framebuffer (invisible) ---
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Enable depth testing for picking pass
+        glEnable(GL_DEPTH_TEST);
+
+        // Render with picking shader (same shader, it already outputs ID to location 1)
+        if (mShaderProgram != 0) {
+            glUseProgram(mShaderProgram);
+            glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
+            render(mvp);
+        }
+
+        // --- SECOND PASS: Render to screen (normal rendering) ---
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // binding to default framebuffer
+        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
+        GL_CHECK_ERROR();
 
         // Specify the color of the background
         glClearColor(0.f, 0.14f, 0.28f, 1.0f);
         // Clean the back buffer and assign the new color to it
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
         if(mShaderProgram == 0)
         {
             std::cerr << "No shader program!" << std::endl;
             return;
         }
-
-        // Bind to DEFAULT framebuffer (screen)
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // Set viewport to current window size
-        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
-        GL_CHECK_ERROR();
 
         // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
@@ -301,6 +368,9 @@ namespace graphvise {
         // Update stored size
         mFramebufferSize.x = framebufferWidth;
         mFramebufferSize.y = framebufferHeight;
+
+        // Recreate picking framebuffer for new size
+        createPickingFramebuffer();
     }
 
     void Renderer::generateIcosphere(int subdivisions) {
@@ -640,6 +710,31 @@ namespace graphvise {
             mSettings.geometryDetail = detail;
             generateGeometryBasedOnQuality();
         }
+    }
+
+    uint32_t Renderer::getVertexAt(double x, double y)
+    {
+        // Make sure coordinates are within framebuffer
+        if (x < 0 || x >= mFramebufferSize.x ||
+            y < 0 || y >= mFramebufferSize.y) {
+            return 0;  // No vertex
+            }
+
+        // Bind picking framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+
+        // Read the pixel value
+        uint32_t pixelValue;
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        glReadPixels(static_cast<int>(x), static_cast<int>(y),
+                     1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixelValue);
+
+        // Unbind
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        GL_CHECK_ERROR();
+
+        return pixelValue;
     }
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {

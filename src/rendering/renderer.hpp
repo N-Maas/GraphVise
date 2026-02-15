@@ -48,6 +48,8 @@ namespace graphvise {
         Renderer& operator=(const Renderer&) = delete;
 
         void init();            // Initialize all buffers, called before the main loop
+        void createPickingFramebuffer();
+
         void loadShaders();   // Load shader programs from source files
         void runFrame();        // Called once per Frame
         //void runFrame(float deltaTime); //remove
@@ -69,7 +71,7 @@ namespace graphvise {
             performanceMode = newMode;
         };
 
-        uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
+        uint32_t getVertexAt(double x, double y);// get vertexID you clicked on a mose position (x,y)
 
         static std::shared_ptr<Renderer> getInstance();
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
@@ -184,5 +186,9 @@ namespace graphvise {
 
         bool mF5Pressed;
 
+        // Picking framebuffer
+        GLuint pickingFramebuffer = 0;
+        GLuint pickingTexture = 0;  // Texture to store the IDs
+        GLuint colorTexture = 0; // basic texture for visual vertex color
     };
 }

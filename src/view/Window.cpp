@@ -11,6 +11,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
+#include <functional>
 
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
@@ -44,7 +45,8 @@ namespace graphvise {
         int defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-        // Error check if the window fails to create
+		glfwSetWindowUserPointer(window, this);
+		// Error check if the window fails to create
 
         glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -56,6 +58,7 @@ namespace graphvise {
         }
 
 		glfwSetScrollCallback(window, scrollCallback);
+		glfwSetMouseButtonCallback(window, mouseButtonCallback); // for vertex picking
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -92,12 +95,12 @@ namespace graphvise {
 
         ButtonController controller = ButtonController(*renderer);
 
-		GUI gui(&controller);
+		gui = std::make_unique<GUI>(&controller);
 
 		// todo this line produces an error gui not recognized, please check
-        //ErrorCollector::getInstance().signIn(gui);
+        ErrorCollector::getInstance().signIn(std::ref(*gui));
 
-        gui.initGUI(window);
+        gui->initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -148,7 +151,7 @@ namespace graphvise {
 
 
             //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
+            gui->loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -165,14 +168,14 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui.setFps(frameCount / accumulatedTime);
+                gui->setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui.shutdownGUI();
+        gui->shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
@@ -232,5 +235,44 @@ namespace graphvise {
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		scrollYOffset = yoffset;
+	}
+
+	// Implementation in Window.cpp:
+	void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+		// Get the Window instance (you'll need to store it as a user pointer)
+		Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+		if (self) {
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			self->handleMouseClick(button, action, mods, xpos, ypos);
+		}
+	}
+
+	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
+		// Only handle left button press (not release)
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			// Get the renderer instance
+			auto renderer = Renderer::getInstance();
+
+			// Get framebuffer size (might be different from window size)
+			int fbWidth, fbHeight;
+			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+
+			// Convert window coordinates to framebuffer coordinates
+			int winWidth, winHeight;
+			glfwGetWindowSize(window, &winWidth, &winHeight);
+
+			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
+			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight); // Flip Y
+
+			// Get the vertex ID at this position
+			uint32_t vertexId = renderer->getVertexAt(fbX, fbY);
+			if (vertexId != 0) {
+				std::cout << "Clicked on vertex ID: " << vertexId << std::endl;
+				// TODO: Show popup window with vertex information
+				// You can pass this to your GUI class
+				gui->showVertexInfo(vertexId);
+			}
+		}
 	}
 }
