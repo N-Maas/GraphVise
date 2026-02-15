@@ -38,6 +38,8 @@ namespace graphvise {
         CameraFocusMode cameraFocusMode;
         const glm::vec3 originCoords = glm::vec3(0.0f, 0.0f, 0.0f);
         mutable glm::mat4 mProjectionMatrix;
+
+        void scalePositionToGraph();
     public:
         [[nodiscard]] CameraFocusMode camera_focus_mode() const {
             return cameraFocusMode;
@@ -65,6 +67,7 @@ namespace graphvise {
         void resetPosition() {
             position_world_space = DEFAULT_COORDINATES;
             focusPoint = originCoords;
+            scalePositionToGraph();
             lookAtFocus();
         }
 

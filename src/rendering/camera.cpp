@@ -21,6 +21,8 @@
 #include <iostream>
 #include <glm/gtx/transform.hpp>
 
+#include "model/GraphSaver.hpp"
+
 namespace graphvise {
     glm::mat4 Camera::get_world_to_view_space() const
     {
@@ -59,5 +61,43 @@ namespace graphvise {
         //Vertical Rotation
         double rotationDivisor = sqrt(xDiff * xDiff + zDiff * zDiff);
         rotation_x = -atan(yDiff / rotationDivisor);
+    }
+
+    void Camera::scalePositionToGraph() {
+        const std::vector<Vertex>& vertices = GraphSaver::getInstance().getGraph().getVertices();
+
+        float scaleDist = 1;
+        for (auto vertex : vertices) {
+            glm::vec3 vertexPos = vertex.getCoordsVector();
+            float currentDist = sqrt(vertexPos.x * vertexPos.x + vertexPos.y * vertexPos.y + vertexPos.z * vertexPos.z);
+            if (currentDist > scaleDist) {
+                scaleDist = currentDist;
+            }
+        }
+
+        scaleDist *= 1.5;
+
+        glm::vec3 camPos = position_world_space;
+
+        double verticalAngle = acos(camPos.y / scaleDist);
+        double horizontalAngle;
+
+        if (camPos.x > 0) {
+            horizontalAngle = atan(camPos.z / camPos.x);
+        } else if (camPos.x == 0) {
+            horizontalAngle = std::numbers::pi / 2;
+            horizontalAngle *= camPos.z < 0 ? -1.0 : 1.0;
+            horizontalAngle = camPos.z == 0 ? 0 : horizontalAngle;
+        } else if (camPos.x < 0 && camPos.z >= 0) {
+            horizontalAngle = atan(camPos.z / camPos.x) + std::numbers::pi;
+        } else {
+            horizontalAngle = atan(camPos.z / camPos.x) - std::numbers::pi;
+        }
+
+        camPos.x = scaleDist * sin(verticalAngle) * cos(horizontalAngle) + focusPoint.x;
+        camPos.y = scaleDist * cos(verticalAngle) + focusPoint.y;
+        camPos.z = scaleDist * sin(verticalAngle) * sin(horizontalAngle) + focusPoint.z;
+
+        position_world_space = camPos;
     }
 }
