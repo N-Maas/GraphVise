@@ -23,7 +23,9 @@ namespace graphvise
         void shutdownGUI();
         void setFps(double newFps);
 
-        void showVertexInfo(uint32_t vertexId);
+        void showVertexInfo(uint32_t vertexId, const glm::vec2& screenPos = glm::vec2(-1));
+
+        void vertexIDPopup();
 
     private:
 
@@ -35,6 +37,7 @@ namespace graphvise
         // for vertex picking
         bool m_showVertexInfo;
         uint32_t m_selectedVertexId;
+        glm::vec2 m_popupPosition;
 
         void errorPopup();
         void currentObjInfo();

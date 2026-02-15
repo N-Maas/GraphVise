@@ -44,6 +44,11 @@ namespace graphvise
             errorPopup();
         }
 
+        // vertex picking
+        if (m_showVertexInfo) {
+            vertexIDPopup();
+        }
+
         ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
         ImGui::Begin("##FPS window", nullptr,
             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
@@ -56,24 +61,6 @@ namespace graphvise
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // vertex picking
-        if (m_showVertexInfo) {
-            ImGui::Begin("Vertex Information", &m_showVertexInfo);
-            ImGui::Text("Selected Vertex ID: %u", m_selectedVertexId);
-
-            // Add more vertex information here
-            auto& graph = GraphSaver::getInstance().getGraph();
-            auto& vertex = graph.getVertexByID(m_selectedVertexId);
-            glm::vec4 color = vertex.getVec4();
-
-            ImGui::Text("Position: (%.2f, %.2f, %.2f)",
-                        vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
-            ImGui::Text("Color: (%.2f, %.2f, %.2f)",
-                        color.r, color.g, color.b);
-
-            ImGui::End();
-        }
     }
 
 
@@ -192,8 +179,47 @@ namespace graphvise
         currentError = ErrorCollector::getInstance().getCurrentError();
     }
 
-    void GUI::showVertexInfo(uint32_t vertexId) {
+    void GUI::showVertexInfo(uint32_t vertexId, const glm::vec2& screenPos) {
         m_selectedVertexId = vertexId;
         m_showVertexInfo = true;
+        m_popupPosition = screenPos;
+    }
+
+    void GUI::vertexIDPopup() {
+        // Set position if we have valid screen coordinates
+        if (m_popupPosition.x >= 0 && m_popupPosition.y >= 0) {
+            ImGui::SetNextWindowPos(ImVec2(m_popupPosition.x, m_popupPosition.y),
+                                    ImGuiCond_Appearing);
+        } else {
+            // Fallback to center of screen
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
+                                           ImGui::GetIO().DisplaySize.y * 0.5f),
+                                    ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        }
+        /*
+        // Center the window
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
+                                       ImGui::GetIO().DisplaySize.y * 0.5f),
+                                ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+        */
+
+        if (ImGui::Begin("Vertex Information", &m_showVertexInfo)) {
+            ImGui::Text("Selected Vertex ID: %u", m_selectedVertexId);
+            try {
+                // Add more vertex information here
+                auto& graph = GraphSaver::getInstance().getGraph();
+                auto& vertex = graph.getVertexByID(m_selectedVertexId);
+                glm::vec4 color = vertex.getVec4();
+
+                ImGui::Text("Position: (%.2f, %.2f, %.2f)",
+                            vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
+                ImGui::Text("Color: (%.2f, %.2f, %.2f)",
+                            color.r, color.g, color.b);
+            } catch (const std::exception& e) {
+                ImGui::Text("Error: Vertex not found!");
+                m_showVertexInfo = false;
+            }
+        }
+        ImGui::End();
     }
 }

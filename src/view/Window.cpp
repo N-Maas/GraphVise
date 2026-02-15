@@ -267,11 +267,23 @@ namespace graphvise {
 
 			// Get the vertex ID at this position
 			uint32_t vertexId = renderer->getVertexAt(fbX, fbY);
-			if (vertexId != 0) {
+			/*
+			if (vertexId != UINT32_MAX) {  // Check against max value
 				std::cout << "Clicked on vertex ID: " << vertexId << std::endl;
-				// TODO: Show popup window with vertex information
-				// You can pass this to your GUI class
+				// Valid vertex clicked, get vertex position
 				gui->showVertexInfo(vertexId);
+			}
+			*/
+
+			if (vertexId != UINT32_MAX) {
+				// Project 3D position to screen coordinates
+				glm::vec2 screenPos;
+				if (renderer->projectToScreen(m_clickedVertexPos, screenPos)) {
+					gui->showVertexInfo(vertexId, screenPos);
+				} else {
+					// Vertex is off-screen, use default positioning
+					gui->showVertexInfo(vertexId);
+				}
 			}
 		}
 	}

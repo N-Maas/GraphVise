@@ -42,6 +42,9 @@ namespace graphvise
 
         static double scrollYOffset;
 
+        glm::vec3 m_clickedVertexPos{0.0f};
+        bool m_hasClickedVertex = false;
+
         static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
     };
 }

@@ -239,6 +239,11 @@ namespace graphvise {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // Clear to UINT32_MAX (0xFFFFFFFF)
+        GLuint clearValue = 0xFFFFFFFF;
+        glClearBufferuiv(GL_COLOR, 1, &clearValue);  // Clear attachment 1
+        glClear(GL_DEPTH_BUFFER_BIT);
+
         // Enable depth testing for picking pass
         glEnable(GL_DEPTH_TEST);
 
@@ -717,7 +722,7 @@ namespace graphvise {
         // Make sure coordinates are within framebuffer
         if (x < 0 || x >= mFramebufferSize.x ||
             y < 0 || y >= mFramebufferSize.y) {
-            return 0;  // No vertex
+            return UINT32_MAX;  // No vertex
             }
 
         // Bind picking framebuffer
@@ -735,6 +740,40 @@ namespace graphvise {
         GL_CHECK_ERROR();
 
         return pixelValue;
+    }
+
+    bool Renderer::projectToScreen(const glm::vec3& worldPos, glm::vec2& screenPos) {
+        // Get viewport dimensions
+        GLint viewport[4];
+        glGetIntegerv(GL_VIEWPORT, viewport);
+
+        // Get current matrices from camera
+        //glm::mat4 view = mCamera.getViewMatrix();
+        //glm::mat4 projection = mCamera.getProjectionMatrix(getAspectRatio());
+        glm::mat4 view = mCamera.get_world_to_view_space();
+        glm::mat4 projection = mCamera.get_world_to_projection_space(getAspectRatio());
+
+        // Transform world position to clip space
+        glm::vec4 clipPos = projection * view * glm::vec4(worldPos, 1.0f);
+
+        // Check if point is behind camera (not visible)
+        if (clipPos.w <= 0.0f) {
+            return false;
+        }
+
+        // Perspective division
+        glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
+
+        // Check if point is within NDC bounds (-1 to 1)
+        if (ndc.x < -1.0f || ndc.x > 1.0f || ndc.y < -1.0f || ndc.y > 1.0f || ndc.z < -1.0f || ndc.z > 1.0f) {
+            return false;
+        }
+
+        // Convert to screen coordinates
+        screenPos.x = (ndc.x * 0.5f + 0.5f) * viewport[2] + viewport[0];
+        screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * viewport[3] + viewport[1]; // Flip Y
+
+        return true;
     }
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {

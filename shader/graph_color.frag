@@ -21,6 +21,6 @@ void main() {
     vec3 result = objectColor * diff;
     FragColor = vec4(result, transparency);
 
-     // Picking output - just the ID as unsigned integer
-     pickingOutput = objectId;
+    // Picking output - just the ID as unsigned integer
+    pickingOutput = objectId;
 }

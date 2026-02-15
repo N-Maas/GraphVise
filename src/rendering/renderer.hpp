@@ -125,6 +125,8 @@ namespace graphvise {
             return mFramebufferSize.y;
         }
 
+        bool projectToScreen(const glm::vec3& worldPos, glm::vec2& screenPos);
+
     private:
         //variables for render quality settings
         RenderSettings mSettings;
