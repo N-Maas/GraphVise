@@ -4,6 +4,8 @@
 
 #include "GUI.hpp"
 
+#include <iostream>
+
 #include "controller/ErrorCollector.hpp"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -12,6 +14,7 @@ namespace graphvise
 {
     GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false)
     {
+        ErrorCollector::getInstance().signIn(std::ref(*this));
     }
 
     void GUI::initGUI(GLFWwindow* window)
@@ -90,7 +93,7 @@ namespace graphvise
         {
             ImGui::Separator();
             ImGui::Text("At line: %s",
-                        currentError->getMessage()->c_str());
+                        std::to_string(currentError->getLine().value()).c_str());
         }
 
         if (ImGui::Button("OK##Error Confirm"))
@@ -171,6 +174,7 @@ namespace graphvise
 
     void GUI::update()
     {
+        std::cout << "updated" << std::endl;
         errorAvailable = true;
         currentError = ErrorCollector::getInstance().getCurrentError();
     }
