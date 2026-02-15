@@ -24,6 +24,14 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
 
 namespace graphvise {
@@ -339,7 +347,7 @@ namespace graphvise {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge->getVec4(), mvp);
+                              cylinderRadius, edge->getVec4(), mvp, edge->getID());
             }
         }
 
@@ -611,7 +619,7 @@ namespace graphvise {
 
     void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
                                       float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj) const {
+                                      const glm::mat4& viewProj, const uint32_t edgeId) const {
         glm::vec3 direction = end - start;
         float length = glm::length(direction);
 
@@ -640,11 +648,13 @@ namespace graphvise {
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
+        GLint objectIdLoc = glGetUniformLocation(mShaderProgram, "objectId");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
+        if (objectIdLoc != -1) glUniform1ui(objectIdLoc, edgeId);
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);

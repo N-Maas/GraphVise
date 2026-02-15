@@ -179,7 +179,8 @@ namespace graphvise {
 
         float cylinderRadius{};
         void generateCylinder(int segments = 16);
-        void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
+        void renderCylinder(const glm::vec3 & start, const glm::vec3 & end, float radius, const glm::vec4 & color, const glm::mat4 & viewProj, uint32_t
+                            edgeId) const;
 
         Camera mCamera;
         glm::vec3 lightPos;
