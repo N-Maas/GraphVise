@@ -6,10 +6,11 @@ uniform float transparency;
 uniform vec3 lightPos;
 uniform vec3 lightColor;
 
-uniform uint objectId;         // Vertex ID for picking
+uniform uint vertexId;         // Vertex ID for picking
+uniform uint edgeId;           // edge ID for picking
 
 layout(location = 0) out vec4 FragColor;   // To screen (RGBA8)
-layout(location = 1) out uint pickingOutput;  // To picking buffer (R32UI)
+layout(location = 1) out uvec2 pickingOutput;  // To picking buffer (R32UI) (vertexId, edgeId)
 
 
 void main() {
@@ -22,5 +23,5 @@ void main() {
     FragColor = vec4(result, transparency);
 
     // Picking output - just the ID as unsigned integer
-    pickingOutput = objectId;
+    pickingOutput = uvec2(vertexId, edgeId);
 }

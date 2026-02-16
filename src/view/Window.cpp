@@ -247,7 +247,7 @@ namespace graphvise {
 			self->handleMouseClick(button, action, mods, xpos, ypos);
 		}
 	}
-
+/*
 	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
 		// Only handle left button press (not release)
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -265,24 +265,70 @@ namespace graphvise {
 			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
 			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight); // Flip Y
 
-			// Get the vertex ID at this position
-			uint32_t vertexId = renderer->getVertexAt(fbX, fbY);
-			/*
-			if (vertexId != UINT32_MAX) {  // Check against max value
-				std::cout << "Clicked on vertex ID: " << vertexId << std::endl;
-				// Valid vertex clicked, get vertex position
-				gui->showVertexInfo(vertexId);
-			}
-			*/
+			// Get the picked object (could be vertex, edge, or nothing)
+			PickedObject picked = renderer->getObjectAt(fbX, fbY);
+			auto& graph = GraphSaver::getInstance().getGraph();
 
-			if (vertexId != UINT32_MAX) {
-				// Project 3D position to screen coordinates
-				glm::vec2 screenPos;
-				if (renderer->projectToScreen(m_clickedVertexPos, screenPos)) {
-					gui->showVertexInfo(vertexId, screenPos);
-				} else {
-					// Vertex is off-screen, use default positioning
-					gui->showVertexInfo(vertexId);
+			if (picked.isVertex()) {
+				// Get vertex position
+				try {
+					auto& vertex = graph.getVertexByID(picked.id);
+					m_clickedObjectPos = vertex.getCoordsVector();
+					gui->showVertexInfo(picked.id);
+
+				} catch ( std::exception& e ) {
+					std::cout << "Error getting vertex" << std::endl;
+				}
+			} else if (picked.isEdge()) {
+				// Handle edge click
+				try {
+					auto& edge = graph.getEdgeByID(picked.id);
+
+					// For edges, you might want to show popup at midpoint
+					auto [v1Id, v2Id] = edge.getConnectingVerticesIDs();
+					auto& v1 = graph.getVertexByID(v1Id);
+					auto& v2 = graph.getVertexByID(v2Id);
+					gui->showEdgeInfo(picked.id);
+
+				} catch (const std::exception& e) {
+					std::cout << "Error getting edge: " << e.what() << std::endl;
+				}
+			}
+		}
+		*/
+	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			auto renderer = Renderer::getInstance();
+
+			// Convert coordinates (keep this - it's needed for picking)
+			int fbWidth, fbHeight;
+			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+
+			// Convert window coordinates to framebuffer coordinates
+			int winWidth, winHeight;
+			glfwGetWindowSize(window, &winWidth, &winHeight);
+
+			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
+			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
+
+			// Get the picked object (could be vertex, edge, or nothing)
+			PickedObject picked = renderer->getObjectAt(fbX, fbY);
+			auto& graph = GraphSaver::getInstance().getGraph();
+
+			if (picked.isVertex()) {
+				try {
+					auto& vertex = graph.getVertexByID(picked.id);
+					gui->showVertexInfo(picked.id);
+				} catch (const std::exception& e) {
+					std::cout << "Error getting vertex: " << e.what() << std::endl;
+				}
+			}
+			else if (picked.isEdge()) {
+				try {
+					auto& edge = graph.getEdgeByID(picked.id);
+					gui->showEdgeInfo(picked.id);
+				} catch (const std::exception& e) {
+					std::cout << "Error getting edge: " << e.what() << std::endl;
 				}
 			}
 		}

@@ -41,6 +41,16 @@ namespace graphvise {
         int cylinderSegments = 12;    // Cylinder segments
     };
 
+    //representing the picked object
+    struct PickedObject {
+        uint32_t id = 0;                    // The ID (vertex ID or edge ID)
+        enum class Type { NONE, VERTEX, EDGE } type = Type::NONE;
+
+        bool isValid() const { return type != Type::NONE; }
+        bool isVertex() const { return type == Type::VERTEX; }
+        bool isEdge() const { return type == Type::EDGE; }
+    };
+
     class Renderer : public RendererSubject {
     public:
         // Delete copy constructor and assignment operator
@@ -71,7 +81,7 @@ namespace graphvise {
             performanceMode = newMode;
         };
 
-        uint32_t getVertexAt(double x, double y);// get vertexID you clicked on a mose position (x,y)
+        PickedObject getObjectAt(double x, double y);// get vertexID you clicked on a mose position (x,y)
 
         static std::shared_ptr<Renderer> getInstance();
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
@@ -124,8 +134,6 @@ namespace graphvise {
         int getFramebufferHeight() {
             return mFramebufferSize.y;
         }
-
-        bool projectToScreen(const glm::vec3& worldPos, glm::vec2& screenPos);
 
     private:
         //variables for render quality settings

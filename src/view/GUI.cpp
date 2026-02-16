@@ -11,7 +11,7 @@
 namespace graphvise
 {
     GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false),
-    m_showVertexInfo(false), m_selectedVertexId(0)
+    m_showObjectInfo(false), m_selectedVertexId(0), m_objectType(0)
     {
     }
 
@@ -45,8 +45,8 @@ namespace graphvise
         }
 
         // vertex picking
-        if (m_showVertexInfo) {
-            vertexIDPopup();
+        if (m_showObjectInfo) {
+            objectIDPopup();
         }
 
         ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
@@ -179,13 +179,21 @@ namespace graphvise
         currentError = ErrorCollector::getInstance().getCurrentError();
     }
 
-    void GUI::showVertexInfo(uint32_t vertexId, const glm::vec2& screenPos) {
+    void GUI::showVertexInfo(uint32_t vertexId) {
         m_selectedVertexId = vertexId;
-        m_showVertexInfo = true;
-        m_popupPosition = screenPos;
+        m_selectedEdgeId = UINT32_MAX;
+        m_showObjectInfo = true;
+        m_objectType = 1; // object type vertex
     }
 
-    void GUI::vertexIDPopup() {
+    void GUI::showEdgeInfo(uint32_t edgeId) {
+        m_selectedVertexId = UINT32_MAX;
+        m_selectedEdgeId = edgeId;
+        m_showObjectInfo = true;
+        m_objectType = 2; // object type edge
+    }
+
+    void GUI::objectIDPopup() {
         // Set position if we have valid screen coordinates
         if (m_popupPosition.x >= 0 && m_popupPosition.y >= 0) {
             ImGui::SetNextWindowPos(ImVec2(m_popupPosition.x, m_popupPosition.y),
@@ -196,18 +204,11 @@ namespace graphvise
                                            ImGui::GetIO().DisplaySize.y * 0.5f),
                                     ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         }
-        /*
-        // Center the window
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
-                                       ImGui::GetIO().DisplaySize.y * 0.5f),
-                                ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        */
 
-        if (ImGui::Begin("Vertex Information", &m_showVertexInfo)) {
-            ImGui::Text("Selected Vertex ID: %u", m_selectedVertexId);
-            try {
-                // Add more vertex information here
-                auto& graph = GraphSaver::getInstance().getGraph();
+        if (ImGui::Begin("Object Information", &m_showObjectInfo)) {
+            auto& graph = GraphSaver::getInstance().getGraph();
+            if (m_objectType == 1) {
+                ImGui::Text("Selected Vertex ID: %d", m_selectedVertexId);
                 auto& vertex = graph.getVertexByID(m_selectedVertexId);
                 glm::vec4 color = vertex.getVec4();
 
@@ -215,9 +216,13 @@ namespace graphvise
                             vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
                 ImGui::Text("Color: (%.2f, %.2f, %.2f)",
                             color.r, color.g, color.b);
-            } catch (const std::exception& e) {
-                ImGui::Text("Error: Vertex not found!");
-                m_showVertexInfo = false;
+            } else if (m_objectType == 2) {
+                ImGui::Text("Selected Edge ID: %d", m_selectedEdgeId);
+                auto& edge = graph.getEdgeByID(m_selectedEdgeId);
+                glm::vec4 color = edge.getVec4();
+                auto [v1, v2] = edge.getConnectingVerticesIDs();
+                ImGui::Text("Connects vertices: %u -%u", v1, v2);
+                ImGui::Text("Color: (%.2f, %.2f, %.2f)", color.r, color.g, color.b);
             }
         }
         ImGui::End();

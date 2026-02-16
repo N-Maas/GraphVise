@@ -182,8 +182,8 @@ namespace graphvise {
         // --- ATTACHMENT 1: Picking texture (R32UI) - for vertex IDs ---
         glGenTextures(1, &pickingTexture);
         glBindTexture(GL_TEXTURE_2D, pickingTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, mFramebufferSize.x, mFramebufferSize.y,
-                     0, GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32UI, mFramebufferSize.x, mFramebufferSize.y,
+                     0, GL_RG_INTEGER, GL_UNSIGNED_INT, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         // Attach to framebuffer
@@ -584,7 +584,8 @@ namespace graphvise {
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint objectIdLoc = glGetUniformLocation(mShaderProgram, "objectId");
+        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
+        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
 
         //debug
         //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
@@ -609,7 +610,8 @@ namespace graphvise {
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (objectIdLoc != -1) glUniform1ui(objectIdLoc, vertexId);
+        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, vertexId);
+        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, UINT32_MAX);
 
         // Render
         glBindVertexArray(sphereVAO);
@@ -648,13 +650,15 @@ namespace graphvise {
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint objectIdLoc = glGetUniformLocation(mShaderProgram, "objectId");
+        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
+        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (objectIdLoc != -1) glUniform1ui(objectIdLoc, edgeId);
+        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
+        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edgeId);
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
@@ -727,70 +731,47 @@ namespace graphvise {
         }
     }
 
-    uint32_t Renderer::getVertexAt(double x, double y)
+    PickedObject Renderer::getObjectAt(double x, double y)
     {
+        PickedObject result;
         // Make sure coordinates are within framebuffer
         if (x < 0 || x >= mFramebufferSize.x ||
             y < 0 || y >= mFramebufferSize.y) {
-            return UINT32_MAX;  // No vertex
+            return result;  // No vertex
             }
 
         // Bind picking framebuffer
         glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
-
-        // Read the pixel value
-        uint32_t pixelValue;
         glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+        // Read the pixel values [vertexId, edgeId]
+        uint32_t pixelValues[2];
         glReadPixels(static_cast<int>(x), static_cast<int>(y),
-                     1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, &pixelValue);
+                     1, 1, GL_RG_INTEGER, GL_UNSIGNED_INT, pixelValues);
 
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+        // Debug output to see what you're actually reading
+        std::cout << "Picked values: [" << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
+
+        if (pixelValues[0] != UINT32_MAX) {
+            result.type = PickedObject::Type::VERTEX;
+            result.id = pixelValues[0];
+        } else if (pixelValues[1] != UINT32_MAX) {
+            result.type = PickedObject::Type::EDGE;
+            result.id = pixelValues[1];
+        }
         GL_CHECK_ERROR();
 
-        return pixelValue;
-    }
-
-    bool Renderer::projectToScreen(const glm::vec3& worldPos, glm::vec2& screenPos) {
-        // Get viewport dimensions
-        GLint viewport[4];
-        glGetIntegerv(GL_VIEWPORT, viewport);
-
-        // Get current matrices from camera
-        //glm::mat4 view = mCamera.getViewMatrix();
-        //glm::mat4 projection = mCamera.getProjectionMatrix(getAspectRatio());
-        glm::mat4 view = mCamera.get_world_to_view_space();
-        glm::mat4 projection = mCamera.get_world_to_projection_space(getAspectRatio());
-
-        // Transform world position to clip space
-        glm::vec4 clipPos = projection * view * glm::vec4(worldPos, 1.0f);
-
-        // Check if point is behind camera (not visible)
-        if (clipPos.w <= 0.0f) {
-            return false;
-        }
-
-        // Perspective division
-        glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
-
-        // Check if point is within NDC bounds (-1 to 1)
-        if (ndc.x < -1.0f || ndc.x > 1.0f || ndc.y < -1.0f || ndc.y > 1.0f || ndc.z < -1.0f || ndc.z > 1.0f) {
-            return false;
-        }
-
-        // Convert to screen coordinates
-        screenPos.x = (ndc.x * 0.5f + 0.5f) * viewport[2] + viewport[0];
-        screenPos.y = (1.0f - (ndc.y * 0.5f + 0.5f)) * viewport[3] + viewport[1]; // Flip Y
-
-        return true;
+        return result;
     }
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);
     };
 
-    void graphvise::RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
+    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::reference_wrapper<RendererObserver> ref) {
                                            return &ref.get() == &observer.get();
@@ -801,7 +782,7 @@ namespace graphvise {
         }
     };
 
-    void graphvise::RendererSubject::notify() {
+    void RendererSubject::notify() {
         for (const auto& observer : observerList) {
             observer.get().update();  // Call update on each observer
         }

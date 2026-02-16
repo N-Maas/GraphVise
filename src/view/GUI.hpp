@@ -23,21 +23,24 @@ namespace graphvise
         void shutdownGUI();
         void setFps(double newFps);
 
-        void showVertexInfo(uint32_t vertexId, const glm::vec2& screenPos = glm::vec2(-1));
-
-        void vertexIDPopup();
+        void showVertexInfo(uint32_t vertexId);
+        void showEdgeInfo(uint32_t edgeId);
+        void objectIDPopup();
+        //void showObjectInfo(const PickedObject& object, const glm::vec2& screenPos = glm::vec2(-1));
 
     private:
-
         double fps = 0.0;
         Buttons buttons;
         bool errorAvailable;
         std::optional<Error> currentError = std::nullopt;
 
         // for vertex picking
-        bool m_showVertexInfo;
+        bool m_showObjectInfo;
         uint32_t m_selectedVertexId;
+        uint32_t m_selectedEdgeId;
         glm::vec2 m_popupPosition;
+        uint32_t m_objectType;
+        PickedObject m_pickedObject;  // Store the picked object
 
         void errorPopup();
         void currentObjInfo();
