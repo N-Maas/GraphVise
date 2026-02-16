@@ -114,8 +114,7 @@ namespace graphvise
                                        {2, 3},
                                        {3, 4},
                                        {5, 6},
-                                       {5, 7},
-                                       {5, 9},
+                                       {5,7},
                                        {7, 8},
                                        {7, 9},
                                        {9, 10},
@@ -140,6 +139,7 @@ namespace graphvise
                                    },
 
                                    "Welcome to GraphVise");
+
 
         std::ifstream ifs("../ext/example_graph.bin");
 
