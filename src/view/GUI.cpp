@@ -198,16 +198,10 @@ namespace graphvise
     }
 
     void GUI::objectIDPopup() {
-        // Set position if we have valid screen coordinates
-        if (m_popupPosition.x >= 0 && m_popupPosition.y >= 0) {
-            ImGui::SetNextWindowPos(ImVec2(m_popupPosition.x, m_popupPosition.y),
-                                    ImGuiCond_Appearing);
-        } else {
-            // Fallback to center of screen
-            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
-                                           ImGui::GetIO().DisplaySize.y * 0.5f),
-                                    ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-        }
+        // Set position to center of screen
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
+                                       ImGui::GetIO().DisplaySize.y * 0.5f),
+                                ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
         if (ImGui::Begin("Object Information", &m_showObjectInfo)) {
             auto& graph = GraphSaver::getInstance().getGraph();
@@ -225,7 +219,7 @@ namespace graphvise
                 auto& edge = graph.getEdgeByID(m_selectedEdgeId);
                 glm::vec4 color = edge.getVec4();
                 auto [v1, v2] = edge.getConnectingVerticesIDs();
-                ImGui::Text("Connects vertices: %u -%u", v1, v2);
+                ImGui::Text("Connects vertices: %u - %u", v1, v2);
                 ImGui::Text("Color: (%.2f, %.2f, %.2f)", color.r, color.g, color.b);
             }
         }
