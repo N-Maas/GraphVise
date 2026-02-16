@@ -85,14 +85,8 @@ namespace graphvise
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
 
-        if (cachingController.hasCachedGraphs())
-        {
-            cachingController.loadLastCachedGraph();
-        }
-        else
-        {
-            cachingController.loadDefaultGraph();
-        }
+
+        cachingController.loadDefaultGraph();
 
         // Create the renderer object
         std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
