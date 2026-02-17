@@ -48,25 +48,17 @@ namespace graphvise {
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
         [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
         void initSortedVerticesAndEdges();
-        void updateSortedVertices();
-        void updateSortedEdges();
-
-        void setCurrentVertexID(uint32_t vertexID);
-        void setCurrentEdgeID(uint32_t edgeID);
-        [[nodiscard]] std::optional<uint32_t> getCurrentVertexID() const {return currentVertexID;}
-        [[nodiscard]] std::optional<uint32_t> getCurrentEdgeID() const {return currentEdgeID;}
 
 
     private:
+        void updateSortedVertices();
+        void updateSortedEdges();
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;
         std::vector<Edge> edges;
         std::vector<Edge*> edgesSortedByTransparency;
         std::vector<Group> groups;
         std::vector<CameraBookmark> cameraBookmarks;
-
-        std::optional<uint32_t> currentVertexID;
-        std::optional<uint32_t> currentEdgeID;
     };
 }
 #endif
