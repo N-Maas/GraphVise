@@ -46,6 +46,7 @@ gtest_discover_tests(my_tests)
 set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
+        src/rendering/enums.hpp
         src/utils.hpp
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.hpp
@@ -115,6 +116,7 @@ set(SOURCES
         src/controller/Enums/ImportFormat.hpp
         src/controller/Exporting/CachingController.cpp
         src/controller/Exporting/CachingController.hpp
+        src/rendering/enums.hpp
 )
 
 set(SHADERS
@@ -151,7 +153,7 @@ include(FetchContent)
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG ab85434f38d52167bbf94b2e46cc898e55c71a97
+        GIT_TAG        cpp-library-interface
         GIT_SHALLOW TRUE
 )
 

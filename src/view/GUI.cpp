@@ -4,14 +4,18 @@
 
 #include "GUI.hpp"
 
+#include <iostream>
+
 #include "controller/ErrorCollector.hpp"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
 namespace graphvise
 {
-    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false)
+    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false),
+    m_showObjectInfo(false), m_selectedVertexId(0), m_objectType(0)
     {
+        ErrorCollector::getInstance().signIn(std::ref(*this));
     }
 
     void GUI::initGUI(GLFWwindow* window)
@@ -43,6 +47,11 @@ namespace graphvise
             errorPopup();
         }
 
+        // vertex picking
+        if (m_showObjectInfo) {
+            objectIDPopup();
+        }
+
         ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
         ImGui::Begin("##FPS window", nullptr,
             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
@@ -51,14 +60,12 @@ namespace graphvise
         ImGui::Text("%.2f fps", fps);
         ImGui::End();
 
-
-
-
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
+
 
     void GUI::shutdownGUI()
     {
@@ -90,7 +97,7 @@ namespace graphvise
         {
             ImGui::Separator();
             ImGui::Text("At line: %s",
-                        currentError->getMessage()->c_str());
+                        std::to_string(currentError->getLine().value()).c_str());
         }
 
         if (ImGui::Button("OK##Error Confirm"))
@@ -152,7 +159,7 @@ namespace graphvise
                             coords.x, coords.y, coords.z);
                     const glm::vec3 coords2 = secondVertex.getCoordsVector();
                 ImGui::Text("Vertex 2 Coords: x: %.2f y: %.2f z: %.2f",
-                           coords.x, coords.y, coords.z);
+                           coords2.x, coords2.y, coords2.z);
 
                 const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID()).getName();
                 ImGui::Text("Edge Group: %s", groupname.c_str());
@@ -171,7 +178,51 @@ namespace graphvise
 
     void GUI::update()
     {
+        std::cout << "updated" << std::endl;
         errorAvailable = true;
         currentError = ErrorCollector::getInstance().getCurrentError();
+    }
+
+    void GUI::showVertexInfo(uint32_t vertexId) {
+        m_selectedVertexId = vertexId;
+        m_selectedEdgeId = UINT32_MAX;
+        m_showObjectInfo = true;
+        m_objectType = 1; // object type vertex
+    }
+
+    void GUI::showEdgeInfo(uint32_t edgeId) {
+        m_selectedVertexId = UINT32_MAX;
+        m_selectedEdgeId = edgeId;
+        m_showObjectInfo = true;
+        m_objectType = 2; // object type edge
+    }
+
+    void GUI::objectIDPopup() {
+        // Set position to center of screen
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
+                                       ImGui::GetIO().DisplaySize.y * 0.5f),
+                                ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+        if (ImGui::Begin("Object Information", &m_showObjectInfo)) {
+            auto& graph = GraphSaver::getInstance().getGraph();
+            if (m_objectType == 1) {
+                ImGui::Text("Selected Vertex ID: %d", m_selectedVertexId);
+                auto& vertex = graph.getVertexByID(m_selectedVertexId);
+                glm::vec4 color = vertex.getVec4();
+
+                ImGui::Text("Position: (%.2f, %.2f, %.2f)",
+                            vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
+                ImGui::Text("Color: (%.2f, %.2f, %.2f)",
+                            color.r, color.g, color.b);
+            } else if (m_objectType == 2) {
+                ImGui::Text("Selected Edge ID: %d", m_selectedEdgeId);
+                auto& edge = graph.getEdgeByID(m_selectedEdgeId);
+                glm::vec4 color = edge.getVec4();
+                auto [v1, v2] = edge.getConnectingVerticesIDs();
+                ImGui::Text("Connects vertices: %u - %u", v1, v2);
+                ImGui::Text("Color: (%.2f, %.2f, %.2f)", color.r, color.g, color.b);
+            }
+        }
+        ImGui::End();
     }
 }

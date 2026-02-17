@@ -2,11 +2,14 @@
 // Created by Emile Brückner on 1/19/26.
 //
 
-
 #include "Buttons.hpp"
 #include <format>
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
+#include "../rendering/enums.hpp"
+#include "../model/GraphSaver.hpp"
+#include "../model/Graph.hpp"
+#include "../model/Group.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -19,7 +22,6 @@
 #define PerformanceHeight 54
 #define MovementLightSourceHeight 77
 #define MovementCameraHeight 77
-
 
 namespace graphvise
 {
@@ -66,6 +68,7 @@ namespace graphvise
         importGroupConfigBrowser.Display();
         highlightSubgraphBrowser.Display();
         exportGraphBrowser.Display();
+
     }
 
     void Buttons::SideBar()
@@ -92,7 +95,6 @@ namespace graphvise
         SideBarElement(lightSourceIcon, "Toggle Light Source", &lightSource);
         SideBarElement(cameraMovementIcon, "Toggle Camera Movement", &cameraMovement);
         SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks", &cameraBookmarks);
-
 
         const ImVec2 sideBarSize = ImGui::GetWindowSize();
         ImGui::End();
@@ -396,7 +398,12 @@ namespace graphvise
 
     void Buttons::performanceModeToggle(bool* toggle_mode)
     {
-        const char* modeText[] = {"High Performance", "High Resolution"};
+        const char* currentModeText;
+        switch (performanceMode) {
+            case PerformanceMode::QUALITY: currentModeText = "Quality"; break;
+            case PerformanceMode::BALANCE: currentModeText = "Balance"; break;
+            case PerformanceMode::PERFORMANCE: currentModeText = "Performance"; break;
+        }
 
         ImGui::Begin("Performance Mode", toggle_mode,
                      ImGuiWindowFlags_AlwaysAutoResize |
@@ -404,12 +411,10 @@ namespace graphvise
         );
 
         if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-                             HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+            static_cast<int>(PerformanceMode::PERFORMANCE), static_cast<int>(PerformanceMode::QUALITY), currentModeText))
         {
             buttonController->togglePerformanceMode(performanceMode);
         }
-
-
         ImGui::End();
     }
 
@@ -417,13 +422,17 @@ namespace graphvise
     void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle)
     {
         ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-        const bool first = ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                              FIXED_POSITION);
-        const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                               FOLLOW_CAMERA);
+                                 ImGuiWindowFlags_AlwaysAutoResize |
+                                 ImGuiWindowFlags_NoCollapse
+                );
+        // Cast enum values to int
+        const bool first = ImGui::RadioButton("Fixed Position",
+            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+            static_cast<int>(LightSourceMovementBehaviour::FIXED_POSITION));  // CAST TO INT
+
+        const bool second = ImGui::RadioButton("Follow Camera",
+            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+            static_cast<int>(LightSourceMovementBehaviour::FOLLOW_CAMERA));  // CAST TO INT
 
         if (first || second)
         {
@@ -434,22 +443,28 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::setCameraMovementMode(bool* cameraMovementMode)
-    {
-        ImGui::Begin("Camera Movement", cameraMovementMode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
+    void Buttons::setCameraMovementMode(bool* cameraMovementMode) {
+        ImGui::Begin("Camera Focus", cameraMovementMode,
+                         ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoCollapse
         );
+        // Cast enum values to int
+        const bool first = ImGui::RadioButton("Free Camera",
+            reinterpret_cast<int*>(&cameraMode),
+            static_cast<int>(CameraFocusMode::FREE));  // Or SELECTED_VERTEX if FREE doesn't exist
 
-        const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
-        const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);
+        const bool second = ImGui::RadioButton("Center of Mass",
+            reinterpret_cast<int*>(&cameraMode),
+            static_cast<int>(CameraFocusMode::CENTER_OF_MASS));  // CAST TO INT
 
-        if (first || second)
-        {
+        const bool third = ImGui::RadioButton("Origin",
+            reinterpret_cast<int*>(&cameraMode),
+            static_cast<int>(CameraFocusMode::ORIGIN));  // Add if you have this
+
+        // Handle the radio button selection
+        if (first || second || third) {
             buttonController->setCameraFocusMode(cameraMode);
         }
-
-
         ImGui::End();
     }
 

@@ -22,30 +22,34 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <memory>
+#include <glm/ext/matrix_clip_space.hpp>
 
 
 #include "RendererSubject.hpp"
 #include "camera.hpp"
-#include "../model/GraphSaver.hpp"
 #include "../controller/RendererObserver.hpp"
 
 namespace graphvise {
-
-    enum LightSourceMovementBehaviour {
-        FOLLOW_CAMERA,
-        FIXED_POSITION
-    };
-
-    enum PerformanceMode {
-        HIGH_PERFORMANCE,
-        HIGH_RESOLUTION
-    };
-
     struct VertexData {
         glm::vec3 position;
         glm::vec3 normal;
     };
 
+    struct RenderSettings {
+        int targetFPS = 60;           // Target frames per second
+        int geometryDetail = 2;       // Sphere subdivisions
+        int cylinderSegments = 12;    // Cylinder segments
+    };
+
+    //representing the picked object
+    struct PickedObject {
+        uint32_t id = 0;                    // The ID (vertex ID or edge ID)
+        enum class Type { NONE, VERTEX, EDGE } type = Type::NONE;
+
+        bool isValid() const { return type != Type::NONE; }
+        bool isVertex() const { return type == Type::VERTEX; }
+        bool isEdge() const { return type == Type::EDGE; }
+    };
 
     class Renderer : public RendererSubject {
     public:
@@ -54,26 +58,35 @@ namespace graphvise {
         Renderer& operator=(const Renderer&) = delete;
 
         void init();            // Initialize all buffers, called before the main loop
+        void createPickingFramebuffer();
+
         void loadShaders();   // Load shader programs from source files
         void runFrame();        // Called once per Frame
+        //void runFrame(float deltaTime); //remove
+
         void shutdown();        // Cleanup resources, called after the main loop
 
         void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
         void resize(int framebufferWidth, int framebufferHeight);
-
         void render(const glm::mat4& mvp); // Render graph
+
+        // Quality settings
+        void setQualityPreset(QualityPreset preset);
+        void setTargetFPS(int fps);
+        void setGeometryDetail(int detail);  // 0-2
+
+        const RenderSettings &getSettings() const;
 
         void adjustPerformanceMode(PerformanceMode newMode) {
             performanceMode = newMode;
         };
 
-        uint32_t getVertexAt(int x, int y);// get vertex you clicked on a mose position (x,y)
+        PickedObject getObjectAt(double x, double y);// get vertexID you clicked on a mose position (x,y)
 
         static std::shared_ptr<Renderer> getInstance();
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
 
         // Variables to be changed in the ImGUI windows
-        glm::vec4 mColor;
         [[nodiscard]] Camera& m_camera() {
             return mCamera;
         }
@@ -123,8 +136,17 @@ namespace graphvise {
         }
 
     private:
+        //variables for render quality settings
+        RenderSettings mSettings;
+        float mFrameTime = 0.0f;
+        float mAccumulatedTime = 0.0f;
+        int mFrameCounter = 0;
+
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);
+
+        void generateGeometryBasedOnQuality();
+
         ~Renderer() override;
         // Static pointer to the Singleton instance
         static inline std::shared_ptr<Renderer> rendererInstance = nullptr;
@@ -140,16 +162,13 @@ namespace graphvise {
         }
 
         const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
-        GLuint framebuffer;
-        GLuint colorTexture;        // Visual output (RGBA8)
-        GLuint depthBuffer;
 
         GLuint mShaderProgram;
         // Path to shader source files
         std::string mVertexShaderPath;
         std::string mFragmentShaderPath;
 
-        // Reference containers for the vertex array object and the vertex buffer object for edges and vetices
+        // Reference containers for the vertex array object and the vertex buffer object for edges and vertices
         GLuint vertexVAO = 0, vertexVBO = 0;
         GLuint edgeVAO = 0, edgeVBO = 0;
         // Sphere mesh data (icosphere)
@@ -159,7 +178,7 @@ namespace graphvise {
         // generate sphere mesh data(icosphere)
         float sphereRadius{};
         void generateIcosphere(int subdivisions = 2);
-        void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp);
+        void renderSphere(const glm::vec3& center, float sphereRadius, const glm::vec4& color, const glm::mat4& mvp, const uint32_t vertexID);
 
         // Cylinder mesh (reusable)
         std::vector<glm::vec3> cylinderVertices;
@@ -168,7 +187,8 @@ namespace graphvise {
 
         float cylinderRadius{};
         void generateCylinder(int segments = 16);
-        void renderCylinder(const glm::vec3& start, const glm::vec3& end, float cylinderRadius, const glm::vec4& color, const glm::mat4& mvp) const;
+        void renderCylinder(const glm::vec3 & start, const glm::vec3 & end, float radius, const glm::vec4 & color, const glm::mat4 & viewProj, uint32_t
+                            edgeId) const;
 
         Camera mCamera;
         glm::vec3 lightPos;
@@ -177,5 +197,9 @@ namespace graphvise {
 
         bool mF5Pressed;
 
+        // Picking framebuffer
+        GLuint pickingFramebuffer = 0;
+        GLuint pickingTexture = 0;  // Texture to store the IDs
+        GLuint colorTexture = 0; // basic texture for visual vertex color
     };
 }

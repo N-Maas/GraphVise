@@ -7,8 +7,12 @@
 
 //needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
-#include "imfilebrowser.h"
+#include "imgui-filebrowser/imfilebrowser.h"
+#include "model/Group.hpp"
+#include "rendering/renderer.hpp"
+#include "../rendering/enums.hpp"
 #include "controller/ButtonController.hpp"
+#include "model/GraphSaver.hpp"
 
 #define ICON_FILE_PATH "../ext/GUIIcons/"
 
