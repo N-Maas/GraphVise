@@ -337,7 +337,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp, vertex->getID());
+            renderSphere(vertex->getCoordsVector(), sphereRadius, GraphSaver::getInstance().getGraph().getVertexVec4ByID(vertex->getID()), mvp, vertex->getID());
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -347,7 +347,7 @@ namespace graphvise {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge->getVec4(), mvp, edge->getID());
+                              cylinderRadius, GraphSaver::getInstance().getGraph().getEdgeVec4ByID(edge->getID()), mvp, edge->getID());
             }
         }
 

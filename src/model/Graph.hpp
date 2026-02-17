@@ -10,28 +10,6 @@
 #include "imgui/imgui.h"
 
 namespace graphvise {
-    struct VertexTransparencyCompare {
-        bool operator()(const Vertex* firstVertex, const Vertex* secondVertex) const {
-            float firstTransparencyValue = firstVertex->getVec4().w;
-            float secondTransparencyValue = secondVertex->getVec4().w;
-            if (std::abs(firstTransparencyValue - secondTransparencyValue) > 1e-6f) {
-                return firstTransparencyValue > secondTransparencyValue;
-            }
-            return firstVertex->getID() < secondVertex->getID();
-        }
-    };
-
-    struct EdgeTransparencyCompare {
-        bool operator()(const Edge* firstEdge, const Edge* secondEdge) const {
-            float firstTransparencyValue = firstEdge->getVec4().w;
-            float secondTransparencyValue = secondEdge->getVec4().w;
-            if (std::abs(firstTransparencyValue - secondTransparencyValue) > 1e-6f) {
-                return firstTransparencyValue > secondTransparencyValue;
-            }
-            return firstEdge->getID() < secondEdge->getID();
-        }
-    };
-
     class Graph {
     public:
         explicit Graph(const std::vector<glm::vec3>& verticesCoordinates, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& edgesConnectedVerticesIDs) {
@@ -51,7 +29,6 @@ namespace graphvise {
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;
         [[nodiscard]] const std::vector<CameraBookmark>& getCameraBookmarks() const;
-
         [[nodiscard]] Vertex& getVertexByID(std::uint32_t ID);
         [[nodiscard]] Edge& getEdgeByID(std::uint32_t ID);
         [[nodiscard]] Group& getGroupByID(std::uint32_t ID);
@@ -65,6 +42,8 @@ namespace graphvise {
         void deleteAllGroups();
         void deleteCameraBookmark(std::uint32_t  cameraBookmarkID);
         void setGroupTransparency(std::uint32_t groupID, float transparency);
+        [[nodiscard]] ImVec4 getVertexVec4ByID(std::uint32_t vertexID);
+        [[nodiscard]] ImVec4 getEdgeVec4ByID(std::uint32_t edgeID);
 
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
         [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;

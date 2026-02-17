@@ -19,12 +19,8 @@ namespace graphvise {
         return connectingVerticesIDs;
     }
 
-    ImVec4 Edge::getVec4() const {
-        ImVec4 edgeVec4 = GraphSaver::getInstance().getGraph().getGroupByID(connectedGroupID).getVec4();
-        if (ownTransparency.has_value()) {
-            edgeVec4.w = ownTransparency.value();
-        }
-        return edgeVec4;
+    float Edge::getOwnTransparency() const {
+        return ownTransparency.value_or(-1.0f);
     }
 
     void Edge::setOwnTransparency(float transparency) {

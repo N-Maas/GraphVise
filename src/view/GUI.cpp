@@ -136,7 +136,7 @@ namespace graphvise
 
                     ImGui::Text("Vertex Color:");
                     ImGui::SameLine();
-                    ImGui::ColorButton("##Vertex color", currentVertex.getVec4());
+                    ImGui::ColorButton("##Vertex color", GraphSaver::getInstance().getGraph().getVertexVec4ByID(currentVertex.getID()));
                 }
             ImGui::EndTabItem();
         }
@@ -167,7 +167,7 @@ namespace graphvise
 
                 ImGui::Text("Edge Color:");
                 ImGui::SameLine();
-                ImGui::ColorButton("##Edge color", currentEdge.getVec4());
+                ImGui::ColorButton("##Edge color", GraphSaver::getInstance().getGraph().getEdgeVec4ByID(currentEdge.getID()));
             }
             ImGui::EndTabItem();
 
@@ -208,7 +208,7 @@ namespace graphvise
             if (m_objectType == 1) {
                 ImGui::Text("Selected Vertex ID: %d", m_selectedVertexId);
                 auto& vertex = graph.getVertexByID(m_selectedVertexId);
-                glm::vec4 color = vertex.getVec4();
+                glm::vec4 color = GraphSaver::getInstance().getGraph().getVertexVec4ByID(vertex.getID());
 
                 ImGui::Text("Position: (%.2f, %.2f, %.2f)",
                             vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
@@ -217,7 +217,7 @@ namespace graphvise
             } else if (m_objectType == 2) {
                 ImGui::Text("Selected Edge ID: %d", m_selectedEdgeId);
                 auto& edge = graph.getEdgeByID(m_selectedEdgeId);
-                glm::vec4 color = edge.getVec4();
+                glm::vec4 color = GraphSaver::getInstance().getGraph().getEdgeVec4ByID(edge.getID());
                 auto [v1, v2] = edge.getConnectingVerticesIDs();
                 ImGui::Text("Connects vertices: %u - %u", v1, v2);
                 ImGui::Text("Color: (%.2f, %.2f, %.2f)", color.r, color.g, color.b);

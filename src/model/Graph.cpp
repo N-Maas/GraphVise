@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include "EdgeTransparencyCompare.hpp"
+#include "VertexTransparencyCompare.hpp"
 
 namespace graphvise {
     const std::vector<Vertex>& Graph::getVertices() const {
@@ -124,6 +126,34 @@ namespace graphvise {
         }
     }
 
+    void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
+        try {
+            groups.at(groupID).setTransparency(transparency);
+        } catch (std::out_of_range& e) {
+            throw std::out_of_range("Group transparency is out of range [0,1]");
+        }
+        updateSortedVertices();
+        updateSortedEdges();
+    }
+
+    ImVec4 Graph::getVertexVec4ByID(std::uint32_t vertexID) {
+        ImVec4 vertexVec4 = getGroupByID(getVertexByID(vertexID).getConnectedGroupID()).getVec4();
+        float ownTransparency = getVertexByID(vertexID).getOwnTransparency();
+        if (ownTransparency >= 0) {
+            vertexVec4.w = ownTransparency;
+        }
+        return vertexVec4;
+    }
+
+    ImVec4 Graph::getEdgeVec4ByID(std::uint32_t edgeID) {
+        ImVec4 vertexVec4 = getGroupByID(getEdgeByID(edgeID).getConnectedGroupID()).getVec4();
+        float ownTransparency = getEdgeByID(edgeID).getOwnTransparency();
+        if (ownTransparency >= 0) {
+            vertexVec4.w = ownTransparency;
+        }
+        return vertexVec4;
+    }
+
     void Graph::updateSortedVertices(){
         std::ranges::sort(verticesSortedByTransparency, VertexTransparencyCompare{});
     }
@@ -155,15 +185,5 @@ namespace graphvise {
         for (Edge& edge : edges) {
             edgesSortedByTransparency.emplace_back(&edge);
         }
-    }
-
-    void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
-        try {
-            groups.at(groupID).setTransparency(transparency);
-        } catch (std::out_of_range& e) {
-            throw std::out_of_range("Group transparency is out of range [0,1]");
-        }
-        updateSortedVertices();
-        updateSortedEdges();
     }
 }
