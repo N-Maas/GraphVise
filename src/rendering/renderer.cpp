@@ -250,7 +250,10 @@ namespace graphvise {
         //          << edges.size() << " edges" << std::endl;
 
         // ===== RENDER graph.vertices AS SPHERES =====
-        for (const Vertex* vertex : vertices) {
+
+
+
+        for (const Vertex* vertex : GraphSaver::getInstance().getGraph().getVerticesSortedByTransparency()) {
             //std::cout << "iterating through vertices" << std::endl;
             renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp);
         }

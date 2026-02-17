@@ -42,7 +42,7 @@ namespace graphvise
 
         MainMenuBar();
 
-        CachingController::loadLastCachedGraph();
+
 
         SideBar();
     }

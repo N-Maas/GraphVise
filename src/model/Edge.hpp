@@ -25,12 +25,9 @@ namespace graphvise {
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
-            ar & edgeID;
             ar & connectedGroupID;
-            ar & ownTransparency;
             ar & connectingVerticesIDs.first;
             ar & connectingVerticesIDs.second;
-
 
         }
 

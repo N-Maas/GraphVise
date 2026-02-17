@@ -30,9 +30,7 @@ namespace graphvise
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
-            ar & vertexID;
             ar & connectedGroupID;
-            ar & ownTransparency;
             ar & coordsVector.x;
             ar & coordsVector.y;
             ar & coordsVector.z;

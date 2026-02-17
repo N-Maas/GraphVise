@@ -101,15 +101,13 @@ namespace graphvise
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
+
             ar & name;
             ar & vertices;
-            ar & verticesSortedByTransparency;
             ar & edges;
-            ar & edgesSortedByTransparency;
             ar & groups;
             ar & cameraBookmarks;
-            ar & currentVertexID;
-            ar & currentEdgeID;
+
         }
 
     private:
