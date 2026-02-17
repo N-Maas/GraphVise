@@ -6,6 +6,8 @@
 #define THESIS_FRAMEWORK_BUTTONS_HPP
 
 //needed for FileBrowser DON'T DELETE
+#include <functional>
+
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
@@ -47,7 +49,7 @@ namespace graphvise
         bool cameraBookmarks = false;
         bool addBookmarkWindow = false;
 
-
+        bool* currentBoolPtr = nullptr;
 
         ImportFormat importFormat = ImportFormat::TXT;
         ExportFormat exportFormat = ExportFormat::PNG;
@@ -55,6 +57,8 @@ namespace graphvise
         GraphSaver *saver = &GraphSaver::getInstance();
         const std::vector<Group>* activeGroups = nullptr;
         ButtonController *buttonController;
+
+        std::function<void()> currentSideBar = nullptr;
 
         PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
         CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
@@ -93,22 +97,22 @@ namespace graphvise
         void graphSettings();
         void generalSettings();
         void MainMenuBar();
-        void GroupMenu(bool* groupMenu);
+        void GroupMenu();
         void ChangeTransparency(uint32_t groupID);
         void findObject();
-        void performanceModeToggle(bool* toggle_mode);
+        void performanceModeToggle();
         void randomizeColoring(uint32_t groupID) const;
         void changeColoring(uint32_t groupID);
-        void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle);
-        void setCameraMovementMode(bool* cameraMovementMode);
+        void setLightSourceMovementBehaviour();
+        void setCameraMovementMode();
         void findVertex();
         void findEdge();
         void highlightSubgraph();
         void importGraph();
         void exportGraph();
-        void cameraBookmarkMenu(bool* visible);
+        void cameraBookmarkMenu();
         void SideBar();
-        static void SideBarElement(Texture texture, const char* hoverMsg, bool* state);
+        void SideBarElement(Texture texture, const char* hoverMsg, const std::function<void()>& onClickFunction);
         void importGroupConfiguration();
     };
 }

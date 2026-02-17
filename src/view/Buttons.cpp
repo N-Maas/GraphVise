@@ -10,14 +10,11 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <functional>
+
 #include "stb_image.h"
 
-#define MainMenuBarHeight 19
-#define findObjectHeight 115
-#define GroupMenuHeight 300
-#define PerformanceHeight 54
-#define MovementLightSourceHeight 77
-#define MovementCameraHeight 77
+
 
 
 namespace graphvise
@@ -84,87 +81,44 @@ namespace graphvise
                      ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoTitleBar
+                     ImGuiWindowFlags_NoTitleBar |
+                        ImGuiWindowFlags_NoNavFocus
         );
 
-        SideBarElement(searchIcon, "Search for Objects", &search);
-        SideBarElement(groupIcon, "Show Groups", &groups);
-        SideBarElement(performanceIcon, "Toggle Performance Mode", &togglePerformanceMode);
-        SideBarElement(lightSourceIcon, "Toggle Light Source", &lightSource);
-        SideBarElement(cameraMovementIcon, "Toggle Camera Movement", &cameraMovement);
-        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks", &cameraBookmarks);
+        SideBarElement(searchIcon, "Search for Objects", std::function<void()>([this](){findObject();}));
+        SideBarElement(groupIcon, "Show Groups", std::function<void()>([this](){GroupMenu();}));
+        SideBarElement(performanceIcon, "Toggle Performance Mode", std::function<void()>([this](){performanceModeToggle();}));
+        SideBarElement(lightSourceIcon, "Toggle Light Source", std::function<void()>([this](){setLightSourceMovementBehaviour();}));
+        SideBarElement(cameraMovementIcon, "Toggle Camera Movement", std::function<void()>([this](){setCameraMovementMode();}));
+        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks", std::function<void()>([this](){cameraBookmarkMenu();}));
 
-
-        const ImVec2 sideBarSize = ImGui::GetWindowSize();
         ImGui::End();
 
-        constexpr float widgetSpacing = 3.0f;
 
-        pos.x = pos.x - sideBarSize.x - 20;
-        pos.y = MainMenuBarHeight;
-
-        windowPivot = {1.0f, 0.0f};
-
-        if (search)
+        if (currentSideBar && search)
         {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            findObject();
-        }
-
-        pos.y += findObjectHeight + widgetSpacing;
-
-        if (groups)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            GroupMenu(&groups);
-        }
-
-        pos.y += GroupMenuHeight + widgetSpacing;
-
-        if (togglePerformanceMode)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            performanceModeToggle(&togglePerformanceMode);
-        }
-        pos.y += PerformanceHeight + widgetSpacing;
-
-        if (lightSource)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            setLightSourceMovementBehaviour(&lightSource);
-        }
-
-        pos.y += MovementLightSourceHeight + widgetSpacing;
-        if (cameraMovement)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            setCameraMovementMode(&cameraMovement);
-        }
-
-        pos.y += MovementCameraHeight + widgetSpacing;
-
-        if (cameraBookmarks)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            cameraBookmarkMenu(&cameraBookmarks);
+            currentSideBar();
         }
     }
 
-    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, bool* state)
+    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, const std::function<void()>& onClickFunction)
     {
 
         if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
-            *state = !*state;
+            auto pos = ImGui::GetItemRectMin();
+            pos.x -= 15;
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
+
+
+            currentSideBar = onClickFunction;
         }
         if (ImGui::IsItemHovered())
         {
             ImGui::SetTooltip(hoverMsg);
         }
         ImGui::Spacing();
+
     }
 
     void Buttons::graphSettings()
@@ -259,42 +213,43 @@ namespace graphvise
         }
     }
 
-    void Buttons::cameraBookmarkMenu(bool* visible)
+    void Buttons::cameraBookmarkMenu()
     {
         auto bookmarks = saver->getGraph().getCameraBookmarks();
 
         auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
         ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0),ImVec2(x, MAXFLOAT) );
 
-        ImGui::Begin("Bookmarks", visible,
+        if (ImGui::Begin("Bookmarks", &cameraBookmarks,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::Button("Add Bookmark"))
+        ))
         {
-            addBookmarkWindow = true;
-        }
-        for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
-        {
-            auto& bookmark = bookmarks[bookmarkID];
-            if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
+            if (ImGui::Button("Add Bookmark"))
             {
-                ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y,
-                            bookmark.getCoordsVector().z);
-                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
+                addBookmarkWindow = true;
+            }
+            for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
+            {
+                auto& bookmark = bookmarks[bookmarkID];
+                if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
                 {
-                    buttonController->loadCameraBookmark(bookmark);
-                }
-                ImGui::SameLine();
-                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
-                {
+                    ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y,
+                                bookmark.getCoordsVector().z);
+                    if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
+                    {
+                        buttonController->loadCameraBookmark(bookmark);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                    {
 
-                    buttonController->deleteCameraBookmark(bookmarkID);
+                        buttonController->deleteCameraBookmark(bookmarkID);
+                    }
                 }
             }
+            ImGui::End();
         }
-        ImGui::End();
 
         if (addBookmarkWindow)
         {
@@ -318,12 +273,12 @@ namespace graphvise
         }
     }
 
-    void Buttons::GroupMenu(bool* groupMenu)
+    void Buttons::GroupMenu()
     {
         activeGroups = &saver->getGraph().getGroups();
 
         ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
-        ImGui::Begin("Groups", groupMenu,
+        ImGui::Begin("Groups", &groups,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
@@ -408,11 +363,11 @@ namespace graphvise
         }
     }
 
-    void Buttons::performanceModeToggle(bool* toggle_mode)
+    void Buttons::performanceModeToggle()
     {
         const char* modeText[] = {"High Performance", "High Resolution"};
 
-        ImGui::Begin("Performance Mode", toggle_mode,
+        ImGui::Begin("Performance Mode", &togglePerformanceMode,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
@@ -430,9 +385,9 @@ namespace graphvise
     }
 
 
-    void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle)
+    void Buttons::setLightSourceMovementBehaviour()
     {
-        ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
+        ImGui::Begin("Light Source", &lightSource,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
                      );
@@ -453,9 +408,9 @@ namespace graphvise
         ImGui::End();
     }
 
-    void Buttons::setCameraMovementMode(bool* cameraMovementMode)
+    void Buttons::setCameraMovementMode()
     {
-        ImGui::Begin("Camera Movement", cameraMovementMode,
+        ImGui::Begin("Camera Movement", &cameraMovement,
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoCollapse
         );
