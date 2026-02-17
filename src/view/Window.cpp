@@ -11,6 +11,7 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
+#include <functional>
 
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
@@ -44,7 +45,8 @@ namespace graphvise {
         int defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-        // Error check if the window fails to create
+		glfwSetWindowUserPointer(window, this);
+		// Error check if the window fails to create
 
         glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -56,6 +58,7 @@ namespace graphvise {
         }
 
 		glfwSetScrollCallback(window, scrollCallback);
+		glfwSetMouseButtonCallback(window, mouseButtonCallback); // for vertex picking
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -82,26 +85,40 @@ namespace graphvise {
         int framebufferWidth, framebufferHeight;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
-        // Create the renderer object
-        std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
-        renderer->init();
+		// Create the renderer object
+		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+
+		// todo test changing render quality
+		renderer->setQualityPreset(QualityPreset::MEDIUM);
+
+		renderer->init();
 
         ButtonController controller = ButtonController(*renderer);
 
-		GUI gui(&controller);
+		gui = std::make_unique<GUI>(&controller);
 
-        ErrorCollector::getInstance().signIn(gui);
+		// todo this line produces an error gui not recognized, please check
+        ErrorCollector::getInstance().signIn(std::ref(*gui));
 
-        gui.initGUI(window);
+        gui->initGUI(window);
 
         // FPS counter
         int frameCount = 0;
         double accumulatedTime = 0.0;
 
-        // Main while loop
-        while (!glfwWindowShouldClose(window))
-        {
-            double startTime = glfwGetTime();
+		// Main loop with delta time calculation for changing render quality
+		float deltaTime = 0.0f;
+		auto lastFrame = std::chrono::high_resolution_clock::now();
+
+		// Main while loop
+		while (!glfwWindowShouldClose(window))
+		{
+			//introducing different render qualities
+			auto currentFrame = std::chrono::high_resolution_clock::now();
+			deltaTime = std::chrono::duration<float>(currentFrame - lastFrame).count();
+			lastFrame = currentFrame;
+
+			double startTime = glfwGetTime();
 
             // Resize the renderer and viewport if the framebuffer / window size changed
             int newFramebufferWidth, newFramebufferHeight;
@@ -134,7 +151,7 @@ namespace graphvise {
 
 
             //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
+            gui->loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -151,14 +168,14 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui.setFps(frameCount / accumulatedTime);
+                gui->setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui.shutdownGUI();
+        gui->shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
@@ -174,8 +191,6 @@ namespace graphvise {
 	void Window::processEvents()
 	{
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-
-
 		if (!ImGui::GetIO().WantCaptureKeyboard)
 		{
 
@@ -220,5 +235,102 @@ namespace graphvise {
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		scrollYOffset = yoffset;
+	}
+
+	// Implementation in Window.cpp:
+	void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+		// Get the Window instance (you'll need to store it as a user pointer)
+		Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+		if (self) {
+			double xpos, ypos;
+			glfwGetCursorPos(window, &xpos, &ypos);
+			self->handleMouseClick(button, action, mods, xpos, ypos);
+		}
+	}
+/*
+	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
+		// Only handle left button press (not release)
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			// Get the renderer instance
+			auto renderer = Renderer::getInstance();
+
+			// Get framebuffer size (might be different from window size)
+			int fbWidth, fbHeight;
+			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+
+			// Convert window coordinates to framebuffer coordinates
+			int winWidth, winHeight;
+			glfwGetWindowSize(window, &winWidth, &winHeight);
+
+			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
+			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight); // Flip Y
+
+			// Get the picked object (could be vertex, edge, or nothing)
+			PickedObject picked = renderer->getObjectAt(fbX, fbY);
+			auto& graph = GraphSaver::getInstance().getGraph();
+
+			if (picked.isVertex()) {
+				// Get vertex position
+				try {
+					auto& vertex = graph.getVertexByID(picked.id);
+					m_clickedObjectPos = vertex.getCoordsVector();
+					gui->showVertexInfo(picked.id);
+
+				} catch ( std::exception& e ) {
+					std::cout << "Error getting vertex" << std::endl;
+				}
+			} else if (picked.isEdge()) {
+				// Handle edge click
+				try {
+					auto& edge = graph.getEdgeByID(picked.id);
+
+					// For edges, you might want to show popup at midpoint
+					auto [v1Id, v2Id] = edge.getConnectingVerticesIDs();
+					auto& v1 = graph.getVertexByID(v1Id);
+					auto& v2 = graph.getVertexByID(v2Id);
+					gui->showEdgeInfo(picked.id);
+
+				} catch (const std::exception& e) {
+					std::cout << "Error getting edge: " << e.what() << std::endl;
+				}
+			}
+		}
+		*/
+	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+			auto renderer = Renderer::getInstance();
+
+			// Convert coordinates (keep this - it's needed for picking)
+			int fbWidth, fbHeight;
+			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+
+			// Convert window coordinates to framebuffer coordinates
+			int winWidth, winHeight;
+			glfwGetWindowSize(window, &winWidth, &winHeight);
+
+			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
+			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
+
+			// Get the picked object (could be vertex, edge, or nothing)
+			PickedObject picked = renderer->getObjectAt(fbX, fbY);
+			auto& graph = GraphSaver::getInstance().getGraph();
+
+			if (picked.isVertex()) {
+				try {
+					auto& vertex = graph.getVertexByID(picked.id);
+					gui->showVertexInfo(picked.id);
+				} catch (const std::exception& e) {
+					std::cout << "Error getting vertex: " << e.what() << std::endl;
+				}
+			}
+			else if (picked.isEdge()) {
+				try {
+					auto& edge = graph.getEdgeByID(picked.id);
+					gui->showEdgeInfo(picked.id);
+				} catch (const std::exception& e) {
+					std::cout << "Error getting edge: " << e.what() << std::endl;
+				}
+			}
+		}
 	}
 }

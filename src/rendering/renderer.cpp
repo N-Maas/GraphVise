@@ -24,13 +24,20 @@
 #include <map>
 #include <glm/ext/matrix_transform.hpp>
 
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "controller/ButtonController.hpp"
+#include "model/GraphSaver.hpp"
 
 namespace graphvise {
+
     Renderer::Renderer()
     : mFramebufferSize(800, 600),  // Default size
-      framebuffer(0),
-      colorTexture(0),
-      depthBuffer(0),
       mShaderProgram(0),
       mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
      mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
@@ -44,16 +51,18 @@ namespace graphvise {
      cylinderRadius(STANDARD_CYLINDER_RADIUS),
      mCamera(),
      lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(FIXED_POSITION),
+     lightSourceMovementBehaviour(LightSourceMovementBehaviour::FIXED_POSITION),
      performanceMode(),
-     mF5Pressed(false) {
+     mF5Pressed(false)
+    {
+        // Default quality settings
+        mSettings.targetFPS = 60;
+        mSettings.geometryDetail = 2;
+        mSettings.cylinderSegments = 12;
     }
 
     Renderer::Renderer(int framebufferWidth, int framebufferHeight)
         : mFramebufferSize(framebufferWidth, framebufferHeight),
-          framebuffer(0),
-          colorTexture(0),
-          depthBuffer(0),
           mShaderProgram(0),
           mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
           mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
@@ -69,7 +78,12 @@ namespace graphvise {
           lightPos({2.0f, 2.0f, 2.0f}),
           lightSourceMovementBehaviour(),
           performanceMode(),
-          mF5Pressed(false) {
+          mF5Pressed(false)
+    {
+        // Default quality settings
+        mSettings.targetFPS = 60;
+        mSettings.geometryDetail = 2;
+        mSettings.cylinderSegments = 12;
     }
 
 
@@ -88,7 +102,6 @@ namespace graphvise {
     }
 
     // Singleton getters
-
     std::shared_ptr<Renderer> Renderer::getInstance(int framebufferWidth, int framebufferHeight) {
         std::lock_guard<std::mutex> lock(mtx);
         if (!rendererInstance) {
@@ -121,18 +134,9 @@ namespace graphvise {
         // Load the shader files
         loadShaders();
 
-        if (mCamera.camera_focus_mode() == CENTER_OF_MASS) {
+        if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
-
-        // Initialize Buffers and Arrays for sphere and cylinder
-        glGenVertexArrays(1, &sphereVAO);
-        glGenBuffers(1, &sphereVBO);
-        glGenBuffers(1, &sphereEBO);
-
-        glGenVertexArrays(1, &cylinderVAO);
-        glGenBuffers(1, &cylinderVBO);
-        glGenBuffers(1, &cylinderEBO);
 
         // Generate meshes if needed
         if (sphereVertices.empty()) {
@@ -142,6 +146,9 @@ namespace graphvise {
             generateCylinder(12);
         }
 
+        // Create picking framebuffer
+        createPickingFramebuffer();
+
         //for rendering transparent objects
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -149,8 +156,61 @@ namespace graphvise {
         GL_CHECK_ERROR();
     }
 
+    void Renderer::createPickingFramebuffer()
+    {
+        // Delete old if exists
+        if (pickingFramebuffer) {
+            glDeleteFramebuffers(1, &pickingFramebuffer);
+            glDeleteTextures(1, &pickingTexture);
+            glDeleteTextures(1, &colorTexture);
+        }
+
+        // Create framebuffer
+        glGenFramebuffers(1, &pickingFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+
+        // --- ATTACHMENT 0: Color texture (RGBA8) - required for location 0 output ---
+        glGenTextures(1, &colorTexture);
+        glBindTexture(GL_TEXTURE_2D, colorTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mFramebufferSize.x, mFramebufferSize.y,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Attach to framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorTexture, 0);
+
+        // --- ATTACHMENT 1: Picking texture (R32UI) - for vertex IDs ---
+        glGenTextures(1, &pickingTexture);
+        glBindTexture(GL_TEXTURE_2D, pickingTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32UI, mFramebufferSize.x, mFramebufferSize.y,
+                     0, GL_RG_INTEGER, GL_UNSIGNED_INT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        // Attach to framebuffer
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, pickingTexture, 0);
+
+        // --- Depth buffer (required for depth testing) ---
+        GLuint depthBuffer;
+        glGenRenderbuffers(1, &depthBuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, mFramebufferSize.x, mFramebufferSize.y);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+
+        // Set draw buffers
+        GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, drawBuffers);
+
+        // Check completeness
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "ERROR: Picking framebuffer not complete!" << std::endl;
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        GL_CHECK_ERROR();
+    }
+
     /**
-     * Loads the shaders from the file paths and compiles a new shader program to use.
+     * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
     void Renderer::loadShaders()
     {
@@ -181,13 +241,36 @@ namespace graphvise {
     void Renderer::runFrame()
     {
 
-        //migrated from Window
+        // --- FIRST PASS: Render to picking framebuffer (invisible) ---
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Clear to UINT32_MAX (0xFFFFFFFF)
+        GLuint clearValue = 0xFFFFFFFF;
+        glClearBufferuiv(GL_COLOR, 1, &clearValue);  // Clear attachment 1
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        // Enable depth testing for picking pass
+        glEnable(GL_DEPTH_TEST);
+
+        // Render with picking shader (same shader, it already outputs ID to location 1)
+        if (mShaderProgram != 0) {
+            glUseProgram(mShaderProgram);
+            glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
+            render(mvp);
+        }
+
+        // --- SECOND PASS: Render to screen (normal rendering) ---
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // binding to default framebuffer
+        glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
+        GL_CHECK_ERROR();
 
         // Specify the color of the background
         glClearColor(0.f, 0.14f, 0.28f, 1.0f);
         // Clean the back buffer and assign the new color to it
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
         if(mShaderProgram == 0)
         {
@@ -195,18 +278,8 @@ namespace graphvise {
             return;
         }
 
-        // Tell OpenGL which shader program we want to use
-        glUseProgram(mShaderProgram);
-        GL_CHECK_ERROR();
-
         // MVP matrix
         glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        if (mvpLoc != -1) {
-            glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        }
-
-        //rendering graph
         render(mvp);
         GL_CHECK_ERROR();
         notify();
@@ -227,6 +300,18 @@ namespace graphvise {
         }
 
         glUseProgram(mShaderProgram);
+
+        // Set uniforms
+        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
+        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+
+        // Set lighting (use same light as cube)
+        if (lightPosLoc != -1) {
+            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+        }
+        if (lightColorLoc != -1) {
+            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
+        }
 
         // Set MVP uniform
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
@@ -252,7 +337,7 @@ namespace graphvise {
         // ===== RENDER graph.vertices AS SPHERES =====
         for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp);
+            renderSphere(vertex->getCoordsVector(), sphereRadius, vertex->getVec4(), mvp, vertex->getID());
         }
         // ===== RENDER EDGES AS CYLINDERS =====
         for (const auto& edge : edges) {
@@ -262,7 +347,7 @@ namespace graphvise {
                 glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
                 glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
                 renderCylinder(fromPos, toPos,
-                              cylinderRadius, edge->getVec4(), mvp);
+                              cylinderRadius, edge->getVec4(), mvp, edge->getID());
             }
         }
 
@@ -286,10 +371,20 @@ namespace graphvise {
 
     void Renderer::resize(int framebufferWidth, int framebufferHeight)
     {
+        if (framebufferWidth <= 0 || framebufferHeight <= 0) {
+            std::cerr << "Invalid resize dimensions!" << std::endl;
+            return;
+        }
+        std::cout << "Renderer::resize(" << framebufferWidth
+             << ", " << framebufferHeight << ")" << std::endl;
+
+        // Update stored size
         mFramebufferSize.x = framebufferWidth;
         mFramebufferSize.y = framebufferHeight;
-    }
 
+        // Recreate picking framebuffer for new size
+        createPickingFramebuffer();
+    }
 
     void Renderer::generateIcosphere(int subdivisions) {
         // Icosahedron vertices (12 vertices)
@@ -468,8 +563,11 @@ namespace graphvise {
 
 
     void Renderer::renderSphere(const glm::vec3& center, float radius,
-                                    const glm::vec4& color, const glm::mat4& viewProj) {
-        if (sphereVAO == 0) return;
+                                    const glm::vec4& color, const glm::mat4& viewProj, const uint32_t vertexId) {
+        if (sphereVAO == 0) {
+            std::cerr << "    ERROR: sphereVAO is 0!" << std::endl;
+            return;
+        }
 
         //debug
         //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
@@ -481,15 +579,13 @@ namespace graphvise {
 
         glm::mat4 mvp = viewProj * model;
 
-        glUseProgram(mShaderProgram);
-
         // Set uniforms
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
+        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
+        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
 
         //debug
         //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
@@ -514,13 +610,8 @@ namespace graphvise {
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        // Set lighting (use same light as cube)
-        if (lightPosLoc != -1) {
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        }
-        if (lightColorLoc != -1) {
-            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
-        }
+        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, vertexId);
+        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, UINT32_MAX);
 
         // Render
         glBindVertexArray(sphereVAO);
@@ -530,7 +621,7 @@ namespace graphvise {
 
     void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
                                       float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj) const {
+                                      const glm::mat4& viewProj, const uint32_t edgeId) const {
         glm::vec3 direction = end - start;
         float length = glm::length(direction);
 
@@ -554,43 +645,133 @@ namespace graphvise {
 
         glm::mat4 mvp = viewProj * model;
 
-        // Set uniforms and render
-        glUseProgram(mShaderProgram);
-
         // Set uniforms
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
         GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
         GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
+        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
+        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
 
         if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-
-
-        // Set lighting (use same light as cube)
-        if (lightPosLoc != -1) {
-            glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-        }
-        if (lightColorLoc != -1) {
-            glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
-        }
-
+        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
+        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edgeId);
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     }
 
+    void Renderer::generateGeometryBasedOnQuality()
+    {
+        int sphereSubdivisions;
+
+        switch (mSettings.geometryDetail) {
+            case 0:  // Low quality
+                sphereSubdivisions = 1;
+                mSettings.cylinderSegments = 8;
+                break;
+            case 1:  // Medium quality
+                sphereSubdivisions = 2;
+                mSettings.cylinderSegments = 12;
+                break;
+            case 2:  // High quality
+                sphereSubdivisions = 3;
+                mSettings.cylinderSegments = 16;
+                break;
+            default:
+                sphereSubdivisions = 2;
+                mSettings.cylinderSegments = 12;
+        }
+
+        // Regenerate geometry
+        generateIcosphere(sphereSubdivisions);
+        generateCylinder(mSettings.cylinderSegments);
+    }
+
+    void Renderer::setQualityPreset(QualityPreset preset)
+    {
+        switch (preset) {
+            case QualityPreset::LOW:
+                mSettings.geometryDetail = 0;
+                mSettings.targetFPS = 30;
+                break;
+
+            case QualityPreset::MEDIUM:
+                mSettings.geometryDetail = 2;
+                mSettings.targetFPS = 60;
+                break;
+
+            case QualityPreset::HIGH:
+                mSettings.geometryDetail = 3;
+                mSettings.targetFPS = 80;
+                break;
+        }
+        // Regenerate geometry with new quality
+        generateGeometryBasedOnQuality();
+
+        // Reinitialize resources with new settings
+        //init();
+    }
+
+    void Renderer::setTargetFPS(int fps)
+    {
+        mSettings.targetFPS = std::max(1, std::min(fps, 240)); // Clamp to reasonable range
+    }
+
+    void Renderer::setGeometryDetail(int detail)
+    {
+        detail = std::max(0, std::min(detail, 3)); // Clamp to 0-3
+        if (mSettings.geometryDetail != detail) {
+            mSettings.geometryDetail = detail;
+            generateGeometryBasedOnQuality();
+        }
+    }
+
+    PickedObject Renderer::getObjectAt(double x, double y)
+    {
+        PickedObject result;
+        // Make sure coordinates are within framebuffer
+        if (x < 0 || x >= mFramebufferSize.x ||
+            y < 0 || y >= mFramebufferSize.y) {
+            return result;  // No vertex
+            }
+
+        // Bind picking framebuffer
+        glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+        // Read the pixel values [vertexId, edgeId]
+        uint32_t pixelValues[2];
+        glReadPixels(static_cast<int>(x), static_cast<int>(y),
+                     1, 1, GL_RG_INTEGER, GL_UNSIGNED_INT, pixelValues);
+
+        // Unbind
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        // Debug output to see what you're actually reading
+        std::cout << "Picked values: [" << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
+
+        if (pixelValues[0] != UINT32_MAX) {
+            result.type = PickedObject::Type::VERTEX;
+            result.id = pixelValues[0];
+        } else if (pixelValues[1] != UINT32_MAX) {
+            result.type = PickedObject::Type::EDGE;
+            result.id = pixelValues[1];
+        }
+        GL_CHECK_ERROR();
+
+        return result;
+    }
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);
     };
 
-    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {;
+    void RendererSubject::signOut(std::reference_wrapper<RendererObserver> observer) {
         auto it = std::ranges::find_if(observerList,
                                        [observer](const std::reference_wrapper<RendererObserver> ref) {
                                            return &ref.get() == &observer.get();

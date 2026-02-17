@@ -19,6 +19,8 @@
 
 #include <glm/glm.hpp>
 
+#include "enums.hpp"
+
 #define DEFAULT_COORDINATES glm::vec3(0, 0, 5)
 
 /**
@@ -30,15 +32,14 @@
  */
 
 namespace graphvise {
-    enum CameraFocusMode {
-        CENTER_OF_MASS,
-        FREE
-    };
 
     class Camera {
     private:
         CameraFocusMode cameraFocusMode;
         const glm::vec3 originCoords = glm::vec3(0.0f, 0.0f, 0.0f);
+        mutable glm::mat4 mProjectionMatrix;
+
+        void scalePositionToGraph();
     public:
         [[nodiscard]] CameraFocusMode camera_focus_mode() const {
             return cameraFocusMode;
@@ -46,7 +47,7 @@ namespace graphvise {
 
         void set_camera_focus_mode(CameraFocusMode camera_focus_mode) {
             cameraFocusMode = camera_focus_mode;
-            if (cameraFocusMode == CENTER_OF_MASS) {
+            if (cameraFocusMode == CameraFocusMode::CENTER_OF_MASS) {
                 lookAtFocus();
             }
         }
@@ -66,6 +67,7 @@ namespace graphvise {
         void resetPosition() {
             position_world_space = DEFAULT_COORDINATES;
             focusPoint = originCoords;
+            scalePositionToGraph();
             lookAtFocus();
         }
 
@@ -97,7 +99,7 @@ namespace graphvise {
             rotate_camera(false),
             focusPoint(0, 0, 0)
         {
-            set_camera_focus_mode(CENTER_OF_MASS);
+            set_camera_focus_mode(CameraFocusMode::CENTER_OF_MASS);
         }
 
         // Constructs the world to view space transform for the given camera
@@ -113,5 +115,6 @@ namespace graphvise {
 
         // Make the camera look at a specific target point (default: origin)
         void lookAtFocus();
+
     };
 }

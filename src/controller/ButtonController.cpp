@@ -11,6 +11,7 @@
 
 #include "ErrorCollector.hpp"
 #include "Enums/ImportFormat.hpp"
+#include "model/GraphSaver.hpp"
 
 #define MAX_COLOR_VALUE 1.0f
 
@@ -91,11 +92,6 @@ namespace graphvise {
         }
 
         graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
-        graph.setCurrentEdgeID(edgeID);
-
-
-
-        graph.highlightByID(std::vector<uint32_t>{}, std::vector{edgeID});
         glm::vec3 firstVertexPos = graph.getVertexByID(firstVertexID).getCoordsVector();
         glm::vec3 secondVertexPos = graph.getVertexByID(secondVertexID).getCoordsVector();
 
@@ -126,7 +122,6 @@ namespace graphvise {
         }
         camera.setRotation(0, newAngle);
         camera.focusPoint = averagePos;
-        std::cout << "New Pos: " << newCamPos.x << " " << newCamPos.y << " " << newCamPos.z << std::endl;
     }
 
     void ButtonController::highlightSubgraph(std::filesystem::path filePath) {
