@@ -201,5 +201,16 @@ namespace graphvise {
         GLuint pickingFramebuffer = 0;
         GLuint pickingTexture = 0;  // Texture to store the IDs
         GLuint colorTexture = 0; // basic texture for visual vertex color
+
+        // buffers needed for instance rendering
+        std::vector<glm::vec4> vertexInstanceData;  // Packed: xyz=position, w=id
+        std::vector<glm::vec4> vertexColorData;     // rgba colors
+        std::vector<glm::vec4> edgeInstanceData;    // xyz=start, w=radius, then xyz=end, w=id
+        std::vector<glm::vec4> edgeColorData;       // rgba colors
+        GLuint vertexInstanceVBO;
+        GLuint vertexColorVBO;
+        GLuint edgeInstanceVBO;
+        GLuint edgeColorVBO;
+        bool renderingSpheres;  // Uniform to control shader path
     };
 }

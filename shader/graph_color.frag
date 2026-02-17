@@ -1,27 +1,51 @@
 #version 330 core
+
+// Inputs from vertex shader
+in vec4 VertexColor;
+flat in uint InstanceId;
 in vec3 FragPos;
 in vec3 Normal;
-uniform vec3 objectColor;
-uniform float transparency;
+flat in float Transparency;
+
+// Uniforms for lighting
 uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform vec3 viewPos;  // Camera position for specular lighting
 
-uniform uint vertexId;         // Vertex ID for picking
-uniform uint edgeId;           // edge ID for picking
-
-layout(location = 0) out vec4 FragColor;   // To screen (RGBA8)
-layout(location = 1) out uvec2 pickingOutput;  // To picking buffer (R32UI) (vertexId, edgeId)
-
+// Outputs
+out vec4 FragColor;
+out uvec2 PickingData;  // For picking framebuffer (ID rendering)
 
 void main() {
-    // Simple lighting
+    // ===== LIGHTING CALCULATIONS =====
+
+    // Ambient lighting
+    float ambientStrength = 0.3;
+    vec3 ambient = ambientStrength * lightColor;
+
+    // Diffuse lighting
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.3);  // 0.3 = ambient
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
 
-    vec3 result = objectColor * diff;
-    FragColor = vec4(result, transparency);
+    // Specular lighting (optional, adds shine)
+    float specularStrength = 0.5;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;
 
-    // Picking output - just the ID as unsigned integer
-    pickingOutput = uvec2(vertexId, edgeId);
+    // Combine lighting with object color
+    vec3 result = (ambient + diffuse + specular) * VertexColor.rgb;
+
+    // ===== OUTPUT FOR NORMAL RENDERING =====
+    // Use the combined lighting result with object's alpha for transparency
+    FragColor = vec4(result, Transparency);
+
+    // ===== OUTPUT FOR PICKING (to color attachment 1) =====
+    // Pass instance ID for object selection
+    // For spheres: InstanceId is vertex ID
+    // For cylinders: InstanceId is edge ID
+    PickingData = uvec2(InstanceId, 0xFFFFFFFF);
 }
