@@ -86,11 +86,10 @@ namespace graphvise
 
 
 
-        CachingController::loadDefaultGraph();
-
-
-
+        // CachingController::loadDefaultGraph();
         GraphSaver::getInstance().setGraph(WelcomeGraph());
+
+
 
         Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
 

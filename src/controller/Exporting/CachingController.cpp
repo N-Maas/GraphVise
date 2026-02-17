@@ -124,7 +124,9 @@ namespace graphvise
         }
 
         try {
+
             boost::archive::binary_iarchive ia(ifs);
+
             auto newGraph = Graph({},{}, "");
             ia >> newGraph;
             ifs.close();

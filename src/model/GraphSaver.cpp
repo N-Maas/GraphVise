@@ -28,6 +28,8 @@ namespace graphvise {
 
         graph = new_graph;
 
+
+
         graph.value().initSortedVerticesAndEdges();
     }
 
