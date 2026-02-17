@@ -352,7 +352,8 @@ namespace graphvise {
                 glm::vec3 pos = vertex->getCoordsVector();
                 glm::vec4 color = vertex->getVec4();
                 // Pack position and ID (convert uint32 to float bits)
-                vertexInstanceData[i] = glm::vec4(pos.x, pos.y, pos.z, *reinterpret_cast<const float*>(vertex->getID()));
+                uint32_t id = vertex->getID();
+                vertexInstanceData[i] = glm::vec4(pos.x, pos.y, pos.z, *reinterpret_cast<float*>(&id));
                 vertexColorData[i] = color;
             }
             // Upload instance data
@@ -392,6 +393,14 @@ namespace graphvise {
                 edgeColorData[i] = color;
             }
 
+            glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+            glBufferData(GL_ARRAY_BUFFER, edgeInstanceData.size() * sizeof(glm::vec4),
+                        edgeInstanceData.data(), GL_DYNAMIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
+            glBufferData(GL_ARRAY_BUFFER, edgeColorData.size() * sizeof(glm::vec4),
+                        edgeColorData.data(), GL_DYNAMIC_DRAW);
+
             // Draw all cylinders with one call
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
 
@@ -399,8 +408,7 @@ namespace graphvise {
             glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
                                    GL_UNSIGNED_INT, 0, edges.size());
         }
-
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
 
