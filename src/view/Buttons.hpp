@@ -59,7 +59,9 @@ namespace graphvise
         CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
         LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
-        std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
+        std::vector<ImVec4> oldGroupColors = std::vector<ImVec4>(16);
+        std::vector<ImVec4> newGroupColors = std::vector<ImVec4>(16);
+
 
         std::vector<char> bookmarkName = std::vector<char>(16);
 
@@ -86,7 +88,7 @@ namespace graphvise
         Texture cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
         Texture lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
 
-        Texture loadTextureFromFile(const char* filename);
+        static Texture loadTextureFromFile(const char* filename);
 
         void changeObjSize();
         void graphSettings();
@@ -95,7 +97,6 @@ namespace graphvise
         void ChangeTransparency(uint32_t groupID);
         void findObject();
         void performanceModeToggle(bool* toggle_mode);
-        void randomizeColoring(uint32_t groupID) const;
         void changeColoring(uint32_t groupID);
         void setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle);
         void setCameraMovementMode(bool* cameraMovementMode);

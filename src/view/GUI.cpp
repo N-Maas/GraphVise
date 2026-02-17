@@ -142,9 +142,9 @@ namespace graphvise
 
             {
                 const auto& currentEdge = graph.getEdgeByID(currentEdgeID.value());
-                const auto& vertexIDs = currentEdge.getConnectingVerticesIDs();
-                const auto& firstVertex = graph.getVertexByID(vertexIDs.first);
-                const auto& secondVertex = graph.getVertexByID(vertexIDs.second);
+                const auto& [first, second] = currentEdge.getConnectingVerticesIDs();
+                const auto& firstVertex = graph.getVertexByID(first);
+                const auto& secondVertex = graph.getVertexByID(second);
 
                 ImGui::Text("Edge ID: %d", currentEdge.getID());
                 const glm::vec3 coords = firstVertex.getCoordsVector();
