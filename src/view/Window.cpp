@@ -194,10 +194,6 @@ namespace graphvise {
             renderer->runFrame();
             GL_CHECK_ERROR();
 
-
-            renderer->runFrame();
-
-
             //load GUI
             gui->loadFrame(framebufferWidth, framebufferHeight);
 
