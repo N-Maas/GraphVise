@@ -86,7 +86,13 @@ namespace graphvise
 
 
 
-        cachingController.loadDefaultGraph();
+        CachingController::loadDefaultGraph();
+
+
+
+        GraphSaver::getInstance().setGraph(WelcomeGraph());
+
+        Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
 
         // Create the renderer object
         std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
@@ -164,7 +170,8 @@ namespace graphvise
             }
         }
 
-        cachingController.cacheCurrentGraph();
+        CachingController::cacheCurrentGraph();
+
 
         gui.shutdownGUI();
 
@@ -234,5 +241,77 @@ namespace graphvise
     void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         scrollYOffset = yoffset;
+    }
+    Graph Window::WelcomeGraph(){
+
+       return Graph({
+                                       {-12, 3, 0},
+                                       {-11, 0, 0},
+                                       {-10, 1, 0},
+                                       {-9, 0, 0},
+                                       {-8, 3, 0},
+                                       {-7, 3, 0},
+                                       {-5, 3, 0},
+                                       {-7, 1.5, 0},
+                                       {-6, 1.5, 0},
+                                       {-7, 0, 0},
+                                       {-5, 0, 0},
+                                       {-4, 3, 0},
+                                       {-4, 0, 0},
+                                       {-2, 0, 0},
+                                       {-1, 3, 0},
+                                       {1, 3, 0},
+                                       {-1, 0, 0},
+                                       {1, 0, 0},
+                                       {2, 3, 0},
+                                       {4, 3, 0},
+                                       {2, 0, 0},
+                                       {4, 0, 0},
+                                       {5, 0, 0},
+                                       {6, 3, 0},
+                                       {7, 2, 0},
+                                       {8, 3, 0},
+                                       {9, 0, 0},
+                                       {10, 3, 0},
+                                       {12, 3, 0},
+                                       {10, 1.5, 0},
+                                       {11, 1.5, 0},
+                                       {10, 0, 0},
+                                       {12, 0, 0}
+
+                                   },
+                                   {
+                                       {0, 1},
+                                       {1, 2},
+                                       {2, 3},
+                                       {3, 4},
+                                       {5, 6},
+                                       {5,7},
+                                       {7, 8},
+                                       {7, 9},
+                                       {9, 10},
+                                       {11, 12},
+                                       {12, 13},
+                                       {14, 15},
+                                       {14, 16},
+                                       {16, 17},
+                                       {18, 19},
+                                       {18, 20},
+                                       {19, 21},
+                                       {20, 21},
+                                       {22, 23},
+                                       {23,24},
+                                       {24,25},
+                                       {25,26},
+                                       {27,28},
+                                       {27,29},
+                                       {29,30},
+                                       {29,31},
+                                       {31,32}
+                                   },
+
+                                   "Welcome to GraphVise");
+
+
     }
 }

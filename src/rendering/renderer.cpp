@@ -530,7 +530,9 @@ namespace graphvise {
 
     void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
                                       float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj) const {
+                                      const glm::mat4& viewProj) const
+    {
+
         glm::vec3 direction = end - start;
         float length = glm::length(direction);
 

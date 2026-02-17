@@ -22,12 +22,12 @@ namespace graphvise
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
     private:
+        Graph WelcomeGraph();
         void processEvents();
         //void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
         GLFWwindow* window = nullptr;
         MovementController movementController;
-        CachingController cachingController;
 
         struct Resolution
         {

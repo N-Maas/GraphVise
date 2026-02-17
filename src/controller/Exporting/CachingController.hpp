@@ -12,30 +12,32 @@
 
 namespace graphvise
 {
+
     class CachingController
     {
     public:
-        bool hasCachedGraphs() const;
+        static bool hasCachedGraphs();
+        static void cacheCurrentGraph();
 
-        void cacheCurrentGraph() const;
-        void cacheGraph(const Graph& graph) const;
-        void loadLastCachedGraph() const;
+        static std::vector<std::filesystem::path> getCachedGraphFilenames();
+
+        static void cacheGraph(const Graph& graph);
+        static void loadLastCachedGraph();
         static void loadDefaultGraph();
-        static void loadCachedGraph(std::filesystem::path filename);
-        void clearCache() const;
+        static void loadCachedGraph(const std::filesystem::path& filename);
+        static void clearCache();
+        static std::filesystem::path getGraphCacheDir();
 
     private:
-        const std::string fileExtention = ".bin";
-        const std::filesystem::path cacheDir = sago::getCacheDir();
-        const std::filesystem::path cachePath = cacheDir / "graphVise";
-        const std::filesystem::path graphCachePath = cachePath / "graphs";
-        const std::filesystem::path dataDir = sago::getDataHome();
-
-        const std::filesystem::path settingsFile = dataDir / "GraphVise"/ ("settings" + fileExtention);
-        const std::string defaultCacheFilename = "example_graph" + fileExtention;
+        static const std::string fileExtention;
+        static const std::filesystem::path cacheDir;
+        static const std::filesystem::path cachePath;
+        static const std::filesystem::path graphCachePath;
+        static const std::filesystem::path dataDir;
+        static const std::filesystem::path settingsFile;
+        static const std::string defaultCacheFilename;
 
     };
-
 }
 
 

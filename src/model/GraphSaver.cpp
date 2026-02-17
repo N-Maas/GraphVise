@@ -1,6 +1,8 @@
 #include "GraphSaver.hpp"
 #include <iostream>
 
+#include "controller/Exporting/CachingController.hpp"
+
 
 namespace graphvise {
     GraphSaver GraphSaver::instance;
@@ -18,7 +20,15 @@ namespace graphvise {
     }
 
     void GraphSaver::setGraph(const Graph& new_graph) {
+
+        if (graph.has_value())
+        {
+            CachingController::cacheCurrentGraph();
+        }
+
         graph = new_graph;
+
         graph.value().initSortedVerticesAndEdges();
     }
+
 }
