@@ -11,6 +11,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
+#include "controller/Exporting/CachingController.hpp"
 
 #define MainMenuBarHeight 19
 #define findObjectHeight 115
@@ -530,7 +531,7 @@ namespace graphvise
             if (ImGui::BeginMenu("Load Graph from Cache"))
             {
 
-                auto filenames = CachingController::getCachedGraphFilenames();
+                const auto filenames = CachingController::getCachedGraphFilenames();
 
                 for (auto const& file : filenames)
                 {
