@@ -150,6 +150,15 @@ namespace graphvise {
             generateCylinder(12);
         }
 
+        if (vertexInstanceVBO == 0) {
+            glGenBuffers(1, &vertexInstanceVBO);
+            glGenBuffers(1, &vertexColorVBO);
+        }
+        if (edgeInstanceVBO == 0) {
+            glGenBuffers(1, &edgeInstanceVBO);
+            glGenBuffers(1, &edgeColorVBO);
+        }
+
         // Create picking framebuffer
         createPickingFramebuffer();
 
@@ -236,7 +245,6 @@ namespace graphvise {
         glGenBuffers(1, &vertexVBO);
         glGenVertexArrays(1, &edgeVAO);
         glGenBuffers(1, &edgeVBO);
-
     }
 
     /**
@@ -292,6 +300,12 @@ namespace graphvise {
     // rendering Graph
     void Renderer::render(const glm::mat4& mvp) {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
+        // Check that instance VBOs are initialized
+        if (vertexInstanceVBO == 0 || vertexColorVBO == 0 ||
+            edgeInstanceVBO == 0 || edgeColorVBO == 0) {
+            std::cerr << "ERROR: Instance VBOs not initialized!" << std::endl;
+            return;
+            }
 
         Graph& graph = GraphSaver::getInstance().getGraph();
 
@@ -309,7 +323,6 @@ namespace graphvise {
         GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
         GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
-        GLint viewPosLoc = glGetUniformLocation(mShaderProgram, "viewPos");
         GLint sphereRadiusLoc = glGetUniformLocation(mShaderProgram, "sphereRadius");
         GLint renderingSpheresLoc = glGetUniformLocation(mShaderProgram, "renderingSpheres");
 
@@ -325,21 +338,7 @@ namespace graphvise {
         } else {
             std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
         }
-        if (viewPosLoc != -1) {
-            glm::vec3 camPos = mCamera.position_world_space;
-            glUniform3f(viewPosLoc, camPos.x, camPos.y, camPos.z);
-        }
         if (sphereRadiusLoc != -1) glUniform1f(sphereRadiusLoc, sphereRadius);
-
-        // Generate meshes once (if not already)
-        if (sphereVertices.empty()) {
-            std::cout << "Generating sphere mesh..." << std::endl;
-            generateIcosphere(2);  // Medium quality
-        }
-        if (cylinderVertices.empty()) {
-            std::cout << "Generating cylinder mesh..." << std::endl;
-            generateCylinder(12);  // 12 segments
-        }
 
         // ===== RENDER SPHERES (instanced) =====
         if (!vertices.empty()) {
@@ -351,9 +350,13 @@ namespace graphvise {
                 const Vertex* vertex = vertices[i];
                 glm::vec3 pos = vertex->getCoordsVector();
                 glm::vec4 color = vertex->getVec4();
-                // Pack position and ID (convert uint32 to float bits)
+
+                // Safely convert uint32 ID to float
                 uint32_t id = vertex->getID();
-                vertexInstanceData[i] = glm::vec4(pos.x, pos.y, pos.z, *reinterpret_cast<float*>(&id));
+                float idAsFloat;
+                memcpy(&idAsFloat, &id, sizeof(uint32_t));
+
+                vertexInstanceData[i] = glm::vec4(pos.x, pos.y, pos.z, idAsFloat);
                 vertexColorData[i] = color;
             }
             // Upload instance data
@@ -381,15 +384,25 @@ namespace graphvise {
             for (size_t i = 0; i < edges.size(); i++) {
                 const Edge* edge = edges[i];
                 auto [fromId, toId] = edge->getConnectingVerticesIDs();
-                glm::vec3 fromPos = graph.getVertexByID(fromId).getCoordsVector();
-                glm::vec3 toPos = graph.getVertexByID(toId).getCoordsVector();
+
+                // Get positions (add null checks)
+                Vertex& fromVertex = graph.getVertexByID(fromId);
+                Vertex& toVertex = graph.getVertexByID(toId);
+
+                glm::vec3 fromPos = fromVertex.getCoordsVector();
+                glm::vec3 toPos = toVertex.getCoordsVector();
                 glm::vec4 color = edge->getVec4();
+
+                // Safely convert uint32 ID to float
+                uint32_t edgeId = edge->getID();
+                float idAsFloat;
+                memcpy(&idAsFloat, &edgeId, sizeof(uint32_t));
 
                 // First vec4: start.xyz + radius.w
                 edgeInstanceData[i*2] = glm::vec4(fromPos.x, fromPos.y, fromPos.z, cylinderRadius);
                 // Second vec4: end.xyz + id.w (convert uint32 to float bits)
                 edgeInstanceData[i*2 + 1] = glm::vec4(toPos.x, toPos.y, toPos.z,
-                                                      *reinterpret_cast<const float*>(edge->getID()));
+                                                      idAsFloat);
                 edgeColorData[i] = color;
             }
 
@@ -408,7 +421,7 @@ namespace graphvise {
             glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
                                    GL_UNSIGNED_INT, 0, edges.size());
         }
-        //glBindVertexArray(0);
+        glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
 
@@ -533,16 +546,21 @@ namespace graphvise {
         // pre-vertex attributes orientation aNormal (location 1)
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-        // Position + ID (location 2)
+        // Position (location 2)
         glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-        glVertexAttribDivisor(2, 1);  // Advance per instance
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);  // First 3 floats
+        glVertexAttribDivisor(2, 1);
         // Color (location 3)
         glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
         glVertexAttribDivisor(3, 1);  // Advance per instance
+        // ID (location 4)
+        glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
+        glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(glm::vec4), (void*)(3 * sizeof(float)));
+        glVertexAttribDivisor(4, 1);
 
         glBindVertexArray(0);
         GL_CHECK_ERROR();
@@ -631,27 +649,34 @@ namespace graphvise {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinderIndices.size() * sizeof(unsigned int),
                      cylinderIndices.data(), GL_STATIC_DRAW);
 
-        // Enable and set up vertex attributes
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  sizeof(glm::vec3), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        // Start + radius (location 2) - vec4(xyz=start, w=radius)
+        // Start (location 5) - vec3
         glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-        glVertexAttribDivisor(2, 1);
-        // End + id (location 3) - vec4(xyz=end, w=id as float)
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void*)(sizeof(glm::vec4)));
-        glVertexAttribDivisor(3, 1);
-        // Color (location 4)
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec4), 0);
+        glVertexAttribDivisor(5, 1);
+
+        // End (location 6) - vec3 (from second vec4)
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec4), (void*)(sizeof(glm::vec4)));
+        glVertexAttribDivisor(6, 1);
+
+        // Radius (location 7) - float (from 4th component of first vec4)
+        glEnableVertexAttribArray(7);
+        glVertexAttribPointer(7, 1, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec4), (void*)(3 * sizeof(float)));
+        glVertexAttribDivisor(7, 1);
+
+        // Color (location 8)
         glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
-        glVertexAttribDivisor(4, 1);
+        glEnableVertexAttribArray(8);
+        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+        glVertexAttribDivisor(8, 1);
+
+        // ID (location 9) - float (from 4th component of second vec4)
+        glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+        glEnableVertexAttribArray(9);
+        glVertexAttribIPointer(9, 1, GL_UNSIGNED_INT, 2 * sizeof(glm::vec4),
+                              (void*)(sizeof(glm::vec4) + 3 * sizeof(float)));
+        glVertexAttribDivisor(9, 1);
 
         glBindVertexArray(0);
         GL_CHECK_ERROR();
