@@ -22,7 +22,6 @@
 
 int main()
 {
-    // todo fix welcome graph and find out how Emile has been calling it
     graphvise::Window window = graphvise::Window();
 
     graphvise::ParserController pc;

@@ -610,6 +610,15 @@ namespace graphvise {
         if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, vertexId);
         if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, UINT32_MAX);
 
+        //properly oriented normals for correct lighting
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+        GLint normalMatrixLoc = glGetUniformLocation(mShaderProgram, "normalMatrix");
+        if (normalMatrixLoc != -1) {
+            glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+        }
+        GLint objectTypeLoc = glGetUniformLocation(mShaderProgram, "objectType");
+        if (objectTypeLoc != -1) glUniform1i(objectTypeLoc, 0);  // 0 = sphere
+
         // Render
         glBindVertexArray(sphereVAO);
         glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
@@ -638,6 +647,15 @@ namespace graphvise {
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
         if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
         if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edge->getID());
+
+        //properly oriented normals for correct lighting
+        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+        GLint normalMatrixLoc = glGetUniformLocation(mShaderProgram, "normalMatrix");
+        if (normalMatrixLoc != -1) {
+            glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+        }
+        GLint objectTypeLoc = glGetUniformLocation(mShaderProgram, "objectType");
+        if (objectTypeLoc != -1) glUniform1i(objectTypeLoc, 1);  // 1 = cylinder
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
