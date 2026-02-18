@@ -2,6 +2,9 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <glm/ext/matrix_transform.hpp>
+#include "EdgeTransparencyCompare.hpp"
+#include "VertexTransparencyCompare.hpp"
 
 namespace graphvise {
     const std::vector<Vertex>& Graph::getVertices() const {
@@ -124,20 +127,40 @@ namespace graphvise {
         }
     }
 
+    void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
+        try {
+            groups.at(groupID).setTransparency(transparency);
+        } catch (std::out_of_range& e) {
+            throw std::out_of_range("Group transparency is out of range [0,1]");
+        }
+        updateSortedVertices();
+        updateSortedEdges();
+    }
+
+    ImVec4 Graph::getVertexVec4ByID(std::uint32_t vertexID) {
+        ImVec4 vertexVec4 = getGroupByID(getVertexByID(vertexID).getConnectedGroupID()).getVec4();
+        float ownTransparency = getVertexByID(vertexID).getOwnTransparency();
+        if (ownTransparency >= 0) {
+            vertexVec4.w = ownTransparency;
+        }
+        return vertexVec4;
+    }
+
+    ImVec4 Graph::getEdgeVec4ByID(std::uint32_t edgeID) {
+        ImVec4 vertexVec4 = getGroupByID(getEdgeByID(edgeID).getConnectedGroupID()).getVec4();
+        float ownTransparency = getEdgeByID(edgeID).getOwnTransparency();
+        if (ownTransparency >= 0) {
+            vertexVec4.w = ownTransparency;
+        }
+        return vertexVec4;
+    }
+
     void Graph::updateSortedVertices(){
         std::ranges::sort(verticesSortedByTransparency, VertexTransparencyCompare{});
     }
 
     void Graph::updateSortedEdges() {
         std::ranges::sort(edgesSortedByTransparency, EdgeTransparencyCompare{});
-    }
-
-    void Graph::setCurrentVertexID(uint32_t vertexID) {
-        currentVertexID = vertexID;
-    }
-
-    void Graph::setCurrentEdgeID(uint32_t edgeID) {
-        currentEdgeID = edgeID;
     }
 
     std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
@@ -148,22 +171,36 @@ namespace graphvise {
         return edgesSortedByTransparency;
     }
 
-    void Graph::initSortedVerticesAndEdges() {
+    void Graph::initRenderingMatrixForEdge(Edge& edge) {
+        std::uint32_t firstVertexID = edge.getConnectingVerticesIDs().first;
+        std::uint32_t secondVertexID = edge.getConnectingVerticesIDs().second;
+        glm::vec3 firstCoords = getVertexByID(firstVertexID).getCoordsVector();
+        glm::vec3 secondCoords = getVertexByID(secondVertexID).getCoordsVector();
+
+        glm::vec3 direction = secondCoords - firstCoords;
+        edge.setLength(glm::length(direction));
+
+        // Create model matrix
+        glm::mat4 model = glm::mat4(1.0f);
+
+        // Translate to midpoint
+        glm::vec3 midpoint = (firstCoords + secondCoords) * 0.5f;
+        model = glm::translate(model, midpoint);
+
+        // Rotate to align with direction
+        glm::vec3 up = glm::vec3(0, 1, 0);
+        glm::vec3 axis = glm::cross(up, direction);
+        float angle = acos(glm::dot(up, direction / edge.getLength()));
+        edge.setMatrix(glm::rotate(model, angle, axis));
+    }
+
+    void Graph::initThisGraph() {
         for (Vertex& vertex : vertices) {
             verticesSortedByTransparency.emplace_back(&vertex);
         }
         for (Edge& edge : edges) {
             edgesSortedByTransparency.emplace_back(&edge);
+            initRenderingMatrixForEdge(edge);
         }
-    }
-
-    void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
-        try {
-            groups.at(groupID).setTransparency(transparency);
-        } catch (std::out_of_range& e) {
-            throw std::out_of_range("Group transparency is out of range [0,1]");
-        }
-        updateSortedVertices();
-        updateSortedEdges();
     }
 }

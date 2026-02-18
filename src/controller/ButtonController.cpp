@@ -56,7 +56,6 @@ namespace graphvise {
         }
 
         graph.highlightByID(std::vector{vertexID}, std::vector<uint32_t>{});
-        graph.setCurrentVertexID(vertexID);
 
         glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
         vertexPos.x += 1;

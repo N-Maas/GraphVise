@@ -115,6 +115,8 @@ set(SOURCES
         src/controller/Exporting/PNGExporter.cpp
         src/controller/Enums/ImportFormat.hpp
         src/rendering/enums.hpp
+        src/model/VertexTransparencyCompare.hpp
+        src/model/EdgeTransparencyCompare.hpp
 )
 
 set(SHADERS

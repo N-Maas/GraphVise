@@ -14,9 +14,14 @@ namespace graphvise {
         [[nodiscard]] std::uint32_t getConnectedGroupID() const;
         void setGroup(std::uint32_t groupID);
         [[nodiscard]] std::pair<std::uint32_t, std::uint32_t> getConnectingVerticesIDs() const;
-        [[nodiscard]] ImVec4 getVec4() const;
+        [[nodiscard]] float getOwnTransparency() const;
         void setOwnTransparency(float transparency);
         void deleteOwnTransparency();
+
+        void setLength(float length);
+        float getLength() const;
+        void setMatrix(const glm::mat4& matrix);
+        const glm::mat4& getMatrix() const;
 
 
     private:
@@ -24,6 +29,8 @@ namespace graphvise {
         std::uint32_t connectedGroupID;
         std::optional<float> ownTransparency;
         std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs;
+        float length;
+        glm::mat4 matrix;
     };
 }
 #endif
