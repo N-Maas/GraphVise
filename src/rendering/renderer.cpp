@@ -344,10 +344,7 @@ namespace graphvise {
             int fromIdx = edge->getConnectingVerticesIDs().first;
             int toIdx = edge->getConnectingVerticesIDs().second;
             if (fromIdx < vertices.size() && toIdx < vertices.size()) {
-                glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
-                glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
-                renderCylinder(fromPos, toPos,
-                              cylinderRadius, GraphSaver::getInstance().getGraph().getEdgeVec4ByID(edge->getID()), mvp, edge->getID());
+                renderCylinder(cylinderRadius, GraphSaver::getInstance().getGraph().getEdgeVec4ByID(edge->getID()), mvp, edge);
             }
         }
 
@@ -619,30 +616,12 @@ namespace graphvise {
         glBindVertexArray(0);
     }
 
-    void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
-                                      float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj, const uint32_t edgeId) const {
-        glm::vec3 direction = end - start;
-        float length = glm::length(direction);
-
-        if (length < 0.001f) return;
-
-        // Create model matrix
-        glm::mat4 model = glm::mat4(1.0f);
-
-        // Translate to midpoint
-        glm::vec3 midpoint = (start + end) * 0.5f;
-        model = glm::translate(model, midpoint);
-
-        // Rotate to align with direction
-        glm::vec3 up = glm::vec3(0, 1, 0);
-        glm::vec3 axis = glm::cross(up, direction);
-        float angle = acos(glm::dot(up, direction / length));
-        model = glm::rotate(model, angle, axis);
+    void Renderer::renderCylinder(float radius, const glm::vec4& color,
+                                      const glm::mat4& viewProj, const Edge* edge) const {
+        if (edge->getLength() < 0.001f) return;
 
         // Scale: radius in X/Z, length in Y
-        model = glm::scale(model, glm::vec3(radius, length, radius));
-
+        glm::mat4 model = glm::scale(edge->getMatrix(), glm::vec3(radius, edge->getLength(), radius));
         glm::mat4 mvp = viewProj * model;
 
         // Set uniforms
@@ -658,7 +637,7 @@ namespace graphvise {
         if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
         if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
         if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
-        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edgeId);
+        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edge->getID());
 
         glBindVertexArray(cylinderVAO);
         glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);

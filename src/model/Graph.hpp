@@ -47,10 +47,11 @@ namespace graphvise {
 
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
         [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
-        void initSortedVerticesAndEdges();
+        void initThisGraph();
 
 
     private:
+        void initRenderingMatrixForEdge(Edge& edge);
         void updateSortedVertices();
         void updateSortedEdges();
         std::vector<Vertex> vertices;

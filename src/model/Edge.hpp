@@ -18,12 +18,19 @@ namespace graphvise {
         void setOwnTransparency(float transparency);
         void deleteOwnTransparency();
 
+        void setLength(float length);
+        float getLength() const;
+        void setMatrix(const glm::mat4& matrix);
+        const glm::mat4& getMatrix() const;
+
 
     private:
         std::uint32_t edgeID;
         std::uint32_t connectedGroupID;
         std::optional<float> ownTransparency;
         std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs;
+        float length;
+        glm::mat4 matrix;
     };
 }
 #endif

@@ -36,4 +36,20 @@ namespace graphvise {
             ownTransparency.reset();
         }
     }
+
+    void Edge::setLength(float newLength) {
+        this->length = newLength;
+    }
+
+    float Edge::getLength() const {
+        return length;
+    }
+
+    void Edge::setMatrix(const glm::mat4& newMatrix) {
+        this->matrix = std::move(newMatrix);
+    }
+
+    const glm::mat4 &Edge::getMatrix() const {
+        return matrix;
+    }
 }
