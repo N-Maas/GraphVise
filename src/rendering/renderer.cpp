@@ -636,9 +636,27 @@ namespace graphvise {
 
         // Rotate to align with direction
         glm::vec3 up = glm::vec3(0, 1, 0);
+        glm::vec3 normalizedDir = direction / length;
+
+        // Check if direction is parallel to up (vertical)
+        // If the direction is vertical, no rotation is needed, or use identity rotation
+        // The cylinder's default orientation (aligned with Y axis) is already correct
+        // So we can skip the rotation entirely
+        const float epsilon = 0.0001f;
+        if (std::abs(glm::dot(up, normalizedDir)) > 1.0f - epsilon) {
+
+        } else {
+            // For non-vertical edges, calculate rotation
+            glm::vec3 axis = glm::cross(up, normalizedDir);
+            axis = glm::normalize(axis); // Always normalize the axis
+            float angle = acos(glm::dot(up, normalizedDir));
+            model = glm::rotate(model, angle, axis);
+        }
+        /*
         glm::vec3 axis = glm::cross(up, direction);
         float angle = acos(glm::dot(up, direction / length));
         model = glm::rotate(model, angle, axis);
+        */
 
         // Scale: radius in X/Z, length in Y
         model = glm::scale(model, glm::vec3(radius, length, radius));
