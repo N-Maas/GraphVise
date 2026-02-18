@@ -24,11 +24,11 @@ int main()
 {
     // todo fix welcome graph and find out how Emile has been calling it
     graphvise::Window window = graphvise::Window();
-    window.WelcomeGraph();
 
     graphvise::ParserController pc;
-    pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
-    graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
+    // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
+    // graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
+    graphvise::GraphSaver::getInstance().setGraph(window.WelcomeGraph());
 
     if (!window.initWindow())
     {

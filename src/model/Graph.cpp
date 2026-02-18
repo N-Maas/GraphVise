@@ -5,6 +5,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "EdgeTransparencyCompare.hpp"
 #include "VertexTransparencyCompare.hpp"
+#include <glm/gtc/quaternion.hpp>   //used for rotation of edge calculation
+#include <glm/gtx/quaternion.hpp>
 
 namespace graphvise {
     const std::vector<Vertex>& Graph::getVertices() const {
@@ -178,20 +180,40 @@ namespace graphvise {
         glm::vec3 secondCoords = getVertexByID(secondVertexID).getCoordsVector();
 
         glm::vec3 direction = secondCoords - firstCoords;
-        edge.setLength(glm::length(direction));
+        float length = glm::length(direction);
+        edge.setLength(length);
 
         // Create model matrix
         glm::mat4 model = glm::mat4(1.0f);
 
-        // Translate to midpoint
+        // STEP 1: Translate to the midpoint between the two vertices
         glm::vec3 midpoint = (firstCoords + secondCoords) * 0.5f;
         model = glm::translate(model, midpoint);
 
-        // Rotate to align with direction
-        glm::vec3 up = glm::vec3(0, 1, 0);
-        glm::vec3 axis = glm::cross(up, direction);
-        float angle = acos(glm::dot(up, direction / edge.getLength()));
-        edge.setMatrix(glm::rotate(model, angle, axis));
+        // STEP 2: Apply rotation to align with direction
+        if (length > 0.001f) {
+            glm::vec3 up = glm::vec3(0, 1, 0);
+            glm::vec3 normalizedDir = direction / length;
+
+            glm::quat rotation;
+            if (glm::length(glm::cross(up, normalizedDir)) < 0.001f) {
+                // Direction is parallel to up - use identity quaternion
+                rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+                // Special case: if direction is pointing straight down (dot product = -1)
+                // you might need to rotate 180 degrees
+                if (glm::dot(up, normalizedDir) < -0.999f) {
+                    rotation = glm::angleAxis(glm::pi<float>(), glm::vec3(1.0f, 0.0f, 0.0f));
+                }
+            } else {
+                // Calculate rotation between up and direction
+                rotation = glm::rotation(up, normalizedDir);
+            }
+
+            model = model * glm::mat4_cast(rotation);
+        }
+
+        edge.setMatrix(model);
     }
 
     void Graph::initThisGraph() {
