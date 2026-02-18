@@ -4,12 +4,16 @@ layout(location = 1) in vec3 aNormal;  // normal used to calculate lighting afte
 uniform mat4 mvp;
 uniform mat4 model;
 uniform mat3 normalMatrix;  // properly orienting normal
+uniform int objectType;     // 0 for spheres, 1 for edges
 out vec3 FragPos;
 out vec3 Normal;
 
 void main() {
     gl_Position = mvp * vec4(aPos, 1.0);
     FragPos = vec3(model * vec4(aPos, 1.0));
-    //Normal = aPos;  // For sphere, normals = normalized positions
+    if (objectType == 0) {
+    Normal = aPos;  // For sphere, normals = normalized positions
+    } else {
     Normal = normalize(normalMatrix * aNormal);  // Transform normals correctly
+    }
 }
