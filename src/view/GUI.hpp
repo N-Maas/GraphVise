@@ -25,8 +25,6 @@ namespace graphvise
 
         void showVertexInfo(uint32_t vertexId);
         void showEdgeInfo(uint32_t edgeId);
-        void objectIDPopup();
-        //void showObjectInfo(const PickedObject& object, const glm::vec2& screenPos = glm::vec2(-1));
 
     private:
         double fps = 0.0;

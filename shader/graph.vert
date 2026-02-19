@@ -40,8 +40,8 @@ void main() {
         VertexColor = aSphereColor;
         InstanceId = aSphereId;
 
-        // Calculate normal in world space for lighting
-        Normal = mat3(transpose(inverse(model))) * aNormal;
+        // Sphere Normal for lighting equals the position
+        Normal = aPos;
 
     } else {
         // Cylinder transformation

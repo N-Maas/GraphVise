@@ -10,6 +10,7 @@ flat in float Transparency;
 // Uniforms for lighting
 uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform bool renderingSpheres;
 
 // Outputs
 out vec4 FragColor;
@@ -34,5 +35,9 @@ void main() {
     // Pass instance ID for object selection
     // For spheres: InstanceId is vertex ID
     // For cylinders: InstanceId is edge ID
+    if (renderingSpheres) {
     PickingData = uvec2(InstanceId, 0xFFFFFFFF);
+    } else {
+    PickingData = uvec2(0xFFFFFFFF, InstanceId);
+    }
 }

@@ -312,6 +312,8 @@ namespace graphvise {
         std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
         std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
 
+        std::cout << "Graph has " << vertices.size() << " vertices and " << edges.size() << " edges" << std::endl;
+
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
             return;
@@ -342,6 +344,7 @@ namespace graphvise {
 
         // ===== RENDER SPHERES (instanced) =====
         if (!vertices.empty()) {
+            std::cout << "rendering vertices" << std::endl;
             // Prepare instance data
             vertexInstanceData.resize(vertices.size());
             vertexColorData.resize(vertices.size());
@@ -358,6 +361,7 @@ namespace graphvise {
 
                 vertexInstanceData[i] = glm::vec4(pos.x, pos.y, pos.z, idAsFloat);
                 vertexColorData[i] = color;
+                std::cout << "renderered vertex " << i << std::endl;
             }
             // Upload instance data
             glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
@@ -377,6 +381,7 @@ namespace graphvise {
 
         // ===== RENDER CYLINDERS (instanced) =====
         if (!edges.empty()) {
+            std::cout << "rendering edges" << std::endl;
             // Prepare instance data (each edge needs two vec4's)
             edgeInstanceData.resize(edges.size() * 2);  // Two vec4 per edge
             edgeColorData.resize(edges.size());
@@ -404,6 +409,8 @@ namespace graphvise {
                 edgeInstanceData[i*2 + 1] = glm::vec4(toPos.x, toPos.y, toPos.z,
                                                       idAsFloat);
                 edgeColorData[i] = color;
+
+                std::cout << "renderered edge " << i << std::endl;
             }
 
             glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
