@@ -57,9 +57,9 @@ void main() {
         vec3 xAxis = normalize(cross(vec3(0, 1, 0), yAxis));
         vec3 zAxis = cross(yAxis, xAxis);
 
-        model[0] = vec4(xAxis * aCylinderRadius, 0);
+        model[0] = vec4(xAxis * cylinderRadius, 0);
         model[1] = vec4(yAxis * length, 0);
-        model[2] = vec4(zAxis * aCylinderRadius, 0);
+        model[2] = vec4(zAxis * cylinderRadius, 0);
         model[3] = vec4((aCylinderStart + aCylinderEnd) * 0.5, 1);
 
         VertexColor = aCylinderColor;

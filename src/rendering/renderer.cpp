@@ -100,8 +100,10 @@ namespace graphvise {
         if (cylinderEBO) glDeleteBuffers(1, &cylinderEBO);
         if (vertexInstanceVBO) glDeleteBuffers(1, &vertexInstanceVBO);
         if (vertexColorVBO) glDeleteBuffers(1, &vertexColorVBO);
+        if (vertexIdVBO) glDeleteBuffers(1, &vertexIdVBO);
         if (edgeInstanceVBO) glDeleteBuffers(1, &edgeInstanceVBO);
         if (edgeColorVBO) glDeleteBuffers(1, &edgeColorVBO);
+        if (edgeIdVBO) glDeleteBuffers(1, &edgeIdVBO);
         if (mShaderProgram) glDeleteProgram(mShaderProgram);
     }
 
@@ -134,9 +136,17 @@ namespace graphvise {
      */
     void Renderer::init()
     {
+        std::cout << "=== Renderer::init() start ===" << std::endl;
+        std::cout << "Calling loadShaders()..." << std::endl;
         // contains OpenGL initialization
         // Load the shader files
         loadShaders();
+
+        std::cout << "loadShaders() completed, mShaderProgram = " << mShaderProgram << std::endl;
+
+        if (mShaderProgram == 0) {
+            std::cerr << "ERROR: Shader program is 0 after loadShaders()!" << std::endl;
+        }
 
         if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
@@ -149,6 +159,12 @@ namespace graphvise {
         if (cylinderVertices.empty()) {
             generateCylinder(mSettings.cylinderSegments);
         }
+
+        // Setup buffers for visualizing graph
+        glGenVertexArrays(1, &vertexVAO);
+        glGenBuffers(1, &vertexVBO);
+        glGenVertexArrays(1, &edgeVAO);
+        glGenBuffers(1, &edgeVBO);
 
         if (vertexInstanceVBO == 0) {
             glGenBuffers(1, &vertexInstanceVBO);
@@ -169,6 +185,7 @@ namespace graphvise {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         GL_CHECK_ERROR();
+        std::cout << "=== Renderer::init() end ===" << std::endl;
     }
 
     void Renderer::createPickingFramebuffer()
@@ -227,11 +244,10 @@ namespace graphvise {
     /**
      * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
-    void Renderer::loadShaders()
-    {
-        //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
-        //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
-        //std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
+    void Renderer::loadShaders() {
+        std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
+        std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
+        std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
         // Create shader program object and get its reference
         GLuint newProgram = utils::createShaderProgramFromFile(mVertexShaderPath, mFragmentShaderPath);
         if (newProgram != 0)
@@ -239,22 +255,38 @@ namespace graphvise {
             if (mShaderProgram != 0)
                 glDeleteProgram(mShaderProgram);
             mShaderProgram = newProgram;
-        }
-        GL_CHECK_ERROR();
 
-        // Setup buffers and for visualizing graph
-        glGenVertexArrays(1, &vertexVAO);
-        glGenBuffers(1, &vertexVBO);
-        glGenVertexArrays(1, &edgeVAO);
-        glGenBuffers(1, &edgeVBO);
+            // Verify the shader compiled and linked
+            GLint status;
+            glGetProgramiv(mShaderProgram, GL_LINK_STATUS, &status);
+            if (status != GL_TRUE) {
+                char buffer[512];
+                glGetProgramInfoLog(mShaderProgram, 512, NULL, buffer);
+                std::cerr << "Shader link error: " << buffer << std::endl;
+            } else {
+                std::cout << "Shader linked successfully!" << std::endl;
+
+                // List all uniforms
+                GLint numUniforms;
+                glGetProgramiv(mShaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+                std::cout << "Active uniforms (" << numUniforms << "):" << std::endl;
+                for (int i = 0; i < numUniforms; i++) {
+                    char name[256];
+                    GLsizei length;
+                    GLint size;
+                    GLenum type;
+                    glGetActiveUniform(mShaderProgram, i, sizeof(name), &length, &size, &type, name);
+                    std::cout << "  " << name << std::endl;
+                }
+            }
+            GL_CHECK_ERROR();
+        }
     }
 
     /**
      * Called in the main loop to render a new frame.
      */
-    void Renderer::runFrame()
-    {
-
+    void Renderer::runFrame() {
         // --- FIRST PASS: Render to picking framebuffer (invisible) ---
         glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
         glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
@@ -272,9 +304,9 @@ namespace graphvise {
         // Render with picking shader (same shader, it already outputs ID to location 1)
         if (mShaderProgram != 0) {
             glUseProgram(mShaderProgram);
-            glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-            render(mvp);
+            render();
         }
+        GL_CHECK_ERROR();
 
         // --- SECOND PASS: Render to screen (normal rendering) ---
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // binding to default framebuffer
@@ -292,15 +324,13 @@ namespace graphvise {
             return;
         }
 
-        // MVP matrix
-        glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-        render(mvp);
+        render();
         GL_CHECK_ERROR();
         notify();
     }
 
     // rendering Graph
-    void Renderer::render(const glm::mat4& mvp) {
+    void Renderer::render() {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
         // Check that instance VBOs are initialized
         if (vertexInstanceVBO == 0 || vertexColorVBO == 0 ||
@@ -314,7 +344,18 @@ namespace graphvise {
         std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
         std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
 
-        std::cout << "Graph has " << vertices.size() << " vertices and " << edges.size() << " edges" << std::endl;
+        // In render() function, right after getting vertices:
+        std::cout << "=== Vertex Positions ===" << std::endl;
+        for (size_t i = 0; i < vertices.size(); i++) {
+            glm::vec3 pos = vertices[i]->getCoordsVector();
+            std::cout << "Vertex " << i << ": ("
+                      << pos.x << ", " << pos.y << ", " << pos.z << ")" << std::endl;
+        }
+
+        // MVP matrix
+        glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
+
+        //std::cout << "Graph has " << vertices.size() << " vertices and " << edges.size() << " edges" << std::endl;
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
@@ -344,11 +385,11 @@ namespace graphvise {
             std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
         }
         if (sphereRadiusLoc != -1) glUniform1f(sphereRadiusLoc, sphereRadius);
-        if (cylinderRadius != -1) glUniform1f(cylinderRadius, cylinderRadius);
+        if (cylinderRadiusLoc != -1) glUniform1f(cylinderRadiusLoc, cylinderRadius);
 
         // ===== RENDER SPHERES (instanced) =====
         if (!vertices.empty()) {
-            std::cout << "rendering vertices" << std::endl;
+            //std::cout << "rendering vertices" << std::endl;
             // Prepare instance data
             vertexInstanceData.resize(vertices.size()); // positions only
             vertexColorData.resize(vertices.size());    // colors
@@ -363,12 +404,21 @@ namespace graphvise {
                 vertexInstanceData[i] = glm::vec3(pos.x, pos.y, pos.z);
                 vertexColorData[i] = color;
                 vertexIdData[i] = id;
-                std::cout << "renderered vertex " << i << std::endl;
+                //std::cout << "renderered vertex " << i << std::endl;
             }
             // Upload instance data
             glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
             glBufferData(GL_ARRAY_BUFFER, vertexInstanceData.size() * sizeof(glm::vec3),
                         vertexInstanceData.data(), GL_DYNAMIC_DRAW);
+
+            // After glBufferData for vertexInstanceVBO
+            std::cout << "Uploaded " << vertexInstanceData.size() << " instance positions:" << std::endl;
+            for (size_t i = 0; i < vertexInstanceData.size(); i++) {
+                std::cout << "  Instance " << i << ": ("
+                          << vertexInstanceData[i].x << ", "
+                          << vertexInstanceData[i].y << ", "
+                          << vertexInstanceData[i].z << ")" << std::endl;
+            }
 
             glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
             glBufferData(GL_ARRAY_BUFFER, vertexColorData.size() * sizeof(glm::vec4),
@@ -383,13 +433,43 @@ namespace graphvise {
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 1);
 
             glBindVertexArray(sphereVAO);
+
+            std::cout << "sphereIndices.size() = " << sphereIndices.size() << std::endl;
+            std::cout << "vertices.size() = " << vertices.size() << std::endl;
+
+            std::cout << "=== Sphere VAO State ===" << std::endl;
+            for (int i = 0; i < 5; i++) {
+                GLint enabled;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+                GLint size;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
+                GLint stride;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
+                GLint type;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
+                GLint normalized;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_NORMALIZED, &normalized);
+                GLint divisor;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
+
+                std::cout << "Attribute " << i << ": enabled=" << enabled
+                          << " size=" << size << " stride=" << stride
+                          << " type=" << (type == GL_FLOAT ? "GL_FLOAT" :
+                                          type == GL_UNSIGNED_INT ? "GL_UNSIGNED_INT" : "other")
+                          << " normalized=" << normalized
+                          << " divisor=" << divisor << std::endl;
+            }
+
             glDrawElementsInstanced(GL_TRIANGLES, sphereIndices.size(),
                                    GL_UNSIGNED_INT, 0, vertices.size());
+            GL_CHECK_ERROR();
         }
+        GL_CHECK_ERROR();
 
         // ===== RENDER CYLINDERS (instanced) =====
+        std::cout << "=== Edge Instance Data ===" << std::endl;
         if (!edges.empty()) {
-            std::cout << "rendering edges" << std::endl;
+            //std::cout << "rendering edges" << std::endl;
             // Prepare instance data
             edgeInstanceData.resize(edges.size() * 2);  // Two vec3 per edge
             edgeColorData.resize(edges.size());
@@ -415,28 +495,101 @@ namespace graphvise {
                 edgeColorData[i] = color;
                 edgeIdData[i] = edgeId;
 
-                std::cout << "renderered edge " << i << std::endl;
+                //debug
+                std::cout << "Edge " << i << ": start=("
+                          << edgeInstanceData[i*2].x << ", "
+                          << edgeInstanceData[i*2].y << ", "
+                          << edgeInstanceData[i*2].z << ") end=("
+                          << edgeInstanceData[i*2+1].x << ", "
+                          << edgeInstanceData[i*2+1].y << ", "
+                          << edgeInstanceData[i*2+1].z << ")" << std::endl;
+                std::cout << "  color=("
+                          << edgeColorData[i].r << ", "
+                          << edgeColorData[i].g << ", "
+                          << edgeColorData[i].b << ", "
+                          << edgeColorData[i].a << ") id="
+                          << edgeIdData[i] << std::endl;
             }
 
-            glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeInstanceData.size() * sizeof(glm::vec3),
-                        edgeInstanceData.data(), GL_DYNAMIC_DRAW);
+        GLint bufferSize;
+        glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+        GL_CHECK_ERROR();
+        glBufferData(GL_ARRAY_BUFFER, edgeInstanceData.size() * sizeof(glm::vec3),
+            edgeInstanceData.data(), GL_DYNAMIC_DRAW);
+        GL_CHECK_ERROR();
+        //debug
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        GL_CHECK_ERROR();
+        std::cout << "edgeInstanceVBO size: " << bufferSize << " bytes" << std::endl;
+        std::cout << "Expected: " << (edgeInstanceData.size() * sizeof(glm::vec3)) << " bytes" << std::endl;
 
-            glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeColorData.size() * sizeof(glm::vec4),
-                        edgeColorData.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
+        GL_CHECK_ERROR();
+        glBufferData(GL_ARRAY_BUFFER, edgeColorData.size() * sizeof(glm::vec4),
+                    edgeColorData.data(), GL_DYNAMIC_DRAW);
+        GL_CHECK_ERROR();
+        //debug
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        GL_CHECK_ERROR();
+        std::cout << "edgeColorVBO size: " << bufferSize << " bytes" << std::endl;
+        std::cout << "Expected: " << (edgeColorData.size() * sizeof(glm::vec4)) << " bytes" << std::endl;
 
-            glBindBuffer(GL_ARRAY_BUFFER, edgeIdVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeIdData.size() * sizeof(uint32_t),
-                        edgeIdData.data(), GL_DYNAMIC_DRAW);
 
-            // Draw all cylinders with one call
-            if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, edgeIdVBO);
+        GL_CHECK_ERROR();
+        glBufferData(GL_ARRAY_BUFFER, edgeIdData.size() * sizeof(uint32_t),
+                    edgeIdData.data(), GL_DYNAMIC_DRAW);
+        GL_CHECK_ERROR();
+        //debug
+        glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        GL_CHECK_ERROR();
 
-            glBindVertexArray(cylinderVAO);
-            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
-                                   GL_UNSIGNED_INT, 0, edges.size());
+        std::cout << "edgeIdVBO size: " << bufferSize << " bytes" << std::endl;
+        std::cout << "Expected: " << (edgeIdData.size() * sizeof(uint32_t)) << " bytes" << std::endl;
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cylinderEBO);
+        GL_CHECK_ERROR();
+
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &bufferSize);
+        GL_CHECK_ERROR();
+
+        std::cout << "cylinderEBO size: " << bufferSize << " bytes" << std::endl;
+        std::cout << "Expected: " << (cylinderIndices.size() * sizeof(unsigned int)) << " bytes" << std::endl;
+
+        // Draw all cylinders with one call
+        if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
+
+        glBindVertexArray(cylinderVAO);
+        GL_CHECK_ERROR();
+        std::cout << "cylinderIndices.size() = " << cylinderIndices.size() << std::endl;
+        std::cout << "edges.size() = " << edges.size() << std::endl;
+
+        std::cout << "=== Cylinder VAO State ===" << std::endl;
+        for (int i = 0; i < 9; i++) {  // Check attributes 0-8
+            GLint enabled;
+            glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
+            if (enabled) {
+                GLint size;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
+                GLint stride;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
+                GLint type;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
+                GLint divisor;
+                glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_DIVISOR, &divisor);
+
+                std::cout << "Attribute " << i << ": enabled=" << enabled
+                          << " size=" << size << " stride=" << stride
+                          << " type=" << (type == GL_FLOAT ? "GL_FLOAT" :
+                                          type == GL_UNSIGNED_INT ? "GL_UNSIGNED_INT" : "other")
+                          << " divisor=" << divisor << std::endl;
+            }
         }
+        glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
+                               GL_UNSIGNED_INT, 0, edges.size());
+        GL_CHECK_ERROR();
+    }
+
         glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
@@ -565,18 +718,18 @@ namespace graphvise {
         glEnableVertexAttribArray(1);
         // Position (location 2)
         glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);  // First 3 floats
         glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);  // First 3 floats
         glVertexAttribDivisor(2, 1);
         // Color (location 3)
         glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
-        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
         glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
         glVertexAttribDivisor(3, 1);
         // ID (location 4)
         glBindBuffer(GL_ARRAY_BUFFER, vertexIdVBO);
-        glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
         glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
         glVertexAttribDivisor(4, 1);
 
         glBindVertexArray(0);
@@ -654,6 +807,7 @@ namespace graphvise {
         // instance rendering buffer creation
         glGenBuffers(1, &edgeInstanceVBO);
         glGenBuffers(1, &edgeColorVBO);
+        glGenBuffers(1, &edgeIdVBO);
 
         // Setup instanced attributes for cylinders
         glBindVertexArray(cylinderVAO);
@@ -665,6 +819,14 @@ namespace graphvise {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cylinderEBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, cylinderIndices.size() * sizeof(unsigned int),
                      cylinderIndices.data(), GL_STATIC_DRAW);
+
+        // Enable and set up vertex attributes
+        // pre-vertex attributes position aPos (location 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
+        glEnableVertexAttribArray(0);
+        // pre-vertex attributes orientation aNormal (location 1)
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         // Start (location 5) - vec3
         glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
@@ -685,119 +847,13 @@ namespace graphvise {
 
         // edgeId (location 8)
         glBindBuffer(GL_ARRAY_BUFFER, edgeIdVBO);
-        glEnableVertexAttribArray(9);
-        glVertexAttribIPointer(9, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
-        glVertexAttribDivisor(9, 1);
+        glEnableVertexAttribArray(8);
+        glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
+        glVertexAttribDivisor(8, 1);
 
         glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
-
-/*
-    void Renderer::renderSphere(const glm::vec3& center, float radius,
-                                    const glm::vec4& color, const glm::mat4& viewProj, const uint32_t vertexId) {
-        if (sphereVAO == 0) {
-            std::cerr << "    ERROR: sphereVAO is 0!" << std::endl;
-            return;
-        }
-
-        //debug
-        //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
-        //          << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
-
-        // Create model matrix: translate to center, scale by radius
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), center);
-        model = glm::scale(model, glm::vec3(radius));
-
-        glm::mat4 mvp = viewProj * model;
-
-        // Set uniforms
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
-        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
-
-        //debug
-        //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
-        if (colorLoc != -1) {
-            glUniform3f(colorLoc, color.r, color.g, color.b);
-
-            //std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
-        } else {
-            std::cout << "ERROR: objectColor uniform not found in shader!" << std::endl;
-            // Check what uniforms actually exist
-            GLint numUniforms;
-            glGetProgramiv(mShaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-            std::cout << "Shader has " << numUniforms << " uniforms:" << std::endl;
-            for (int i = 0; i < numUniforms; i++) {
-                char name[256];
-                glGetActiveUniform(mShaderProgram, i, sizeof(name), NULL, NULL, NULL, name);
-                std::cout << "  " << name << std::endl;
-            }
-        }
-        // end debug
-
-        if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, vertexId);
-        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, UINT32_MAX);
-
-        // Render
-        glBindVertexArray(sphereVAO);
-        glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-*/
-    /*
-    void Renderer::renderCylinder(const glm::vec3& start, const glm::vec3& end,
-                                      float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj, const uint32_t edgeId) const {
-        glm::vec3 direction = end - start;
-        float length = glm::length(direction);
-
-        if (length < 0.001f) return;
-
-        // Create model matrix
-        glm::mat4 model = glm::mat4(1.0f);
-
-        // Translate to midpoint
-        glm::vec3 midpoint = (start + end) * 0.5f;
-        model = glm::translate(model, midpoint);
-
-        // Rotate to align with direction
-        glm::vec3 up = glm::vec3(0, 1, 0);
-        glm::vec3 axis = glm::cross(up, direction);
-        float angle = acos(glm::dot(up, direction / length));
-        model = glm::rotate(model, angle, axis);
-
-        // Scale: radius in X/Z, length in Y
-        model = glm::scale(model, glm::vec3(radius, length, radius));
-
-        glm::mat4 mvp = viewProj * model;
-
-        // Set uniforms
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
-        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
-
-        if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
-        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
-        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edgeId);
-
-        glBindVertexArray(cylinderVAO);
-        glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-    */
 
     void Renderer::generateGeometryBasedOnQuality()
     {

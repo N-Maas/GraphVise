@@ -66,9 +66,8 @@ namespace graphvise {
 
         void shutdown();        // Cleanup resources, called after the main loop
 
-        void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
         void resize(int framebufferWidth, int framebufferHeight);
-        void render(const glm::mat4& mvp); // Render graph
+        void render(); // Render graph
 
         // Quality settings
         void setQualityPreset(QualityPreset preset);

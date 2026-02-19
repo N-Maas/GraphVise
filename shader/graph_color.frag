@@ -1,7 +1,7 @@
 #version 330 core
 
 // Inputs from vertex shader
-in vec3 VertexColor;
+in vec4 VertexColor;
 flat in uint InstanceId;
 in vec3 FragPos;
 in vec3 Normal;
@@ -25,7 +25,7 @@ void main() {
     float diff = max(dot(norm, lightDir), 0.3);     // 0.3 = ambient
 
     // Combine lighting with object color
-    vec3 result = VertexColor * diff;
+    vec3 result = VertexColor.rgb * diff;
 
     // ===== OUTPUT FOR NORMAL RENDERING =====
     // Use the combined lighting result with object's alpha for transparency
