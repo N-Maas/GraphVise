@@ -12,12 +12,12 @@ layout(location = 4) in uint aSphereId;
 // Cylinder instance attributes (used when rendering cylinders)
 layout(location = 5) in vec3 aCylinderStart;
 layout(location = 6) in vec3 aCylinderEnd;
-layout(location = 7) in float aCylinderRadius;
-layout(location = 8) in vec4 aCylinderColor;
-layout(location = 9) in uint aCylinderId;
+layout(location = 7) in vec4 aCylinderColor;
+layout(location = 8) in uint aCylinderId;
 
 uniform mat4 mvp;            // Combined model-view-projection matrix
 uniform float sphereRadius;  // Only used for spheres
+uniform float cylinderRadius;
 uniform bool renderingSpheres;  // Uniform to control which attributes to use
 
 // Outputs to fragment shader

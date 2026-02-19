@@ -37,7 +37,7 @@ namespace graphvise {
 
     struct RenderSettings {
         int targetFPS = 60;           // Target frames per second
-        int geometryDetail = 2;       // Sphere subdivisions
+        int sphereSubdiv = 2;         // Sphere subdivisions
         int cylinderSegments = 12;    // Cylinder segments
     };
 
@@ -203,14 +203,18 @@ namespace graphvise {
         GLuint colorTexture = 0; // basic texture for visual vertex color
 
         // buffers needed for instance rendering
-        std::vector<glm::vec4> vertexInstanceData;  // Packed: xyz=position, w=id
+        std::vector<glm::vec3> vertexInstanceData;  // Packed: xyz=position, w=id
         std::vector<glm::vec4> vertexColorData;     // rgba colors
-        std::vector<glm::vec4> edgeInstanceData;    // xyz=start, w=radius, then xyz=end, w=id
+        std::vector<uint32_t> vertexIdData;
+        std::vector<glm::vec3> edgeInstanceData;    // xyz=start, w=radius, then xyz=end, w=id
         std::vector<glm::vec4> edgeColorData;       // rgba colors
+        std::vector<uint32_t> edgeIdData;
         GLuint vertexInstanceVBO;
         GLuint vertexColorVBO;
+        GLuint vertexIdVBO;
         GLuint edgeInstanceVBO;
         GLuint edgeColorVBO;
+        GLuint edgeIdVBO;
         bool renderingSpheres;  // Uniform to control shader path
     };
 }
