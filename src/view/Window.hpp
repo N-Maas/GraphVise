@@ -7,6 +7,7 @@
 
 
 #include "GUI.hpp"
+#include "../controller/Exporting/CachingController.hpp"
 #include "controller/MovementController.hpp"
 
 namespace graphvise
@@ -25,6 +26,7 @@ namespace graphvise
         Graph WelcomeGraph();
 
     private:
+        Graph WelcomeGraph();
         void processEvents();
 
         GLFWwindow* window = nullptr;

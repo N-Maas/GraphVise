@@ -59,7 +59,7 @@ namespace graphvise {
             edgeConnectingVertices.emplace_back(edge.first, edge.second);
         }
 
-        Graph embeddedGraph(vertexCoordinates, edgeConnectingVertices);
+        Graph embeddedGraph(vertexCoordinates, edgeConnectingVertices, graphData.name);
 
         return embeddedGraph;
     }

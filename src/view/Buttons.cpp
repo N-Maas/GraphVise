@@ -14,6 +14,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
+#include "controller/Exporting/CachingController.hpp"
 
 #define MainMenuBarHeight 19
 #define findObjectHeight 115
@@ -156,7 +157,6 @@ namespace graphvise
 
     void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, bool* state)
     {
-
         if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
             *state = !*state;
@@ -227,7 +227,7 @@ namespace graphvise
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
         stbi_image_free(data);
-        return Texture((ImTextureID) texture, width, height);
+        return Texture((ImTextureID)texture, width, height);
     }
 
     void Buttons::changeObjSize()
@@ -252,7 +252,7 @@ namespace graphvise
         auto bookmarks = saver->getGraph().getCameraBookmarks();
 
         auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
-        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0),ImVec2(x, MAXFLOAT) );
+        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0), ImVec2(x, MAXFLOAT));
 
         ImGui::Begin("Bookmarks", visible,
                      ImGuiWindowFlags_AlwaysAutoResize |
@@ -277,7 +277,6 @@ namespace graphvise
                 ImGui::SameLine();
                 if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
                 {
-
                     buttonController->deleteCameraBookmark(bookmarkID);
                 }
             }
@@ -537,9 +536,39 @@ namespace graphvise
             {
                 importFormat = ImportFormat::CNF;
                 importGraphBrowser.SetTypeFilters(cnfImportFormat);
-                importGraphBrowser.SetTitle("Import Graph from .cnf");
+                importGraphBrowser.SetTitle("import Graph from .cnf");
                 importGraphBrowser.Open();
             }
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Load Graph from Cache"))
+            {
+
+                const auto filenames = CachingController::getCachedGraphFilenames();
+
+                for (auto const& file : filenames)
+                {
+                    if (ImGui::MenuItem(file.stem().c_str()))
+                    {
+                        CachingController::loadCachedGraph(file);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+
+            if (CachingController::hasCachedGraphs())
+            {
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Load last loaded Graph"))
+                {
+                    CachingController::loadLastCachedGraph();
+                }
+            }
+
             ImGui::EndMenu();
         }
 
