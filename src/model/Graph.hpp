@@ -66,8 +66,8 @@ namespace graphvise {
         void deleteCameraBookmark(std::uint32_t  cameraBookmarkID);
         void setGroupTransparency(std::uint32_t groupID, float transparency);
 
-        [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
-        [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
+        [[nodiscard]] const std::vector<Vertex *> &getVerticesSortedByTransparency() const;
+        [[nodiscard]] const std::vector<Edge *> &getEdgesSortedByTransparency() const;
         void initSortedVerticesAndEdges();
         void updateSortedVertices();
         void updateSortedEdges();
@@ -80,7 +80,7 @@ namespace graphvise {
 
     private:
         std::vector<Vertex> vertices;
-        std::vector<Vertex*> verticesSortedByTransparency;
+        std::vector<Vertex *> verticesSortedByTransparency;
         std::vector<Edge> edges;
         std::vector<Edge*> edgesSortedByTransparency;
         std::vector<Group> groups;

@@ -30,6 +30,7 @@ void main() {
     // ===== OUTPUT FOR NORMAL RENDERING =====
     // Use the combined lighting result with object's alpha for transparency
     FragColor = vec4(result, Transparency);
+    //FragColor = vec4(normalize(Normal) * 0.5 + 0.5, 1.0); // for debugging
 
     // ===== OUTPUT FOR PICKING (to color attachment 1) =====
     // Pass instance ID for object selection

@@ -140,11 +140,11 @@ namespace graphvise {
         currentEdgeID = edgeID;
     }
 
-    std::vector<Vertex*> Graph::getVerticesSortedByTransparency() const{
+    const std::vector<Vertex *> &Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }
 
-    std::vector<Edge*> Graph::getEdgesSortedByTransparency() const{
+    const std::vector<Edge *> &Graph::getEdgesSortedByTransparency() const{
         return edgesSortedByTransparency;
     }
 

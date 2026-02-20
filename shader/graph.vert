@@ -29,6 +29,7 @@ flat out float Transparency;  // Alpha value for transparency
 
 void main() {
     mat4 model = mat4(1.0);
+    vec4 worldPos;
 
     if (renderingSpheres) {
         // Sphere transformation
@@ -40,8 +41,11 @@ void main() {
         VertexColor = aSphereColor;
         InstanceId = aSphereId;
 
+        worldPos = model * vec4(aPos, 1.0);
+
         // Sphere Normal for lighting equals the position
         Normal = aPos;
+        //Normal = normalize(worldPos.xyz - aSpherePos); // for debugging
 
     } else {
         // Cylinder transformation
@@ -67,12 +71,15 @@ void main() {
 
         // Calculate normal in world space for lighting
         Normal = mat3(transpose(inverse(model))) * aNormal;
+
+        worldPos = model * vec4(aPos, 1.0);
     }
 
+
     // Calculate world space position for lighting
-    FragPos = vec3(model * vec4(aPos, 1.0));
+    FragPos = vec3(worldPos);
     Transparency = VertexColor.a;
 
     // Calculate clip space position
-    gl_Position = mvp * vec4(aPos, 1.0);
+    gl_Position = mvp * worldPos;
 }

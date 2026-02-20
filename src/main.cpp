@@ -25,6 +25,7 @@ int main()
     graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
 
     graphvise::Window window = graphvise::Window();
+    //graphvise::GraphSaver::getInstance().setGraph(window.SimpleGraph());
 
     if (!window.initWindow())
     {

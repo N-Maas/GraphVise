@@ -276,9 +276,13 @@ namespace graphvise {
 					auto& edge = graph.getEdgeByID(picked.id);
 					gui->showEdgeInfo(picked.id);
 				} catch (const std::exception& e) {
-					std::cout << "Error getting edge: " << e.what() << std::endl;
+					//std::cout << "Error getting edge: " << e.what() << std::endl;
 				}
 			}
 		}
+	}
+
+	Graph Window::SimpleGraph() {
+		return Graph({{0,0,0},{100,0,0}} ,{{0,1}});
 	}
 }
