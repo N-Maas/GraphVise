@@ -23,7 +23,6 @@
 int main()
 {
     graphvise::Window window = graphvise::Window();
-    //graphvise::GraphSaver::getInstance().setGraph(window.SimpleGraph());
 
     graphvise::ParserController pc;
     // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);

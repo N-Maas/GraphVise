@@ -58,7 +58,13 @@ void main() {
         }
 
         vec3 yAxis = normalize(direction);
-        vec3 xAxis = normalize(cross(vec3(0, 1, 0), yAxis));
+        vec3 xAxis;
+        if (abs(dot(yAxis, vec3(0, 1, 0))) > 0.999f) {
+            // Vertical cylinder - use a different up vector
+            xAxis = normalize(cross(vec3(1, 0, 0), yAxis));
+        } else {
+            xAxis = normalize(cross(vec3(0, 1, 0), yAxis));
+        }
         vec3 zAxis = cross(yAxis, xAxis);
 
         model[0] = vec4(xAxis * cylinderRadius, 0);

@@ -45,6 +45,10 @@ namespace graphvise {
         [[nodiscard]] ImVec4 getVertexVec4ByID(std::uint32_t vertexID);
         [[nodiscard]] ImVec4 getEdgeVec4ByID(std::uint32_t edgeID);
 
+        void updateSortedVertices();
+
+        void updateSortedEdges();
+
         [[nodiscard]] const std::vector<Vertex *> &getVerticesSortedByTransparency() const;
         [[nodiscard]] const std::vector<Edge *> &getEdgesSortedByTransparency() const;
         void initThisGraph();

@@ -371,7 +371,8 @@ namespace graphvise {
             for (size_t i = 0; i < vertices.size(); i++) {
                 const Vertex* vertex = vertices[i];
                 glm::vec3 pos = vertex->getCoordsVector();
-                glm::vec4 color = vertex->getVec4();
+                auto group = graph.getGroupByID(vertex->getConnectedGroupID());
+                glm::vec4 color = group.getVec4();
                 uint32_t id = vertex->getID();
 
                 vertexInstanceData[i] = glm::vec3(pos.x, pos.y, pos.z);
@@ -428,7 +429,8 @@ namespace graphvise {
 
                 glm::vec3 fromPos = fromVertex.getCoordsVector();
                 glm::vec3 toPos = toVertex.getCoordsVector();
-                glm::vec4 color = edge->getVec4();
+                auto group = graph.getGroupByID(edge->getConnectedGroupID());
+                glm::vec4 color = group.getVec4();
                 uint32_t edgeId = edge->getID();
 
                 // First vec4: start.xyz + radius.w
