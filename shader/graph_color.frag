@@ -16,6 +16,7 @@ layout(location = 1) out uvec2 pickingOutput;  // To picking buffer (R32UI) (ver
 void main() {
     // Simple lighting
     vec3 norm = normalize(Normal);
+
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.3);  // 0.3 = ambient
 

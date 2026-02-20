@@ -18,13 +18,16 @@
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
 
+#include <filesystem>
+
 int main()
 {
-    graphvise::ParserController pc;
-    pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
-    graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
-
     graphvise::Window window = graphvise::Window();
+
+    graphvise::ParserController pc;
+    // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
+    // graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
+    graphvise::GraphSaver::getInstance().setGraph(window.WelcomeGraph());
 
     if (!window.initWindow())
     {

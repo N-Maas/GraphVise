@@ -28,8 +28,6 @@ namespace graphvise
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
-
-
     }
 
     void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
@@ -39,17 +37,11 @@ namespace graphvise
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
-        currentObjInfo();
+        currentObjInfo();   //vertex and edge picking
 
         if (errorAvailable)
         {
             errorPopup();
-        }
-
-        // vertex picking
-        if (m_showObjectInfo) {
-            objectIDPopup();
         }
 
         ImGui::SetNextWindowPos(ImVec2(framebufferWidth, 19), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
@@ -65,7 +57,6 @@ namespace graphvise
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
-
 
     void GUI::shutdownGUI()
     {
@@ -108,73 +99,65 @@ namespace graphvise
         ImGui::EndPopup();
     }
 
-    void GUI::currentObjInfo()
-    {
-        auto graph = GraphSaver::getInstance().getGraph();
-
-        auto currentVertexID = graph.getCurrentVertexID();
-        auto currentEdgeID = graph.getCurrentEdgeID();
+    void GUI::currentObjInfo() {
 
         ImGui::Begin("Current Objects", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::BeginTabBar("##CurrentObjTabBar");
 
-        if (ImGui::BeginTabItem("Current Vertex"))
-        {
-                if (!currentVertexID.has_value())
-                {
-                    ImGui::Text("No vertex selected.");
-                } else
-                {
-                    const auto& currentVertex = graph.getVertexByID(currentVertexID.value());
-                    ImGui::Text("Vertex ID: %d", currentVertex.getID());
-                    const glm::vec3 coords = currentVertex.getCoordsVector();
-                    ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
-                                coords.x, coords.y, coords.z);
-                    const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID()).getName();
-                    ImGui::Text("Vertex Group: %s", groupname.c_str());
+        auto& graph = GraphSaver::getInstance().getGraph();
+        if (ImGui::BeginTabItem("Current Vertex")) {
+
+            if (m_objectType == 1) {
+                const auto& currentVertex = graph.getVertexByID(m_selectedVertexId);
+                ImGui::Text("Vertex ID: %d", m_selectedVertexId);
+                const glm::vec3 coords = currentVertex.getCoordsVector();
+                ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
+                            coords.x, coords.y, coords.z);
+                const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID());
+                const auto groupname = group.getName();
+                ImGui::Text("Vertex Group: %s", groupname.c_str());
 
 
-                    ImGui::Text("Vertex Color:");
-                    ImGui::SameLine();
-                    ImGui::ColorButton("##Vertex color", currentVertex.getVec4());
-                }
+                ImGui::Text("Vertex Color:");
+                ImGui::SameLine();
+                ImGui::ColorButton("##Vertex color", group.getVec4());
+            } else {
+                ImGui::Text("No vertex selected.");
+            }
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Current Edge"))
-        {
-            if (!currentEdgeID.has_value())
-            {
-                ImGui::Text("No edge selected.");
-            } else
+        if (ImGui::BeginTabItem("Current Edge")) {
+            if (m_objectType == 2) {
+                const auto& currentEdge = graph.getEdgeByID(m_selectedEdgeId);
+                const auto& vertexIDs = currentEdge.getConnectingVerticesIDs();
+                const auto& firstVertex = graph.getVertexByID(vertexIDs.first);
+                const auto& secondVertex = graph.getVertexByID(vertexIDs.second);
 
-            {
-                const auto& currentEdge = graph.getEdgeByID(currentEdgeID.value());
-                const auto& [first, second] = currentEdge.getConnectingVerticesIDs();
-                const auto& firstVertex = graph.getVertexByID(first);
-                const auto& secondVertex = graph.getVertexByID(second);
-
-                ImGui::Text("Edge ID: %d", currentEdge.getID());
+                ImGui::Text("Edge ID: %d", m_selectedEdgeId);
                 const glm::vec3 coords = firstVertex.getCoordsVector();
                 ImGui::Text("Vertex 1 Coords: x: %.2f y: %.2f z: %.2f",
                             coords.x, coords.y, coords.z);
-                    const glm::vec3 coords2 = secondVertex.getCoordsVector();
+                const glm::vec3 coords2 = secondVertex.getCoordsVector();
                 ImGui::Text("Vertex 2 Coords: x: %.2f y: %.2f z: %.2f",
                            coords2.x, coords2.y, coords2.z);
 
-                const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID()).getName();
+                const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID());
+                const auto groupname = group.getName();
                 ImGui::Text("Edge Group: %s", groupname.c_str());
 
 
                 ImGui::Text("Edge Color:");
                 ImGui::SameLine();
-                ImGui::ColorButton("##Edge color", currentEdge.getVec4());
+                ImGui::ColorButton("##Edge color", group.getVec4());
+            } else {
+                ImGui::Text("No edge selected.");
             }
             ImGui::EndTabItem();
-
         }
+
         ImGui::EndTabBar();
         ImGui::End();
-        }
+    }
 
     void GUI::update()
     {
@@ -197,32 +180,5 @@ namespace graphvise
         m_objectType = 2; // object type edge
     }
 
-    void GUI::objectIDPopup() {
-        // Set position to center of screen
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f,
-                                       ImGui::GetIO().DisplaySize.y * 0.5f),
-                                ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
-        if (ImGui::Begin("Object Information", &m_showObjectInfo)) {
-            auto& graph = GraphSaver::getInstance().getGraph();
-            if (m_objectType == 1) {
-                ImGui::Text("Selected Vertex ID: %d", m_selectedVertexId);
-                auto& vertex = graph.getVertexByID(m_selectedVertexId);
-                glm::vec4 color = vertex.getVec4();
-
-                ImGui::Text("Position: (%.2f, %.2f, %.2f)",
-                            vertex.getCoordsVector()[0], vertex.getCoordsVector()[1], vertex.getCoordsVector()[2]);
-                ImGui::Text("Color: (%.2f, %.2f, %.2f)",
-                            color.r, color.g, color.b);
-            } else if (m_objectType == 2) {
-                ImGui::Text("Selected Edge ID: %d", m_selectedEdgeId);
-                auto& edge = graph.getEdgeByID(m_selectedEdgeId);
-                glm::vec4 color = edge.getVec4();
-                auto [v1, v2] = edge.getConnectingVerticesIDs();
-                ImGui::Text("Connects vertices: %u - %u", v1, v2);
-                ImGui::Text("Color: (%.2f, %.2f, %.2f)", color.r, color.g, color.b);
-            }
-        }
-        ImGui::End();
-    }
 }
