@@ -180,8 +180,6 @@ namespace graphvise {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glDisable(GL_CULL_FACE); //disable back face culling
-
         GL_CHECK_ERROR();
     }
 
@@ -252,7 +250,6 @@ namespace graphvise {
             if (mShaderProgram != 0)
                 glDeleteProgram(mShaderProgram);
             mShaderProgram = newProgram;
-
         }
         GL_CHECK_ERROR();
     }
@@ -467,7 +464,6 @@ namespace graphvise {
         GL_CHECK_ERROR();
     }
 
-
     /**
      * Frees and deletes all acquired (OpenGL) objects. Objects are freed in inverse order of how they were acquired.
      */
@@ -560,8 +556,6 @@ namespace graphvise {
 
         sphereVertices = vertices;
         sphereIndices = indices;
-        //std::cout << "Sphere vertices: " << sphereVertices.size() << std::endl;
-        //std::cout << "Sphere indices: " << sphereIndices.size() << std::endl;
 
         // Create OpenGL buffers
         glGenVertexArrays(1, &sphereVAO);

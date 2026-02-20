@@ -19,12 +19,8 @@ namespace graphvise {
         return connectingVerticesIDs;
     }
 
-    ImVec4 Edge::getVec4() const {
-        ImVec4 edgeVec4 = GraphSaver::getInstance().getGraph().getGroupByID(connectedGroupID).getVec4();
-        if (ownTransparency.has_value()) {
-            edgeVec4.w = ownTransparency.value();
-        }
-        return edgeVec4;
+    float Edge::getOwnTransparency() const {
+        return ownTransparency.value_or(-1.0f);
     }
 
     void Edge::setOwnTransparency(float transparency) {
@@ -39,5 +35,21 @@ namespace graphvise {
         if (ownTransparency.has_value()) {
             ownTransparency.reset();
         }
+    }
+
+    void Edge::setLength(float newLength) {
+        this->length = newLength;
+    }
+
+    float Edge::getLength() const {
+        return length;
+    }
+
+    void Edge::setMatrix(const glm::mat4& newMatrix) {
+        this->matrix = std::move(newMatrix);
+    }
+
+    const glm::mat4 &Edge::getMatrix() const {
+        return matrix;
     }
 }

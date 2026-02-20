@@ -23,8 +23,6 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <glm/ext/matrix_clip_space.hpp>
-
-
 #include "RendererSubject.hpp"
 #include "camera.hpp"
 #include "../controller/RendererObserver.hpp"
@@ -186,9 +184,6 @@ namespace graphvise {
 
         float cylinderRadius{};
         void generateCylinder(int segments = 16);
-
-        void generateSimpleSphere(int slices = 16, int stacks = 16);
-
         void renderCylinder(const glm::vec3 & start, const glm::vec3 & end, float radius, const glm::vec4 & color, const glm::mat4 & viewProj, uint32_t
                             edgeId) const;
 

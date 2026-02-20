@@ -22,7 +22,7 @@ namespace graphvise
 
         void handleMouseClick(int button, int action, int mods, double xpos, double ypos);
 
-        Graph SimpleGraph();
+        Graph WelcomeGraph();
 
     private:
         void processEvents();

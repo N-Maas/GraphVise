@@ -19,12 +19,8 @@ namespace graphvise {
         return coordsVector;
     }
 
-    ImVec4 Vertex::getVec4() const {
-        ImVec4 vertexVec4 = GraphSaver::getInstance().getGraph().getGroupByID(connectedGroupID).getVec4();
-        if (ownTransparency.has_value()) {
-            vertexVec4.w = ownTransparency.value();
-        }
-        return vertexVec4;
+    float Vertex::getOwnTransparency() const {
+        return ownTransparency.value_or(-1.0f);
     }
 
     void Vertex::setOwnTransparency(float transparency) {

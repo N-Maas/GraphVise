@@ -511,13 +511,13 @@ namespace graphvise
 
     void Buttons::importGraph()
     {
-        if (ImGui::BeginMenu("import Graph"))
+        if (ImGui::BeginMenu("Import Graph"))
         {
             if (ImGui::MenuItem("Import as TXT"))
             {
                 importFormat = ImportFormat::TXT;
                 importGraphBrowser.SetTypeFilters(txtImportFormat);
-                importGraphBrowser.SetTitle("import Graph from .txt");
+                importGraphBrowser.SetTitle("Import Graph from .txt");
                 importGraphBrowser.Open();
             }
 
@@ -527,7 +527,7 @@ namespace graphvise
             {
                 importFormat = ImportFormat::CNF;
                 importGraphBrowser.SetTypeFilters(cnfImportFormat);
-                importGraphBrowser.SetTitle("import Graph from .cnf");
+                importGraphBrowser.SetTitle("Import Graph from .cnf");
                 importGraphBrowser.Open();
             }
             ImGui::EndMenu();

@@ -21,6 +21,7 @@ void main() {
 
     // Diffuse lighting
     vec3 norm = normalize(Normal);
+
     vec3 lightDir = normalize(lightPos - FragPos);
     float diff = max(dot(norm, lightDir), 0.3);     // 0.3 = ambient
 

@@ -28,8 +28,6 @@ namespace graphvise
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
-
-
     }
 
     void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
@@ -39,7 +37,7 @@ namespace graphvise
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        currentObjInfo();
+        currentObjInfo();   //vertex and edge picking
 
         if (errorAvailable)
         {
@@ -59,7 +57,6 @@ namespace graphvise
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     }
-
 
     void GUI::shutdownGUI()
     {
@@ -116,13 +113,14 @@ namespace graphvise
                 const glm::vec3 coords = currentVertex.getCoordsVector();
                 ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
                             coords.x, coords.y, coords.z);
-                const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID()).getName();
+                const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID());
+                const auto groupname = group.getName();
                 ImGui::Text("Vertex Group: %s", groupname.c_str());
 
 
                 ImGui::Text("Vertex Color:");
                 ImGui::SameLine();
-                ImGui::ColorButton("##Vertex color", currentVertex.getVec4());
+                ImGui::ColorButton("##Vertex color", group.getVec4());
             } else {
                 ImGui::Text("No vertex selected.");
             }
@@ -143,13 +141,14 @@ namespace graphvise
                 ImGui::Text("Vertex 2 Coords: x: %.2f y: %.2f z: %.2f",
                            coords2.x, coords2.y, coords2.z);
 
-                const auto groupname = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID()).getName();
+                const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID());
+                const auto groupname = group.getName();
                 ImGui::Text("Edge Group: %s", groupname.c_str());
 
 
                 ImGui::Text("Edge Color:");
                 ImGui::SameLine();
-                ImGui::ColorButton("##Edge color", currentEdge.getVec4());
+                ImGui::ColorButton("##Edge color", group.getVec4());
             } else {
                 ImGui::Text("No edge selected.");
             }
