@@ -10,10 +10,9 @@ layout(location = 3) in vec4 aSphereColor;
 layout(location = 4) in uint aSphereId;
 
 // Cylinder instance attributes (used when rendering cylinders)
-layout(location = 5) in vec3 aCylinderStart;
-layout(location = 6) in vec3 aCylinderEnd;
-layout(location = 7) in vec4 aCylinderColor;
-layout(location = 8) in uint aCylinderId;
+layout(location = 5) in mat4 aCylinderMatrix;
+layout(location = 9) in vec4 aCylinderColor;
+layout(location = 10) in uint aCylinderId;
 
 uniform mat4 mvp;            // Combined model-view-projection matrix
 uniform float sphereRadius;  // Only used for spheres
@@ -45,40 +44,22 @@ void main() {
 
         // Sphere Normal for lighting equals the position
         Normal = aPos;
-        //Normal = normalize(worldPos.xyz - aSpherePos); // for debugging
 
     } else {
         // Cylinder transformation
-        vec3 direction = aCylinderEnd - aCylinderStart;
-        float length = length(direction);
+        model = aCylinderMatrix;
 
-        if (length < 0.001) {
-            gl_Position = vec4(0,0,0,1);
-            return;
-        }
-
-        vec3 yAxis = normalize(direction);
-        vec3 xAxis;
-        if (abs(dot(yAxis, vec3(0, 1, 0))) > 0.999f) {
-            // Vertical cylinder - use a different up vector
-            xAxis = normalize(cross(vec3(1, 0, 0), yAxis));
-        } else {
-            xAxis = normalize(cross(vec3(0, 1, 0), yAxis));
-        }
-        vec3 zAxis = cross(yAxis, xAxis);
-
-        model[0] = vec4(xAxis * cylinderRadius, 0);
-        model[1] = vec4(yAxis * length, 0);
-        model[2] = vec4(zAxis * cylinderRadius, 0);
-        model[3] = vec4((aCylinderStart + aCylinderEnd) * 0.5, 1);
+        model[0] = model[0] * cylinderRadius;   // scale x column
+        model[2] = model[2] * cylinderRadius;   // scale z column
+        // y axis is already scaled correctly in initRenderingMatrixForEdge
 
         VertexColor = aCylinderColor;
         InstanceId = aCylinderId;
 
+        worldPos = model * vec4(aPos, 1.0);
+
         // Calculate normal in world space for lighting
         Normal = mat3(transpose(inverse(model))) * aNormal;
-
-        worldPos = model * vec4(aPos, 1.0);
     }
 
 

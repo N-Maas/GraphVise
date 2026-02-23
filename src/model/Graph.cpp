@@ -210,9 +210,10 @@ namespace graphvise {
                 // Calculate rotation between up and direction
                 rotation = glm::rotation(up, normalizedDir);
             }
-
             model = model * glm::mat4_cast(rotation);
         }
+        // STEP 3: Scale the Y axis by length
+        model = glm::scale(model, glm::vec3(1.0f, length, 1.0f));
 
         edge.setMatrix(model);
     }

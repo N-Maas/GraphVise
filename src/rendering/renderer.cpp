@@ -102,8 +102,6 @@ namespace graphvise {
         if (vertexColorVBO) glDeleteBuffers(1, &vertexColorVBO);
         if (vertexIdVBO) glDeleteBuffers(1, &vertexIdVBO);
         if (edgeInstanceVBO) glDeleteBuffers(1, &edgeInstanceVBO);
-        if (edgeColorVBO) glDeleteBuffers(1, &edgeColorVBO);
-        if (edgeIdVBO) glDeleteBuffers(1, &edgeIdVBO);
         if (mShaderProgram) glDeleteProgram(mShaderProgram);
     }
 
@@ -169,8 +167,6 @@ namespace graphvise {
         }
         if (edgeInstanceVBO == 0) {
             glGenBuffers(1, &edgeInstanceVBO);
-            glGenBuffers(1, &edgeColorVBO);
-            glGenBuffers(1, &edgeIdVBO);
         }
 
         // Create picking framebuffer
@@ -305,7 +301,7 @@ namespace graphvise {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
         // Check that instance VBOs are initialized
         if (vertexInstanceVBO == 0 || vertexColorVBO == 0 ||
-            edgeInstanceVBO == 0 || edgeColorVBO == 0) {
+            edgeInstanceVBO == 0 ) {
             std::cerr << "ERROR: Instance VBOs not initialized!" << std::endl;
             return;
             }
@@ -355,11 +351,11 @@ namespace graphvise {
             glBindVertexArray(sphereVAO);  // Rebind sphere VAO
 
             // Ensure sphere-specific attributes are enabled
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < numSphereShaderInputs; i++) {
                 glEnableVertexAttribArray(i);
             }
             // Disable cylinder-specific attributes
-            for (int i = 5; i < 9; i++) {
+            for (int i = numSphereShaderInputs; i < numShaderInputs; i++) {
                 glDisableVertexAttribArray(i);
             }
 
@@ -410,58 +406,34 @@ namespace graphvise {
             glBindVertexArray(cylinderVAO);
 
             // Enable cylinder attributes
-            for (int i = 0; i < 9; i++) {
+            for (int i = 0; i < numShaderInputs; i++) {
                 glEnableVertexAttribArray(i);
             }
-
             // Prepare instance data
-            edgeInstanceData.resize(edges.size() * 2);  // Two vec3 per edge
-            edgeColorData.resize(edges.size());
-            edgeIdData.resize(edges.size());
+            std::vector<EdgeInstanceData> edgeData(edges.size());
 
             for (size_t i = 0; i < edges.size(); i++) {
                 const Edge* edge = edges[i];
-                auto [fromId, toId] = edge->getConnectingVerticesIDs();
-
-                // Get positions (add null checks)
-                Vertex& fromVertex = graph.getVertexByID(fromId);
-                Vertex& toVertex = graph.getVertexByID(toId);
-
-                glm::vec3 fromPos = fromVertex.getCoordsVector();
-                glm::vec3 toPos = toVertex.getCoordsVector();
                 auto group = graph.getGroupByID(edge->getConnectedGroupID());
-                glm::vec4 color = group.getVec4();
-                uint32_t edgeId = edge->getID();
 
-                // First vec4: start.xyz + radius.w
-                edgeInstanceData[i*2] = glm::vec3(fromPos.x, fromPos.y, fromPos.z);
-                // Second vec4: end.xyz
-                edgeInstanceData[i*2 + 1] = glm::vec3(toPos.x, toPos.y, toPos.z);
-                edgeColorData[i] = color;
-                edgeIdData[i] = edgeId;
+                edgeData[i].matrix = edge->getMatrix();  // Already has translation + rotation
+                edgeData[i].color = group.getVec4();
+                edgeData[i].id = edge->getID();
             }
 
+            // Upload all data in one buffer, interleaved data
             glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeInstanceData.size() * sizeof(glm::vec3),
-                edgeInstanceData.data(), GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, edgeData.size() * sizeof(EdgeInstanceData),
+                         edgeData.data(), GL_DYNAMIC_DRAW);
 
-            glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeColorData.size() * sizeof(glm::vec4),
-                        edgeColorData.data(), GL_DYNAMIC_DRAW);
-
-            glBindBuffer(GL_ARRAY_BUFFER, edgeIdVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeIdData.size() * sizeof(uint32_t),
-                        edgeIdData.data(), GL_DYNAMIC_DRAW);
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cylinderEBO);
-
-            // Draw all cylinders with one call
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
-
+            // Draw all cylinders with one call
             glBindVertexArray(cylinderVAO);
-            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0, edges.size());
+            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
+                                   GL_UNSIGNED_INT, 0, edges.size());
             GL_CHECK_ERROR();
             }
+
         glBindVertexArray(0);
         GL_CHECK_ERROR();
     }
@@ -682,8 +654,6 @@ namespace graphvise {
         glGenBuffers(1, &cylinderEBO);
         // instance rendering buffer creation
         glGenBuffers(1, &edgeInstanceVBO);
-        glGenBuffers(1, &edgeColorVBO);
-        glGenBuffers(1, &edgeIdVBO);
 
         // Setup instanced attributes for cylinders
         glBindVertexArray(cylinderVAO);
@@ -709,28 +679,37 @@ namespace graphvise {
         glDisableVertexAttribArray(3);
         glDisableVertexAttribArray(4);
 
-        // Start (location 5) - vec3
         glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+
+        // Matrix column 0 (location 5)
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3), 0);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)offsetof(EdgeInstanceData, matrix));
         glVertexAttribDivisor(5, 1);
 
-        // End (location 6) - vec3 (from second vec3)
+        // Matrix column 1 (location 6)
         glEnableVertexAttribArray(6);
-        glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 2 * sizeof(glm::vec3), (void*)(sizeof(glm::vec3)));
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + sizeof(glm::vec4)));
         glVertexAttribDivisor(6, 1);
 
-        // Color (location 7)
-        glBindBuffer(GL_ARRAY_BUFFER, edgeColorVBO);
+        // Matrix column 2 (location 7)
         glEnableVertexAttribArray(7);
-        glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+        glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + 2*sizeof(glm::vec4)));
         glVertexAttribDivisor(7, 1);
 
-        // edgeId (location 8)
-        glBindBuffer(GL_ARRAY_BUFFER, edgeIdVBO);
+        // Matrix column 3 (location 8)
         glEnableVertexAttribArray(8);
-        glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
+        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + 3*sizeof(glm::vec4)));
         glVertexAttribDivisor(8, 1);
+
+        // Color (location 9)
+        glEnableVertexAttribArray(9);
+        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData),  (void*)offsetof(EdgeInstanceData, color));
+        glVertexAttribDivisor(9, 1);
+
+        // edgeId (location 8)
+        glEnableVertexAttribArray(10);
+        glVertexAttribIPointer(10, 1, GL_UNSIGNED_INT, sizeof(EdgeInstanceData), (void*)offsetof(EdgeInstanceData, id));
+        glVertexAttribDivisor(10, 1);
 
         glBindVertexArray(0);
         GL_CHECK_ERROR();

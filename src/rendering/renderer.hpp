@@ -28,9 +28,10 @@
 #include "../controller/RendererObserver.hpp"
 
 namespace graphvise {
-    struct VertexData {
-        glm::vec3 position;
-        glm::vec3 normal;
+    struct EdgeInstanceData {
+        glm::mat4 matrix;  // Pre-calculated edge orientation matrix from edge->getMatrix()
+        glm::vec4 color;
+        uint32_t id;
     };
 
     struct RenderSettings {
@@ -203,15 +204,14 @@ namespace graphvise {
         std::vector<glm::vec3> vertexInstanceData;  // Packed: xyz=position, w=id
         std::vector<glm::vec4> vertexColorData;     // rgba colors
         std::vector<uint32_t> vertexIdData;
-        std::vector<glm::vec3> edgeInstanceData;    // xyz=start, w=radius, then xyz=end, w=id
-        std::vector<glm::vec4> edgeColorData;       // rgba colors
-        std::vector<uint32_t> edgeIdData;
+        std::vector<glm::vec3> edgeData;    // xyz=start, w=radius, then xyz=end, w=id
         GLuint vertexInstanceVBO;
         GLuint vertexColorVBO;
         GLuint vertexIdVBO;
         GLuint edgeInstanceVBO;
-        GLuint edgeColorVBO;
-        GLuint edgeIdVBO;
-        bool renderingSpheres;  // Uniform to control shader path
+        bool renderingSpheres;  // spheres and cylinders rendered with different normal calculation in shader
+        std::vector<EdgeInstanceData> edgeInterleavedData;
+        uint8_t numShaderInputs = 10;
+        uint8_t numSphereShaderInputs = 5;
     };
 }
