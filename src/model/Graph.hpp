@@ -10,8 +10,10 @@
 #include "Vertex.hpp"
 #include "imgui/imgui.h"
 
-namespace graphvise {
-    class Graph {
+namespace graphvise
+{
+    class Graph
+    {
     public:
         explicit Graph(const std::vector<glm::vec3>& verticesCoordinates,
                        const std::vector<std::pair<std::uint32_t, std::uint32_t>>& edgesConnectedVerticesIDs,
@@ -59,32 +61,24 @@ namespace graphvise {
         [[nodiscard]] std::vector<Vertex*> getVerticesSortedByTransparency() const;
         [[nodiscard]] std::vector<Edge*> getEdgesSortedByTransparency() const;
         void initThisGraph();
+        [[nodiscard]] std::string getName() const { return name; }
 
+        template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar & name;
+            ar & vertices;
+            ar & edges;
+            ar & groups;
+            ar & cameraBookmarks;
+        }
 
     private:
         void initRenderingMatrixForEdge(Edge& edge);
         void updateSortedVertices();
         void updateSortedEdges();
 
-        void setCurrentVertexID(uint32_t vertexID);
-        void setCurrentEdgeID(uint32_t edgeID);
-        [[nodiscard]] boost::optional<uint32_t> getCurrentVertexID() const { return currentVertexID; }
-        [[nodiscard]] boost::optional<uint32_t> getCurrentEdgeID() const { return currentEdgeID; }
-        [[nodiscard]] std::string getName() const { return name; }
 
-        template <class Archive>
-        void serialize(Archive& ar, const unsigned int version)
-        {
-
-            ar & name;
-            ar & vertices;
-            ar & edges;
-            ar & groups;
-            ar & cameraBookmarks;
-
-        }
-
-    private:
         std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;

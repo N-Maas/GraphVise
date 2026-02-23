@@ -29,7 +29,6 @@ int main()
     graphvise::ParserController pc;
     // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
     // graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
-    graphvise::GraphSaver::getInstance().setGraph(window.WelcomeGraph());
 
     if (!window.initWindow())
     {

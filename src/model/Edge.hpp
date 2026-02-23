@@ -30,6 +30,7 @@ namespace graphvise {
         template <class Archive>
         void serialize(Archive& ar, const unsigned int version)
         {
+            ar & edgeID;
             ar & connectedGroupID;
             ar & connectingVerticesIDs.first;
             ar & connectingVerticesIDs.second;

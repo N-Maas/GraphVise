@@ -73,57 +73,7 @@ namespace graphvise
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        // TEMPORARY: Disable depth test
-        //glDisable(GL_DEPTH_TEST);
-/*
-	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
-		// Only handle left button press (not release)
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-			// Get the renderer instance
-			auto renderer = Renderer::getInstance();
 
-			// Get framebuffer size (might be different from window size)
-			int fbWidth, fbHeight;
-			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-
-			// Convert window coordinates to framebuffer coordinates
-			int winWidth, winHeight;
-			glfwGetWindowSize(window, &winWidth, &winHeight);
-
-			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
-			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight); // Flip Y
-
-			// Get the picked object (could be vertex, edge, or nothing)
-			PickedObject picked = renderer->getObjectAt(fbX, fbY);
-			auto& graph = GraphSaver::getInstance().getGraph();
-
-			if (picked.isVertex()) {
-				// Get vertex position
-				try {
-					auto& vertex = graph.getVertexByID(picked.id);
-					m_clickedObjectPos = vertex.getCoordsVector();
-					gui->showVertexInfo(picked.id);
-
-				} catch ( std::exception& e ) {
-					std::cout << "Error getting vertex" << std::endl;
-				}
-			} else if (picked.isEdge()) {
-				// Handle edge click
-				try {
-					auto& edge = graph.getEdgeByID(picked.id);
-
-					// For edges, you might want to show popup at midpoint
-					auto [v1Id, v2Id] = edge.getConnectingVerticesIDs();
-					auto& v1 = graph.getVertexByID(v1Id);
-					auto& v2 = graph.getVertexByID(v2Id);
-					gui->showEdgeInfo(picked.id);
-
-				} catch (const std::exception& e) {
-					std::cout << "Error getting edge: " << e.what() << std::endl;
-				}
-			}
-		}
-		*/
         // Initialize ImGUI
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
@@ -152,19 +102,14 @@ namespace graphvise
 
         Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
 
-        // Create the renderer object
-        std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
-        renderer->init();
-
         ButtonController controller = ButtonController(*renderer);
 
         GUI gui(&controller);
-		gui = std::make_unique<GUI>(&controller);
 
 		// todo this line produces an error gui not recognized, please check
-        ErrorCollector::getInstance().signIn(std::ref(*gui));
+        ErrorCollector::getInstance().signIn(std::ref(gui));
 
-        gui->initGUI(window);
+        gui.initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -213,7 +158,7 @@ namespace graphvise
 
 
             //load GUI
-            gui->loadFrame(framebufferWidth, framebufferHeight);
+            gui.loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -230,7 +175,7 @@ namespace graphvise
             {
                 assert(0 < frameCount);
 
-                gui->setFps(frameCount / accumulatedTime);
+                gui.setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
@@ -241,7 +186,6 @@ namespace graphvise
 
 
         gui.shutdownGUI();
-        gui->shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
@@ -421,7 +365,8 @@ namespace graphvise
 				{29,30},
 				{29,31},
 				{31,32}
-			}
+			},
+			"Welcome To GraphVise"
 			);
 		}
 

@@ -338,7 +338,7 @@ namespace graphvise {
 
 
 
-        for (const Vertex* vertex : GraphSaver::getInstance().getGraph().getVerticesSortedByTransparency()) {
+        for (const Vertex* vertex : vertices) {
             //std::cout << "iterating through vertices" << std::endl;
             renderSphere(vertex->getCoordsVector(), sphereRadius, GraphSaver::getInstance().getGraph().getVertexVec4ByID(vertex->getID()), mvp, vertex->getID());
         }
