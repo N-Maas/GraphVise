@@ -57,7 +57,7 @@ namespace graphvise {
     {
         // Default quality settings
         mSettings.targetFPS = 60;
-        mSettings.geometryDetail = 2;
+        mSettings.sphereSubdiv = 2;
         mSettings.cylinderSegments = 12;
     }
 
@@ -82,7 +82,7 @@ namespace graphvise {
     {
         // Default quality settings
         mSettings.targetFPS = 60;
-        mSettings.geometryDetail = 2;
+        mSettings.sphereSubdiv = 2;
         mSettings.cylinderSegments = 12;
     }
 
@@ -98,6 +98,10 @@ namespace graphvise {
         if (cylinderVAO) glDeleteBuffers(1, &cylinderVAO);
         if (cylinderVBO) glDeleteBuffers(1, &cylinderVBO);
         if (cylinderEBO) glDeleteBuffers(1, &cylinderEBO);
+        if (vertexInstanceVBO) glDeleteBuffers(1, &vertexInstanceVBO);
+        if (vertexColorVBO) glDeleteBuffers(1, &vertexColorVBO);
+        if (vertexIdVBO) glDeleteBuffers(1, &vertexIdVBO);
+        if (edgeInstanceVBO) glDeleteBuffers(1, &edgeInstanceVBO);
         if (mShaderProgram) glDeleteProgram(mShaderProgram);
     }
 
@@ -134,16 +138,35 @@ namespace graphvise {
         // Load the shader files
         loadShaders();
 
+        if (mShaderProgram == 0) {
+            std::cerr << "ERROR: Shader program is 0 after loadShaders()!" << std::endl;
+        }
+
         if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 
         // Generate meshes if needed
         if (sphereVertices.empty()) {
-            generateIcosphere(2);
+            generateIcosphere(mSettings.sphereSubdiv);
         }
         if (cylinderVertices.empty()) {
-            generateCylinder(12);
+            generateCylinder(mSettings.cylinderSegments);
+        }
+
+        // Setup buffers for visualizing graph
+        glGenVertexArrays(1, &vertexVAO);
+        glGenBuffers(1, &vertexVBO);
+        glGenVertexArrays(1, &edgeVAO);
+        glGenBuffers(1, &edgeVBO);
+
+        if (vertexInstanceVBO == 0) {
+            glGenBuffers(1, &vertexInstanceVBO);
+            glGenBuffers(1, &vertexColorVBO);
+            glGenBuffers(1, &vertexIdVBO);
+        }
+        if (edgeInstanceVBO == 0) {
+            glGenBuffers(1, &edgeInstanceVBO);
         }
 
         // Create picking framebuffer
@@ -212,8 +235,7 @@ namespace graphvise {
     /**
      * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
-    void Renderer::loadShaders()
-    {
+    void Renderer::loadShaders() {
         //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
         //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
         //std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
@@ -226,21 +248,12 @@ namespace graphvise {
             mShaderProgram = newProgram;
         }
         GL_CHECK_ERROR();
-
-        // Setup buffers and for visualizing graph
-        glGenVertexArrays(1, &vertexVAO);
-        glGenBuffers(1, &vertexVBO);
-        glGenVertexArrays(1, &edgeVAO);
-        glGenBuffers(1, &edgeVBO);
-
     }
 
     /**
      * Called in the main loop to render a new frame.
      */
-    void Renderer::runFrame()
-    {
-
+    void Renderer::runFrame() {
         // --- FIRST PASS: Render to picking framebuffer (invisible) ---
         glBindFramebuffer(GL_FRAMEBUFFER, pickingFramebuffer);
         glViewport(0, 0, mFramebufferSize.x, mFramebufferSize.y);
@@ -258,9 +271,9 @@ namespace graphvise {
         // Render with picking shader (same shader, it already outputs ID to location 1)
         if (mShaderProgram != 0) {
             glUseProgram(mShaderProgram);
-            glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-            render(mvp);
+            render();
         }
+        GL_CHECK_ERROR();
 
         // --- SECOND PASS: Render to screen (normal rendering) ---
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // binding to default framebuffer
@@ -278,21 +291,28 @@ namespace graphvise {
             return;
         }
 
-        // MVP matrix
-        glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
-        render(mvp);
+        render();
         GL_CHECK_ERROR();
         notify();
     }
 
     // rendering Graph
-    void Renderer::render(const glm::mat4& mvp) {
+    void Renderer::render() {
         //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
+        // Check that instance VBOs are initialized
+        if (vertexInstanceVBO == 0 || vertexColorVBO == 0 ||
+            edgeInstanceVBO == 0 ) {
+            std::cerr << "ERROR: Instance VBOs not initialized!" << std::endl;
+            return;
+            }
 
         Graph& graph = GraphSaver::getInstance().getGraph();
 
         std::vector<Vertex*> vertices = graph.getVerticesSortedByTransparency();
         std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
+
+        // MVP matrix
+        glm::mat4 mvp = mCamera.get_world_to_projection_space(getAspectRatio());
 
         if (mShaderProgram == 0 || vertices.empty()) {
             std::cout << "ERROR: No shader or graph.vertices" << std::endl;
@@ -301,9 +321,13 @@ namespace graphvise {
 
         glUseProgram(mShaderProgram);
 
-        // Set uniforms
-        GLint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
-        GLint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        // Get uniform locations
+        GLuint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
+        GLuint lightPosLoc = glGetUniformLocation(mShaderProgram, "lightPos");
+        GLuint lightColorLoc = glGetUniformLocation(mShaderProgram, "lightColor");
+        GLuint sphereRadiusLoc = glGetUniformLocation(mShaderProgram, "sphereRadius");
+        GLuint cylinderRadiusLoc = glGetUniformLocation(mShaderProgram, "cylinderRadius");
+        GLuint renderingSpheresLoc = glGetUniformLocation(mShaderProgram, "renderingSpheres");
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
@@ -312,45 +336,106 @@ namespace graphvise {
         if (lightColorLoc != -1) {
             glUniform3f(lightColorLoc, 1.0f, 1.0f, 1.0f);  // White light
         }
-
-        // Set MVP uniform
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
         if (mvpLoc != -1) {
             glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
         } else {
             std::cout << "WARNING: No 'mvp' uniform in graph shader!" << std::endl;
         }
+        if (sphereRadiusLoc != -1) glUniform1f(sphereRadiusLoc, sphereRadius);
+        if (cylinderRadiusLoc != -1) glUniform1f(cylinderRadiusLoc, cylinderRadius);
 
-        // Generate meshes once (if not already)
-        if (sphereVertices.empty()) {
-            std::cout << "Generating sphere mesh..." << std::endl;
-            generateIcosphere(2);  // Medium quality
-        }
-        if (cylinderVertices.empty()) {
-            std::cout << "Generating cylinder mesh..." << std::endl;
-            generateCylinder(12);  // 12 segments
-        }
+        // ===== RENDER SPHERES (instanced) =====
+        if (!vertices.empty()) {
+            // Force reset vertex attribute state
+            glBindVertexArray(0);  // Unbind any VAO
+            glBindVertexArray(sphereVAO);  // Rebind sphere VAO
 
-        //std::cout << "Rendering graph with " << vertices.size() << " graph.vertices and "
-        //          << edges.size() << " edges" << std::endl;
-
-        // ===== RENDER graph.vertices AS SPHERES =====
-
-
-
-        for (const Vertex* vertex : vertices) {
-            //std::cout << "iterating through vertices" << std::endl;
-            renderSphere(vertex->getCoordsVector(), sphereRadius, GraphSaver::getInstance().getGraph().getVertexVec4ByID(vertex->getID()), mvp, vertex->getID());
-        }
-        // ===== RENDER EDGES AS CYLINDERS =====
-        for (const auto& edge : edges) {
-            int fromIdx = edge->getConnectingVerticesIDs().first;
-            int toIdx = edge->getConnectingVerticesIDs().second;
-            if (fromIdx < vertices.size() && toIdx < vertices.size()) {
-                renderCylinder(cylinderRadius, GraphSaver::getInstance().getGraph().getEdgeVec4ByID(edge->getID()), mvp, edge);
+            // Ensure sphere-specific attributes are enabled
+            for (int i = 0; i < numSphereShaderInputs; i++) {
+                glEnableVertexAttribArray(i);
             }
-        }
+            // Disable cylinder-specific attributes
+            for (int i = numSphereShaderInputs; i < numShaderInputs; i++) {
+                glDisableVertexAttribArray(i);
+            }
 
+            // Prepare instance data
+            vertexInstanceData.resize(vertices.size()); // positions only
+            vertexColorData.resize(vertices.size());    // colors
+            vertexIdData.resize(vertices.size());       // separate ID buffer
+
+            for (size_t i = 0; i < vertices.size(); i++) {
+                const Vertex* vertex = vertices[i];
+                glm::vec3 pos = vertex->getCoordsVector();
+                auto group = graph.getGroupByID(vertex->getConnectedGroupID());
+                glm::vec4 color = group.getVec4();
+                uint32_t id = vertex->getID();
+
+                vertexInstanceData[i] = glm::vec3(pos.x, pos.y, pos.z);
+                vertexColorData[i] = color;
+                vertexIdData[i] = id;
+            }
+            // Upload instance data
+            glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
+            glBufferData(GL_ARRAY_BUFFER, vertexInstanceData.size() * sizeof(glm::vec3),
+                        vertexInstanceData.data(), GL_DYNAMIC_DRAW);
+
+            glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
+            glBufferData(GL_ARRAY_BUFFER, vertexColorData.size() * sizeof(glm::vec4),
+                        vertexColorData.data(), GL_DYNAMIC_DRAW);
+
+            // Upload ID buffer
+            glBindBuffer(GL_ARRAY_BUFFER, vertexIdVBO);
+            glBufferData(GL_ARRAY_BUFFER, vertexIdData.size() * sizeof(uint32_t),
+                         vertexIdData.data(), GL_DYNAMIC_DRAW);
+
+            // Draw all spheres with one call
+            if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 1);
+
+            glBindVertexArray(sphereVAO);
+            glDrawElementsInstanced(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0, vertices.size());
+            GL_CHECK_ERROR();
+        }
+        GL_CHECK_ERROR();
+
+
+        // ===== RENDER CYLINDERS (instanced) =====
+        if (!edges.empty()) {
+
+            glBindVertexArray(0);
+            glBindVertexArray(cylinderVAO);
+
+            // Enable cylinder attributes
+            for (int i = 0; i < numShaderInputs; i++) {
+                glEnableVertexAttribArray(i);
+            }
+            // Prepare instance data
+            std::vector<EdgeInstanceData> edgeData(edges.size());
+
+            for (size_t i = 0; i < edges.size(); i++) {
+                const Edge* edge = edges[i];
+                auto group = graph.getGroupByID(edge->getConnectedGroupID());
+
+                edgeData[i].matrix = edge->getMatrix();  // Already has translation + rotation
+                edgeData[i].color = group.getVec4();
+                edgeData[i].id = edge->getID();
+            }
+
+            // Upload all data in one buffer, interleaved data
+            glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+            glBufferData(GL_ARRAY_BUFFER, edgeData.size() * sizeof(EdgeInstanceData),
+                         edgeData.data(), GL_DYNAMIC_DRAW);
+
+            if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
+            // Draw all cylinders with one call
+            glBindVertexArray(cylinderVAO);
+            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
+                                   GL_UNSIGNED_INT, 0, edges.size());
+            GL_CHECK_ERROR();
+            }
+
+        glBindVertexArray(0);
+        GL_CHECK_ERROR();
     }
 
     /**
@@ -375,8 +460,7 @@ namespace graphvise {
             std::cerr << "Invalid resize dimensions!" << std::endl;
             return;
         }
-        std::cout << "Renderer::resize(" << framebufferWidth
-             << ", " << framebufferHeight << ")" << std::endl;
+        //std::cout << "Renderer::resize(" << framebufferWidth << ", " << framebufferHeight << ")" << std::endl;
 
         // Update stored size
         mFramebufferSize.x = framebufferWidth;
@@ -451,7 +535,12 @@ namespace graphvise {
         glGenVertexArrays(1, &sphereVAO);
         glGenBuffers(1, &sphereVBO);
         glGenBuffers(1, &sphereEBO);
+        // Create instance VBOs
+        glGenBuffers(1, &vertexInstanceVBO);
+        glGenBuffers(1, &vertexColorVBO);
+        glGenBuffers(1, &vertexIdVBO);
 
+        // setting up attributes for instance rendering
         glBindVertexArray(sphereVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, sphereVBO);
@@ -463,13 +552,36 @@ namespace graphvise {
                      sphereIndices.data(), GL_STATIC_DRAW);
 
         // Enable and set up vertex attributes
+        // pre-vertex attributes position aPos (location 0)
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
         glEnableVertexAttribArray(0);
-
+        // pre-vertex attributes orientation aNormal (location 1)
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+        // Position (location 2)
+        glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), 0);  // First 3 floats
+        glVertexAttribDivisor(2, 1);
+        // Color (location 3)
+        glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), 0);
+        glVertexAttribDivisor(3, 1);
+        // ID (location 4)
+        glBindBuffer(GL_ARRAY_BUFFER, vertexIdVBO);
+        glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(4, 1, GL_UNSIGNED_INT, sizeof(uint32_t), 0);
+        glVertexAttribDivisor(4, 1);
+
+        // Explicitly disable attributes 5-8 that belong to cylinders
+        glDisableVertexAttribArray(5);
+        glDisableVertexAttribArray(6);
+        glDisableVertexAttribArray(7);
+        glDisableVertexAttribArray(8);
 
         glBindVertexArray(0);
+        GL_CHECK_ERROR();
     }
 
     void Renderer::generateCylinder(int segments) {
@@ -540,7 +652,10 @@ namespace graphvise {
         glGenVertexArrays(1, &cylinderVAO);
         glGenBuffers(1, &cylinderVBO);
         glGenBuffers(1, &cylinderEBO);
+        // instance rendering buffer creation
+        glGenBuffers(1, &edgeInstanceVBO);
 
+        // Setup instanced attributes for cylinders
         glBindVertexArray(cylinderVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, cylinderVBO);
@@ -552,124 +667,59 @@ namespace graphvise {
                      cylinderIndices.data(), GL_STATIC_DRAW);
 
         // Enable and set up vertex attributes
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+        // pre-vertex attributes position aPos (location 0)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
         glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE,  sizeof(glm::vec3), (void*)(3 * sizeof(float)));
+        // pre-vertex attributes orientation aNormal (location 1)
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
+        // explicitly disable attributes 2-4 that belong to spheres
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
+        glDisableVertexAttribArray(4);
+
+        glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
+
+        // Matrix column 0 (location 5)
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)offsetof(EdgeInstanceData, matrix));
+        glVertexAttribDivisor(5, 1);
+
+        // Matrix column 1 (location 6)
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + sizeof(glm::vec4)));
+        glVertexAttribDivisor(6, 1);
+
+        // Matrix column 2 (location 7)
+        glEnableVertexAttribArray(7);
+        glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + 2*sizeof(glm::vec4)));
+        glVertexAttribDivisor(7, 1);
+
+        // Matrix column 3 (location 8)
+        glEnableVertexAttribArray(8);
+        glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData), (void*)(offsetof(EdgeInstanceData, matrix) + 3*sizeof(glm::vec4)));
+        glVertexAttribDivisor(8, 1);
+
+        // Color (location 9)
+        glEnableVertexAttribArray(9);
+        glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(EdgeInstanceData),  (void*)offsetof(EdgeInstanceData, color));
+        glVertexAttribDivisor(9, 1);
+
+        // edgeId (location 8)
+        glEnableVertexAttribArray(10);
+        glVertexAttribIPointer(10, 1, GL_UNSIGNED_INT, sizeof(EdgeInstanceData), (void*)offsetof(EdgeInstanceData, id));
+        glVertexAttribDivisor(10, 1);
+
         glBindVertexArray(0);
-    }
-
-
-    void Renderer::renderSphere(const glm::vec3& center, float radius,
-                                    const glm::vec4& color, const glm::mat4& viewProj, const uint32_t vertexId) {
-        if (sphereVAO == 0) {
-            std::cerr << "    ERROR: sphereVAO is 0!" << std::endl;
-            return;
-        }
-
-        //debug
-        //std::cout << "Rendering sphere at (" << center.x << "," << center.y << "," << center.z
-        //          << ") with color (" << color.r << "," << color.g << "," << color.b << ")" << std::endl;
-
-        // Create model matrix: translate to center, scale by radius
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), center);
-        model = glm::scale(model, glm::vec3(radius));
-
-        glm::mat4 mvp = viewProj * model;
-
-        // Set uniforms
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
-        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
-
-        //debug
-        //std::cout << "objectColor uniform location: " << colorLoc << std::endl;
-        if (colorLoc != -1) {
-            glUniform3f(colorLoc, color.r, color.g, color.b);
-
-            //std::cout << "Set color to (" << color.r << "," << color.g << "," << color.b << color.a << ")" << std::endl;
-        } else {
-            std::cout << "ERROR: objectColor uniform not found in shader!" << std::endl;
-            // Check what uniforms actually exist
-            GLint numUniforms;
-            glGetProgramiv(mShaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-            std::cout << "Shader has " << numUniforms << " uniforms:" << std::endl;
-            for (int i = 0; i < numUniforms; i++) {
-                char name[256];
-                glGetActiveUniform(mShaderProgram, i, sizeof(name), NULL, NULL, NULL, name);
-                std::cout << "  " << name << std::endl;
-            }
-        }
-        // end debug
-
-        if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, vertexId);
-        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, UINT32_MAX);
-
-        //properly oriented normals for correct lighting
-        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-        GLint normalMatrixLoc = glGetUniformLocation(mShaderProgram, "normalMatrix");
-        if (normalMatrixLoc != -1) {
-            glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
-        }
-        GLint objectTypeLoc = glGetUniformLocation(mShaderProgram, "objectType");
-        if (objectTypeLoc != -1) glUniform1i(objectTypeLoc, 0);  // 0 = sphere
-
-        // Render
-        glBindVertexArray(sphereVAO);
-        glDrawElements(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
-
-    void Renderer::renderCylinder(float radius, const glm::vec4& color,
-                                      const glm::mat4& viewProj, const Edge* edge) const {
-        if (edge->getLength() < 0.001f) return;
-
-        // Scale: radius in X/Z, length in Y
-        glm::mat4 model = glm::scale(edge->getMatrix(), glm::vec3(radius, edge->getLength(), radius));
-        glm::mat4 mvp = viewProj * model;
-
-        // Set uniforms
-        GLint mvpLoc = glGetUniformLocation(mShaderProgram, "mvp");
-        GLint modelLoc = glGetUniformLocation(mShaderProgram, "model");
-        GLint colorLoc = glGetUniformLocation(mShaderProgram, "objectColor");
-        GLint transparencyLoc = glGetUniformLocation(mShaderProgram, "transparency");
-        GLint vertexIdLoc = glGetUniformLocation(mShaderProgram, "vertexId");
-        GLint edgeIdLoc = glGetUniformLocation(mShaderProgram, "edgeId");
-
-        if (mvpLoc != -1) glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
-        if (modelLoc != -1) glUniformMatrix4fv(modelLoc, 1, false, &model[0][0]);
-        if (colorLoc != -1) glUniform3f(colorLoc, color.r, color.g, color.b);
-        if (transparencyLoc != -1) glUniform1f(transparencyLoc, color.a);
-        if (vertexIdLoc != -1) glUniform1ui(vertexIdLoc, UINT32_MAX);  // Clear vertex ID
-        if (edgeIdLoc != -1) glUniform1ui(edgeIdLoc, edge->getID());
-
-        //properly oriented normals for correct lighting
-        glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
-        GLint normalMatrixLoc = glGetUniformLocation(mShaderProgram, "normalMatrix");
-        if (normalMatrixLoc != -1) {
-            glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
-        }
-        GLint objectTypeLoc = glGetUniformLocation(mShaderProgram, "objectType");
-        if (objectTypeLoc != -1) glUniform1i(objectTypeLoc, 1);  // 1 = cylinder
-
-        glBindVertexArray(cylinderVAO);
-        glDrawElements(GL_TRIANGLES, cylinderIndices.size(), GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        GL_CHECK_ERROR();
     }
 
     void Renderer::generateGeometryBasedOnQuality()
     {
         int sphereSubdivisions;
 
-        switch (mSettings.geometryDetail) {
+        switch (mSettings.sphereSubdiv) {
             case 0:  // Low quality
                 sphereSubdivisions = 1;
                 mSettings.cylinderSegments = 8;
@@ -688,7 +738,7 @@ namespace graphvise {
         }
 
         // Regenerate geometry
-        generateIcosphere(sphereSubdivisions);
+        generateIcosphere(mSettings.sphereSubdiv);
         generateCylinder(mSettings.cylinderSegments);
     }
 
@@ -696,17 +746,17 @@ namespace graphvise {
     {
         switch (preset) {
             case QualityPreset::LOW:
-                mSettings.geometryDetail = 0;
+                mSettings.sphereSubdiv = 0;
                 mSettings.targetFPS = 30;
                 break;
 
             case QualityPreset::MEDIUM:
-                mSettings.geometryDetail = 2;
+                mSettings.sphereSubdiv = 2;
                 mSettings.targetFPS = 60;
                 break;
 
             case QualityPreset::HIGH:
-                mSettings.geometryDetail = 3;
+                mSettings.sphereSubdiv = 3;
                 mSettings.targetFPS = 80;
                 break;
         }
@@ -725,8 +775,8 @@ namespace graphvise {
     void Renderer::setGeometryDetail(int detail)
     {
         detail = std::max(0, std::min(detail, 3)); // Clamp to 0-3
-        if (mSettings.geometryDetail != detail) {
-            mSettings.geometryDetail = detail;
+        if (mSettings.sphereSubdiv != detail) {
+            mSettings.sphereSubdiv = detail;
             generateGeometryBasedOnQuality();
         }
     }

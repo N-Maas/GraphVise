@@ -26,17 +26,17 @@
 #include "RendererSubject.hpp"
 #include "camera.hpp"
 #include "../controller/RendererObserver.hpp"
-#include "model/Edge.hpp"
 
 namespace graphvise {
-    struct VertexData {
-        glm::vec3 position;
-        glm::vec3 normal;
+    struct EdgeInstanceData {
+        glm::mat4 matrix;  // Pre-calculated edge orientation matrix from edge->getMatrix()
+        glm::vec4 color;
+        uint32_t id;
     };
 
     struct RenderSettings {
         int targetFPS = 60;           // Target frames per second
-        int geometryDetail = 2;       // Sphere subdivisions
+        int sphereSubdiv = 2;         // Sphere subdivisions
         int cylinderSegments = 12;    // Cylinder segments
     };
 
@@ -65,9 +65,8 @@ namespace graphvise {
 
         void shutdown();        // Cleanup resources, called after the main loop
 
-        void processEvents(GLFWwindow* m_window);    // Process GLFW keyboard and mouse input
         void resize(int framebufferWidth, int framebufferHeight);
-        void render(const glm::mat4& mvp); // Render graph
+        void render(); // Render graph
 
         // Quality settings
         void setQualityPreset(QualityPreset preset);
@@ -186,7 +185,8 @@ namespace graphvise {
 
         float cylinderRadius{};
         void generateCylinder(int segments = 16);
-        void renderCylinder(float radius, const glm::vec4 & color, const glm::mat4 & viewProj, const Edge* edge) const;
+        void renderCylinder(const glm::vec3 & start, const glm::vec3 & end, float radius, const glm::vec4 & color, const glm::mat4 & viewProj, uint32_t
+                            edgeId) const;
 
         Camera mCamera;
         glm::vec3 lightPos;
@@ -199,5 +199,19 @@ namespace graphvise {
         GLuint pickingFramebuffer = 0;
         GLuint pickingTexture = 0;  // Texture to store the IDs
         GLuint colorTexture = 0; // basic texture for visual vertex color
+
+        // buffers needed for instance rendering
+        std::vector<glm::vec3> vertexInstanceData;  // Packed: xyz=position, w=id
+        std::vector<glm::vec4> vertexColorData;     // rgba colors
+        std::vector<uint32_t> vertexIdData;
+        std::vector<glm::vec3> edgeData;    // xyz=start, w=radius, then xyz=end, w=id
+        GLuint vertexInstanceVBO;
+        GLuint vertexColorVBO;
+        GLuint vertexIdVBO;
+        GLuint edgeInstanceVBO;
+        bool renderingSpheres;  // spheres and cylinders rendered with different normal calculation in shader
+        std::vector<EdgeInstanceData> edgeInterleavedData;
+        uint8_t numShaderInputs = 10;
+        uint8_t numSphereShaderInputs = 5;
     };
 }

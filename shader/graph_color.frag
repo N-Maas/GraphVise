@@ -1,28 +1,44 @@
 #version 330 core
+
+// Inputs from vertex shader
+in vec4 VertexColor;
+flat in uint InstanceId;
 in vec3 FragPos;
 in vec3 Normal;
-uniform vec3 objectColor;
-uniform float transparency;
+flat in float Transparency;
+
+// Uniforms for lighting
 uniform vec3 lightPos;
 uniform vec3 lightColor;
+uniform bool renderingSpheres;
 
-uniform uint vertexId;         // Vertex ID for picking
-uniform uint edgeId;           // edge ID for picking
-
-layout(location = 0) out vec4 FragColor;   // To screen (RGBA8)
-layout(location = 1) out uvec2 pickingOutput;  // To picking buffer (R32UI) (vertexId, edgeId)
-
+// Outputs
+out vec4 FragColor;
+out uvec2 PickingData;  // For picking framebuffer (ID rendering)
 
 void main() {
-    // Simple lighting
+    // ===== LIGHTING CALCULATIONS =====
+
+    // Diffuse lighting
     vec3 norm = normalize(Normal);
 
     vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.3);  // 0.3 = ambient
+    float diff = max(dot(norm, lightDir), 0.3);     // 0.3 = ambient
 
-    vec3 result = objectColor * diff;
-    FragColor = vec4(result, transparency);
+    // Combine lighting with object color
+    vec3 result = VertexColor.rgb * diff;
 
-    // Picking output - just the ID as unsigned integer
-    pickingOutput = uvec2(vertexId, edgeId);
+    // ===== OUTPUT FOR NORMAL RENDERING =====
+    // Use the combined lighting result with object's alpha for transparency
+    FragColor = vec4(result, Transparency);
+
+    // ===== OUTPUT FOR PICKING (to color attachment 1) =====
+    // Pass instance ID for object selection
+    // For spheres: InstanceId is vertex ID
+    // For cylinders: InstanceId is edge ID
+    if (renderingSpheres) {
+    PickingData = uvec2(InstanceId, 0xFFFFFFFF);
+    } else {
+    PickingData = uvec2(0xFFFFFFFF, InstanceId);
+    }
 }

@@ -12,23 +12,20 @@
 #include <GLFW/glfw3.h>
 #include <sstream>
 #include <functional>
-#include <glm/gtc/constants.hpp>
 
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
 
 
-namespace graphvise
-{
-    double Window::scrollYOffset = 0;
+namespace graphvise {
 
-    Window::Window()
-    = default;
+	double Window::scrollYOffset = 0;
 
-    bool Window::initWindow()
-    {
-        // If OpenMP is installed we can use it for parallelization
-        utils::printOpenMPVersion();
+	Window::Window()
+	= default;
+	bool Window::initWindow() {
+		// If OpenMP is installed we can use it for parallelization
+		utils::printOpenMPVersion();
 
         // Initialize GLFW
         glfwInit();
@@ -63,8 +60,8 @@ namespace graphvise
 		glfwSetScrollCallback(window, scrollCallback);
 		glfwSetMouseButtonCallback(window, mouseButtonCallback); // for vertex picking
 
-        // Introduce the window into the current context
-        glfwMakeContextCurrent(window);
+		// Introduce the window into the current context
+		glfwMakeContextCurrent(window);
 
         //Load GLAD so it configures OpenGL
         gladLoadGL();
@@ -73,6 +70,8 @@ namespace graphvise
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
+        // TEMPORARY: Disable depth test
+        //glDisable(GL_DEPTH_TEST);
 
         // Initialize ImGUI
         IMGUI_CHECKVERSION();
@@ -94,22 +93,14 @@ namespace graphvise
 
 		renderer->init();
 
-
-        // CachingController::loadDefaultGraph();
-        GraphSaver::getInstance().setGraph(WelcomeGraph());
-
-
-
-        Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
-
         ButtonController controller = ButtonController(*renderer);
 
-        GUI gui(&controller);
+		gui = std::make_unique<GUI>(&controller);
 
 		// todo this line produces an error gui not recognized, please check
-        ErrorCollector::getInstance().signIn(std::ref(gui));
+        ErrorCollector::getInstance().signIn(std::ref(*gui));
 
-        gui.initGUI(window);
+        gui->initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -140,13 +131,13 @@ namespace graphvise
                 renderer->resize(framebufferWidth, framebufferHeight);
             }
 
-            // Specify the color of the background
-            //glClearColor(0.f, 0.14f, 0.28f, 1.0f);
-            glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
-            // Clean the back buffer and assign the new color to it
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			// Specify the color of the background
+			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
+			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
+			// Clean the back buffer and assign the new color to it
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glfwPollEvents();
+			glfwPollEvents();
 
             processEvents();
 
@@ -155,10 +146,8 @@ namespace graphvise
             renderer->runFrame();
             GL_CHECK_ERROR();
 
-
-
             //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
+            gui->loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -175,21 +164,17 @@ namespace graphvise
             {
                 assert(0 < frameCount);
 
-                gui.setFps(frameCount / accumulatedTime);
+                gui->setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        CachingController::cacheCurrentGraph();
-
-
-        gui.shutdownGUI();
+        gui->shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
-
 
         // Delete window before ending the program
         glfwDestroyWindow(window);
@@ -222,31 +207,27 @@ namespace graphvise
 		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
 		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
 
-        static bool rotatingCamera = false;
-        int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-        if (!rotatingCamera && rightMouseState == GLFW_PRESS)
-        {
-            rotatingCamera = true;
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera)
-        {
-            float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-            float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-            movementController.rotateCamera(pitchChange, yawChange);
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera && rightMouseState == GLFW_RELEASE)
-        {
-            rotatingCamera = false;
-        }
+		static bool rotatingCamera = false;
+		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
+			rotatingCamera = true;
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera) {
+			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
+			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
+			movementController.rotateCamera(pitchChange, yawChange);
+			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+		}
+		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
+			rotatingCamera = false;
+		}
 
-        if (!ImGui::GetIO().WantCaptureMouse)
-        {
-            movementController.zoom(-scrollYOffset, sprinting);
-            scrollYOffset = 0;
-        }
-    }
+		if (!ImGui::GetIO().WantCaptureMouse){
+			movementController.zoom(-scrollYOffset, sprinting);
+			scrollYOffset = 0;
+		}
+	}
 
 	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 		scrollYOffset = yoffset;
@@ -365,8 +346,7 @@ namespace graphvise
 				{29,30},
 				{29,31},
 				{31,32}
-			},
-			"Welcome To GraphVise"
+			}
 			);
 		}
 
