@@ -18,7 +18,9 @@
 
 namespace graphvise
 {
-    Buttons::Buttons(std::shared_ptr<ButtonController> buttonController) : buttonController(std::move(buttonController)) {}
+    Buttons::Buttons(std::shared_ptr<ButtonController> buttonController) : buttonController(std::move(buttonController))
+    {
+    }
 
     void Buttons::initButtons()
     {
@@ -35,7 +37,6 @@ namespace graphvise
         performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
         cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
         lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
-
     }
 
     void Buttons::loadButtonFrame(int framebufferWidth, int framebufferHeight)
@@ -171,34 +172,35 @@ namespace graphvise
         exportGraphBrowser.Display();
     }
 
-    void Buttons::GroupMenu()
+    void Buttons::GroupMenu(const char* popUpName)
     {
         activeGroups = &saver->getGraph().getGroups();
-        //
-        // ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
-        // ImGui::Begin("Groups", &groups,
-        //              ImGuiWindowFlags_AlwaysAutoResize |
-        //              ImGuiWindowFlags_NoCollapse
-        // );
 
 
-        for (const auto& group : *activeGroups)
+        ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            if (ImGui::CollapsingHeader(group.getName().c_str()))
+            for (const auto& group : *activeGroups)
             {
-                ImGui::Text("Group ID: %d", group.getID());
-                ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                ImGui::SameLine();
+                if (ImGui::CollapsingHeader(group.getName().c_str()))
+                {
+                    ImGui::Text("Group ID: %d", group.getID());
+                    ImGui::SameLine();
+                    ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
+                    ImGui::SameLine();
 
-                randomizeColoring(group.getID());
-                changeColoring(group.getID());
+                    randomizeColoring(group.getID());
+                    changeColoring(group.getID());
 
-                ChangeTransparency(group.getID());
+                    ChangeTransparency(group.getID());
+                }
             }
-        }
 
-        // ImGui::End();
+            ImGui::EndPopup();
+        }
     }
 
     void Buttons::ChangeTransparency(uint32_t groupID)
@@ -229,56 +231,57 @@ namespace graphvise
         }
     }
 
-    void Buttons::findObject()
+    void Buttons::findObject(const char* popUpName)
     {
-        // ImGui::Begin("Highlight Object", &search,
-        //              ImGuiWindowFlags_AlwaysAutoResize |
-        //              ImGuiWindowFlags_NoCollapse
-        // );
-
-        if (ImGui::Button("Remove Highlighting"))
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse))
         {
-            buttonController->RemoveHighlights();
+            if (ImGui::Button("Remove Highlighting"))
+            {
+                buttonController->RemoveHighlights();
+            }
+
+            ImGui::BeginTabBar("##FindObjectTabBar");
+
+            if (ImGui::BeginTabItem("Vertex"))
+            {
+                findVertex();
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Edge"))
+            {
+                findEdge();
+                ImGui::EndTabItem();
+            }
+
+            ImGui::EndTabBar();
+
+            ImGui::EndPopup();
         }
-
-        ImGui::BeginTabBar("##FindObjectTabBar");
-
-        if (ImGui::BeginTabItem("Vertex"))
-        {
-            findVertex();
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Edge"))
-        {
-            findEdge();
-            ImGui::EndTabItem();
-        }
-
-        ImGui::EndTabBar();
-
-        // ImGui::End();
     }
 
-    void Buttons::performanceModeToggle()
+    void Buttons::performanceModeToggle(const char* popUpName)
     {
         const char* modeText[] = {"High Performance", "High Resolution"};
 
-        ImGui::Begin("Performance Mode", &togglePerformanceMode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        performanceMode = Renderer::getInstance()->performance_mode();
-
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-                             HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            buttonController->setPerformanceMode(performanceMode);
+            performanceMode = Renderer::getInstance()->performance_mode();
+
+            if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+                                 HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+            {
+                buttonController->setPerformanceMode(performanceMode);
+            }
+
+
+            ImGui::EndPopup();
         }
-
-
-        ImGui::End();
     }
 
 
@@ -313,48 +316,53 @@ namespace graphvise
         }
     }
 
-    void Buttons::setLightSourceMovementBehaviour()
+    void Buttons::setLightSourceMovementBehaviour(const char* popUpName)
     {
-        ImGui::Begin("Light Source", &lightSource,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
-
-        const bool first = ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                              FIXED_POSITION);
-        const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                               FOLLOW_CAMERA);
-
-        if (first || second)
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+            lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
+
+            const bool first = ImGui::RadioButton("Fixed Position",
+                                                  reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+                                                  FIXED_POSITION);
+            const bool second = ImGui::RadioButton("Follow Camera",
+                                                   reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+                                                   FOLLOW_CAMERA);
+
+            if (first || second)
+            {
+                buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+            }
+
+
+            ImGui::EndPopup();
         }
-
-
-        ImGui::End();
     }
 
-    void Buttons::setCameraMovementMode()
+    void Buttons::setCameraMovementMode(const char* popUpName)
     {
-        ImGui::Begin("Camera Movement", &cameraMovement,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
-
-        const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
-        const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);
-
-        if (first || second)
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            buttonController->setCameraFocusMode(cameraMode);
+            cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
+
+            const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
+            const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode),
+                                                   CENTER_OF_MASS);
+
+            if (first || second)
+            {
+                buttonController->setCameraFocusMode(cameraMode);
+            }
+
+
+            ImGui::EndPopup();
         }
-
-
-        ImGui::End();
     }
 
 
@@ -457,16 +465,16 @@ namespace graphvise
         }
     }
 
-    void Buttons::cameraBookmarkMenu()
+    void Buttons::cameraBookmarkMenu(const char* popUpName)
     {
         auto bookmarks = saver->getGraph().getCameraBookmarks();
 
         auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
         ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0), ImVec2(x, MAXFLOAT));
 
-        if (ImGui::Begin("Bookmarks", &cameraBookmarks,
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
         ))
         {
             if (ImGui::Button("Add Bookmark"))
@@ -475,51 +483,48 @@ namespace graphvise
             }
             for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
             {
+
+                ImGui::Separator();
+
                 auto& bookmark = bookmarks[bookmarkID];
-                if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
+
+                ImGui::Text(bookmark.getName().c_str());
+                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
                 {
-                    ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x,
-                                bookmark.getCoordsVector().y,
-                                bookmark.getCoordsVector().z);
-                    if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
-                    {
-                        buttonController->loadCameraBookmark(bookmark);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
-                    {
-                        buttonController->deleteCameraBookmark(bookmarkID);
-                    }
+                    buttonController->loadCameraBookmark(bookmark);
                 }
+                ImGui::SameLine();
+                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                {
+                    buttonController->deleteCameraBookmark(bookmarkID);
+                }
+
             }
-            ImGui::End();
+            ImGui::EndPopup();
         }
 
         if (addBookmarkWindow)
         {
-            ImGui::OpenPopup("Add Bookmark",
-                             ImGuiWindowFlags_AlwaysAutoResize |
-                             ImGuiWindowFlags_NoCollapse
-            );
-            if (ImGui::BeginPopupModal("Add Bookmark", &addBookmarkWindow,
-                                       ImGuiWindowFlags_AlwaysAutoResize |
-                                       ImGuiWindowFlags_NoCollapse))
+            ImGui::OpenPopup("Add Bookmark");
+        }
+
+        if (ImGui::BeginPopupModal("Add Bookmark", &addBookmarkWindow,
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoCollapse))
+        {
+            ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
+            if (ImGui::Button("Add"))
             {
-                ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
-                if (ImGui::Button("Add"))
-                {
-                    buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
-                    bookmarkName = std::vector<char>(16);
-                    addBookmarkWindow = false;
-                }
-                ImGui::EndPopup();
+                buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
+                bookmarkName = std::vector<char>(16);
+                addBookmarkWindow = false;
             }
+            ImGui::EndPopup();
         }
     }
 
     void Buttons::SideBar()
     {
-
         ImVec2 pos;
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
@@ -537,47 +542,60 @@ namespace graphvise
                      ImGuiWindowFlags_NoNavFocus
         );
 
-        SideBarElement(searchIcon, "Search for Objects", auto([this]() { findObject(); }));
+        SideBarElement(searchIcon, "Search for Objects",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           findObject(hoverMsg);
+                       }));
 
-        SideBarElement(groupIcon, "Show Groups", std::function<void()>([this]() { GroupMenu(); }));
+        SideBarElement(groupIcon, "Show Groups",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           GroupMenu(hoverMsg);
+                       }));
 
         SideBarElement(performanceIcon, "Toggle Performance Mode",
-                       std::function<void()>([this]() { performanceModeToggle(); }));
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           performanceModeToggle(hoverMsg);
+                       }));
 
         SideBarElement(lightSourceIcon, "Toggle Light Source",
-                       std::function<void()>([this]() { setLightSourceMovementBehaviour(); }));
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           setLightSourceMovementBehaviour(hoverMsg);
+                       }));
 
         SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
-                       std::function<void()>([this]() { setCameraMovementMode(); }));
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           setCameraMovementMode(hoverMsg);
+                       }));
 
         SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
-                       std::function<void()>([this]() { cameraBookmarkMenu(); }));
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           cameraBookmarkMenu(hoverMsg);
+                       }));
 
         ImGui::End();
-
-
-
     }
 
     void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
-                                 const std::function<void()>& onClickFunction)
+                                 const std::function<void(const char* hoverMsg)>& onClickFunction)
     {
         if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
-
             auto pos = ImGui::GetItemRectMin();
             pos.x -= 15;
             ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
 
             ImGui::OpenPopup(hoverMsg);
         }
-        if (ImGui::BeginPopup(hoverMsg, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
-        {
 
-            onClickFunction();
+        onClickFunction(hoverMsg);
 
-            ImGui::EndPopup();
-        }
+
         if (ImGui::IsItemHovered())
         {
             ImGui::SetTooltip(hoverMsg);
