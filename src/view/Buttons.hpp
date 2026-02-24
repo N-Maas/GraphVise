@@ -20,9 +20,9 @@ namespace graphvise
 {
     struct Texture
     {
-        ImTextureID id;
-        int width;
-        int height;
+        ImTextureID id = nullptr;
+        int width = 0;
+        int height = 0;
     };
 
     class Buttons
@@ -41,16 +41,7 @@ namespace graphvise
         const std::vector<std::string> cnfImportFormat = {".cnf"};
         const std::vector<std::string> allowedExportFormat = {".png"};
 
-
-        bool search = false;
-        bool groups = false;
-        bool togglePerformanceMode = false;
-        bool lightSource = false;
-        bool cameraMovement = false;
-        bool cameraBookmarks = false;
         bool addBookmarkWindow = false;
-
-        bool* currentBoolPtr = nullptr;
 
         ImportFormat importFormat = ImportFormat::TXT;
         ExportFormat exportFormat = ExportFormat::PNG;
@@ -71,11 +62,9 @@ namespace graphvise
         uint32_t framebufferWidth = 0;
         uint32_t framebufferHeight = 0;
 
+
         int32_t vertex = 0;
         int32_t edgeVertices[2] = {0, 0};
-
-        float cylinderRadius = Renderer::getInstance()->getCylinderRadius();
-        float sphereRadius = Renderer::getInstance()->getSphereRadius();
 
 
         ImGui::FileBrowser importGraphBrowser = ImGui::FileBrowser();
@@ -91,12 +80,14 @@ namespace graphvise
         Texture cameraMovementIcon;
         Texture lightSourceIcon;
 
-        Texture loadTextureFromFile(const char* filename);
+        void MainMenuBar();
+
+        void SideBar();
+        void SideBarElement(Texture texture, const char* hoverMsg, const std::function<void(const char* hoverMsg)>& onClickFunction);
 
         void changeObjSize();
         void graphSettings();
         void generalSettings();
-        void MainMenuBar();
         void GroupMenu(const char* popUpName);
         void ChangeTransparency(uint32_t groupID);
         void findObject(const char* popUpName);
@@ -111,9 +102,10 @@ namespace graphvise
         void importGraph();
         void exportGraph();
         void cameraBookmarkMenu(const char* popUpName);
-        void SideBar();
-        void SideBarElement(Texture texture, const char* hoverMsg, const std::function<void(const char* hoverMsg)>& onClickFunction);
         void importGroupConfiguration();
+        void help();
+        static Texture loadTextureFromFile(const char* filename);
+
     };
 }
 

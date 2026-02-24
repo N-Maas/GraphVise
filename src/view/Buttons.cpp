@@ -51,32 +51,109 @@ namespace graphvise
         SideBar();
     }
 
-    Texture Buttons::loadTextureFromFile(const char* filename)
+    void Buttons::MainMenuBar()
     {
-        int width, height, channels;
-        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+        // Main Menu Bar at the top of the Window
+        ImGui::BeginMainMenuBar();
 
 
-        if (!data)
+        importGraph();
+        ImGui::Separator();
+        exportGraph();
+        ImGui::Separator();
+        graphSettings();
+        ImGui::Separator();
+        generalSettings();
+        ImGui::Separator();
+        help();
+        ImGui::Separator();
+
+        ImGui::EndMainMenuBar();
+
+        importGraphBrowser.Display();
+        importGroupConfigBrowser.Display();
+        highlightSubgraphBrowser.Display();
+        exportGraphBrowser.Display();
+    }
+
+    void Buttons::SideBar()
+    {
+        ImVec2 pos;
+        pos.x = static_cast<float>(framebufferWidth);
+        pos.y = static_cast<float>(framebufferHeight) / 2.0f;
+
+        ImVec2 windowPivot = {1.0f, 0.5f};
+
+        ImGui::SetNextWindowPos(pos, 0, windowPivot);
+
+
+        ImGui::Begin("##SideBarMenu", nullptr,
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoNavFocus
+        );
+
+        SideBarElement(searchIcon, "Search for Objects",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           findObject(hoverMsg);
+                       }));
+
+        SideBarElement(groupIcon, "Show Groups",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           GroupMenu(hoverMsg);
+                       }));
+
+        SideBarElement(performanceIcon, "Toggle Performance Mode",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           performanceModeToggle(hoverMsg);
+                       }));
+
+        SideBarElement(lightSourceIcon, "Toggle Light Source",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           setLightSourceMovementBehaviour(hoverMsg);
+                       }));
+
+        SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           setCameraMovementMode(hoverMsg);
+                       }));
+
+        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           cameraBookmarkMenu(hoverMsg);
+                       }));
+
+        ImGui::End();
+    }
+
+    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
+                                 const std::function<void(const char* hoverMsg)>& onClickFunction)
+    {
+        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
-            return Texture(0, 0, 0);
+            auto pos = ImGui::GetItemRectMin();
+            pos.x -= 15;
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
+
+            ImGui::OpenPopup(hoverMsg);
         }
 
-        GLuint texture;
+        onClickFunction(hoverMsg);
 
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-        stbi_image_free(data);
-        return Texture(reinterpret_cast<ImTextureID>(texture), width, height);
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip(hoverMsg);
+        }
+        ImGui::Spacing();
     }
 
     void Buttons::changeObjSize()
@@ -146,30 +223,6 @@ namespace graphvise
 
             ImGui::EndMenu();
         }
-    }
-
-    void Buttons::MainMenuBar()
-    {
-        // Main Menu Bar at the top of the Window
-        ImGui::BeginMainMenuBar();
-
-
-        importGraph();
-        ImGui::Separator();
-        exportGraph();
-        ImGui::Separator();
-        graphSettings();
-        ImGui::Separator();
-        generalSettings();
-        ImGui::Separator();
-
-
-        ImGui::EndMainMenuBar();
-
-        importGraphBrowser.Display();
-        importGroupConfigBrowser.Display();
-        highlightSubgraphBrowser.Display();
-        exportGraphBrowser.Display();
     }
 
     void Buttons::GroupMenu(const char* popUpName)
@@ -262,6 +315,7 @@ namespace graphvise
         }
     }
 
+
     void Buttons::performanceModeToggle(const char* popUpName)
     {
         const char* modeText[] = {"High Performance", "High Resolution"};
@@ -292,7 +346,6 @@ namespace graphvise
             buttonController->randomizeColoring(groupID);
         }
     }
-
 
     void Buttons::changeColoring(uint32_t groupID)
     {
@@ -342,6 +395,7 @@ namespace graphvise
         }
     }
 
+
     void Buttons::setCameraMovementMode(const char* popUpName)
     {
         if (ImGui::BeginPopup(popUpName,
@@ -364,7 +418,6 @@ namespace graphvise
             ImGui::EndPopup();
         }
     }
-
 
     void Buttons::findVertex()
     {
@@ -523,86 +576,6 @@ namespace graphvise
         }
     }
 
-    void Buttons::SideBar()
-    {
-        ImVec2 pos;
-        pos.x = static_cast<float>(framebufferWidth);
-        pos.y = static_cast<float>(framebufferHeight) / 2.0f;
-
-        ImVec2 windowPivot = {1.0f, 0.5f};
-
-        ImGui::SetNextWindowPos(pos, 0, windowPivot);
-
-
-        ImGui::Begin("##SideBarMenu", nullptr,
-                     ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoMove |
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoNavFocus
-        );
-
-        SideBarElement(searchIcon, "Search for Objects",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           findObject(hoverMsg);
-                       }));
-
-        SideBarElement(groupIcon, "Show Groups",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           GroupMenu(hoverMsg);
-                       }));
-
-        SideBarElement(performanceIcon, "Toggle Performance Mode",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           performanceModeToggle(hoverMsg);
-                       }));
-
-        SideBarElement(lightSourceIcon, "Toggle Light Source",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           setLightSourceMovementBehaviour(hoverMsg);
-                       }));
-
-        SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           setCameraMovementMode(hoverMsg);
-                       }));
-
-        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           cameraBookmarkMenu(hoverMsg);
-                       }));
-
-        ImGui::End();
-    }
-
-    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
-                                 const std::function<void(const char* hoverMsg)>& onClickFunction)
-    {
-        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
-        {
-            auto pos = ImGui::GetItemRectMin();
-            pos.x -= 15;
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
-
-            ImGui::OpenPopup(hoverMsg);
-        }
-
-        onClickFunction(hoverMsg);
-
-
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetTooltip(hoverMsg);
-        }
-        ImGui::Spacing();
-    }
-
     void Buttons::importGroupConfiguration()
     {
         if (ImGui::MenuItem("Import Group Config"))
@@ -610,5 +583,66 @@ namespace graphvise
             importGroupConfigBrowser.SetTitle("Import Group Config");
             importGroupConfigBrowser.Open();
         }
+    }
+
+    void Buttons::help()
+    {
+
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::BeginMenu("Info"))
+            {
+                const auto infoText = "This is a simple 3D graph viewer. \n"
+                                      "The viewer supports the following operations: \n"
+                                      " - Import graphs from .txt and .cnf files \n"
+                                      " - Highlight subgraphs \n"
+                                      " - Change the coloring of groups \n"
+                                      " - Change the transparency of groups \n"
+                                      " - Find vertices and edges in the graph \n"
+                                      " - Export the graph as a PNG image \n";
+
+                ImGui::Text(infoText);
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Hotkeys"))
+            {
+                const auto hotkeyText = "- L-CTRL + K : Change Camera Movement Mode \n"
+                                        "- L-CTRL + Q : Rotate through Rendering Qualities \n"
+                                        "- L-CTRL + L : Toggle Light Source Behavior \n";
+
+                ImGui::Text(hotkeyText);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+
+    }
+
+    Texture Buttons::loadTextureFromFile(const char* filename)
+    {
+        int width, height, channels;
+        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+
+        if (!data)
+        {
+            return Texture(nullptr, 0, 0);
+        }
+
+        GLuint texture;
+
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+        return Texture(reinterpret_cast<ImTextureID>(texture), width, height);
     }
 }
