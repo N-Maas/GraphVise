@@ -43,93 +43,60 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        // ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
         SideBar();
     }
 
-    void Buttons::MainMenuBar()
+    Texture Buttons::loadTextureFromFile(const char* filename)
     {
-        // Main Menu Bar at the top of the Window
-        ImGui::BeginMainMenuBar();
+        int width, height, channels;
+        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
 
 
-        importGraph();
-        ImGui::Separator();
-        exportGraph();
-        ImGui::Separator();
-        graphSettings();
-        ImGui::Separator();
-        generalSettings();
-        ImGui::Separator();
+        if (!data)
+        {
+            return Texture(0, 0, 0);
+        }
 
+        GLuint texture;
 
-        ImGui::EndMainMenuBar();
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
 
-        importGraphBrowser.Display();
-        importGroupConfigBrowser.Display();
-        highlightSubgraphBrowser.Display();
-        exportGraphBrowser.Display();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+        return Texture(reinterpret_cast<ImTextureID>(texture), width, height);
     }
 
-    void Buttons::SideBar()
+    void Buttons::changeObjSize()
     {
-        ImVec2 pos;
-        pos.x = static_cast<float>(framebufferWidth);
-        pos.y = static_cast<float>(framebufferHeight) / 2.0f;
+        static float cylRadPreCalc = sqrt(renderer->cylinderRadius);
+        static float sphereRadPreCalc = sqrt(renderer->sphereRadius);
 
-        ImVec2 windowPivot = {1.0f, 0.5f};
-
-        ImGui::SetNextWindowPos(pos, 0, windowPivot);
-
-
-        ImGui::Begin("##SideBarMenu", nullptr,
-                     ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoMove |
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoNavFocus
-        );
-
-        SideBarElement(searchIcon, "Search for Objects", std::function<void()>([this]() { findObject(); }));
-        SideBarElement(groupIcon, "Show Groups", std::function<void()>([this]() { GroupMenu(); }));
-        SideBarElement(performanceIcon, "Toggle Performance Mode",
-                       std::function<void()>([this]() { performanceModeToggle(); }));
-        SideBarElement(lightSourceIcon, "Toggle Light Source",
-                       std::function<void()>([this]() { setLightSourceMovementBehaviour(); }));
-        SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
-                       std::function<void()>([this]() { setCameraMovementMode(); }));
-        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
-                       std::function<void()>([this]() { cameraBookmarkMenu(); }));
-
-        ImGui::End();
-
-
-        if (currentSideBar && search)
+        if (ImGui::BeginMenu("Object Size"))
         {
-            currentSideBar();
-        }
-    }
+            if (ImGui::DragFloat("Edge Size", &cylRadPreCalc, 0.001f, 0.001f, 10.0f))
+            {
+                renderer->cylinderRadius = pow(cylRadPreCalc, 2);
+            }
 
-    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
-                                 const std::function<void()>& onClickFunction)
-    {
-        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
-        {
-            auto pos = ImGui::GetItemRectMin();
-            pos.x -= 15;
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
+            if (ImGui::DragFloat("Vertex Size", &sphereRadPreCalc, 0.001f, 0.001f, 10.0f))
+            {
+                renderer->sphereRadius = pow(sphereRadPreCalc, 2);
+            }
 
-
-            currentSideBar = onClickFunction;
+            ImGui::EndMenu();
         }
-        if (ImGui::IsItemHovered())
-        {
-            ImGui::SetTooltip(hoverMsg);
-        }
-        ImGui::Spacing();
     }
 
     void Buttons::graphSettings()
@@ -180,43 +147,313 @@ namespace graphvise
         }
     }
 
-    Texture Buttons::loadTextureFromFile(const char* filename)
+    void Buttons::MainMenuBar()
     {
-        int width, height, channels;
-        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+        // Main Menu Bar at the top of the Window
+        ImGui::BeginMainMenuBar();
 
 
-        if (!data)
-        {
-            return Texture(0, 0, 0);
-        }
+        importGraph();
+        ImGui::Separator();
+        exportGraph();
+        ImGui::Separator();
+        graphSettings();
+        ImGui::Separator();
+        generalSettings();
+        ImGui::Separator();
 
-        GLuint texture;
 
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        ImGui::EndMainMenuBar();
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-        stbi_image_free(data);
-        return Texture((ImTextureID)texture, width, height);
+        importGraphBrowser.Display();
+        importGroupConfigBrowser.Display();
+        highlightSubgraphBrowser.Display();
+        exportGraphBrowser.Display();
     }
 
-    void Buttons::changeObjSize()
+    void Buttons::GroupMenu()
     {
-        if (ImGui::BeginMenu("Object Size"))
-        {
-            ImGui::DragFloat("Edge Size", &renderer->cylinderRadius, 0.001f, 0.001f, 10.0f);
-            ImGui::DragFloat("Vertex Size", &renderer->sphereRadius, 0.001f, 0.001f, 10.0f);
+        activeGroups = &saver->getGraph().getGroups();
+        //
+        // ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
+        // ImGui::Begin("Groups", &groups,
+        //              ImGuiWindowFlags_AlwaysAutoResize |
+        //              ImGuiWindowFlags_NoCollapse
+        // );
 
+
+        for (const auto& group : *activeGroups)
+        {
+            if (ImGui::CollapsingHeader(group.getName().c_str()))
+            {
+                ImGui::Text("Group ID: %d", group.getID());
+                ImGui::SameLine();
+                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
+                ImGui::SameLine();
+
+                randomizeColoring(group.getID());
+                changeColoring(group.getID());
+
+                ChangeTransparency(group.getID());
+            }
+        }
+
+        // ImGui::End();
+    }
+
+    void Buttons::ChangeTransparency(uint32_t groupID)
+    {
+        if (groupID >= groupColors.size())
+        {
+            groupColors.resize(groupColors.size() * 2);
+        }
+
+        float& transparency = groupColors[groupID].w;
+
+        if (transparency == 0.0f)
+        {
+            transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
+        }
+
+        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
+        {
+            if (transparency < 0.0f)
+            {
+                transparency = 0.0f;
+            }
+            else if (transparency > 1.0f)
+            {
+                transparency = 1.0f;
+            }
+            buttonController->changeTransparency(groupID, transparency);
+        }
+    }
+
+    void Buttons::findObject()
+    {
+        // ImGui::Begin("Highlight Object", &search,
+        //              ImGuiWindowFlags_AlwaysAutoResize |
+        //              ImGuiWindowFlags_NoCollapse
+        // );
+
+        if (ImGui::Button("Remove Highlighting"))
+        {
+            buttonController->RemoveHighlights();
+        }
+
+        ImGui::BeginTabBar("##FindObjectTabBar");
+
+        if (ImGui::BeginTabItem("Vertex"))
+        {
+            findVertex();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Edge"))
+        {
+            findEdge();
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+
+        // ImGui::End();
+    }
+
+    void Buttons::performanceModeToggle()
+    {
+        const char* modeText[] = {"High Performance", "High Resolution"};
+
+        ImGui::Begin("Performance Mode", &togglePerformanceMode,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        performanceMode = Renderer::getInstance()->performance_mode();
+
+        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+                             HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+        {
+            buttonController->setPerformanceMode(performanceMode);
+        }
+
+
+        ImGui::End();
+    }
+
+
+    void Buttons::randomizeColoring(uint32_t groupID) const
+    {
+        if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
+        {
+            buttonController->randomizeColoring(groupID);
+        }
+    }
+
+
+    void Buttons::changeColoring(uint32_t groupID)
+    {
+        if (groupID >= groupColors.size())
+        {
+            groupColors.resize(groupColors.size() * 2);
+        }
+
+        ImVec4& color = groupColors[groupID];
+
+        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        {
+            color = saver->getGraph().getGroupByID(groupID).getVec4();
+        }
+
+
+        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
+        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, color);
+        }
+    }
+
+    void Buttons::setLightSourceMovementBehaviour()
+    {
+        ImGui::Begin("Light Source", &lightSource,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
+
+        const bool first = ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+                                              FIXED_POSITION);
+        const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+                                               FOLLOW_CAMERA);
+
+        if (first || second)
+        {
+            buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+        }
+
+
+        ImGui::End();
+    }
+
+    void Buttons::setCameraMovementMode()
+    {
+        ImGui::Begin("Camera Movement", &cameraMovement,
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoCollapse
+        );
+
+        cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
+
+        const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
+        const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);
+
+        if (first || second)
+        {
+            buttonController->setCameraFocusMode(cameraMode);
+        }
+
+
+        ImGui::End();
+    }
+
+
+    void Buttons::findVertex()
+    {
+        ImGui::InputInt("##VertexID", &vertex);
+        if (ImGui::Button("Find Vertex"))
+        {
+            buttonController->findVertex(vertex);
+            vertex = 0;
+        }
+    }
+
+    void Buttons::findEdge()
+    {
+        ImGui::InputInt2("##Vertex IDs:", edgeVertices);
+        if (ImGui::Button("Find Edge"))
+        {
+            buttonController->findEdge(edgeVertices[0], edgeVertices[1]);
+            edgeVertices[0] = 0;
+            edgeVertices[1] = 0;
+        }
+    }
+
+    void Buttons::highlightSubgraph()
+    {
+        if (ImGui::MenuItem("Highlight Subgraph"))
+        {
+            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
+            highlightSubgraphBrowser.Open();
+        }
+    }
+
+    void Buttons::importGraph()
+    {
+        if (ImGui::BeginMenu("import Graph"))
+        {
+            if (ImGui::MenuItem("Import as TXT"))
+            {
+                importFormat = ImportFormat::TXT;
+                importGraphBrowser.SetTypeFilters(txtImportFormat);
+                importGraphBrowser.SetTitle("import Graph from .txt");
+                importGraphBrowser.Open();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::MenuItem("Import as CNF"))
+            {
+                importFormat = ImportFormat::CNF;
+                importGraphBrowser.SetTypeFilters(cnfImportFormat);
+                importGraphBrowser.SetTitle("import Graph from .cnf");
+                importGraphBrowser.Open();
+            }
+            ImGui::EndMenu();
+        }
+
+        if (importGraphBrowser.HasSelected())
+        {
+            const std::filesystem::path result = importGraphBrowser.GetSelected();
+
+
+            buttonController->importGraph(result, importFormat);
+
+            importGraphBrowser.ClearSelected();
+        }
+    }
+
+    void Buttons::exportGraph()
+    {
+        exportGraphBrowser.SetTitle("Choose Export Location");
+
+        if (ImGui::BeginMenu("Export Graph"))
+        {
+            if (ImGui::MenuItem("Export as PNG"))
+            {
+                exportFormat = ExportFormat::PNG;
+                exportGraphBrowser.SetInputName("graph.png");
+                exportGraphBrowser.Open();
+            }
+            // if (ImGui::MenuItem("Export as JPG"))
+            // {
+            //
+            //     exportGraphBrowser.SetInputName("graph.jpg");
+            //     exportGraphBrowser.Open();
+            //
+            // }
 
             ImGui::EndMenu();
+        }
+
+
+        if (exportGraphBrowser.HasSelected())
+        {
+            const auto filename = exportGraphBrowser.GetSelected();
+
+
+            buttonController->exportGraph(filename, exportFormat);
+            exportGraphBrowser.ClearSelected();
         }
     }
 
@@ -280,254 +517,72 @@ namespace graphvise
         }
     }
 
-    void Buttons::GroupMenu()
+    void Buttons::SideBar()
     {
-        activeGroups = &saver->getGraph().getGroups();
 
-        ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
-        ImGui::Begin("Groups", &groups,
+        ImVec2 pos;
+        pos.x = static_cast<float>(framebufferWidth);
+        pos.y = static_cast<float>(framebufferHeight) / 2.0f;
+
+        ImVec2 windowPivot = {1.0f, 0.5f};
+
+        ImGui::SetNextWindowPos(pos, 0, windowPivot);
+
+
+        ImGui::Begin("##SideBarMenu", nullptr,
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoNavFocus
         );
 
+        SideBarElement(searchIcon, "Search for Objects", auto([this]() { findObject(); }));
 
-        for (const auto& group : *activeGroups)
-        {
-            if (ImGui::CollapsingHeader(group.getName().c_str()))
-            {
-                ImGui::Text("Group ID: %d", group.getID());
-                ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                ImGui::SameLine();
+        SideBarElement(groupIcon, "Show Groups", std::function<void()>([this]() { GroupMenu(); }));
 
-                randomizeColoring(group.getID());
-                changeColoring(group.getID());
+        SideBarElement(performanceIcon, "Toggle Performance Mode",
+                       std::function<void()>([this]() { performanceModeToggle(); }));
 
-                ChangeTransparency(group.getID());
-            }
-        }
+        SideBarElement(lightSourceIcon, "Toggle Light Source",
+                       std::function<void()>([this]() { setLightSourceMovementBehaviour(); }));
 
-        ImGui::End();
-    }
+        SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
+                       std::function<void()>([this]() { setCameraMovementMode(); }));
 
-
-    void Buttons::ChangeTransparency(uint32_t groupID)
-    {
-        if (groupID >= groupColors.size())
-        {
-            groupColors.resize(groupColors.size() * 2);
-        }
-
-        float& transparency = groupColors[groupID].w;
-
-        if (transparency == 0.0f)
-        {
-            transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
-        }
-
-        if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
-        {
-            if (transparency < 0.0f)
-            {
-                transparency = 0.0f;
-            }
-            else if (transparency > 1.0f)
-            {
-                transparency = 1.0f;
-            }
-            buttonController->changeTransparency(groupID, transparency);
-        }
-    }
-
-
-    void Buttons::changeColoring(uint32_t groupID)
-    {
-        if (groupID >= groupColors.size())
-        {
-            groupColors.resize(groupColors.size() * 2);
-        }
-
-        ImVec4& color = groupColors[groupID];
-
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
-        {
-            color = saver->getGraph().getGroupByID(groupID).getVec4();
-        }
-
-
-        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, color);
-        }
-    }
-
-    void Buttons::randomizeColoring(uint32_t groupID) const
-    {
-        if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
-        {
-            buttonController->randomizeColoring(groupID);
-        }
-    }
-
-    void Buttons::performanceModeToggle()
-    {
-        const char* modeText[] = {"High Performance", "High Resolution"};
-
-        ImGui::Begin("Performance Mode", &togglePerformanceMode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        performanceMode = Renderer::getInstance()->performance_mode();
-
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-                             HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
-        {
-            buttonController->setPerformanceMode(performanceMode);
-        }
-
+        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
+                       std::function<void()>([this]() { cameraBookmarkMenu(); }));
 
         ImGui::End();
+
+
+
     }
 
-
-    void Buttons::setLightSourceMovementBehaviour()
+    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
+                                 const std::function<void()>& onClickFunction)
     {
-        ImGui::Begin("Light Source", &lightSource,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
-
-        const bool first = ImGui::RadioButton("Fixed Position", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                              FIXED_POSITION);
-        const bool second = ImGui::RadioButton("Follow Camera", reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                               FOLLOW_CAMERA);
-
-        if (first || second)
+        if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
-            buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+
+            auto pos = ImGui::GetItemRectMin();
+            pos.x -= 15;
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
+
+            ImGui::OpenPopup(hoverMsg);
         }
-
-
-        ImGui::End();
-    }
-
-    void Buttons::setCameraMovementMode()
-    {
-        ImGui::Begin("Camera Movement", &cameraMovement,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
-
-        const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
-        const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode), CENTER_OF_MASS);
-
-        if (first || second)
+        if (ImGui::BeginPopup(hoverMsg, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove))
         {
-            buttonController->setCameraFocusMode(cameraMode);
+
+            onClickFunction();
+
+            ImGui::EndPopup();
         }
-
-
-        ImGui::End();
-    }
-
-    void Buttons::findObject()
-    {
-        ImGui::Begin("Highlight Object", &search,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::Button("Remove Highlighting"))
+        if (ImGui::IsItemHovered())
         {
-            buttonController->RemoveHighlights();
+            ImGui::SetTooltip(hoverMsg);
         }
-
-        ImGui::BeginTabBar("##FindObjectTabBar");
-
-        if (ImGui::BeginTabItem("Edge"))
-        {
-            findEdge();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Vertex"))
-        {
-            findVertex();
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-
-        ImGui::End();
-    }
-
-    void Buttons::findVertex()
-    {
-        ImGui::InputInt("##VertexID", &vertex);
-        if (ImGui::Button("Find Vertex"))
-        {
-            buttonController->findVertex(vertex);
-            vertex = 0;
-        }
-    }
-
-    void Buttons::findEdge()
-    {
-        ImGui::InputInt2("##Vertex IDs:", edgeVertices);
-        if (ImGui::Button("Find Edge"))
-        {
-            buttonController->findEdge(edgeVertices[0], edgeVertices[1]);
-            edgeVertices[0] = 0;
-            edgeVertices[1] = 0;
-        }
-    }
-
-    void Buttons::importGraph()
-    {
-        if (ImGui::BeginMenu("import Graph"))
-        {
-            if (ImGui::MenuItem("Import as TXT"))
-            {
-                importFormat = ImportFormat::TXT;
-                importGraphBrowser.SetTypeFilters(txtImportFormat);
-                importGraphBrowser.SetTitle("import Graph from .txt");
-                importGraphBrowser.Open();
-            }
-
-            ImGui::Separator();
-
-            if (ImGui::MenuItem("Import as CNF"))
-            {
-                importFormat = ImportFormat::CNF;
-                importGraphBrowser.SetTypeFilters(cnfImportFormat);
-                importGraphBrowser.SetTitle("import Graph from .cnf");
-                importGraphBrowser.Open();
-            }
-            ImGui::EndMenu();
-        }
-
-        if (importGraphBrowser.HasSelected())
-        {
-            const std::filesystem::path result = importGraphBrowser.GetSelected();
-
-
-            buttonController->importGraph(result, importFormat);
-
-            importGraphBrowser.ClearSelected();
-        }
-    }
-
-    void Buttons::highlightSubgraph()
-    {
-        if (ImGui::MenuItem("Highlight Subgraph"))
-        {
-            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
-            highlightSubgraphBrowser.Open();
-        }
+        ImGui::Spacing();
     }
 
     void Buttons::importGroupConfiguration()
@@ -536,40 +591,6 @@ namespace graphvise
         {
             importGroupConfigBrowser.SetTitle("Import Group Config");
             importGroupConfigBrowser.Open();
-        }
-    }
-
-    void Buttons::exportGraph()
-    {
-        exportGraphBrowser.SetTitle("Choose Export Location");
-
-        if (ImGui::BeginMenu("Export Graph"))
-        {
-            if (ImGui::MenuItem("Export as PNG"))
-            {
-                exportFormat = ExportFormat::PNG;
-                exportGraphBrowser.SetInputName("graph.png");
-                exportGraphBrowser.Open();
-            }
-            // if (ImGui::MenuItem("Export as JPG"))
-            // {
-            //
-            //     exportGraphBrowser.SetInputName("graph.jpg");
-            //     exportGraphBrowser.Open();
-            //
-            // }
-
-            ImGui::EndMenu();
-        }
-
-
-        if (exportGraphBrowser.HasSelected())
-        {
-            auto filename = exportGraphBrowser.GetSelected();
-
-
-            buttonController->exportGraph(filename, exportFormat);
-            exportGraphBrowser.ClearSelected();
         }
     }
 }

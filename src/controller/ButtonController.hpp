@@ -16,7 +16,7 @@
 namespace graphvise {
     class ButtonController {
     public:
-        explicit ButtonController(std::shared_ptr<Renderer> renderer);
+        explicit ButtonController(const std::shared_ptr<Renderer>& renderer);
         void togglePerformanceMode();
         void setPerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);

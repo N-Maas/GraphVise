@@ -5,6 +5,7 @@
 #ifndef THESIS_FRAMEWORK_BUTTONS_HPP
 #define THESIS_FRAMEWORK_BUTTONS_HPP
 
+
 //needed for FileBrowser DON'T DELETE
 #include <functional>
 
@@ -58,8 +59,6 @@ namespace graphvise
         const std::vector<Group>* activeGroups = nullptr;
 
         std::shared_ptr<ButtonController> buttonController;
-
-        std::function<void()> currentSideBar = nullptr;
 
         PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
         CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();

@@ -22,7 +22,6 @@ namespace graphvise
 
 		glfwPollEvents();
 
-		processHotkeys();
 
 		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
 
@@ -69,6 +68,8 @@ namespace graphvise
 			movementController.zoom(-scrollYOffset, sprinting);
 			scrollYOffset = 0;
 		}
+
+		processHotkeys();
 	}
 
 	void InputManager::processHotkeys()
