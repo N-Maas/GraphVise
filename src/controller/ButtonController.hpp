@@ -16,7 +16,7 @@
 namespace graphvise {
     class ButtonController {
     public:
-        ButtonController(Renderer& renderer);
+        explicit ButtonController(std::shared_ptr<Renderer> renderer);
         void togglePerformanceMode();
         void setPerformanceMode(PerformanceMode mode);
         void randomizeColoring(int groupID);
@@ -39,7 +39,7 @@ namespace graphvise {
 
     private:
         Camera& camera;
-        Renderer& renderer;
+        std::shared_ptr<Renderer> renderer;
         ThreadController threadController;
     };
 }

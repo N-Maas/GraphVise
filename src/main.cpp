@@ -31,5 +31,7 @@ int main()
         std::_Exit(1);
     }
 
+    window.startApplicationLoop();
+
     std::_Exit(0);
 }

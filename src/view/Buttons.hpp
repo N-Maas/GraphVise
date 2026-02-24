@@ -27,8 +27,8 @@ namespace graphvise
     class Buttons
     {
     public:
-        explicit Buttons(ButtonController *controller);
-
+        explicit Buttons(std::shared_ptr<ButtonController> buttonController);
+        void initButtons();
         void loadButtonFrame(int framebufferWidth, int framebufferHeight);
 
     private:
@@ -56,7 +56,8 @@ namespace graphvise
 
         GraphSaver *saver = &GraphSaver::getInstance();
         const std::vector<Group>* activeGroups = nullptr;
-        ButtonController *buttonController;
+
+        std::shared_ptr<ButtonController> buttonController;
 
         std::function<void()> currentSideBar = nullptr;
 
@@ -83,13 +84,13 @@ namespace graphvise
         ImGui::FileBrowser highlightSubgraphBrowser = ImGui::FileBrowser();
         ImGui::FileBrowser exportGraphBrowser = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename);
 
-        Texture cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
-        Texture randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
-        Texture searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
-        Texture groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
-        Texture performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
-        Texture cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
-        Texture lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
+        Texture cameraBookmarkIcon;
+        Texture randomize;
+        Texture searchIcon;
+        Texture groupIcon;
+        Texture performanceIcon;
+        Texture cameraMovementIcon;
+        Texture lightSourceIcon;
 
         Texture loadTextureFromFile(const char* filename);
 

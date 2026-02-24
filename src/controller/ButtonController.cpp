@@ -15,20 +15,20 @@
 #define MAX_COLOR_VALUE 1.0f
 
 namespace graphvise {
-    ButtonController::ButtonController(Renderer& renderer) : camera(renderer.m_camera()), renderer(renderer),
-                                                                             threadController(renderer) {
+    ButtonController::ButtonController(std::shared_ptr<Renderer> renderer) : camera(renderer->m_camera()), renderer(renderer),
+                                                                             threadController(*renderer) {
     }
 
     void ButtonController::togglePerformanceMode() {
 
 
-        auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer.performance_mode()) + 1) % static_cast<int>(
+        auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer->performance_mode()) + 1) % static_cast<int>(
             PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
-        renderer.adjustPerformanceMode(newMode);
+        renderer->adjustPerformanceMode(newMode);
     }
     void ButtonController::setPerformanceMode(PerformanceMode mode) {
 
-        renderer.adjustPerformanceMode(mode);
+        renderer->adjustPerformanceMode(mode);
 
     }
 
@@ -49,14 +49,14 @@ namespace graphvise {
     }
 
     void ButtonController::setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour) {
-        renderer.set_light_source_movement_behaviour(behaviour);
+        renderer->set_light_source_movement_behaviour(behaviour);
     }
 
     void ButtonController::toggleLightSourceMovementBehaviour() {
 
-        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer.light_source_movement_behaviour()) + 1) % static_cast<int>(
+        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer->light_source_movement_behaviour()) + 1) % static_cast<int>(
             MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
-        renderer.set_light_source_movement_behaviour(newMode);
+        renderer->set_light_source_movement_behaviour(newMode);
 
     }
 

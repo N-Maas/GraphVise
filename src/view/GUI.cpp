@@ -10,7 +10,7 @@
 
 namespace graphvise
 {
-    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false)
+    GUI::GUI(const std::shared_ptr<ButtonController>& controller) : buttons(controller), errorAvailable(false)
     {
     }
 
@@ -24,6 +24,8 @@ namespace graphvise
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
+
+        buttons.initButtons();
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 

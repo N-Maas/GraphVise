@@ -17,14 +17,7 @@
 
 
 namespace graphvise {
-
-	double Window::scrollYOffset = 0;
-
-	Window::Window() : buttonController(*Renderer::getInstance().get())
-	{
-	}
-
-	bool Window::initWindow() {
+    bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
@@ -42,8 +35,8 @@ namespace graphvise {
         // Create GLFW window
         std::string windowTitle = "GraphVise";
 
-        auto defaultWidth = currentRes.width;
-        auto defaultHeight = currentRes.height;
+        const auto defaultWidth = currentRes.width;
+        const auto defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
         // Error check if the window fails to create
@@ -56,8 +49,6 @@ namespace graphvise {
             glfwTerminate();
             return false;
         }
-
-		glfwSetScrollCallback(window, scrollCallback);
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -81,168 +72,86 @@ namespace graphvise {
 
 
         // Query the framebuffer size, this can differ from the window size on some systems
-        int framebufferWidth, framebufferHeight;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
         // Create the renderer object
-        auto renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
+        renderer->resize(framebufferWidth, framebufferHeight);
         renderer->init();
 
-		gui.emplace(&buttonController);
+        ErrorCollector::getInstance().signIn(gui);
 
-        ErrorCollector::getInstance().signIn(*gui);
+        gui.initGUI(window);
 
-        gui -> initGUI(window);
+    	inputManager.initInputManager(window);
 
-        // FPS counter
-        int frameCount = 0;
-        double accumulatedTime = 0.0;
+    	return true;
 
-        // Main while loop
-        while (!glfwWindowShouldClose(window))
-        {
-            double startTime = glfwGetTime();
-
-            // Resize the renderer and viewport if the framebuffer / window size changed
-            int newFramebufferWidth, newFramebufferHeight;
-            glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
-            if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
-            {
-                framebufferWidth = newFramebufferWidth;
-                framebufferHeight = newFramebufferHeight;
-                glViewport(0, 0, framebufferWidth, framebufferHeight);
-                renderer->resize(framebufferWidth, framebufferHeight);
-            }
-
-        	// Take care of all GLFW events
-			glfwPollEvents();
-
-            processEvents();
-
-            // Draw frame from renderer
-            GL_CHECK_ERROR();
-            renderer->runFrame();
-            GL_CHECK_ERROR();
-
-            //load GUI
-            gui -> loadFrame(framebufferWidth, framebufferHeight);
-
-            // Swap the back buffer with the front buffer
-            glfwSwapBuffers(window);
-
-
-            // FPS counter
-            double endTime = glfwGetTime();
-            accumulatedTime += endTime - startTime;
-            ++frameCount;
-            if (1.0 < accumulatedTime)
-            {
-                assert(0 < frameCount);
-
-                gui -> setFps(frameCount / accumulatedTime);
-
-                accumulatedTime = 0.0;
-                frameCount = 0;
-            }
-        }
-
-        gui -> shutdownGUI();
-
-        // Renderer cleanup
-        renderer->shutdown();
-
-        // Delete window before ending the program
-        glfwDestroyWindow(window);
-
-        // Terminate GLFW before ending the program
-        glfwTerminate();
-        return true;
     }
 
-	void Window::processEvents()
-	{
+    void Window::startApplicationLoop()
+    {
 
-		processHotkeys();
+    	// FPS counter
+    	int frameCount = 0;
+    	double accumulatedTime = 0.0;
 
-		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+    	// Main while loop
+    	while (!glfwWindowShouldClose(window))
+    	{
+    		double startTime = glfwGetTime();
 
-
-		if (!ImGui::GetIO().WantCaptureKeyboard)
-		{
-
-			//Moving Camera
-			glm::vec3 direction(0, 0, 0);
-			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-			movementController.moveCamera(direction, sprinting);
-
-		}
-
-		//Rotating Camera
-		static float lastMousePosition[2];
-		static double currentMousePositionDouble[2];
-		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
-		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
+    		// Resize the renderer and viewport if the framebuffer / window size changed
+    		int newFramebufferWidth, newFramebufferHeight;
+    		glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
+    		if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
+    		{
+    			framebufferWidth = newFramebufferWidth;
+    			framebufferHeight = newFramebufferHeight;
+    			glViewport(0, 0, framebufferWidth, framebufferHeight);
+    			renderer->resize(framebufferWidth, framebufferHeight);
+    		}
 
 
-		static bool rotatingCamera = false;
-		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
-			rotatingCamera = true;
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera) {
-			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-			movementController.rotateCamera(pitchChange, yawChange);
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
-			rotatingCamera = false;
-		}
+    		// Draw frame from renderer
+    		GL_CHECK_ERROR();
+    		renderer->runFrame();
+    		GL_CHECK_ERROR();
 
-		if (!ImGui::GetIO().WantCaptureMouse){
-			movementController.zoom(-scrollYOffset, sprinting);
-			scrollYOffset = 0;
-		}
-	}
+    		//load GUI
+    		gui.loadFrame(framebufferWidth, framebufferHeight);
 
-	void Window::processHotkeys()
-	{
-		for (auto& [keys, function, pressedInPrevFrame] : hotkeys)
-		{
-			bool allKeysPressed = true;
-
-			for (const int key : keys)
-			{
-
-				if (glfwGetKey(window, key) != GLFW_PRESS)
-				{
-					allKeysPressed = false;
-					break;
-				}
-
-			}
-			if (allKeysPressed && !pressedInPrevFrame)
-			{
-				function();
-				pressedInPrevFrame = true;
-			}
-			else if (!allKeysPressed)
-			{
-				pressedInPrevFrame = false;
-			}
-
-		}
+    		inputManager.processInput();
 
 
-	}
+    		// Swap the back buffer with the front buffer
+    		glfwSwapBuffers(window);
 
-	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-		scrollYOffset = yoffset;
-	}
+
+    		// FPS counter
+    		double endTime = glfwGetTime();
+    		accumulatedTime += endTime - startTime;
+    		++frameCount;
+    		if (1.0 < accumulatedTime)
+    		{
+    			assert(0 < frameCount);
+
+    			gui.setFps(frameCount / accumulatedTime);
+
+    			accumulatedTime = 0.0;
+    			frameCount = 0;
+    		}
+    	}
+
+    	gui.shutdownGUI();
+
+    	// Renderer cleanup
+    	renderer->shutdown();
+
+    	// Delete window before ending the program
+    	glfwDestroyWindow(window);
+
+    	// Terminate GLFW before ending the program
+    	glfwTerminate();
+
+    }
 }
