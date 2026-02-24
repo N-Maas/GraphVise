@@ -93,14 +93,25 @@ namespace graphvise {
 
 		renderer->init();
 
+
+        // CachingController::loadDefaultGraph();
+        GraphSaver::getInstance().setGraph(WelcomeGraph());
+
+
+
+        Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
+
+        // Create the renderer object
+
         ButtonController controller = ButtonController(*renderer);
 
-		gui = std::make_unique<GUI>(&controller);
+        GUI gui(&controller);
+
 
 		// todo this line produces an error gui not recognized, please check
-        ErrorCollector::getInstance().signIn(std::ref(*gui));
+        ErrorCollector::getInstance().signIn(std::ref(gui));
 
-        gui->initGUI(window);
+        gui.initGUI(window);
 
         // FPS counter
         int frameCount = 0;
@@ -146,8 +157,10 @@ namespace graphvise {
             renderer->runFrame();
             GL_CHECK_ERROR();
 
+
+
             //load GUI
-            gui->loadFrame(framebufferWidth, framebufferHeight);
+            gui.loadFrame(framebufferWidth, framebufferHeight);
 
             // Swap the back buffer with the front buffer
             glfwSwapBuffers(window);
@@ -164,17 +177,21 @@ namespace graphvise {
             {
                 assert(0 < frameCount);
 
-                gui->setFps(frameCount / accumulatedTime);
+                gui.setFps(frameCount / accumulatedTime);
 
                 accumulatedTime = 0.0;
                 frameCount = 0;
             }
         }
 
-        gui->shutdownGUI();
+        CachingController::cacheCurrentGraph();
+
+
+        gui.shutdownGUI();
 
         // Renderer cleanup
         renderer->shutdown();
+
 
         // Delete window before ending the program
         glfwDestroyWindow(window);
@@ -244,110 +261,113 @@ namespace graphvise {
 		}
 	}
 
+	Graph Window::WelcomeGraph(){
+
+       return Graph({
+                                       {-12, 3, 0},
+                                       {-11, 0, 0},
+                                       {-10, 1, 0},
+                                       {-9, 0, 0},
+                                       {-8, 3, 0},
+                                       {-7, 3, 0},
+                                       {-5, 3, 0},
+                                       {-7, 1.5, 0},
+                                       {-6, 1.5, 0},
+                                       {-7, 0, 0},
+                                       {-5, 0, 0},
+                                       {-4, 3, 0},
+                                       {-4, 0, 0},
+                                       {-2, 0, 0},
+                                       {-1, 3, 0},
+                                       {1, 3, 0},
+                                       {-1, 0, 0},
+                                       {1, 0, 0},
+                                       {2, 3, 0},
+                                       {4, 3, 0},
+                                       {2, 0, 0},
+                                       {4, 0, 0},
+                                       {5, 0, 0},
+                                       {6, 3, 0},
+                                       {7, 2, 0},
+                                       {8, 3, 0},
+                                       {9, 0, 0},
+                                       {10, 3, 0},
+                                       {12, 3, 0},
+                                       {10, 1.5, 0},
+                                       {11, 1.5, 0},
+                                       {10, 0, 0},
+                                       {12, 0, 0}
+
+                                   },
+                                   {
+                                       {0, 1},
+                                       {1, 2},
+                                       {2, 3},
+                                       {3, 4},
+                                       {5, 6},
+                                       {5,7},
+                                       {7, 8},
+                                       {7, 9},
+                                       {9, 10},
+                                       {11, 12},
+                                       {12, 13},
+                                       {14, 15},
+                                       {14, 16},
+                                       {16, 17},
+                                       {18, 19},
+                                       {18, 20},
+                                       {19, 21},
+                                       {20, 21},
+                                       {22, 23},
+                                       {23,24},
+                                       {24,25},
+                                       {25,26},
+                                       {27,28},
+                                       {27,29},
+                                       {29,30},
+                                       {29,31},
+                                       {31,32}
+                                   },
+
+                                   "Welcome to GraphVise");
+
+
+    }
 	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-			auto renderer = Renderer::getInstance();
+    	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+    		auto renderer = Renderer::getInstance();
 
-			// Convert coordinates (keep this - it's needed for picking)
-			int fbWidth, fbHeight;
-			glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    		// Convert coordinates (keep this - it's needed for picking)
+    		int fbWidth, fbHeight;
+    		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 
-			// Convert window coordinates to framebuffer coordinates
-			int winWidth, winHeight;
-			glfwGetWindowSize(window, &winWidth, &winHeight);
+    		// Convert window coordinates to framebuffer coordinates
+    		int winWidth, winHeight;
+    		glfwGetWindowSize(window, &winWidth, &winHeight);
 
-			double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
-			double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
+    		double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
+    		double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
 
-			// Get the picked object (could be vertex, edge, or nothing)
-			PickedObject picked = renderer->getObjectAt(fbX, fbY);
-			auto& graph = GraphSaver::getInstance().getGraph();
+    		// Get the picked object (could be vertex, edge, or nothing)
+    		PickedObject picked = renderer->getObjectAt(fbX, fbY);
+    		auto& graph = GraphSaver::getInstance().getGraph();
 
-			if (picked.isVertex()) {
-				try {
-					auto& vertex = graph.getVertexByID(picked.id);
-					gui->showVertexInfo(picked.id);
-				} catch (const std::exception& e) {
-					std::cout << "Error getting vertex: " << e.what() << std::endl;
-				}
-			}
-			else if (picked.isEdge()) {
-				try {
-					auto& edge = graph.getEdgeByID(picked.id);
-					gui->showEdgeInfo(picked.id);
-				} catch (const std::exception& e) {
-					// leave this empty so as not to show an error when no object is picked while clicking
-				}
-			}
-		}
-	}
-
-		Graph Window::WelcomeGraph() {
-			return Graph({
-				{-12, 3, 0},
-			{-11, 0, 0},
-			{-10, 1, 0},
-			{-9, 0, 0},
-			{-8, 3, 0},
-			{-7, 3, 0},
-			{-5, 3, 0},
-			{-7, 1.5, 0},
-			{-6, 1.5, 0},
-			{-7, 0, 0},
-			{-5, 0, 0},
-			{-4, 3, 0},
-			{-4, 0, 0},
-			{-2, 0, 0},
-			{-1, 3, 0},
-			{1, 3, 0},
-			{-1, 0, 0},
-			{1, 0, 0},
-			{2, 3, 0},
-			{4, 3, 0},
-			{2, 0, 0},
-			{4, 0, 0},
-			{5, 0, 0},
-			{6, 3, 0},
-			{7, 2, 0},
-			{8, 3, 0},
-			{9, 0, 0},
-			{10, 3, 0},
-			{12, 3, 0},
-			{10, 1.5, 0},
-			{11, 1.5, 0},
-			{10, 0, 0},
-			{12, 0, 0}
-			},
-			{
-				{0, 1},
-				{1, 2},
-				{2, 3},
-				{3, 4},
-				{5, 6},
-				{5,7},
-				{7, 8},
-				{7, 9},
-				{9, 10},
-				{11, 12},
-				{12, 13},
-				{14, 15},
-				{14, 16},
-				{16, 17},
-				{18, 19},
-				{18, 20},
-				{19, 21},
-				{20, 21},
-				{22, 23},
-				{23,24},
-				{24,25},
-				{25,26},
-				{27,28},
-				{27,29},
-				{29,30},
-				{29,31},
-				{31,32}
-			}
-			);
-		}
-
+    		if (picked.isVertex()) {
+    			try {
+    				auto& vertex = graph.getVertexByID(picked.id);
+    				gui->showVertexInfo(picked.id);
+    			} catch (const std::exception& e) {
+    				std::cout << "Error getting vertex: " << e.what() << std::endl;
+    			}
+    		}
+    		else if (picked.isEdge()) {
+    			try {
+    				auto& edge = graph.getEdgeByID(picked.id);
+    				gui->showEdgeInfo(picked.id);
+    			} catch (const std::exception& e) {
+    				std::cout << "Error getting edge: " << e.what() << std::endl;
+    			}
+    		}
+    	}
+    }
 }
