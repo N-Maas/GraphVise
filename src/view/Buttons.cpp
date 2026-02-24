@@ -82,7 +82,7 @@ namespace graphvise
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
 
-        ImVec2 windowPivot = {1.0f, 0.5f};
+        const ImVec2 windowPivot = {1.0f, 0.5f};
 
         ImGui::SetNextWindowPos(pos, 0, windowPivot);
 
@@ -113,23 +113,38 @@ namespace graphvise
                            performanceModeToggle(hoverMsg);
                        }));
 
-        SideBarElement(lightSourceIcon, "Toggle Light Source",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           setLightSourceMovementBehaviour(hoverMsg);
-                       }));
-
-        SideBarElement(cameraMovementIcon, "Toggle Camera Movement",
-                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
-                       {
-                           setCameraMovementMode(hoverMsg);
-                       }));
-
         SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
                        std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
                        {
                            cameraBookmarkMenu(hoverMsg);
                        }));
+
+
+        if (ImGui::ImageButton(lightSourceIcon.id, ImVec2(50, 50)))
+        {
+            buttonController->toggleLightSourceMovementBehaviour();
+
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Toggle Light Source");
+        }
+        ImGui::Spacing();
+
+
+
+        if (ImGui::ImageButton(cameraMovementIcon.id, ImVec2(50, 50)))
+        {
+            buttonController->toggleCameraFocusMode();
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Toggle Camera Movement");
+        }
+        ImGui::Spacing();
+
 
         ImGui::End();
     }
@@ -236,22 +251,28 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
-            for (const auto& group : *activeGroups)
+            if (ImGui::Button("Randomize All Colors"))
             {
-                if (ImGui::CollapsingHeader(group.getName().c_str()))
-                {
-                    ImGui::Text("Group ID: %d", group.getID());
-                    ImGui::SameLine();
-                    ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                    ImGui::SameLine();
-
-                    randomizeColoring(group.getID());
-                    changeColoring(group.getID());
-
-                    ChangeTransparency(group.getID());
-                }
+                buttonController->randomizeAllColors();
             }
 
+            {
+                for (const auto& group : *activeGroups)
+                {
+                    if (ImGui::CollapsingHeader(group.getName().c_str()))
+                    {
+                        ImGui::Text("Group ID: %d", group.getID());
+                        ImGui::SameLine();
+                        ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
+                        ImGui::SameLine();
+
+                        randomizeColoring(group.getID());
+                        changeColoring(group.getID());
+
+                        ChangeTransparency(group.getID());
+                    }
+                }
+            }
             ImGui::EndPopup();
         }
     }
@@ -263,7 +284,7 @@ namespace graphvise
             groupColors.resize(groupColors.size() * 2);
         }
 
-        float& transparency = groupColors[groupID].w;
+        float& transparency = groupColors[groupID].first.w;
 
         if (transparency == 0.0f)
         {
@@ -354,69 +375,85 @@ namespace graphvise
             groupColors.resize(groupColors.size() * 2);
         }
 
-        ImVec4& color = groupColors[groupID];
+        ImVec4& new_color = groupColors[groupID].first;
+        ImVec4& old_color = groupColors[groupID].second;
 
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        if (new_color.x == 0 && new_color.y == 0 && new_color.z == 0 && new_color.w == 0)
         {
-            color = saver->getGraph().getGroupByID(groupID).getVec4();
+            new_color = saver->getGraph().getGroupByID(groupID).getVec4();
+            old_color = new_color;
         }
 
 
-        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
+        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &new_color.x))
         {
-            buttonController->changeColoring(groupID, color);
+            buttonController->changeColoring(groupID, new_color);
+        }
+        if (ImGui::Button(std::format("Revert##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, old_color);
+            new_color = old_color;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(std::format("Apply##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, new_color);
+            old_color = new_color;
         }
     }
 
     void Buttons::setLightSourceMovementBehaviour(const char* popUpName)
     {
-        if (ImGui::BeginPopup(popUpName,
-                              ImGuiWindowFlags_AlwaysAutoResize |
-                              ImGuiWindowFlags_NoCollapse
-        ))
-        {
-            lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
+        buttonController->toggleLightSourceMovementBehaviour();
 
-            const bool first = ImGui::RadioButton("Fixed Position",
-                                                  reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                                  FIXED_POSITION);
-            const bool second = ImGui::RadioButton("Follow Camera",
-                                                   reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-                                                   FOLLOW_CAMERA);
-
-            if (first || second)
-            {
-                buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
-            }
-
-
-            ImGui::EndPopup();
-        }
+        // if (ImGui::BeginPopup(popUpName,
+        //                       ImGuiWindowFlags_AlwaysAutoResize |
+        //                       ImGuiWindowFlags_NoCollapse
+        // ))
+        // {
+        //     lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
+        //
+        //     const bool first = ImGui::RadioButton("Fixed Position",
+        //                                           reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+        //                                           FIXED_POSITION);
+        //     const bool second = ImGui::RadioButton("Follow Camera",
+        //                                            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
+        //                                            FOLLOW_CAMERA);
+        //
+        //     if (first || second)
+        //     {
+        //         buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
+        //     }
+        //
+        //
+        //     ImGui::EndPopup();
+        // }
     }
 
 
     void Buttons::setCameraMovementMode(const char* popUpName)
     {
-        if (ImGui::BeginPopup(popUpName,
-                              ImGuiWindowFlags_AlwaysAutoResize |
-                              ImGuiWindowFlags_NoCollapse
-        ))
-        {
-            cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
+        buttonController->toggleCameraFocusMode();
 
-            const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
-            const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode),
-                                                   CENTER_OF_MASS);
-
-            if (first || second)
-            {
-                buttonController->setCameraFocusMode(cameraMode);
-            }
-
-
-            ImGui::EndPopup();
-        }
+        // if (ImGui::BeginPopup(popUpName,
+        //                       ImGuiWindowFlags_AlwaysAutoResize |
+        //                       ImGuiWindowFlags_NoCollapse
+        // ))
+        // {
+        //     cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
+        //
+        //     const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
+        //     const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode),
+        //                                            CENTER_OF_MASS);
+        //
+        //     if (first || second)
+        //     {
+        //         buttonController->setCameraFocusMode(cameraMode);
+        //     }
+        //
+        //
+        //     ImGui::EndPopup();
+        // }
     }
 
     void Buttons::findVertex()
@@ -536,7 +573,6 @@ namespace graphvise
             }
             for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
             {
-
                 ImGui::Separator();
 
                 auto& bookmark = bookmarks[bookmarkID];
@@ -551,7 +587,6 @@ namespace graphvise
                 {
                     buttonController->deleteCameraBookmark(bookmarkID);
                 }
-
             }
             ImGui::EndPopup();
         }
@@ -587,19 +622,18 @@ namespace graphvise
 
     void Buttons::help()
     {
-
         if (ImGui::BeginMenu("Help"))
         {
             if (ImGui::BeginMenu("Info"))
             {
                 const auto infoText = "This is a simple 3D graph viewer. \n"
-                                      "The viewer supports the following operations: \n"
-                                      " - Import graphs from .txt and .cnf files \n"
-                                      " - Highlight subgraphs \n"
-                                      " - Change the coloring of groups \n"
-                                      " - Change the transparency of groups \n"
-                                      " - Find vertices and edges in the graph \n"
-                                      " - Export the graph as a PNG image \n";
+                    "The viewer supports the following operations: \n"
+                    " - Import graphs from .txt and .cnf files \n"
+                    " - Highlight subgraphs \n"
+                    " - Change the coloring of groups \n"
+                    " - Change the transparency of groups \n"
+                    " - Find vertices and edges in the graph \n"
+                    " - Export the graph as a PNG image \n";
 
                 ImGui::Text(infoText);
                 ImGui::EndMenu();
@@ -607,15 +641,14 @@ namespace graphvise
             if (ImGui::BeginMenu("Hotkeys"))
             {
                 const auto hotkeyText = "- L-CTRL + K : Change Camera Movement Mode \n"
-                                        "- L-CTRL + Q : Rotate through Rendering Qualities \n"
-                                        "- L-CTRL + L : Toggle Light Source Behavior \n";
+                    "- L-CTRL + Q : Rotate through Rendering Qualities \n"
+                    "- L-CTRL + L : Toggle Light Source Behavior \n";
 
                 ImGui::Text(hotkeyText);
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }
-
     }
 
     Texture Buttons::loadTextureFromFile(const char* filename)

@@ -55,7 +55,7 @@ namespace graphvise
         CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
         LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
-        std::vector<ImVec4> groupColors = std::vector<ImVec4>(16);
+        std::vector<std::pair<ImVec4,ImVec4>> groupColors = std::vector<std::pair<ImVec4,ImVec4>>(16);
 
         std::vector<char> bookmarkName = std::vector<char>(16);
 

@@ -36,6 +36,7 @@ namespace graphvise {
         void addCurrentPosAsBookmark(const std::string& name);
         void loadCameraBookmark(CameraBookmark cam);
         void deleteCameraBookmark(size_t bookmarkID);
+        void randomizeAllColors();
 
     private:
         Camera& camera;

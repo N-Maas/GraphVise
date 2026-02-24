@@ -267,4 +267,14 @@ namespace graphvise
     {
         GraphSaver::getInstance().getGraph().deleteCameraBookmark(bookmarkID);
     }
+
+    void ButtonController::randomizeAllColors()
+    {
+        //TODO: Change random to custom colors
+
+        for (auto& group : GraphSaver::getInstance().getGraph().getGroups()) {
+            randomizeColoring(group.getID());
+        }
+
+    }
 }
