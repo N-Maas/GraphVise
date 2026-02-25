@@ -17,7 +17,7 @@ namespace graphvise
     class GUI : public ErrorCollectorObserver
     {
     public:
-        GUI(const std::shared_ptr<ButtonController>& controller);
+        explicit GUI(const std::shared_ptr<ButtonController>& controller);
         void initGUI(GLFWwindow* window);
         void loadFrame(int framebufferWidth, int framebufferHeight);
         void shutdownGUI();
@@ -41,7 +41,7 @@ namespace graphvise
         PickedObject m_pickedObject;  // Store the picked object
 
         void errorPopup();
-        static void currentObjInfo();
+        void currentObjInfo();
         void update() override;
     };
 }

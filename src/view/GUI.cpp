@@ -9,6 +9,7 @@
 #include "controller/ErrorCollector.hpp"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
+#include "model/GraphSaver.hpp"
 
 namespace graphvise
 {

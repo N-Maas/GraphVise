@@ -74,6 +74,9 @@ namespace graphvise {
         // Query the framebuffer size, this can differ from the window size on some systems
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
+    	// set welcome graph
+    	GraphSaver::getInstance().setGraph(WelcomeGraph());
+
         // Create the renderer object
         renderer->resize(framebufferWidth, framebufferHeight);
         renderer->init();

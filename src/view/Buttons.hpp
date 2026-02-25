@@ -12,6 +12,7 @@
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
+#include "model/GraphSaver.hpp"
 
 #define ICON_FILE_PATH "../ext/GUIIcons/"
 
@@ -94,8 +95,6 @@ namespace graphvise
         void performanceModeToggle(const char* popUpName);
         void randomizeColoring(uint32_t groupID) const;
         void changeColoring(uint32_t groupID);
-        void setLightSourceMovementBehaviour(const char* popUpName);
-        void setCameraMovementMode(const char* popUpName);
         void findVertex();
         void findEdge();
         void highlightSubgraph();

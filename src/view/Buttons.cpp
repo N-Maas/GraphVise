@@ -339,7 +339,7 @@ namespace graphvise
 
     void Buttons::performanceModeToggle(const char* popUpName)
     {
-        const char* modeText[] = {"High Performance", "High Resolution"};
+        static const char* modeText[] = {"Quality", "Balance", "Performance"};
 
         if (ImGui::BeginPopup(popUpName,
                               ImGuiWindowFlags_AlwaysAutoResize |
@@ -348,8 +348,11 @@ namespace graphvise
         {
             performanceMode = Renderer::getInstance()->performance_mode();
 
+
             if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-                                 HIGH_PERFORMANCE, HIGH_RESOLUTION, modeText[performanceMode]))
+                                 static_cast<int>(PerformanceMode::QUALITY),
+                                 static_cast<int>(PerformanceMode::PERFORMANCE),
+                                 modeText[static_cast<int>(performanceMode)]))
             {
                 buttonController->setPerformanceMode(performanceMode);
             }
@@ -400,60 +403,6 @@ namespace graphvise
             buttonController->changeColoring(groupID, new_color);
             old_color = new_color;
         }
-    }
-
-    void Buttons::setLightSourceMovementBehaviour(const char* popUpName)
-    {
-        buttonController->toggleLightSourceMovementBehaviour();
-
-        // if (ImGui::BeginPopup(popUpName,
-        //                       ImGuiWindowFlags_AlwaysAutoResize |
-        //                       ImGuiWindowFlags_NoCollapse
-        // ))
-        // {
-        //     lightSourceMovementBehaviour = Renderer::getInstance()->light_source_movement_behaviour();
-        //
-        //     const bool first = ImGui::RadioButton("Fixed Position",
-        //                                           reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-        //                                           FIXED_POSITION);
-        //     const bool second = ImGui::RadioButton("Follow Camera",
-        //                                            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-        //                                            FOLLOW_CAMERA);
-        //
-        //     if (first || second)
-        //     {
-        //         buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
-        //     }
-        //
-        //
-        //     ImGui::EndPopup();
-        // }
-    }
-
-
-    void Buttons::setCameraMovementMode(const char* popUpName)
-    {
-        buttonController->toggleCameraFocusMode();
-
-        // if (ImGui::BeginPopup(popUpName,
-        //                       ImGuiWindowFlags_AlwaysAutoResize |
-        //                       ImGuiWindowFlags_NoCollapse
-        // ))
-        // {
-        //     cameraMode = Renderer::getInstance()->m_camera().camera_focus_mode();
-        //
-        //     const bool first = ImGui::RadioButton("Free Camera", reinterpret_cast<int*>(&cameraMode), FREE);
-        //     const bool second = ImGui::RadioButton("Center of Mass", reinterpret_cast<int*>(&cameraMode),
-        //                                            CENTER_OF_MASS);
-        //
-        //     if (first || second)
-        //     {
-        //         buttonController->setCameraFocusMode(cameraMode);
-        //     }
-        //
-        //
-        //     ImGui::EndPopup();
-        // }
     }
 
     void Buttons::findVertex()

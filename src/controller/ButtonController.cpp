@@ -27,7 +27,7 @@ namespace graphvise
     {
         auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer->performance_mode()) + 1) % static_cast<
             int>(
-            PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+            PerformanceMode::PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
         renderer->adjustPerformanceMode(newMode);
     }
 
@@ -64,7 +64,7 @@ namespace graphvise
     {
         auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer->
             light_source_movement_behaviour()) + 1) % static_cast<int>(
-            MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
+            LightSourceMovementBehaviour::MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
         renderer->set_light_source_movement_behaviour(newMode);
     }
 
@@ -77,7 +77,7 @@ namespace graphvise
     {
         auto newMode = static_cast<CameraFocusMode>((static_cast<int>(camera.camera_focus_mode()) + 1) % static_cast<
             int>(
-            FOCUS_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+            CameraFocusMode::FOCUS_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
         camera.set_camera_focus_mode(newMode);
     }
 
