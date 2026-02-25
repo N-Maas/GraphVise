@@ -25,10 +25,4 @@ namespace graphvise {
         BALANCE,
         PERFORMANCE
     };
-
-    enum class QualityPreset {
-        LOW,
-        MEDIUM,
-        HIGH
-    };
 }

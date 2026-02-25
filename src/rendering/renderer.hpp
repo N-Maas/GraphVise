@@ -69,7 +69,7 @@ namespace graphvise {
         void render(); // Render graph
 
         // Quality settings
-        void setQualityPreset(QualityPreset preset);
+        void setPerformanceMode(PerformanceMode mode);
         void setTargetFPS(int fps);
         void setGeometryDetail(int detail);  // 0-2
 

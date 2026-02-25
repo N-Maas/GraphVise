@@ -89,7 +89,7 @@ namespace graphvise {
 		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
 
 		// todo test changing render quality
-		renderer->setQualityPreset(QualityPreset::MEDIUM);
+		renderer->setPerformanceMode(PerformanceMode::BALANCE);
 
 		renderer->init();
 

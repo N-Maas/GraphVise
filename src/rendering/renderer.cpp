@@ -742,20 +742,20 @@ namespace graphvise {
         generateCylinder(mSettings.cylinderSegments);
     }
 
-    void Renderer::setQualityPreset(QualityPreset preset)
+    void Renderer::setPerformanceMode(PerformanceMode mode)
     {
-        switch (preset) {
-            case QualityPreset::LOW:
+        switch (mode) {
+            case PerformanceMode::PERFORMANCE:
                 mSettings.sphereSubdiv = 0;
                 mSettings.targetFPS = 30;
                 break;
 
-            case QualityPreset::MEDIUM:
+            case PerformanceMode::BALANCE:
                 mSettings.sphereSubdiv = 2;
                 mSettings.targetFPS = 60;
                 break;
 
-            case QualityPreset::HIGH:
+            case PerformanceMode::QUALITY:
                 mSettings.sphereSubdiv = 3;
                 mSettings.targetFPS = 80;
                 break;
