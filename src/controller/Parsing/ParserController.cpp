@@ -3,6 +3,8 @@
 //
 
 #include "ParserController.hpp"
+
+#include <filesystem>
 #include <iostream>
 #include <map>
 #include <ostream>
@@ -11,7 +13,7 @@
 #include "model/GraphSaver.hpp"
 
 namespace graphvise {
-void ParserController::parseFile(std::string filePath, ParseFormat format) {
+void ParserController::parseFile(std::filesystem::path filePath, ParseFormat format) {
     switch (format) {
         default:
             throw std::invalid_argument("Provided ParseFormat has not yet been defined");

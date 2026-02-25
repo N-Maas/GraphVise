@@ -4,6 +4,7 @@
 
 #ifndef THESIS_FRAMEWORK_PARSERCONTROLLER_HPP
 #define THESIS_FRAMEWORK_PARSERCONTROLLER_HPP
+#include <filesystem>
 #include <mutex>
 #include <string>
 #include <utility>
@@ -21,7 +22,7 @@
 namespace graphvise {
     class ParserController {
     public:
-        void parseFile(std::string filePath, ParseFormat format);
+        void parseFile(std::filesystem::path filePath, ParseFormat format);
 
         std::optional<Graph> getParsedGraph() {
             std::lock_guard lock(dataMutex);

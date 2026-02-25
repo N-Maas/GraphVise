@@ -3,9 +3,9 @@ project(GraphVise VERSION 1.1 DESCRIPTION "GraphVise" LANGUAGES CXX)
 
 # Require out-of-source builds (this is good practice)
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
-if(EXISTS "${LOC_PATH}")
+if (EXISTS "${LOC_PATH}")
     message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
-endif()
+endif ()
 
 # Use C++20 for wembed compatibility
 set(CMAKE_CXX_STANDARD 23)
@@ -114,16 +114,18 @@ set(SOURCES
         src/controller/Exporting/ExporterController.cpp
         src/controller/Exporting/PNGExporter.cpp
         src/controller/Enums/ImportFormat.hpp
+        src/controller/Exporting/CachingController.cpp
+        src/controller/Exporting/CachingController.hpp
         src/rendering/enums.hpp
         src/model/VertexTransparencyCompare.hpp
         src/model/EdgeTransparencyCompare.hpp
 )
 
 set(SHADERS
-    shaders/simple.vert
-    shaders/single_color.frag
-    shaders/graph.vert
-    shaders/graph_color.vert
+        shaders/simple.vert
+        shaders/single_color.frag
+        shaders/graph.vert
+        shaders/graph_color.vert
 )
 
 set(SHADERS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
@@ -143,6 +145,7 @@ target_compile_definitions(GraphVise PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOU
 # find required packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem serialization CONFIG)
 
 # find optional packages
 find_package(OpenMP)
@@ -166,24 +169,34 @@ target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ext/imgui-filebrowser
-        )
+)
 
+include(ExternalProject)
+FetchContent_Declare(
+        platform_folders
+        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
+)
+
+FetchContent_MakeAvailable(platform_folders)
 # link required libraries
 target_link_libraries(GraphVise PRIVATE
-    imgui
-    glad
-    glfw
-    OpenGL::GL
-    wembedLib # main wembed library
-    wembed_flags # compiler flags
-    embeddingLib # will be available from wembed
-    graphLib # will be available from wembed
-    utilLib # will be available from wembed
+        imgui
+        glad
+        glfw
+        OpenGL::GL
+        wembedLib # main wembed library
+        wembed_flags # compiler flags
+        embeddingLib # will be available from wembed
+        graphLib # will be available from wembed
+        utilLib # will be available from wembed
+        Boost::filesystem
+        Boost::serialization
+        platform_folders
 )
 # link optional libraries
-if(OpenMP_CXX_FOUND)
+if (OpenMP_CXX_FOUND)
     target_link_libraries(GraphVise PUBLIC OpenMP::OpenMP_CXX)
-endif()
+endif ()
 
 # Install target (optional but good practice)
 # install(TARGETS GraphVise RUNTIME DESTINATION bin)

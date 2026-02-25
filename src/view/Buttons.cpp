@@ -14,6 +14,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "stb_image.h"
+#include "controller/Exporting/CachingController.hpp"
 
 #define MainMenuBarHeight 19
 #define findObjectHeight 115
@@ -113,6 +114,7 @@ namespace graphvise
 
         pos.y += findObjectHeight + widgetSpacing;
 
+
         if (groups)
         {
             ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
@@ -155,7 +157,6 @@ namespace graphvise
 
     void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, bool* state)
     {
-
         if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
             *state = !*state;
@@ -209,7 +210,7 @@ namespace graphvise
 
         if (!data)
         {
-            return Texture(0,0,0);
+            throw std::runtime_error("Texture did not load.");
         }
 
         GLuint texture;
@@ -226,7 +227,7 @@ namespace graphvise
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
         stbi_image_free(data);
-        return Texture((ImTextureID) texture, width, height);
+        return Texture((ImTextureID)texture, width, height);
     }
 
     void Buttons::changeObjSize()
@@ -251,7 +252,7 @@ namespace graphvise
         auto bookmarks = saver->getGraph().getCameraBookmarks();
 
         auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
-        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0),ImVec2(x, MAXFLOAT) );
+        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0), ImVec2(x, MAXFLOAT));
 
         ImGui::Begin("Bookmarks", visible,
                      ImGuiWindowFlags_AlwaysAutoResize |
@@ -276,7 +277,6 @@ namespace graphvise
                 ImGui::SameLine();
                 if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
                 {
-
                     buttonController->deleteCameraBookmark(bookmarkID);
                 }
             }
@@ -325,7 +325,6 @@ namespace graphvise
                 ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
                 ImGui::SameLine();
 
-                randomizeColoring(group.getID());
                 changeColoring(group.getID());
 
                 ChangeTransparency(group.getID());
@@ -338,12 +337,12 @@ namespace graphvise
 
     void Buttons::ChangeTransparency(uint32_t groupID)
     {
-        if (groupID >= groupColors.size())
+        if (groupID >= oldGroupColors.size())
         {
-            groupColors.resize(groupColors.size() * 2);
+            oldGroupColors.resize(oldGroupColors.size() * 2);
         }
 
-        float& transparency = groupColors[groupID].w;
+        float& transparency = oldGroupColors[groupID].w;
 
         if (transparency == 0.0f)
         {
@@ -359,33 +358,43 @@ namespace graphvise
 
     void Buttons::changeColoring(uint32_t groupID)
     {
-        if (groupID >= groupColors.size())
+        if (groupID >= oldGroupColors.size())
         {
-            groupColors.resize(groupColors.size() * 2);
+            oldGroupColors.resize(oldGroupColors.size() * 2);
+            newGroupColors.resize(newGroupColors.size() * 2);
         }
 
-        ImVec4& color = groupColors[groupID];
+        ImVec4& oldColor = oldGroupColors[groupID];
+        ImVec4& newColor = newGroupColors[groupID];
 
-        if (color.x == 0 && color.y == 0 && color.z == 0 && color.w == 0)
+        if (oldColor.x == 0 && oldColor.y == 0 && oldColor.z == 0 && oldColor.w == 0)
         {
-            color = saver->getGraph().getGroupByID(groupID).getVec4();
+            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
+            newColor = oldColor;
         }
 
 
-        ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &color.x);
-        if (ImGui::Button(std::format("Change Color##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, color);
-        }
-    }
-
-    void Buttons::randomizeColoring(uint32_t groupID) const
-    {
         if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
         {
             buttonController->randomizeColoring(groupID);
         }
+
+        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &newColor.x))
+        {
+            buttonController->changeColoring(groupID, newColor);
+        }
+        if (ImGui::Button(std::format("Accept##{}", groupID).c_str()))
+        {
+            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button(std::format("Cancel##{}", groupID).c_str()))
+        {
+            newColor = oldColor;
+            buttonController->changeColoring(groupID, oldColor);
+        }
     }
+
 
     void Buttons::performanceModeToggle(bool* toggle_mode)
     {
@@ -527,9 +536,39 @@ namespace graphvise
             {
                 importFormat = ImportFormat::CNF;
                 importGraphBrowser.SetTypeFilters(cnfImportFormat);
-                importGraphBrowser.SetTitle("Import Graph from .cnf");
+                importGraphBrowser.SetTitle("import Graph from .cnf");
                 importGraphBrowser.Open();
             }
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Load Graph from Cache"))
+            {
+
+                const auto filenames = CachingController::getCachedGraphFilenames();
+
+                for (auto const& file : filenames)
+                {
+                    if (ImGui::MenuItem(file.stem().c_str()))
+                    {
+                        CachingController::loadCachedGraph(file);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
+
+            if (CachingController::hasCachedGraphs())
+            {
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Load last loaded Graph"))
+                {
+                    CachingController::loadLastCachedGraph();
+                }
+            }
+
             ImGui::EndMenu();
         }
 

@@ -18,8 +18,8 @@ namespace graphvise {
     public:
         ButtonController(Renderer& renderer);
         void togglePerformanceMode(PerformanceMode mode);
-        void randomizeColoring(int groupID);
-        void changeColoring(int groupID, ImVec4 color);
+        void randomizeColoring(uint32_t groupID);
+        void changeColoring(uint32_t groupID, ImVec4 newColor);
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
         void setCameraFocusMode(CameraFocusMode mode);
         void findVertex(uint32_t vertexID);

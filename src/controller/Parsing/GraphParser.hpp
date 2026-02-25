@@ -15,7 +15,7 @@ namespace graphvise {
         //Destruktor
         virtual ~GraphParser();
 
-        virtual std::expected<GraphData, Error> parseFile(std::string filePath) = 0;
+        virtual std::expected<GraphData, Error> parseFile(std::filesystem::path filePath) = 0;
     };
 }
 #endif //THESIS_FRAMEWORK_GRAPHPARSER_HPP

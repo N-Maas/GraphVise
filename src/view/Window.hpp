@@ -7,6 +7,7 @@
 
 
 #include "GUI.hpp"
+#include "../controller/Exporting/CachingController.hpp"
 #include "controller/MovementController.hpp"
 
 namespace graphvise
@@ -22,9 +23,8 @@ namespace graphvise
 
         void handleMouseClick(int button, int action, int mods, double xpos, double ypos);
 
-        Graph WelcomeGraph();
-
     private:
+        Graph WelcomeGraph();
         void processEvents();
 
         GLFWwindow* window = nullptr;

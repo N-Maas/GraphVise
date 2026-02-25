@@ -13,7 +13,9 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 #include <iostream>
+
 #include "controller/Parsing/ParserController.hpp"
 #include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
@@ -27,7 +29,6 @@ int main()
     graphvise::ParserController pc;
     // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
     // graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
-    graphvise::GraphSaver::getInstance().setGraph(window.WelcomeGraph());
 
     if (!window.initWindow())
     {

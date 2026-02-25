@@ -12,7 +12,7 @@
 namespace graphvise {
     class Graph {
     public:
-        explicit Graph(const std::vector<glm::vec3>& verticesCoordinates, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& edgesConnectedVerticesIDs) {
+        explicit Graph(const std::vector<glm::vec3>& verticesCoordinates, const std::vector<std::pair<std::uint32_t, std::uint32_t>>& edgesConnectedVerticesIDs, const std::string& name) : name(name) {
             addGroup("Default-VertexGroup", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
             addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
             vertices.reserve(verticesCoordinates.size());
@@ -53,9 +53,21 @@ namespace graphvise {
         [[nodiscard]] const std::vector<Edge *> &getEdgesSortedByTransparency() const;
         void initThisGraph();
 
+        [[nodiscard]] const std::string& getName() const { return name; }
+
+            template <class Archive>
+        void serialize(Archive& ar, const unsigned int version)
+        {
+            ar & name;
+            ar & vertices;
+            ar & edges;
+            ar & groups;
+            ar & cameraBookmarks;
+        }
     private:
         void initRenderingMatrixForEdge(Edge& edge);
 
+        std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;
         std::vector<Edge> edges;
