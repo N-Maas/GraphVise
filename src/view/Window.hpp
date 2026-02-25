@@ -23,7 +23,7 @@ namespace graphvise
     private:
 
         std::shared_ptr<Renderer> renderer = Renderer::getInstance();
-        Graph WelcomeGraph();
+        static Graph WelcomeGraph();
 
 
         GLFWwindow* window = nullptr;
