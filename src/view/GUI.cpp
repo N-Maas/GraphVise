@@ -12,10 +12,8 @@
 
 namespace graphvise
 {
-    GUI::GUI(ButtonController* controller) : buttons(controller), errorAvailable(false),
-    m_showObjectInfo(false), m_selectedVertexId(0), m_objectType(0)
+    GUI::GUI(const std::shared_ptr<ButtonController>& controller) : buttons(controller), errorAvailable(false)
     {
-        ErrorCollector::getInstance().signIn(std::ref(*this));
     }
 
     void GUI::initGUI(GLFWwindow* window)
@@ -28,6 +26,11 @@ namespace graphvise
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
+
+        buttons.initButtons();
+
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
     }
 
     void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
@@ -38,6 +41,17 @@ namespace graphvise
         ImGui::NewFrame();
 
         currentObjInfo();   //vertex and edge picking
+
+        if (ThreadController::backGroundThreadBusy())
+        {
+            ImGui::SetNextWindowPos(ImVec2(0, framebufferHeight), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+            ImGui::Begin("##Loading window", nullptr,
+                ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                ImGuiWindowFlags_NoCollapse
+            );
+            ImGui::Text("Loading...");
+            ImGui::End();
+        }
 
         if (errorAvailable)
         {
@@ -51,6 +65,9 @@ namespace graphvise
         );
         ImGui::Text("%.2f fps", fps);
         ImGui::End();
+
+
+
 
         buttons.loadButtonFrame(framebufferWidth, framebufferHeight);
 

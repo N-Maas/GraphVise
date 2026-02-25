@@ -16,12 +16,15 @@
 namespace graphvise {
     class ButtonController {
     public:
-        ButtonController(Renderer& renderer);
-        void togglePerformanceMode(PerformanceMode mode);
-        void randomizeColoring(uint32_t groupID);
+        explicit ButtonController(const std::shared_ptr<Renderer>& renderer);
+        void togglePerformanceMode();
+        void setPerformanceMode(PerformanceMode mode);
+        void randomizeColoring(int groupID);
         void changeColoring(uint32_t groupID, ImVec4 newColor);
         void setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour);
+        void toggleLightSourceMovementBehaviour();
         void setCameraFocusMode(CameraFocusMode mode);
+        void toggleCameraFocusMode();
         void findVertex(uint32_t vertexID);
         void findEdge(int firstVertexID, int secondVertexID);
         void highlightSubgraph(std::filesystem::path filePath);
@@ -33,10 +36,11 @@ namespace graphvise {
         void addCurrentPosAsBookmark(const std::string& name);
         void loadCameraBookmark(CameraBookmark cam);
         void deleteCameraBookmark(size_t bookmarkID);
+        void randomizeAllColors();
 
     private:
         Camera& camera;
-        Renderer& renderer;
+        std::shared_ptr<Renderer> renderer;
         ThreadController threadController;
     };
 }

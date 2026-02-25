@@ -68,6 +68,7 @@ namespace graphvise {
         }
 
         std::lock_guard lock(mutex);
+        mutex.native_handle();
         ThreadController::threadOperation = threadOperation;
 
         if (threadOperation.requestedOperation == ThreadOperationType::EXPORT_PNG) {
@@ -97,7 +98,12 @@ namespace graphvise {
         return true;
     }
 
-   void ThreadController::threadMain() {
+    bool ThreadController::backGroundThreadBusy()
+    {
+        return threadOperation.has_value();
+    }
+
+    void ThreadController::threadMain() {
         while (true) {
             //Wait for new operation
             std::unique_lock lock(mutex);

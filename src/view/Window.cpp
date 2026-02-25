@@ -11,19 +11,13 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
-#include <functional>
 
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
 
 
 namespace graphvise {
-
-	double Window::scrollYOffset = 0;
-
-	Window::Window()
-	= default;
-	bool Window::initWindow() {
+    bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
@@ -41,12 +35,11 @@ namespace graphvise {
         // Create GLFW window
         std::string windowTitle = "GraphVise";
 
-        int defaultWidth = currentRes.width;
-        int defaultHeight = currentRes.height;
+        const auto defaultWidth = currentRes.width;
+        const auto defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-		glfwSetWindowUserPointer(window, this);
-		// Error check if the window fails to create
+        // Error check if the window fails to create
 
         glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -56,9 +49,6 @@ namespace graphvise {
             glfwTerminate();
             return false;
         }
-
-		glfwSetScrollCallback(window, scrollCallback);
-		glfwSetMouseButtonCallback(window, mouseButtonCallback); // for vertex picking
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -82,292 +72,86 @@ namespace graphvise {
 
 
         // Query the framebuffer size, this can differ from the window size on some systems
-        int framebufferWidth, framebufferHeight;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
-		// Create the renderer object
-		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
-
-		// todo test changing render quality
-		renderer->setQualityPreset(QualityPreset::MEDIUM);
-
-		renderer->init();
-
-
-        // CachingController::loadDefaultGraph();
-        GraphSaver::getInstance().setGraph(WelcomeGraph());
-
-
-
-        Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
-
         // Create the renderer object
+        renderer->resize(framebufferWidth, framebufferHeight);
+        renderer->init();
 
-        ButtonController controller = ButtonController(*renderer);
-
-        GUI gui(&controller);
-
-
-		// todo this line produces an error gui not recognized, please check
-        ErrorCollector::getInstance().signIn(std::ref(gui));
+        ErrorCollector::getInstance().signIn(gui);
 
         gui.initGUI(window);
 
-        // FPS counter
-        int frameCount = 0;
-        double accumulatedTime = 0.0;
+    	inputManager.initInputManager(window);
 
-		// Main loop with delta time calculation for changing render quality
-		float deltaTime = 0.0f;
-		auto lastFrame = std::chrono::high_resolution_clock::now();
-
-		// Main while loop
-		while (!glfwWindowShouldClose(window))
-		{
-			//introducing different render qualities
-			auto currentFrame = std::chrono::high_resolution_clock::now();
-			deltaTime = std::chrono::duration<float>(currentFrame - lastFrame).count();
-			lastFrame = currentFrame;
-
-			double startTime = glfwGetTime();
-
-            // Resize the renderer and viewport if the framebuffer / window size changed
-            int newFramebufferWidth, newFramebufferHeight;
-            glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
-            if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
-            {
-                framebufferWidth = newFramebufferWidth;
-                framebufferHeight = newFramebufferHeight;
-                glViewport(0, 0, framebufferWidth, framebufferHeight);
-                renderer->resize(framebufferWidth, framebufferHeight);
-            }
-
-			// Specify the color of the background
-			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
-			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
-			// Clean the back buffer and assign the new color to it
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glfwPollEvents();
-
-            processEvents();
-
-            // Draw frame from renderer
-            GL_CHECK_ERROR();
-            renderer->runFrame();
-            GL_CHECK_ERROR();
-
-
-
-            //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
-
-            // Swap the back buffer with the front buffer
-            glfwSwapBuffers(window);
-
-            // Take care of all GLFW events
-            glfwPollEvents();
-
-
-            // FPS counter
-            double endTime = glfwGetTime();
-            accumulatedTime += endTime - startTime;
-            ++frameCount;
-            if (1.0 < accumulatedTime)
-            {
-                assert(0 < frameCount);
-
-                gui.setFps(frameCount / accumulatedTime);
-
-                accumulatedTime = 0.0;
-                frameCount = 0;
-            }
-        }
-
-        CachingController::cacheCurrentGraph();
-
-
-        gui.shutdownGUI();
-
-        // Renderer cleanup
-        renderer->shutdown();
-
-
-        // Delete window before ending the program
-        glfwDestroyWindow(window);
-
-        // Terminate GLFW before ending the program
-        glfwTerminate();
-        return true;
-    }
-
-	void Window::processEvents()
-	{
-		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-		if (!ImGui::GetIO().WantCaptureKeyboard)
-		{
-
-			//Moving Camera
-			glm::vec3 direction(0, 0, 0);
-			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-			movementController.moveCamera(direction, sprinting);
-
-		}
-		//Rotating Camera
-		static float lastMousePosition[2];
-		static double currentMousePositionDouble[2];
-		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
-		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
-
-		static bool rotatingCamera = false;
-		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
-			rotatingCamera = true;
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera) {
-			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-			movementController.rotateCamera(pitchChange, yawChange);
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
-			rotatingCamera = false;
-		}
-
-		if (!ImGui::GetIO().WantCaptureMouse){
-			movementController.zoom(-scrollYOffset, sprinting);
-			scrollYOffset = 0;
-		}
-	}
-
-	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-		scrollYOffset = yoffset;
-	}
-
-	// Implementation in Window.cpp:
-	void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-		// Get the Window instance (you'll need to store it as a user pointer)
-		Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if (self) {
-			double xpos, ypos;
-			glfwGetCursorPos(window, &xpos, &ypos);
-			self->handleMouseClick(button, action, mods, xpos, ypos);
-		}
-	}
-
-	Graph Window::WelcomeGraph(){
-
-       return Graph({
-                                       {-12, 3, 0},
-                                       {-11, 0, 0},
-                                       {-10, 1, 0},
-                                       {-9, 0, 0},
-                                       {-8, 3, 0},
-                                       {-7, 3, 0},
-                                       {-5, 3, 0},
-                                       {-7, 1.5, 0},
-                                       {-6, 1.5, 0},
-                                       {-7, 0, 0},
-                                       {-5, 0, 0},
-                                       {-4, 3, 0},
-                                       {-4, 0, 0},
-                                       {-2, 0, 0},
-                                       {-1, 3, 0},
-                                       {1, 3, 0},
-                                       {-1, 0, 0},
-                                       {1, 0, 0},
-                                       {2, 3, 0},
-                                       {4, 3, 0},
-                                       {2, 0, 0},
-                                       {4, 0, 0},
-                                       {5, 0, 0},
-                                       {6, 3, 0},
-                                       {7, 2, 0},
-                                       {8, 3, 0},
-                                       {9, 0, 0},
-                                       {10, 3, 0},
-                                       {12, 3, 0},
-                                       {10, 1.5, 0},
-                                       {11, 1.5, 0},
-                                       {10, 0, 0},
-                                       {12, 0, 0}
-
-                                   },
-                                   {
-                                       {0, 1},
-                                       {1, 2},
-                                       {2, 3},
-                                       {3, 4},
-                                       {5, 6},
-                                       {5,7},
-                                       {7, 8},
-                                       {7, 9},
-                                       {9, 10},
-                                       {11, 12},
-                                       {12, 13},
-                                       {14, 15},
-                                       {14, 16},
-                                       {16, 17},
-                                       {18, 19},
-                                       {18, 20},
-                                       {19, 21},
-                                       {20, 21},
-                                       {22, 23},
-                                       {23,24},
-                                       {24,25},
-                                       {25,26},
-                                       {27,28},
-                                       {27,29},
-                                       {29,30},
-                                       {29,31},
-                                       {31,32}
-                                   },
-
-                                   "Welcome to GraphVise");
-
+    	return true;
 
     }
-	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
-    	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    		auto renderer = Renderer::getInstance();
 
-    		// Convert coordinates (keep this - it's needed for picking)
-    		int fbWidth, fbHeight;
-    		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+    void Window::startApplicationLoop()
+    {
 
-    		// Convert window coordinates to framebuffer coordinates
-    		int winWidth, winHeight;
-    		glfwGetWindowSize(window, &winWidth, &winHeight);
+    	// FPS counter
+    	int frameCount = 0;
+    	double accumulatedTime = 0.0;
 
-    		double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
-    		double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
+    	// Main while loop
+    	while (!glfwWindowShouldClose(window))
+    	{
+    		double startTime = glfwGetTime();
 
-    		// Get the picked object (could be vertex, edge, or nothing)
-    		PickedObject picked = renderer->getObjectAt(fbX, fbY);
-    		auto& graph = GraphSaver::getInstance().getGraph();
-
-    		if (picked.isVertex()) {
-    			try {
-    				auto& vertex = graph.getVertexByID(picked.id);
-    				gui->showVertexInfo(picked.id);
-    			} catch (const std::exception& e) {
-    				std::cout << "Error getting vertex: " << e.what() << std::endl;
-    			}
+    		// Resize the renderer and viewport if the framebuffer / window size changed
+    		int newFramebufferWidth, newFramebufferHeight;
+    		glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
+    		if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
+    		{
+    			framebufferWidth = newFramebufferWidth;
+    			framebufferHeight = newFramebufferHeight;
+    			glViewport(0, 0, framebufferWidth, framebufferHeight);
+    			renderer->resize(framebufferWidth, framebufferHeight);
     		}
-    		else if (picked.isEdge()) {
-    			try {
-    				auto& edge = graph.getEdgeByID(picked.id);
-    				gui->showEdgeInfo(picked.id);
-    			} catch (const std::exception& e) {
-    				std::cout << "Error getting edge: " << e.what() << std::endl;
-    			}
+
+
+    		// Draw frame from renderer
+    		GL_CHECK_ERROR();
+    		renderer->runFrame();
+    		GL_CHECK_ERROR();
+
+    		//load GUI
+    		gui.loadFrame(framebufferWidth, framebufferHeight);
+
+    		inputManager.processInput();
+
+
+    		// Swap the back buffer with the front buffer
+    		glfwSwapBuffers(window);
+
+
+    		// FPS counter
+    		double endTime = glfwGetTime();
+    		accumulatedTime += endTime - startTime;
+    		++frameCount;
+    		if (1.0 < accumulatedTime)
+    		{
+    			assert(0 < frameCount);
+
+    			gui.setFps(frameCount / accumulatedTime);
+
+    			accumulatedTime = 0.0;
+    			frameCount = 0;
     		}
     	}
+
+    	gui.shutdownGUI();
+
+    	// Renderer cleanup
+    	renderer->shutdown();
+
+    	// Delete window before ending the program
+    	glfwDestroyWindow(window);
+
+    	// Terminate GLFW before ending the program
+    	glfwTerminate();
+
     }
 }
