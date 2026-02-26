@@ -90,6 +90,8 @@ namespace graphvise {
 
 		// todo test changing render quality
 		renderer->setPerformanceMode(PerformanceMode::BALANCE);
+		//renderer->setPerformanceMode(PerformanceMode::PERFORMANCE);
+		//renderer->setPerformanceMode(PerformanceMode::QUALITY);
 
 		renderer->init();
 

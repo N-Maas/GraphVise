@@ -770,9 +770,6 @@ namespace graphvise {
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // Debug output to see what you're actually reading
-        std::cout << "Picked values: [" << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
-
         if (pixelValues[0] != UINT32_MAX) {
             result.type = PickedObject::Type::VERTEX;
             result.id = pixelValues[0];
