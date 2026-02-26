@@ -25,6 +25,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
+# temporarily commented out tests
 file(GLOB TEST_SOURCES tests/*.cpp)
 add_executable(my_tests ${TEST_SOURCES})
 
@@ -145,7 +146,23 @@ target_compile_definitions(GraphVise PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOU
 # find required packages
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem serialization CONFIG)
+
+# Boost configuration
+set(Boost_NO_BOOST_CMAKE ON)
+
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS OFF)
+#set(Boost_DEBUG ON)
+
+find_package(Boost 1.83.0 REQUIRED COMPONENTS
+        filesystem
+        serialization
+        system
+)
+
+if(NOT Boost_FOUND)
+    message(FATAL_ERROR "Boost not found! Please install: sudo apt install libboost-all-dev")
+endif()
 
 # find optional packages
 find_package(OpenMP)
@@ -165,19 +182,29 @@ FetchContent_MakeAvailable(wembed)
 # add external libraries that are locally built: glad and imgui
 add_subdirectory(ext)
 
+include(FetchContent)
+FetchContent_Declare(
+        platform_folders
+        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(platform_folders)
+
 target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ext/imgui-filebrowser
+        ${platform_folders_SOURCE_DIR}
+)
+# IMPORTANT: Also add the same include path to my_lib test library
+target_include_directories(my_lib PRIVATE
+        ${platform_folders_SOURCE_DIR}
 )
 
-include(ExternalProject)
-FetchContent_Declare(
-        platform_folders
-        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
-)
+# Debug output
+message(STATUS "platform_folders_SOURCE_DIR: ${platform_folders_SOURCE_DIR}")
 
-FetchContent_MakeAvailable(platform_folders)
 # link required libraries
 target_link_libraries(GraphVise PRIVATE
         imgui
@@ -199,4 +226,4 @@ if (OpenMP_CXX_FOUND)
 endif ()
 
 # Install target (optional but good practice)
-# install(TARGETS GraphVise RUNTIME DESTINATION bin)
+install(TARGETS GraphVise RUNTIME DESTINATION bin)
