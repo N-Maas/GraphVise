@@ -250,7 +250,6 @@ namespace graphvise {
 		scrollYOffset = yoffset;
 	}
 
-	// Implementation in Window.cpp:
 	void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		// Get the Window instance (you'll need to store it as a user pointer)
 		Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));

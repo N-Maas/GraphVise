@@ -717,23 +717,21 @@ namespace graphvise {
 
     void Renderer::generateGeometryBasedOnQuality()
     {
-        int sphereSubdivisions;
-
         switch (mSettings.sphereSubdiv) {
             case 0:  // Low quality
-                sphereSubdivisions = 1;
+                mSettings.sphereSubdiv = 1;
                 mSettings.cylinderSegments = 8;
                 break;
             case 1:  // Medium quality
-                sphereSubdivisions = 2;
+                mSettings.sphereSubdiv = 2;
                 mSettings.cylinderSegments = 12;
                 break;
             case 2:  // High quality
-                sphereSubdivisions = 3;
+                mSettings.sphereSubdiv = 3;
                 mSettings.cylinderSegments = 16;
                 break;
             default:
-                sphereSubdivisions = 2;
+                mSettings.sphereSubdiv = 2;
                 mSettings.cylinderSegments = 12;
         }
 
