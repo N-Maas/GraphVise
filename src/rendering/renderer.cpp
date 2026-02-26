@@ -715,51 +715,30 @@ namespace graphvise {
         GL_CHECK_ERROR();
     }
 
-    void Renderer::generateGeometryBasedOnQuality()
-    {
-        switch (mSettings.sphereSubdiv) {
-            case 0:  // Low quality
-                mSettings.sphereSubdiv = 1;
-                mSettings.cylinderSegments = 8;
-                break;
-            case 1:  // Medium quality
-                mSettings.sphereSubdiv = 2;
-                mSettings.cylinderSegments = 12;
-                break;
-            case 2:  // High quality
-                mSettings.sphereSubdiv = 3;
-                mSettings.cylinderSegments = 16;
-                break;
-            default:
-                mSettings.sphereSubdiv = 2;
-                mSettings.cylinderSegments = 12;
-        }
-
-        // Regenerate geometry
-        generateIcosphere(mSettings.sphereSubdiv);
-        generateCylinder(mSettings.cylinderSegments);
-    }
-
     void Renderer::setPerformanceMode(PerformanceMode mode)
     {
         switch (mode) {
             case PerformanceMode::PERFORMANCE:
-                mSettings.sphereSubdiv = 0;
+                mSettings.sphereSubdiv = 1;
+                mSettings.cylinderSegments = 8;
                 mSettings.targetFPS = 30;
                 break;
 
             case PerformanceMode::BALANCE:
                 mSettings.sphereSubdiv = 2;
+                mSettings.cylinderSegments = 12;
                 mSettings.targetFPS = 60;
                 break;
 
             case PerformanceMode::QUALITY:
                 mSettings.sphereSubdiv = 3;
+                mSettings.cylinderSegments = 16;
                 mSettings.targetFPS = 80;
                 break;
         }
-        // Regenerate geometry with new quality
-        generateGeometryBasedOnQuality();
+        // Regenerate geometry
+        generateIcosphere(mSettings.sphereSubdiv);
+        generateCylinder(mSettings.cylinderSegments);
 
         // Reinitialize resources with new settings
         //init();
@@ -768,15 +747,6 @@ namespace graphvise {
     void Renderer::setTargetFPS(int fps)
     {
         mSettings.targetFPS = std::max(1, std::min(fps, 240)); // Clamp to reasonable range
-    }
-
-    void Renderer::setGeometryDetail(int detail)
-    {
-        detail = std::max(0, std::min(detail, 3)); // Clamp to 0-3
-        if (mSettings.sphereSubdiv != detail) {
-            mSettings.sphereSubdiv = detail;
-            generateGeometryBasedOnQuality();
-        }
     }
 
     PickedObject Renderer::getObjectAt(double x, double y)

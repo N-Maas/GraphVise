@@ -364,7 +364,7 @@ namespace graphvise {
     				auto& edge = graph.getEdgeByID(picked.id);
     				gui->showEdgeInfo(picked.id);
     			} catch (const std::exception& e) {
-    				std::cout << "Error getting edge: " << e.what() << std::endl;
+    				// if no object was picked do not throw an error, mouse may have clicked on a textbox or something
     			}
     		}
     	}
