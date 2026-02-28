@@ -7,7 +7,7 @@ TEST(GraphTest, CheckGetterAndInitialization) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3, 6}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3, 6}}, "graph004"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     EXPECT_EQ(graph.getVertices().at(0).getID(), 0);
@@ -50,7 +50,7 @@ TEST(GraphTest, EdgeByConnectingIDsTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{0, 2}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{0, 2}}, "graph005"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     EXPECT_EQ(graph.getEdgeIDByConnectingVerticesIDs(0,3), 0);
@@ -63,7 +63,7 @@ TEST(GraphTest, addEdgeTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}, "graph006"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     EXPECT_EQ(graph.getEdges().at(0).getConnectingVerticesIDs().first, 0);
@@ -86,7 +86,7 @@ TEST(GraphTest, addGroupTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3}}, "graph007"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     EXPECT_EQ(graph.getGroups().size(), 2);
@@ -117,7 +117,7 @@ TEST(GraphTest, addCameeraBookmarkTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}, "graph008"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     EXPECT_EQ(graph.getCameraBookmarks().empty(), true);
@@ -136,7 +136,7 @@ TEST(GraphTest, highlightRemoveHighlightTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{0, 2}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{0, 2}}, "graph009"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     graph.highlightByID(std::vector<std::uint32_t>{0,3}, std::vector<std::uint32_t>{1});
@@ -161,7 +161,7 @@ TEST(GraphTest, deleteAllGroupsTest) {
         glm::vec3(1.0f, 3.0f, 2.5f),
         glm::vec3(0.1f, 0.0f, 7.9f),
         glm::vec3(5.2f, -3.1f, 2.0f),
-        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}));
+        glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}, "graph010"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     graph.addGroup("first-Group", ImVec4{0,53,12,134}, std::vector<std::uint32_t>{0,1}, std::vector<std::uint32_t>{});
@@ -180,7 +180,7 @@ TEST(GraphTest, deleteCameraBookmarksTest) {
        glm::vec3(1.0f, 3.0f, 2.5f),
        glm::vec3(0.1f, 0.0f, 7.9f),
        glm::vec3(5.2f, -3.1f, 2.0f),
-       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}));
+       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}}, "graph011"));
     Graph graph = GraphSaver::getInstance().getGraph();
 
     graph.addCameraBookmark("first-CameraBookmark", glm::vec3(5.2f, -3.1f, 2.0f), 0.5f, 4.3f);
@@ -197,7 +197,7 @@ TEST(GraphTest, sortedEdgesAndVertexTest) {
        glm::vec3(1.0f, 3.0f, 2.5f),
        glm::vec3(0.1f, 0.0f, 7.9f),
        glm::vec3(5.2f, -3.1f, 2.0f),
-       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}, {1,2},{7, 5}}));
+       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}, {1,2},{7, 5}}, "graph012"));
     Graph &graph = GraphSaver::getInstance().getGraph();
 
     for (Vertex* vertex : graph.getVerticesSortedByTransparency()) {
@@ -271,7 +271,7 @@ TEST(GraphTest, deleteAllGroups) {
        glm::vec3(1.0f, 3.0f, 2.5f),
        glm::vec3(0.1f, 0.0f, 7.9f),
        glm::vec3(5.2f, -3.1f, 2.0f),
-       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}, {1,2},{7, 5}}));
+       glm::vec3(-1.9f, -0.3f, -1.2f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{0,3},{9, 2}, {1,2},{7, 5}}, "graph013"));
     Graph &graph = GraphSaver::getInstance().getGraph();
     graph.addGroup("first", ImVec4(), std::vector<std::uint32_t>{1,3}, std::vector<std::uint32_t>{1,3});
     graph.deleteAllGroups();

@@ -6,7 +6,7 @@
 
 using namespace graphvise;
 TEST(VertexTest, CheckGetter) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph014");
     GraphSaver::getInstance().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 
@@ -22,7 +22,7 @@ TEST(VertexTest, CheckGetter) {
 }
 
 TEST(VertexTest, TransparencyTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph015");
     GraphSaver::getInstance().setGraph(graph);
     Graph graph1 = GraphSaver::getInstance().getGraph();
     Vertex vertex = graph1.getVertexByID(0);
@@ -39,7 +39,7 @@ TEST(VertexTest, TransparencyTest) {
 }
 
 TEST(VertexTest, SetGroupTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph016");
     GraphSaver::getInstance().setGraph(graph);
     Vertex vertex = graph.getVertexByID(0);
 

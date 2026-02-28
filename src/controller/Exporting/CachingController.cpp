@@ -16,7 +16,6 @@
 #include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
-#include "rendering/renderer.hpp"
 
 namespace graphvise
 {

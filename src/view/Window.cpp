@@ -82,7 +82,10 @@ namespace graphvise {
 
         // Create the renderer object
         renderer->resize(framebufferWidth, framebufferHeight);
+
         renderer->init();
+    	renderer->setQualityPreset(QualityPreset::MEDIUM);
+
 
         ErrorCollector::getInstance().signIn(gui);
 

@@ -28,10 +28,4 @@ namespace graphvise {
         PERFORMANCE,
         PERFORMANCE_MODE_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
-
-    enum class QualityPreset {
-        LOW,
-        MEDIUM,
-        HIGH
-    };
 }

@@ -715,53 +715,30 @@ namespace graphvise {
         GL_CHECK_ERROR();
     }
 
-    void Renderer::generateGeometryBasedOnQuality()
+    void Renderer::setPerformanceMode(PerformanceMode mode)
     {
-        int sphereSubdivisions;
-
-        switch (mSettings.sphereSubdiv) {
-            case 0:  // Low quality
-                sphereSubdivisions = 1;
+        switch (mode) {
+            case PerformanceMode::PERFORMANCE:
+                mSettings.sphereSubdiv = 1;
                 mSettings.cylinderSegments = 8;
-                break;
-            case 1:  // Medium quality
-                sphereSubdivisions = 2;
-                mSettings.cylinderSegments = 12;
-                break;
-            case 2:  // High quality
-                sphereSubdivisions = 3;
-                mSettings.cylinderSegments = 16;
-                break;
-            default:
-                sphereSubdivisions = 2;
-                mSettings.cylinderSegments = 12;
-        }
-
-        // Regenerate geometry
-        generateIcosphere(mSettings.sphereSubdiv);
-        generateCylinder(mSettings.cylinderSegments);
-    }
-
-    void Renderer::setQualityPreset(QualityPreset preset)
-    {
-        switch (preset) {
-            case QualityPreset::LOW:
-                mSettings.sphereSubdiv = 0;
                 mSettings.targetFPS = 30;
                 break;
 
-            case QualityPreset::MEDIUM:
+            case PerformanceMode::BALANCE:
                 mSettings.sphereSubdiv = 2;
+                mSettings.cylinderSegments = 12;
                 mSettings.targetFPS = 60;
                 break;
 
-            case QualityPreset::HIGH:
+            case PerformanceMode::QUALITY:
                 mSettings.sphereSubdiv = 3;
+                mSettings.cylinderSegments = 16;
                 mSettings.targetFPS = 80;
                 break;
         }
-        // Regenerate geometry with new quality
-        generateGeometryBasedOnQuality();
+        // Regenerate geometry
+        generateIcosphere(mSettings.sphereSubdiv);
+        generateCylinder(mSettings.cylinderSegments);
 
         // Reinitialize resources with new settings
         //init();
@@ -770,15 +747,6 @@ namespace graphvise {
     void Renderer::setTargetFPS(int fps)
     {
         mSettings.targetFPS = std::max(1, std::min(fps, 240)); // Clamp to reasonable range
-    }
-
-    void Renderer::setGeometryDetail(int detail)
-    {
-        detail = std::max(0, std::min(detail, 3)); // Clamp to 0-3
-        if (mSettings.sphereSubdiv != detail) {
-            mSettings.sphereSubdiv = detail;
-            generateGeometryBasedOnQuality();
-        }
     }
 
     PickedObject Renderer::getObjectAt(double x, double y)
@@ -801,9 +769,6 @@ namespace graphvise {
 
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        // Debug output to see what you're actually reading
-        std::cout << "Picked values: [" << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
 
         if (pixelValues[0] != UINT32_MAX) {
             result.type = PickedObject::Type::VERTEX;

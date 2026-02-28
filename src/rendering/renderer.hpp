@@ -72,9 +72,8 @@ namespace graphvise {
         void render(); // Render graph
 
         // Quality settings
-        void setQualityPreset(QualityPreset preset);
+        void setPerformanceMode(PerformanceMode mode);
         void setTargetFPS(int fps);
-        void setGeometryDetail(int detail);  // 0-2
 
         const RenderSettings &getSettings() const;
 
@@ -152,8 +151,6 @@ namespace graphvise {
 
         Renderer();
         Renderer(int framebufferWidth, int framebufferHeight);
-
-        void generateGeometryBasedOnQuality();
 
         ~Renderer() override;
         // Static pointer to the Singleton instance

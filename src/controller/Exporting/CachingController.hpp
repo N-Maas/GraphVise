@@ -7,7 +7,8 @@
 
 #include <filesystem>
 
-#include "platform_folders.h"
+//#include "platform_folders.h"
+#include <sago/platform_folders.h>
 #include "model/Graph.hpp"
 
 namespace graphvise

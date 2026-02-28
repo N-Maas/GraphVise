@@ -6,7 +6,7 @@
 
 using namespace graphvise;
 TEST(EdgeTest, CheckGetter) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph001");
     GraphSaver::getInstance().setGraph(graph);
     Graph graph1 = GraphSaver::getInstance().getGraph();
     Edge edge1 = graph1.getEdgeByID(0);
@@ -21,7 +21,7 @@ TEST(EdgeTest, CheckGetter) {
 }
 
 TEST(EdgeTest, TransparencyTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph002");
     GraphSaver::getInstance().setGraph(graph);
     Graph graph1 = GraphSaver::getInstance().getGraph();
     Edge edge1 = graph1.getEdgeByID(0);
@@ -38,7 +38,7 @@ TEST(EdgeTest, TransparencyTest) {
 }
 
 TEST(EdgeTest, SetGroupTest) {
-    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}});
+    Graph graph = Graph(std::vector{glm::vec3(1.0f, 3.0f, 2.5f)}, std::vector{std::pair<std::uint32_t, std::uint32_t>{3,4}}, "graph003");
     GraphSaver::getInstance().setGraph(graph);
     Edge edge1 = Edge(0,
         14,
