@@ -14,6 +14,8 @@
 #include <utility>
 
 #include "stb_image.h"
+#include "controller/Exporting/CachingController.hpp"
+#include "imgui/imgui_internal.h"
 
 
 namespace graphvise
@@ -123,7 +125,6 @@ namespace graphvise
         if (ImGui::ImageButton(lightSourceIcon.id, ImVec2(50, 50)))
         {
             buttonController->toggleLightSourceMovementBehaviour();
-
         }
 
         if (ImGui::IsItemHovered())
@@ -131,7 +132,6 @@ namespace graphvise
             ImGui::SetTooltip("Toggle Light Source");
         }
         ImGui::Spacing();
-
 
 
         if (ImGui::ImageButton(cameraMovementIcon.id, ImVec2(50, 50)))
@@ -143,7 +143,6 @@ namespace graphvise
         {
             ImGui::SetTooltip("Toggle Camera Movement");
         }
-        ImGui::Spacing();
 
 
         ImGui::End();
@@ -456,13 +455,20 @@ namespace graphvise
                 importGraphBrowser.SetTitle("import Graph from .cnf");
                 importGraphBrowser.Open();
             }
-            ImGui::EndMenu();
-            if (ImGui::MenuItem("Recently Opened"))
+            if (ImGui::BeginMenu("Recently Opened"))
             {
-                importGraphBrowser.SetTypeFilters(txtImportFormat);
+                const auto filenames = CachingController::getCachedGraphFilenames();
 
-
+                for (auto const& file : filenames)
+                {
+                    if (ImGui::MenuItem(file.stem().c_str()))
+                    {
+                        CachingController::loadCachedGraph(file);
+                    }
+                }
+                ImGui::EndMenu();
             }
+            ImGui::EndMenu();
         }
 
         if (importGraphBrowser.HasSelected())
