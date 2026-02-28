@@ -455,6 +455,9 @@ namespace graphvise
                 importGraphBrowser.SetTitle("import Graph from .cnf");
                 importGraphBrowser.Open();
             }
+
+            ImGui::Separator();
+
             if (ImGui::BeginMenu("Recently Opened"))
             {
                 const auto filenames = CachingController::getCachedGraphFilenames();

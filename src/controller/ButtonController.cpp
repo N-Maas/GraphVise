@@ -33,7 +33,7 @@ namespace graphvise
 
     void ButtonController::setPerformanceMode(PerformanceMode mode)
     {
-        renderer->set_performance_mode(mode);
+        renderer->setPerformanceMode(mode);
     }
 
     void ButtonController::randomizeColoring(int groupID)
