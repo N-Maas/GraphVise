@@ -12,6 +12,7 @@
 namespace graphvise
 {
     double InputManager::scrollYOffset = 0;
+
     bool InputManager::mouseButtonPressed = false;
     int InputManager::button = 0;
     int InputManager::action = 0;

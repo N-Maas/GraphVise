@@ -149,6 +149,8 @@ namespace graphvise {
     		}
     	}
 
+    	CachingController::cacheCurrentGraph();
+
     	gui.shutdownGUI();
 
     	// Renderer cleanup
