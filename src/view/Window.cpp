@@ -84,14 +84,12 @@ namespace graphvise {
         renderer->resize(framebufferWidth, framebufferHeight);
 
         renderer->init();
-    	renderer->setQualityPreset(QualityPreset::MEDIUM);
-
 
         ErrorCollector::getInstance().signIn(gui);
 
         gui.initGUI(window);
 
-    	inputManager.initInputManager(window);
+    	inputManager.initInputManager(window, &gui, buttonController);
 
     	return true;
 

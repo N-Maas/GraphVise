@@ -32,7 +32,7 @@ namespace graphvise
 
         std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>(renderer);
         GUI gui = GUI(buttonController);
-        InputManager inputManager = InputManager(buttonController);
+        InputManager inputManager;
 
         struct Resolution
         {

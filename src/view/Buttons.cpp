@@ -457,6 +457,12 @@ namespace graphvise
                 importGraphBrowser.Open();
             }
             ImGui::EndMenu();
+            if (ImGui::MenuItem("Recently Opened"))
+            {
+                importGraphBrowser.SetTypeFilters(txtImportFormat);
+
+
+            }
         }
 
         if (importGraphBrowser.HasSelected())

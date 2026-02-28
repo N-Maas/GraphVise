@@ -8,33 +8,42 @@
 #include <functional>
 #include <utility>
 
+#include "GUI.hpp"
 #include "controller/ButtonController.hpp"
 #include "controller/MovementController.hpp"
 
 namespace graphvise
 {
+
     class InputManager
     {
     public:
-        explicit InputManager(std::shared_ptr<ButtonController> buttonController) : buttonController(std::move(buttonController))
-        {
-        }
-
-        void initInputManager(GLFWwindow* window);
+        void initInputManager(GLFWwindow* window, GUI* gui, const std::shared_ptr<ButtonController>& buttonController);
 
         void processInput();
         static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+        static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+        void handleMouseClick() const;
 
     private:
 
         void processHotkeys();
 
 
+        // scroll callback
         static double scrollYOffset;
+
+        // mouse callback
+        static bool mouseButtonPressed;
+        static int button;
+        static int action;
+        static int mods;
+
 
         GLFWwindow* window = nullptr;
         MovementController movementController;
         std::shared_ptr<ButtonController> buttonController;
+        GUI *gui = nullptr;
 
 
         struct Hotkey {
