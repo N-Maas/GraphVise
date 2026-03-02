@@ -353,10 +353,22 @@ namespace graphvise {
     		PickedObject picked = renderer->getObjectAt(fbX, fbY);
     		auto& graph = GraphSaver::getInstance().getGraph();
 
+    		// Get valid ID ranges
+        	size_t maxVertexId = graph.getVertices().size();
+        	size_t maxEdgeId = graph.getEdges().size();
+
+        	std::cout << "Graph has " << maxVertexId << " vertices and " << maxEdgeId << " edges" << std::endl;
+
     		if (picked.isVertex()) {
     			try {
     				auto& vertex = graph.getVertexByID(picked.id);
-    				gui->showVertexInfo(picked.id);
+    				// BOUNDS CHECK - PREVENT CRASH
+        			if (picked.id < maxVertexId) {
+            		gui->showVertexInfo(picked.id);
+        			} else {
+            		std::cout << "Invalid vertex ID: " << picked.id
+                      << " (max valid: " << maxVertexId - 1 << ")" << std::endl;
+        			}
     			} catch (const std::exception& e) {
     				std::cout << "Error getting vertex: " << e.what() << std::endl;
     			}
@@ -364,7 +376,14 @@ namespace graphvise {
     		else if (picked.isEdge()) {
     			try {
     				auto& edge = graph.getEdgeByID(picked.id);
-    				gui->showEdgeInfo(picked.id);
+
+    				 // BOUNDS CHECK - PREVENT CRASH
+            		if (picked.id < maxEdgeId) {
+                		gui->showEdgeInfo(picked.id);
+            		} else {
+                		std::cout << "Invalid edge ID: " << picked.id
+                          << " (max valid: " << maxEdgeId - 1 << ")" << std::endl;
+            		}
     			} catch (const std::exception& e) {
     				// if no object was picked do not throw an error, mouse may have clicked on a textbox or something
     			}
