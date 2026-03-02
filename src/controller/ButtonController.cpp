@@ -15,77 +15,123 @@
 
 #define MAX_COLOR_VALUE 1.0f
 
-namespace graphvise {
-    ButtonController::ButtonController(Renderer& renderer) : camera(renderer.m_camera()), renderer(renderer),
-                                                                             threadController(renderer) {
+namespace graphvise
+{
+    ButtonController::ButtonController(const std::shared_ptr<Renderer>& renderer) : camera(renderer->m_camera()),
+                                                                             renderer(renderer),
+                                                                             threadController(*renderer)
+    {
     }
 
-    void ButtonController::togglePerformanceMode(PerformanceMode mode) {
-        renderer.adjustPerformanceMode(mode);
+    void ButtonController::togglePerformanceMode()
+    {
+        auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer->performance_mode()) + 1) % static_cast<
+            int>(
+            PerformanceMode::PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+        renderer->adjustPerformanceMode(newMode);
     }
 
-    void ButtonController::randomizeColoring(uint32_t groupID) {
-        Group& group= GraphSaver::getInstance().getGraph().getGroupByID(groupID);
+    void ButtonController::setPerformanceMode(PerformanceMode mode)
+    {
+        renderer->setPerformanceMode(mode);
+    }
+
+    void ButtonController::randomizeColoring(int groupID)
+    {
+        Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
 
         std::random_device random;
         std::mt19937 generator(random());
         std::uniform_real_distribution<> distribution(0, MAX_COLOR_VALUE);
 
-        ImVec4 newColor = ImVec4(distribution(generator), distribution(generator), distribution(generator), MAX_COLOR_VALUE);
+        ImVec4 newColor = ImVec4(distribution(generator), distribution(generator), distribution(generator),
+                                 MAX_COLOR_VALUE);
         group.setColor(newColor);
     }
 
-    void ButtonController::changeColoring(uint32_t groupID, ImVec4 newColor) {
+    void ButtonController::changeColoring(uint32_t groupID, ImVec4 newColor)
+    {
         Group& group = GraphSaver::getInstance().getGraph().getGroupByID(groupID);
         group.setColor(newColor);
     }
 
-    void ButtonController::setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour) {
-        renderer.set_light_source_movement_behaviour(behaviour);
+    void ButtonController::setLightSourceMovementBehaviour(LightSourceMovementBehaviour behaviour)
+    {
+        renderer->set_light_source_movement_behaviour(behaviour);
     }
 
-    void ButtonController::setCameraFocusMode(CameraFocusMode mode) {
+    void ButtonController::toggleLightSourceMovementBehaviour()
+    {
+        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer->
+            light_source_movement_behaviour()) + 1) % static_cast<int>(
+            LightSourceMovementBehaviour::MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
+        renderer->set_light_source_movement_behaviour(newMode);
+    }
+
+    void ButtonController::setCameraFocusMode(CameraFocusMode mode)
+    {
         camera.set_camera_focus_mode(mode);
     }
 
-    void ButtonController::findVertex(uint32_t vertexID) {
-
-        Graph& graph = GraphSaver::getInstance().getGraph();
-        if (vertexID >= graph.getVertices().size()) {
-            ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
-        }
-
-        graph.highlightByID(std::vector{vertexID}, std::vector<uint32_t>{});
-
-        glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
-        vertexPos.x += 1;
-        camera.position_world_space = vertexPos;
-        camera.setRotation(0, 3 * std::numbers::pi/2);
-
-        camera.focusPoint = graph.getVertexByID(vertexID).getCoordsVector();
+    void ButtonController::toggleCameraFocusMode()
+    {
+        auto newMode = static_cast<CameraFocusMode>((static_cast<int>(camera.camera_focus_mode()) + 1) % static_cast<
+            int>(
+            CameraFocusMode::FOCUS_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
+        camera.set_camera_focus_mode(newMode);
     }
 
-    void ButtonController::findEdge(int firstVertexID, int secondVertexID) {
+
+    void ButtonController::findVertex(uint32_t vertexID)
+    {
+        Graph& graph = GraphSaver::getInstance().getGraph();
+        if (vertexID >= graph.getVertices().size())
+        {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::NOT_A_VERTEX_ID));
+        } else
+        {
+            graph.highlightByID(std::vector{vertexID}, std::vector<uint32_t>{});
+
+            glm::vec3 vertexPos = graph.getVertexByID(vertexID).getCoordsVector();
+            vertexPos.x += 1;
+            camera.position_world_space = vertexPos;
+            camera.setRotation(0, 3 * std::numbers::pi/2);
+
+            camera.focusPoint = graph.getVertexByID(vertexID).getCoordsVector();
+        }
+    }
+
+    void ButtonController::findEdge(int firstVertexID, int secondVertexID)
+    {
         Graph& graph = GraphSaver::getInstance().getGraph();
         uint32_t maxVertexID = graph.getVertices().size() - 1;
 
-        if (firstVertexID == secondVertexID) {
+        if (firstVertexID == secondVertexID)
+        {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EQUAL_VERTEX_IDS));
             return;
         }
-        if (firstVertexID > maxVertexID) {
-            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(firstVertexID)));
+        if (firstVertexID > maxVertexID)
+        {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS,
+                                                             std::to_string(firstVertexID)));
             return;
         }
-        if (secondVertexID > maxVertexID) {
-            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS, std::to_string(secondVertexID)));
+        if (secondVertexID > maxVertexID)
+        {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::VERTEX_ID_OUT_OF_BOUNDS,
+                                                             std::to_string(secondVertexID)));
             return;
         }
 
         uint32_t edgeID;
-        try {
+        //todo: remove try/catch, check val manually
+        try
+        {
             edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
-        } catch (std::out_of_range& e) {
+        }
+        catch (std::out_of_range& e)
+        {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EDGE_DOES_NOT_EXIST));
             return;
         }
@@ -114,64 +160,75 @@ namespace graphvise {
         //I just noticed, I hate LA II
         float newAngle;
 
-        if (toMiddle.x < 0) {
+        if (toMiddle.x < 0)
+        {
             newAngle = acosf(toMiddle.z) + std::numbers::pi;
-        } else {
+        }
+        else
+        {
             newAngle = acosf(-toMiddle.z);
         }
         camera.setRotation(0, newAngle);
         camera.focusPoint = averagePos;
     }
 
-    void ButtonController::highlightSubgraph(std::filesystem::path filePath) {
+    void ButtonController::highlightSubgraph(std::filesystem::path filePath)
+    {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_SUBGRAPH};
-        if (!threadController.notifyBackgroundThread(threadOperation)) {
+        if (!threadController.notifyBackgroundThread(threadOperation))
+        {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
     }
 
-    void ButtonController::importGraph(std::filesystem::path filePath, ImportFormat importFormat) {
-
+    void ButtonController::importGraph(std::filesystem::path filePath, ImportFormat importFormat)
+    {
         ThreadOperation threadOperation;
 
         switch (importFormat)
         {
-            case ImportFormat::TXT: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
+        case ImportFormat::TXT: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_TXT};
             break;
-            case ImportFormat::CNF: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_CNF};
+        case ImportFormat::CNF: threadOperation = {std::move(filePath), ThreadOperationType::PARSE_CNF};
             break;
-            default: Error error(ErrorType::INVALID_IMPORT_FORMAT);
-                ErrorCollector::getInstance().collectError(error);
-                return;
+        default: Error error(ErrorType::INVALID_IMPORT_FORMAT);
+            ErrorCollector::getInstance().collectError(error);
+            return;
         }
 
-        if (!threadController.notifyBackgroundThread(threadOperation)) {
+        if (!threadController.notifyBackgroundThread(threadOperation))
+        {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
     }
 
-    void ButtonController::exportGraph(std::filesystem::path filePath, ExportFormat exportFormat) {
+    void ButtonController::exportGraph(std::filesystem::path filePath, ExportFormat exportFormat)
+    {
         ThreadOperationType operationType;
-        switch (exportFormat) {
-            case ExportFormat::PNG: operationType = ThreadOperationType::EXPORT_PNG;
-                break;
+        switch (exportFormat)
+        {
+        case ExportFormat::PNG: operationType = ThreadOperationType::EXPORT_PNG;
+            break;
 
-            default: throw std::invalid_argument("ExportFormat not defined!");
+        default: throw std::invalid_argument("ExportFormat not defined!");
         }
         ThreadOperation threadOperation = {std::move(filePath), operationType};
 
-        if (!threadController.notifyBackgroundThread(threadOperation)) {
+        if (!threadController.notifyBackgroundThread(threadOperation))
+        {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
     }
 
-    void ButtonController::importGroupConfiguration(std::filesystem::path filePath) {
+    void ButtonController::importGroupConfiguration(std::filesystem::path filePath)
+    {
         ThreadOperation threadOperation = {std::move(filePath), ThreadOperationType::PARSE_GROUPS};
 
-        if (!threadController.notifyBackgroundThread(threadOperation)) {
+        if (!threadController.notifyBackgroundThread(threadOperation))
+        {
             Error error(ErrorType::BACKGROUND_THREAD_ALREADY_BUSY);
             ErrorCollector::getInstance().collectError(error);
         }
@@ -182,14 +239,16 @@ namespace graphvise {
         GraphSaver::getInstance().getGraph().setGroupTransparency(groupID, newTransparency);
     }
 
-    void ButtonController::RemoveHighlights() {
+    void ButtonController::RemoveHighlights()
+    {
         GraphSaver::getInstance().getGraph().removeAllHighlights();
         camera.resetFocusPoint();
     }
 
     void ButtonController::addCurrentPosAsBookmark(const std::string& name)
     {
-        GraphSaver::getInstance().getGraph().addCameraBookmark(name, camera.position_world_space, camera.rotation_x, camera.rotation_y);
+        GraphSaver::getInstance().getGraph().addCameraBookmark(name, camera.position_world_space, camera.rotation_x,
+                                                               camera.rotation_y);
     }
 
     void ButtonController::loadCameraBookmark(CameraBookmark cam)
@@ -202,5 +261,15 @@ namespace graphvise {
     void ButtonController::deleteCameraBookmark(size_t bookmarkID)
     {
         GraphSaver::getInstance().getGraph().deleteCameraBookmark(bookmarkID);
+    }
+
+    void ButtonController::randomizeAllColors()
+    {
+        //TODO: Change random to custom colors
+
+        for (auto& group : GraphSaver::getInstance().getGraph().getGroups()) {
+            randomizeColoring(group.getID());
+        }
+
     }
 }

@@ -11,19 +11,13 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include <sstream>
-#include <functional>
 
 #include "controller/ButtonController.hpp"
 #include "controller/ErrorCollector.hpp"
 
 
 namespace graphvise {
-
-	double Window::scrollYOffset = 0;
-
-	Window::Window()
-	= default;
-	bool Window::initWindow() {
+    bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
 
@@ -41,12 +35,11 @@ namespace graphvise {
         // Create GLFW window
         std::string windowTitle = "GraphVise";
 
-        int defaultWidth = currentRes.width;
-        int defaultHeight = currentRes.height;
+        const auto defaultWidth = currentRes.width;
+        const auto defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-		glfwSetWindowUserPointer(window, this);
-		// Error check if the window fails to create
+        // Error check if the window fails to create
 
         glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
@@ -56,9 +49,6 @@ namespace graphvise {
             glfwTerminate();
             return false;
         }
-
-		glfwSetScrollCallback(window, scrollCallback);
-		glfwSetMouseButtonCallback(window, mouseButtonCallback); // for vertex picking
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
@@ -82,187 +72,98 @@ namespace graphvise {
 
 
         // Query the framebuffer size, this can differ from the window size on some systems
-        int framebufferWidth, framebufferHeight;
         glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
 
-		// Create the renderer object
-		std::shared_ptr<Renderer> renderer = Renderer::getInstance(framebufferWidth, framebufferHeight);
-
-		// todo test changing render quality
-		renderer->setPerformanceMode(PerformanceMode::BALANCE);
-		//renderer->setPerformanceMode(PerformanceMode::PERFORMANCE);
-		//renderer->setPerformanceMode(PerformanceMode::QUALITY);
-
-		renderer->init();
+    	// set welcome graph
+    	GraphSaver::getInstance().setGraph(WelcomeGraph());
+    	renderer->m_camera().position_world_space = glm::vec3(0, 0, 15);
 
 
-        // CachingController::loadDefaultGraph();
-        GraphSaver::getInstance().setGraph(WelcomeGraph());
-
-
-
-        Renderer::getInstance()->m_camera().position_world_space=glm::vec3(0,0, 15);
 
         // Create the renderer object
+        renderer->resize(framebufferWidth, framebufferHeight);
 
-        ButtonController controller = ButtonController(*renderer);
+        renderer->init();
 
-        GUI gui(&controller);
-
-
-		// todo this line produces an error gui not recognized, please check
-        ErrorCollector::getInstance().signIn(std::ref(gui));
+        ErrorCollector::getInstance().signIn(gui);
 
         gui.initGUI(window);
 
-        // FPS counter
-        int frameCount = 0;
-        double accumulatedTime = 0.0;
+    	inputManager.initInputManager(window, &gui, buttonController);
 
-		// Main loop with delta time calculation for changing render quality
-		float deltaTime = 0.0f;
-		auto lastFrame = std::chrono::high_resolution_clock::now();
+    	return true;
 
-		// Main while loop
-		while (!glfwWindowShouldClose(window))
-		{
-			//introducing different render qualities
-			auto currentFrame = std::chrono::high_resolution_clock::now();
-			deltaTime = std::chrono::duration<float>(currentFrame - lastFrame).count();
-			lastFrame = currentFrame;
-
-			double startTime = glfwGetTime();
-
-            // Resize the renderer and viewport if the framebuffer / window size changed
-            int newFramebufferWidth, newFramebufferHeight;
-            glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
-            if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
-            {
-                framebufferWidth = newFramebufferWidth;
-                framebufferHeight = newFramebufferHeight;
-                glViewport(0, 0, framebufferWidth, framebufferHeight);
-                renderer->resize(framebufferWidth, framebufferHeight);
-            }
-
-			// Specify the color of the background
-			//glClearColor(0.f, 0.14f, 0.28f, 1.0f);
-			glClearColor(0.11f, 0.56f, 0.69f, 1.0f);
-			// Clean the back buffer and assign the new color to it
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			glfwPollEvents();
-
-            processEvents();
-
-            // Draw frame from renderer
-            GL_CHECK_ERROR();
-            renderer->runFrame();
-            GL_CHECK_ERROR();
-
-
-
-            //load GUI
-            gui.loadFrame(framebufferWidth, framebufferHeight);
-
-            // Swap the back buffer with the front buffer
-            glfwSwapBuffers(window);
-
-            // Take care of all GLFW events
-            glfwPollEvents();
-
-
-            // FPS counter
-            double endTime = glfwGetTime();
-            accumulatedTime += endTime - startTime;
-            ++frameCount;
-            if (1.0 < accumulatedTime)
-            {
-                assert(0 < frameCount);
-
-                gui.setFps(frameCount / accumulatedTime);
-
-                accumulatedTime = 0.0;
-                frameCount = 0;
-            }
-        }
-
-        CachingController::cacheCurrentGraph();
-
-
-        gui.shutdownGUI();
-
-        // Renderer cleanup
-        renderer->shutdown();
-
-
-        // Delete window before ending the program
-        glfwDestroyWindow(window);
-
-        // Terminate GLFW before ending the program
-        glfwTerminate();
-        return true;
     }
 
-	void Window::processEvents()
-	{
-		bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
-		if (!ImGui::GetIO().WantCaptureKeyboard)
-		{
+    void Window::startApplicationLoop()
+    {
 
-			//Moving Camera
-			glm::vec3 direction(0, 0, 0);
-			direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-			direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
-			movementController.moveCamera(direction, sprinting);
+    	// FPS counter
+    	int frameCount = 0;
+    	double accumulatedTime = 0.0;
 
-		}
-		//Rotating Camera
-		static float lastMousePosition[2];
-		static double currentMousePositionDouble[2];
-		glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
-		float currentMousePositionFloat[2] = { static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1]) };
+    	// Main while loop
+    	while (!glfwWindowShouldClose(window))
+    	{
+    		const double startTime = glfwGetTime();
 
-		static bool rotatingCamera = false;
-		int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-		if (!rotatingCamera && rightMouseState == GLFW_PRESS) {
-			rotatingCamera = true;
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera) {
-			float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-			float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-			movementController.rotateCamera(pitchChange, yawChange);
-			std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-		}
-		if (rotatingCamera && rightMouseState == GLFW_RELEASE) {
-			rotatingCamera = false;
-		}
+    		// Resize the renderer and viewport if the framebuffer / window size changed
+    		int newFramebufferWidth, newFramebufferHeight;
+    		glfwGetFramebufferSize(window, &newFramebufferWidth, &newFramebufferHeight);
+    		if (newFramebufferWidth != framebufferWidth || newFramebufferHeight != framebufferHeight)
+    		{
+    			framebufferWidth = newFramebufferWidth;
+    			framebufferHeight = newFramebufferHeight;
+    			glViewport(0, 0, framebufferWidth, framebufferHeight);
+    			renderer->resize(framebufferWidth, framebufferHeight);
+    		}
 
-		if (!ImGui::GetIO().WantCaptureMouse){
-			movementController.zoom(-scrollYOffset, sprinting);
-			scrollYOffset = 0;
-		}
-	}
 
-	void Window::scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-		scrollYOffset = yoffset;
-	}
+    		// Draw frame from renderer
+    		GL_CHECK_ERROR();
+    		renderer->runFrame();
+    		GL_CHECK_ERROR();
 
-	void Window::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-		// Get the Window instance (you'll need to store it as a user pointer)
-		Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-		if (self) {
-			double xpos, ypos;
-			glfwGetCursorPos(window, &xpos, &ypos);
-			self->handleMouseClick(button, action, mods, xpos, ypos);
-		}
-	}
+    		//load GUI
+    		gui.loadFrame(framebufferWidth, framebufferHeight);
 
-	Graph Window::WelcomeGraph(){
+    		inputManager.processInput();
+
+
+    		// Swap the back buffer with the front buffer
+    		glfwSwapBuffers(window);
+
+
+    		// FPS counter
+    		const double endTime = glfwGetTime();
+    		accumulatedTime += endTime - startTime;
+    		++frameCount;
+    		if (1.0 < accumulatedTime)
+    		{
+    			assert(0 < frameCount);
+
+    			gui.setFps(frameCount / accumulatedTime);
+
+    			accumulatedTime = 0.0;
+    			frameCount = 0;
+    		}
+    	}
+
+    	CachingController::cacheCurrentGraph();
+
+    	gui.shutdownGUI();
+
+    	// Renderer cleanup
+    	renderer->shutdown();
+
+    	// Delete window before ending the program
+    	glfwDestroyWindow(window);
+
+    	// Terminate GLFW before ending the program
+    	glfwTerminate();
+
+    }
+		Graph Window::WelcomeGraph(){
 
        return Graph({
                                        {-12, 3, 0},
@@ -353,22 +254,10 @@ namespace graphvise {
     		PickedObject picked = renderer->getObjectAt(fbX, fbY);
     		auto& graph = GraphSaver::getInstance().getGraph();
 
-    		// Get valid ID ranges
-        	size_t maxVertexId = graph.getVertices().size();
-        	size_t maxEdgeId = graph.getEdges().size();
-
-        	std::cout << "Graph has " << maxVertexId << " vertices and " << maxEdgeId << " edges" << std::endl;
-
     		if (picked.isVertex()) {
     			try {
     				auto& vertex = graph.getVertexByID(picked.id);
-    				// BOUNDS CHECK - PREVENT CRASH
-        			if (picked.id < maxVertexId) {
-            		gui->showVertexInfo(picked.id);
-        			} else {
-            		std::cout << "Invalid vertex ID: " << picked.id
-                      << " (max valid: " << maxVertexId - 1 << ")" << std::endl;
-        			}
+    				gui->showVertexInfo(picked.id);
     			} catch (const std::exception& e) {
     				std::cout << "Error getting vertex: " << e.what() << std::endl;
     			}
@@ -376,14 +265,7 @@ namespace graphvise {
     		else if (picked.isEdge()) {
     			try {
     				auto& edge = graph.getEdgeByID(picked.id);
-
-    				 // BOUNDS CHECK - PREVENT CRASH
-            		if (picked.id < maxEdgeId) {
-                		gui->showEdgeInfo(picked.id);
-            		} else {
-                		std::cout << "Invalid edge ID: " << picked.id
-                          << " (max valid: " << maxEdgeId - 1 << ")" << std::endl;
-            		}
+    				gui->showEdgeInfo(picked.id);
     			} catch (const std::exception& e) {
     				// if no object was picked do not throw an error, mouse may have clicked on a textbox or something
     			}

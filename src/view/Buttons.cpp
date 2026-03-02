@@ -2,38 +2,43 @@
 // Created by Emile Brückner on 1/19/26.
 //
 
+
 #include "Buttons.hpp"
 #include <format>
 #include "imgui/imgui.h"
 #include "imgui-filebrowser/imfilebrowser.h"
-#include "../rendering/enums.hpp"
-#include "../model/GraphSaver.hpp"
-#include "../model/Graph.hpp"
-#include "../model/Group.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <functional>
+#include <utility>
+
 #include "stb_image.h"
 #include "controller/Exporting/CachingController.hpp"
+#include "imgui/imgui_internal.h"
 
-#define MainMenuBarHeight 19
-#define findObjectHeight 115
-#define GroupMenuHeight 300
-#define PerformanceHeight 54
-#define MovementLightSourceHeight 77
-#define MovementCameraHeight 77
 
 namespace graphvise
 {
-    Buttons::Buttons(ButtonController* controller)
+    Buttons::Buttons(std::shared_ptr<ButtonController> buttonController) : buttonController(std::move(buttonController))
     {
-        this->buttonController = controller;
+    }
 
+    void Buttons::initButtons()
+    {
         importGroupConfigBrowser.SetTypeFilters(allowedGroupInfoFormat);
         highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
 
         exportGraphBrowser.SetTypeFilters(allowedExportFormat);
 
+
+        cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
+        randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
+        searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
+        groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
+        performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
+        cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
+        lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
     }
 
     void Buttons::loadButtonFrame(int framebufferWidth, int framebufferHeight)
@@ -41,7 +46,7 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        // ImGui::ShowDemoWindow();
+        ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
@@ -60,7 +65,10 @@ namespace graphvise
         ImGui::Separator();
         graphSettings();
         ImGui::Separator();
-
+        generalSettings();
+        ImGui::Separator();
+        help();
+        ImGui::Separator();
 
         ImGui::EndMainMenuBar();
 
@@ -68,7 +76,6 @@ namespace graphvise
         importGroupConfigBrowser.Display();
         highlightSubgraphBrowser.Display();
         exportGraphBrowser.Display();
-
     }
 
     void Buttons::SideBar()
@@ -77,7 +84,7 @@ namespace graphvise
         pos.x = static_cast<float>(framebufferWidth);
         pos.y = static_cast<float>(framebufferHeight) / 2.0f;
 
-        ImVec2 windowPivot = {1.0f, 0.5f};
+        const ImVec2 windowPivot = {1.0f, 0.5f};
 
         ImGui::SetNextWindowPos(pos, 0, windowPivot);
 
@@ -86,86 +93,102 @@ namespace graphvise
                      ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoTitleBar
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoNavFocus
         );
 
-        SideBarElement(searchIcon, "Search for Objects", &search);
-        SideBarElement(groupIcon, "Show Groups", &groups);
-        SideBarElement(performanceIcon, "Toggle Performance Mode", &togglePerformanceMode);
-        SideBarElement(lightSourceIcon, "Toggle Light Source", &lightSource);
-        SideBarElement(cameraMovementIcon, "Toggle Camera Movement", &cameraMovement);
-        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks", &cameraBookmarks);
+        SideBarElement(searchIcon, "Search for Objects",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           findObject(hoverMsg);
+                       }));
 
-        const ImVec2 sideBarSize = ImGui::GetWindowSize();
+        SideBarElement(groupIcon, "Show Groups",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           GroupMenu(hoverMsg);
+                       }));
+
+        SideBarElement(performanceIcon, "Toggle Performance Mode",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           performanceModeToggle(hoverMsg);
+                       }));
+
+        SideBarElement(cameraBookmarkIcon, "Show Camera Bookmarks",
+                       std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
+                       {
+                           cameraBookmarkMenu(hoverMsg);
+                       }));
+
+
+        if (ImGui::ImageButton(lightSourceIcon.id, ImVec2(50, 50)))
+        {
+            buttonController->toggleLightSourceMovementBehaviour();
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Toggle Light Source");
+        }
+        ImGui::Spacing();
+
+
+        if (ImGui::ImageButton(cameraMovementIcon.id, ImVec2(50, 50)))
+        {
+            buttonController->toggleCameraFocusMode();
+        }
+
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Toggle Camera Movement");
+        }
+
+
         ImGui::End();
-
-        constexpr float widgetSpacing = 3.0f;
-
-        pos.x = pos.x - sideBarSize.x - 20;
-        pos.y = MainMenuBarHeight;
-
-        windowPivot = {1.0f, 0.0f};
-
-        if (search)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            findObject();
-        }
-
-        pos.y += findObjectHeight + widgetSpacing;
-
-
-        if (groups)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            GroupMenu(&groups);
-        }
-
-        pos.y += GroupMenuHeight + widgetSpacing;
-
-        if (togglePerformanceMode)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            performanceModeToggle(&togglePerformanceMode);
-        }
-        pos.y += PerformanceHeight + widgetSpacing;
-
-        if (lightSource)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            setLightSourceMovementBehaviour(&lightSource);
-        }
-
-        pos.y += MovementLightSourceHeight + widgetSpacing;
-        if (cameraMovement)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-
-            setCameraMovementMode(&cameraMovement);
-        }
-
-        pos.y += MovementCameraHeight + widgetSpacing;
-
-        if (cameraBookmarks)
-        {
-            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, windowPivot);
-            cameraBookmarkMenu(&cameraBookmarks);
-        }
     }
 
-    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg, bool* state)
+    void Buttons::SideBarElement(const Texture texture, const char* hoverMsg,
+                                 const std::function<void(const char* hoverMsg)>& onClickFunction)
     {
         if (ImGui::ImageButton(texture.id, ImVec2(50, 50)))
         {
-            *state = !*state;
+            auto pos = ImGui::GetItemRectMin();
+            pos.x -= 15;
+            ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing, ImVec2(1.0f, 0.0f));
+
+            ImGui::OpenPopup(hoverMsg);
         }
+
+        onClickFunction(hoverMsg);
+
+
         if (ImGui::IsItemHovered())
         {
             ImGui::SetTooltip(hoverMsg);
         }
         ImGui::Spacing();
+    }
+
+    void Buttons::changeObjSize()
+    {
+        static float cylRadPreCalc = sqrt(renderer->cylinderRadius);
+        static float sphereRadPreCalc = sqrt(renderer->sphereRadius);
+
+        if (ImGui::BeginMenu("Object Size"))
+        {
+            if (ImGui::DragFloat("Edge Size", &cylRadPreCalc, 0.001f, 0.001f, 10.0f))
+            {
+                renderer->cylinderRadius = pow(cylRadPreCalc, 2);
+            }
+
+            if (ImGui::DragFloat("Vertex Size", &sphereRadPreCalc, 0.001f, 0.001f, 10.0f))
+            {
+                renderer->sphereRadius = pow(sphereRadPreCalc, 2);
+            }
+
+            ImGui::EndMenu();
+        }
     }
 
     void Buttons::graphSettings()
@@ -201,148 +224,66 @@ namespace graphvise
         }
     }
 
-    Texture Buttons::loadTextureFromFile(const char* filename)
+    void Buttons::generalSettings()
     {
-        int width, height, channels;
-        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
-
-
-
-        if (!data)
+        if (ImGui::BeginMenu("General Settings"))
         {
-            throw std::runtime_error("Texture did not load.");
-        }
-
-        GLuint texture;
-
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-
-        stbi_image_free(data);
-        return Texture((ImTextureID)texture, width, height);
-    }
-
-    void Buttons::changeObjSize()
-    {
-        if (ImGui::BeginMenu("Object Size"))
-        {
-            if (ImGui::DragFloat("Edge Size", &cylinderRadius, 0.001f, 0.001f, 1.0f))
+            if (ImGui::BeginMenu("Change Background Color"))
             {
-                Renderer::getInstance()->setCylinderRadius(cylinderRadius);
-            };
-            if (ImGui::DragFloat("Vertex Size", &sphereRadius, 0.001f, 0.001f, 1.0f))
-            {
-                Renderer::getInstance()->setSphereRadius(sphereRadius);
+                ImGui::ColorEdit3("##Background Color", &renderer->backgroundColor.x);
+
+                ImGui::EndMenu();
             }
 
             ImGui::EndMenu();
         }
     }
 
-    void Buttons::cameraBookmarkMenu(bool* visible)
-    {
-        auto bookmarks = saver->getGraph().getCameraBookmarks();
-
-        auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
-        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0), ImVec2(x, MAXFLOAT));
-
-        ImGui::Begin("Bookmarks", visible,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::Button("Add Bookmark"))
-        {
-            addBookmarkWindow = true;
-        }
-        for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
-        {
-            auto& bookmark = bookmarks[bookmarkID];
-            if (ImGui::CollapsingHeader(std::format("{}##{}", bookmark.getName(), bookmarkID).c_str()))
-            {
-                ImGui::Text("Position: %.2f, %.2f, %.2f", bookmark.getCoordsVector().x, bookmark.getCoordsVector().y,
-                            bookmark.getCoordsVector().z);
-                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
-                {
-                    buttonController->loadCameraBookmark(bookmark);
-                }
-                ImGui::SameLine();
-                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
-                {
-                    buttonController->deleteCameraBookmark(bookmarkID);
-                }
-            }
-        }
-        ImGui::End();
-
-        if (addBookmarkWindow)
-        {
-            ImGui::OpenPopup("Add Bookmark",
-                             ImGuiWindowFlags_AlwaysAutoResize |
-                             ImGuiWindowFlags_NoCollapse
-            );
-            if (ImGui::BeginPopupModal("Add Bookmark", &addBookmarkWindow,
-                                       ImGuiWindowFlags_AlwaysAutoResize |
-                                       ImGuiWindowFlags_NoCollapse))
-            {
-                ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
-                if (ImGui::Button("Add"))
-                {
-                    buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
-                    bookmarkName = std::vector<char>(16);
-                    addBookmarkWindow = false;
-                }
-                ImGui::EndPopup();
-            }
-        }
-    }
-
-    void Buttons::GroupMenu(bool* groupMenu)
+    void Buttons::GroupMenu(const char* popUpName)
     {
         activeGroups = &saver->getGraph().getGroups();
 
+
         ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
-        ImGui::Begin("Groups", groupMenu,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-
-        for (const auto& group : *activeGroups)
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            if (ImGui::CollapsingHeader(group.getName().c_str()))
+            if (ImGui::Button("Randomize All Colors"))
             {
-                ImGui::Text("Group ID: %d", group.getID());
-                ImGui::SameLine();
-                ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                ImGui::SameLine();
-
-                changeColoring(group.getID());
-
-                ChangeTransparency(group.getID());
+                buttonController->randomizeAllColors();
             }
+
+            {
+                for (const auto& group : *activeGroups)
+                {
+                    if (ImGui::CollapsingHeader(group.getName().c_str()))
+                    {
+                        ImGui::Text("Group ID: %d", group.getID());
+                        ImGui::SameLine();
+                        ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
+                        ImGui::SameLine();
+
+                        randomizeColoring(group.getID());
+                        changeColoring(group.getID());
+
+                        ChangeTransparency(group.getID());
+                    }
+                }
+            }
+            ImGui::EndPopup();
         }
-
-        ImGui::End();
     }
-
 
     void Buttons::ChangeTransparency(uint32_t groupID)
     {
-        if (groupID >= oldGroupColors.size())
+        if (groupID >= groupColors.size())
         {
-            oldGroupColors.resize(oldGroupColors.size() * 2);
+            groupColors.resize(groupColors.size() * 2);
         }
 
-        float& transparency = oldGroupColors[groupID].w;
+        float& transparency = groupColors[groupID].first.w;
 
         if (transparency == 0.0f)
         {
@@ -351,150 +292,116 @@ namespace graphvise
 
         if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
         {
+            if (transparency < 0.0f)
+            {
+                transparency = 0.0f;
+            }
+            else if (transparency > 1.0f)
+            {
+                transparency = 1.0f;
+            }
             buttonController->changeTransparency(groupID, transparency);
         }
     }
 
-
-    void Buttons::changeColoring(uint32_t groupID)
+    void Buttons::findObject(const char* popUpName)
     {
-        if (groupID >= oldGroupColors.size())
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse))
         {
-            oldGroupColors.resize(oldGroupColors.size() * 2);
-            newGroupColors.resize(newGroupColors.size() * 2);
+            if (ImGui::Button("Remove Highlighting"))
+            {
+                buttonController->RemoveHighlights();
+            }
+
+            ImGui::BeginTabBar("##FindObjectTabBar");
+
+            if (ImGui::BeginTabItem("Vertex"))
+            {
+                findVertex();
+                ImGui::EndTabItem();
+            }
+
+            if (ImGui::BeginTabItem("Edge"))
+            {
+                findEdge();
+                ImGui::EndTabItem();
+            }
+
+            ImGui::EndTabBar();
+
+            ImGui::EndPopup();
         }
+    }
 
-        ImVec4& oldColor = oldGroupColors[groupID];
-        ImVec4& newColor = newGroupColors[groupID];
 
-        if (oldColor.x == 0 && oldColor.y == 0 && oldColor.z == 0 && oldColor.w == 0)
+    void Buttons::performanceModeToggle(const char* popUpName)
+    {
+        static const char* modeText[] = {"Quality", "Balance", "Performance"};
+
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
         {
-            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
-            newColor = oldColor;
+            performanceMode = Renderer::getInstance()->performance_mode();
+
+
+            if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
+                                 static_cast<int>(PerformanceMode::QUALITY),
+                                 static_cast<int>(PerformanceMode::PERFORMANCE),
+                                 modeText[static_cast<int>(performanceMode)]))
+            {
+                buttonController->setPerformanceMode(performanceMode);
+            }
+
+
+            ImGui::EndPopup();
         }
+    }
 
 
+    void Buttons::randomizeColoring(uint32_t groupID) const
+    {
         if (ImGui::Button(std::format("Randomize Color ##{}", groupID).c_str()))
         {
             buttonController->randomizeColoring(groupID);
         }
+    }
 
-        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &newColor.x))
+    void Buttons::changeColoring(uint32_t groupID)
+    {
+        if (groupID >= groupColors.size())
         {
-            buttonController->changeColoring(groupID, newColor);
+            groupColors.resize(groupColors.size() * 2);
         }
-        if (ImGui::Button(std::format("Accept##{}", groupID).c_str()))
+
+        ImVec4& new_color = groupColors[groupID].first;
+        ImVec4& old_color = groupColors[groupID].second;
+
+        if (new_color.x == 0 && new_color.y == 0 && new_color.z == 0 && new_color.w == 0)
         {
-            oldColor = saver->getGraph().getGroupByID(groupID).getVec4();
+            new_color = saver->getGraph().getGroupByID(groupID).getVec4();
+            old_color = new_color;
+        }
+
+
+        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &new_color.x))
+        {
+            buttonController->changeColoring(groupID, new_color);
+        }
+        if (ImGui::Button(std::format("Revert##{}", groupID).c_str()))
+        {
+            buttonController->changeColoring(groupID, old_color);
+            new_color = old_color;
         }
         ImGui::SameLine();
-        if (ImGui::Button(std::format("Cancel##{}", groupID).c_str()))
+        if (ImGui::Button(std::format("Apply##{}", groupID).c_str()))
         {
-            newColor = oldColor;
-            buttonController->changeColoring(groupID, oldColor);
+            buttonController->changeColoring(groupID, new_color);
+            old_color = new_color;
         }
-    }
-
-
-    void Buttons::performanceModeToggle(bool* toggle_mode)
-    {
-        const char* currentModeText;
-        switch (performanceMode) {
-            case PerformanceMode::QUALITY: currentModeText = "Quality"; break;
-            case PerformanceMode::BALANCE: currentModeText = "Balance"; break;
-            case PerformanceMode::PERFORMANCE: currentModeText = "Performance"; break;
-        }
-
-        ImGui::Begin("Performance Mode", toggle_mode,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-            static_cast<int>(PerformanceMode::PERFORMANCE), static_cast<int>(PerformanceMode::QUALITY), currentModeText))
-        {
-            buttonController->togglePerformanceMode(performanceMode);
-        }
-        ImGui::End();
-    }
-
-
-    void Buttons::setLightSourceMovementBehaviour(bool* lightSourceMovementBehaviorToggle)
-    {
-        ImGui::Begin("Light Source", lightSourceMovementBehaviorToggle,
-                                 ImGuiWindowFlags_AlwaysAutoResize |
-                                 ImGuiWindowFlags_NoCollapse
-                );
-        // Cast enum values to int
-        const bool first = ImGui::RadioButton("Fixed Position",
-            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-            static_cast<int>(LightSourceMovementBehaviour::FIXED_POSITION));  // CAST TO INT
-
-        const bool second = ImGui::RadioButton("Follow Camera",
-            reinterpret_cast<int*>(&lightSourceMovementBehaviour),
-            static_cast<int>(LightSourceMovementBehaviour::FOLLOW_CAMERA));  // CAST TO INT
-
-        if (first || second)
-        {
-            buttonController->setLightSourceMovementBehaviour(lightSourceMovementBehaviour);
-        }
-
-
-        ImGui::End();
-    }
-
-    void Buttons::setCameraMovementMode(bool* cameraMovementMode) {
-        ImGui::Begin("Camera Focus", cameraMovementMode,
-                         ImGuiWindowFlags_AlwaysAutoResize |
-                         ImGuiWindowFlags_NoCollapse
-        );
-        // Cast enum values to int
-        const bool first = ImGui::RadioButton("Free Camera",
-            reinterpret_cast<int*>(&cameraMode),
-            static_cast<int>(CameraFocusMode::FREE));  // Or SELECTED_VERTEX if FREE doesn't exist
-
-        const bool second = ImGui::RadioButton("Center of Mass",
-            reinterpret_cast<int*>(&cameraMode),
-            static_cast<int>(CameraFocusMode::CENTER_OF_MASS));  // CAST TO INT
-
-        const bool third = ImGui::RadioButton("Origin",
-            reinterpret_cast<int*>(&cameraMode),
-            static_cast<int>(CameraFocusMode::ORIGIN));  // Add if you have this
-
-        // Handle the radio button selection
-        if (first || second || third) {
-            buttonController->setCameraFocusMode(cameraMode);
-        }
-        ImGui::End();
-    }
-
-    void Buttons::findObject()
-    {
-        ImGui::Begin("Highlight Object", &search,
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoCollapse
-        );
-
-        if (ImGui::Button("Remove Highlighting"))
-        {
-            buttonController->RemoveHighlights();
-        }
-
-        ImGui::BeginTabBar("##FindObjectTabBar");
-
-        if (ImGui::BeginTabItem("Edge"))
-        {
-            findEdge();
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Vertex"))
-        {
-            findVertex();
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-
-        ImGui::End();
     }
 
     void Buttons::findVertex()
@@ -518,15 +425,24 @@ namespace graphvise
         }
     }
 
+    void Buttons::highlightSubgraph()
+    {
+        if (ImGui::MenuItem("Highlight Subgraph"))
+        {
+            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
+            highlightSubgraphBrowser.Open();
+        }
+    }
+
     void Buttons::importGraph()
     {
-        if (ImGui::BeginMenu("Import Graph"))
+        if (ImGui::BeginMenu("import Graph"))
         {
             if (ImGui::MenuItem("Import as TXT"))
             {
                 importFormat = ImportFormat::TXT;
                 importGraphBrowser.SetTypeFilters(txtImportFormat);
-                importGraphBrowser.SetTitle("Import Graph from .txt");
+                importGraphBrowser.SetTitle("import Graph from .txt");
                 importGraphBrowser.Open();
             }
 
@@ -542,9 +458,8 @@ namespace graphvise
 
             ImGui::Separator();
 
-            if (ImGui::BeginMenu("Load Graph from Cache"))
+            if (ImGui::BeginMenu("Recently Opened"))
             {
-
                 const auto filenames = CachingController::getCachedGraphFilenames();
 
                 for (auto const& file : filenames)
@@ -554,21 +469,8 @@ namespace graphvise
                         CachingController::loadCachedGraph(file);
                     }
                 }
-
                 ImGui::EndMenu();
             }
-
-
-            if (CachingController::hasCachedGraphs())
-            {
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Load last loaded Graph"))
-                {
-                    CachingController::loadLastCachedGraph();
-                }
-            }
-
             ImGui::EndMenu();
         }
 
@@ -580,24 +482,6 @@ namespace graphvise
             buttonController->importGraph(result, importFormat);
 
             importGraphBrowser.ClearSelected();
-        }
-    }
-
-    void Buttons::highlightSubgraph()
-    {
-        if (ImGui::MenuItem("Highlight Subgraph"))
-        {
-            highlightSubgraphBrowser.SetTitle("Highlight Subgraph");
-            highlightSubgraphBrowser.Open();
-        }
-    }
-
-    void Buttons::importGroupConfiguration()
-    {
-        if (ImGui::MenuItem("Import Group Config"))
-        {
-            importGroupConfigBrowser.SetTitle("Import Group Config");
-            importGroupConfigBrowser.Open();
         }
     }
 
@@ -627,11 +511,135 @@ namespace graphvise
 
         if (exportGraphBrowser.HasSelected())
         {
-            auto filename = exportGraphBrowser.GetSelected();
+            const auto filename = exportGraphBrowser.GetSelected();
 
 
             buttonController->exportGraph(filename, exportFormat);
             exportGraphBrowser.ClearSelected();
         }
+    }
+
+    void Buttons::cameraBookmarkMenu(const char* popUpName)
+    {
+        auto bookmarks = saver->getGraph().getCameraBookmarks();
+
+        auto x = ImGui::CalcTextSize("Position: -231.22, -231.22, -231.22").x;
+        ImGui::SetNextWindowSizeConstraints(ImVec2(x, 0), ImVec2(x, MAXFLOAT));
+
+        if (ImGui::BeginPopup(popUpName,
+                              ImGuiWindowFlags_AlwaysAutoResize |
+                              ImGuiWindowFlags_NoCollapse
+        ))
+        {
+            if (ImGui::Button("Add Bookmark"))
+            {
+                addBookmarkWindow = true;
+            }
+            for (size_t bookmarkID = 0; bookmarkID < bookmarks.size(); ++bookmarkID)
+            {
+                ImGui::Separator();
+
+                auto& bookmark = bookmarks[bookmarkID];
+
+                ImGui::Text(bookmark.getName().c_str());
+                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
+                {
+                    buttonController->loadCameraBookmark(bookmark);
+                }
+                ImGui::SameLine();
+                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                {
+                    buttonController->deleteCameraBookmark(bookmarkID);
+                }
+            }
+            ImGui::EndPopup();
+        }
+
+        if (addBookmarkWindow)
+        {
+            ImGui::OpenPopup("Add Bookmark");
+        }
+
+        if (ImGui::BeginPopupModal("Add Bookmark", &addBookmarkWindow,
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoCollapse))
+        {
+            ImGui::InputText("Name", bookmarkName.data(), bookmarkName.size());
+            if (ImGui::Button("Add"))
+            {
+                buttonController->addCurrentPosAsBookmark(std::string(bookmarkName.data()));
+                bookmarkName = std::vector<char>(16);
+                addBookmarkWindow = false;
+            }
+            ImGui::EndPopup();
+        }
+    }
+
+    void Buttons::importGroupConfiguration()
+    {
+        if (ImGui::MenuItem("Import Group Config"))
+        {
+            importGroupConfigBrowser.SetTitle("Import Group Config");
+            importGroupConfigBrowser.Open();
+        }
+    }
+
+    void Buttons::help()
+    {
+        if (ImGui::BeginMenu("Help"))
+        {
+            if (ImGui::BeginMenu("Info"))
+            {
+                const auto infoText = "This is a simple 3D graph viewer. \n"
+                    "The viewer supports the following operations: \n"
+                    " - Import graphs from .txt and .cnf files \n"
+                    " - Highlight subgraphs \n"
+                    " - Change the coloring of groups \n"
+                    " - Change the transparency of groups \n"
+                    " - Find vertices and edges in the graph \n"
+                    " - Export the graph as a PNG image \n";
+
+                ImGui::Text(infoText);
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Hotkeys"))
+            {
+                const auto hotkeyText = "- L-CTRL + K : Change Camera Movement Mode \n"
+                    "- L-CTRL + Q : Rotate through Rendering Qualities \n"
+                    "- L-CTRL + L : Toggle Light Source Behavior \n";
+
+                ImGui::Text(hotkeyText);
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+    }
+
+    Texture Buttons::loadTextureFromFile(const char* filename)
+    {
+        int width, height, channels;
+        unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+
+        if (!data)
+        {
+            return Texture(nullptr, 0, 0);
+        }
+
+        GLuint texture;
+
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+        return Texture(reinterpret_cast<ImTextureID>(texture), width, height);
     }
 }

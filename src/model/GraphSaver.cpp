@@ -23,8 +23,7 @@ namespace graphvise {
 
         if (graph.has_value())
         {
-            // todo implement this function first
-            //CachingController::cacheCurrentGraph();
+            CachingController::cacheCurrentGraph();
         }
 
         graph = new_graph;

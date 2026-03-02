@@ -115,6 +115,8 @@ set(SOURCES
         src/controller/Exporting/ExporterController.cpp
         src/controller/Exporting/PNGExporter.cpp
         src/controller/Enums/ImportFormat.hpp
+        src/view/InputManager.cpp
+        src/view/InputManager.hpp
         src/controller/Exporting/CachingController.cpp
         src/controller/Exporting/CachingController.hpp
         src/rendering/enums.hpp

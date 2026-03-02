@@ -8,6 +8,8 @@
 #include <glm/gtc/quaternion.hpp>   //used for rotation of edge calculation
 #include <glm/gtx/quaternion.hpp>
 
+#include "controller/ErrorCollector.hpp"
+
 namespace graphvise {
     const std::vector<Vertex>& Graph::getVertices() const {
         return vertices;
