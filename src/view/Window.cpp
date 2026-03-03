@@ -235,41 +235,5 @@ namespace graphvise {
 
 
     }
-	void Window::handleMouseClick(int button, int action, int mods, double xpos, double ypos) {
-    	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-    		auto renderer = Renderer::getInstance();
 
-    		// Convert coordinates (keep this - it's needed for picking)
-    		int fbWidth, fbHeight;
-    		glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-
-    		// Convert window coordinates to framebuffer coordinates
-    		int winWidth, winHeight;
-    		glfwGetWindowSize(window, &winWidth, &winHeight);
-
-    		double fbX = xpos * (static_cast<double>(fbWidth) / winWidth);
-    		double fbY = (winHeight - ypos) * (static_cast<double>(fbHeight) / winHeight);
-
-    		// Get the picked object (could be vertex, edge, or nothing)
-    		PickedObject picked = renderer->getObjectAt(fbX, fbY);
-    		auto& graph = GraphSaver::getInstance().getGraph();
-
-    		if (picked.isVertex()) {
-    			try {
-    				auto& vertex = graph.getVertexByID(picked.id);
-    				gui->showVertexInfo(picked.id);
-    			} catch (const std::exception& e) {
-    				std::cout << "Error getting vertex: " << e.what() << std::endl;
-    			}
-    		}
-    		else if (picked.isEdge()) {
-    			try {
-    				auto& edge = graph.getEdgeByID(picked.id);
-    				gui->showEdgeInfo(picked.id);
-    			} catch (const std::exception& e) {
-    				// if no object was picked do not throw an error, mouse may have clicked on a textbox or something
-    			}
-    		}
-    	}
-    }
 }
