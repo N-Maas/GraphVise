@@ -46,7 +46,7 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        ImGui::ShowDemoWindow();
+        //  ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
@@ -345,16 +345,10 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
-            performanceMode = Renderer::getInstance()->performance_mode();
-
-
-            if (ImGui::SliderInt("##ModeSlider", reinterpret_cast<int*>(&performanceMode),
-                                 static_cast<int>(PerformanceMode::QUALITY),
-                                 static_cast<int>(PerformanceMode::PERFORMANCE),
-                                 modeText[static_cast<int>(performanceMode)]))
-            {
-                buttonController->setPerformanceMode(performanceMode);
-            }
+            ImGui::SliderInt("##ModeSlider", (int*) performanceMode,
+                             static_cast<int>(PerformanceMode::QUALITY),
+                             static_cast<int>(PerformanceMode::PERFORMANCE),
+                             modeText[static_cast<int>(*performanceMode)]);
 
 
             ImGui::EndPopup();

@@ -14,7 +14,6 @@
 
 namespace graphvise
 {
-
     class InputManager
     {
     public:
@@ -26,7 +25,6 @@ namespace graphvise
         void handleMouseClick() const;
 
     private:
-
         void processHotkeys();
 
 
@@ -43,27 +41,31 @@ namespace graphvise
         GLFWwindow* window = nullptr;
         MovementController movementController;
         std::shared_ptr<ButtonController> buttonController;
-        GUI *gui = nullptr;
+        GUI* gui = nullptr;
 
 
-        struct Hotkey {
+        struct Hotkey
+        {
             std::vector<int> keys;
             std::function<void()> action;
             bool pressed = false;
-
         };
 
         std::vector<Hotkey> hotkeys = {
             {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_Q}, [this]() { buttonController->togglePerformanceMode(); }},
             {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_L}, [this]() { buttonController->toggleLightSourceMovementBehaviour(); }},
-            {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_K}, [this]() { buttonController->toggleCameraFocusMode(); }}
-            // {{},},
+            {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_K}, [this]() { buttonController->toggleCameraFocusMode(); }},
+            {
+                {GLFW_KEY_ESCAPE}, []()
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+            },
             // {{},},
             // {{},},
             // {{},}
 
         };
-
     };
 }
 

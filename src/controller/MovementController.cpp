@@ -23,7 +23,7 @@ namespace graphvise {
     //Y Coordinate: Up/Down
     //Z Coordinate: Forwards/Backwards
     void MovementController::moveCamera(glm::vec3 direction, bool sprinting) {
-        if (camera.camera_focus_mode() == CameraFocusMode::FREE) {
+        if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
             static double last_time = 0.0;
             double now = glfwGetTime();
             double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
@@ -43,7 +43,7 @@ namespace graphvise {
 
         std::shared_ptr<Renderer> renderer = Renderer::getInstance();
 
-        if (renderer->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
+        if (*renderer->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
             Renderer::getInstance()->setLightPos(camera.position_world_space + LIGHT_SOURCE_OFFSET);
         }
     }
@@ -51,7 +51,7 @@ namespace graphvise {
     //Pitch: Up/Down
     //Yaw: Left/Right
     void MovementController::rotateCamera(float pitchChange, float yawChange) {
-        if (camera.camera_focus_mode() == CameraFocusMode::FREE) {
+        if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
             camera.rotation_x += pitchChange * ROTATION_RADIANS_PER_PIXEL;
             camera.rotation_y += yawChange * ROTATION_RADIANS_PER_PIXEL;
 
@@ -60,7 +60,7 @@ namespace graphvise {
             } else if (camera.rotation_x < -std::numbers::pi / 2) {
                 camera.rotation_x = -std::numbers::pi / 2;
             }
-        } else if (camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
+        } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
             double dist = glm::length(camPos);
@@ -98,7 +98,7 @@ namespace graphvise {
     }
 
     void MovementController::zoom(float zoomValue, bool sprinting) {
-        if (camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
+        if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
             double dist = glm::length(camPos);

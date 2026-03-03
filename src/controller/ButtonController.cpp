@@ -25,7 +25,7 @@ namespace graphvise
 
     void ButtonController::togglePerformanceMode()
     {
-        auto newMode = static_cast<PerformanceMode>((static_cast<int>(renderer->performance_mode()) + 1) % static_cast<
+        auto newMode = static_cast<PerformanceMode>((static_cast<int>(*renderer->performance_mode()) + 1) % static_cast<
             int>(
             PerformanceMode::PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
         renderer->adjustPerformanceMode(newMode);
@@ -62,7 +62,7 @@ namespace graphvise
 
     void ButtonController::toggleLightSourceMovementBehaviour()
     {
-        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(renderer->
+        auto newMode = static_cast<LightSourceMovementBehaviour>((static_cast<int>(*renderer->
             light_source_movement_behaviour()) + 1) % static_cast<int>(
             LightSourceMovementBehaviour::MOVE_BEHAVIOUR_COUNT_LAST_ITEM)); // Toggle to the next mode
         renderer->set_light_source_movement_behaviour(newMode);
@@ -75,7 +75,7 @@ namespace graphvise
 
     void ButtonController::toggleCameraFocusMode()
     {
-        auto newMode = static_cast<CameraFocusMode>((static_cast<int>(camera.camera_focus_mode()) + 1) % static_cast<
+        auto newMode = static_cast<CameraFocusMode>((static_cast<int>(*camera.camera_focus_mode()) + 1) % static_cast<
             int>(
             CameraFocusMode::FOCUS_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
         camera.set_camera_focus_mode(newMode);

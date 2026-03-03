@@ -101,16 +101,16 @@ namespace graphvise {
             lightPos = light_pos;
         }
 
-        [[nodiscard]] LightSourceMovementBehaviour light_source_movement_behaviour() const {
-            return lightSourceMovementBehaviour;
+        [[nodiscard]] const LightSourceMovementBehaviour* light_source_movement_behaviour() const {
+            return &lightSourceMovementBehaviour;
         }
 
         void set_light_source_movement_behaviour(LightSourceMovementBehaviour light_source_movement_behaviour) {
             lightSourceMovementBehaviour = light_source_movement_behaviour;
         }
 
-        [[nodiscard]] PerformanceMode performance_mode() const {
-            return performanceMode;
+        [[nodiscard]] const PerformanceMode* performance_mode() const {
+            return &performanceMode;
         }
 
         void set_performance_mode(PerformanceMode performance_mode) {
