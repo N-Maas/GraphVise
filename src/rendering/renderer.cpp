@@ -142,7 +142,7 @@ namespace graphvise {
             std::cerr << "ERROR: Shader program is 0 after loadShaders()!" << std::endl;
         }
 
-        if (mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
+        if (*mCamera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             mCamera.lookAtFocus();// per default camera looks at (0,0,0)
         }
 

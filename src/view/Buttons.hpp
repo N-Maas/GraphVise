@@ -52,9 +52,9 @@ namespace graphvise
 
         std::shared_ptr<ButtonController> buttonController;
 
-        PerformanceMode performanceMode = Renderer::getInstance().get()->performance_mode();
-        CameraFocusMode cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
-        LightSourceMovementBehaviour lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
+        const PerformanceMode* performanceMode = Renderer::getInstance().get()->performance_mode();
+        const CameraFocusMode* cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
+        const LightSourceMovementBehaviour* lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
         std::vector<std::pair<ImVec4,ImVec4>> groupColors = std::vector<std::pair<ImVec4,ImVec4>>(16);
 

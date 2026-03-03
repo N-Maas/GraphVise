@@ -41,8 +41,8 @@ namespace graphvise {
 
         void scalePositionToGraph();
     public:
-        [[nodiscard]] CameraFocusMode camera_focus_mode() const {
-            return cameraFocusMode;
+        [[nodiscard]] const CameraFocusMode* camera_focus_mode() const {
+            return &cameraFocusMode;
         }
 
         void set_camera_focus_mode(CameraFocusMode camera_focus_mode) {
