@@ -133,7 +133,7 @@ namespace graphvise
 
     void InputManager::handleMouseClick() const
     {
-        if (!mouseButtonPressed)
+        if (!mouseButtonPressed || ImGui::GetIO().WantCaptureMouse)
         {
             return;
         }
