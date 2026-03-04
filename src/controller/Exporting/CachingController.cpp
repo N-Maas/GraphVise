@@ -20,13 +20,15 @@
 namespace graphvise
 {
 
-    const std::string CachingController::fileExtention = ".bin";
+    const std::string CachingController::fileExtension = ".bin";
     const std::filesystem::path CachingController::cacheDir = sago::getCacheDir();
     const std::filesystem::path CachingController::cachePath = cacheDir / "graphVise";
     const std::filesystem::path CachingController::graphCachePath = cachePath / "graphs";
+    const std::filesystem::path CachingController::exampleGraphsPath = "../ext/Example Graphs";
+
     const std::filesystem::path CachingController::dataDir = sago::getDataHome();
-    const std::filesystem::path CachingController::settingsFile = dataDir / "GraphVise" / ("settings" + fileExtention);
-    const std::string CachingController::defaultCacheFilename = "example_graph" + fileExtention;
+    const std::filesystem::path CachingController::settingsFile = dataDir / "GraphVise" / ("settings" + fileExtension);
+    const std::string CachingController::defaultCacheFilename = "graph" + fileExtension;
 
     bool CachingController::hasCachedGraphs()
     {
@@ -38,6 +40,19 @@ namespace graphvise
         cacheGraph(GraphSaver::getInstance().getGraph());
 
     }
+
+     std::vector<std::filesystem::path> CachingController::getExampleGraphNames()
+    {
+        std::cout << get_current_dir_name() << std::endl;
+
+        std::vector<std::filesystem::path> filenames;
+        for (const auto& file : std::filesystem::directory_iterator(exampleGraphsPath))
+        {
+            filenames.push_back(file.path());
+        }
+        return filenames;
+    }
+
 
     std::vector<std::filesystem::path> CachingController::getCachedGraphFilenames()
     {
@@ -60,7 +75,7 @@ namespace graphvise
 
         std::cout << "caching to" << graphCachePath << std::endl;
 
-        std::ofstream ofs(graphCachePath / (graph.getName() + fileExtention));
+        std::ofstream ofs(graphCachePath / (graph.getName() + fileExtension));
 
         boost::archive::binary_oarchive oa(ofs);
 

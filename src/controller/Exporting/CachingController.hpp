@@ -20,6 +20,7 @@ namespace graphvise
         static bool hasCachedGraphs();
         static void cacheCurrentGraph();
 
+        static std::vector<std::filesystem::path> getExampleGraphNames();
         static std::vector<std::filesystem::path> getCachedGraphFilenames();
 
         static void cacheGraph(const Graph& graph);
@@ -30,13 +31,14 @@ namespace graphvise
         static std::filesystem::path getGraphCacheDir();
 
     private:
-        static const std::string fileExtention;
+        static const std::string fileExtension;
         static const std::filesystem::path cacheDir;
         static const std::filesystem::path cachePath;
         static const std::filesystem::path graphCachePath;
         static const std::filesystem::path dataDir;
         static const std::filesystem::path settingsFile;
         static const std::string defaultCacheFilename;
+        static const std::filesystem::path exampleGraphsPath;
 
     };
 }

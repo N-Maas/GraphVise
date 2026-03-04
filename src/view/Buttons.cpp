@@ -159,7 +159,8 @@ namespace graphvise
             if (currentCameraIcon.id == cameraMovementIcon.id)
             {
                 currentCameraIcon = cameraMovementIcon2;
-            } else
+            }
+            else
             {
                 currentCameraIcon = cameraMovementIcon;
             }
@@ -186,7 +187,6 @@ namespace graphvise
 
 
             ImGui::SetTooltip("Toggle Camera Movement, Current: %s", text.c_str());
-
         }
 
 
@@ -512,6 +512,25 @@ namespace graphvise
                 }
                 ImGui::EndMenu();
             }
+
+            ImGui::Separator();
+
+            if (ImGui::BeginMenu("Example Graphs"))
+            {
+                const auto filenames = CachingController::getExampleGraphNames();
+
+                for (auto const& file : filenames)
+                {
+                    ImGui::Separator();
+                    if (ImGui::MenuItem(file.stem().c_str()))
+                    {
+                        CachingController::loadCachedGraph(file);
+                    }
+                }
+
+                ImGui::EndMenu();
+            }
+
             ImGui::EndMenu();
         }
 
