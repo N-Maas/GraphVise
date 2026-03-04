@@ -521,7 +521,6 @@ namespace graphvise
 
                 for (auto const& file : filenames)
                 {
-                    ImGui::Separator();
                     if (ImGui::MenuItem(file.stem().c_str()))
                     {
                         CachingController::loadCachedGraph(file);
