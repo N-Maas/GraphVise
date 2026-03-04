@@ -25,13 +25,15 @@ namespace graphvise
 
     void ButtonController::togglePerformanceMode()
     {
-        auto newMode = static_cast<PerformanceMode>((static_cast<int>(*renderer->performance_mode()) + 1) % static_cast<
-            int>(
-            PerformanceMode::PERFORMANCE_MODE_COUNT_LAST_ITEM)); // Toggle to the next mode
-        renderer->adjustPerformanceMode(newMode);
+        const int currentMode = static_cast<int>(*renderer->performance_mode());
+        constexpr int modes = static_cast<int>(PerformanceMode::PERFORMANCE_MODE_COUNT_LAST_ITEM);
+
+        auto newMode = static_cast<PerformanceMode>((currentMode + 1) % modes);
+        setPerformanceMode(newMode);
+
     }
 
-    void ButtonController::setPerformanceMode(PerformanceMode mode)
+    void ButtonController::setPerformanceMode(const PerformanceMode mode)
     {
         renderer->setPerformanceMode(mode);
     }

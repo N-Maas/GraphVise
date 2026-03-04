@@ -345,11 +345,13 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
-            ImGui::SliderInt("##ModeSlider", (int*) performanceMode,
+            if (ImGui::SliderInt("##ModeSlider", (int*) performanceMode,
                              static_cast<int>(PerformanceMode::QUALITY),
                              static_cast<int>(PerformanceMode::PERFORMANCE),
-                             modeText[static_cast<int>(*performanceMode)]);
-
+                             modeText[static_cast<int>(*performanceMode)]))
+            {
+                buttonController->setPerformanceMode(*performanceMode);
+            }
 
             ImGui::EndPopup();
         }

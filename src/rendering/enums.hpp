@@ -8,7 +8,7 @@ namespace graphvise {
     // Define ALL enums here - this is the single source of truth
     // to ensure no cyclical dependencies occur on account of the enums
     enum class CameraFocusMode {
-        CENTER_OF_MASS,
+        CENTER_OF_MASS = 0,
         FREE,
         FOCUS_MODE_COUNT_LAST_ITEM, // pattern to keep track of the number of items in the enum, for toggling (all manually available options above this pls)
         ORIGIN,
@@ -16,14 +16,14 @@ namespace graphvise {
     };
 
     enum class LightSourceMovementBehaviour {
-        FIXED_POSITION,
+        FIXED_POSITION = 0,
         ORBIT_AROUND_GRAPH,
         FOLLOW_CAMERA,
         MOVE_BEHAVIOUR_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
 
     enum class PerformanceMode {
-        QUALITY,
+        QUALITY = 0,
         BALANCE,
         PERFORMANCE,
         PERFORMANCE_MODE_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
