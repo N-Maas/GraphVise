@@ -37,7 +37,8 @@ namespace graphvise
         searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
         groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
         performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
-        cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "cameraMovement.png");
+        cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "CameraMode1.png");
+        cameraMovementIcon2 = loadTextureFromFile(ICON_FILE_PATH "CameraMode2.png");
         lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
     }
 
@@ -129,19 +130,63 @@ namespace graphvise
 
         if (ImGui::IsItemHovered())
         {
-            ImGui::SetTooltip("Toggle Light Source");
+            std::string text;
+
+            switch (*lightSourceMovementBehaviour)
+            {
+            case LightSourceMovementBehaviour::FIXED_POSITION:
+                text = "Fixed Position";
+                break;
+            case LightSourceMovementBehaviour::ORBIT_AROUND_GRAPH:
+                text = "Orbit Around Graph";
+                break;
+            case LightSourceMovementBehaviour::FOLLOW_CAMERA:
+                text = "Follow Camera";
+                break;
+            }
+            if (text.empty())
+            {
+                throw std::runtime_error("Invalid Light Source Movement Behaviour");
+            }
+
+            ImGui::SetTooltip("Toggle Light Source, Current: %s", text.c_str());
         }
         ImGui::Spacing();
 
-
-        if (ImGui::ImageButton(cameraMovementIcon.id, ImVec2(50, 50)))
+        static auto currentCameraIcon = cameraMovementIcon;
+        if (ImGui::ImageButton(currentCameraIcon.id, ImVec2(50, 50)))
         {
+            if (currentCameraIcon.id == cameraMovementIcon.id)
+            {
+                currentCameraIcon = cameraMovementIcon2;
+            } else
+            {
+                currentCameraIcon = cameraMovementIcon;
+            }
             buttonController->toggleCameraFocusMode();
         }
 
         if (ImGui::IsItemHovered())
         {
-            ImGui::SetTooltip("Toggle Camera Movement");
+            std::string text;
+            switch (*cameraMode)
+            {
+            case CameraFocusMode::CENTER_OF_MASS:
+                text = "Center of Mass";
+                break;
+            case CameraFocusMode::FREE:
+                text = "Free";
+                break;
+            }
+
+            if (text.empty())
+            {
+                throw std::runtime_error("Invalid Camera Movement Behaviour");
+            }
+
+
+            ImGui::SetTooltip("Toggle Camera Movement, Current: %s", text.c_str());
+
         }
 
 
@@ -345,10 +390,10 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
-            if (ImGui::SliderInt("##ModeSlider", (int*) performanceMode,
-                             static_cast<int>(PerformanceMode::QUALITY),
-                             static_cast<int>(PerformanceMode::PERFORMANCE),
-                             modeText[static_cast<int>(*performanceMode)]))
+            if (ImGui::SliderInt("##ModeSlider", (int*)performanceMode,
+                                 static_cast<int>(PerformanceMode::QUALITY),
+                                 static_cast<int>(PerformanceMode::PERFORMANCE),
+                                 modeText[static_cast<int>(*performanceMode)]))
             {
                 buttonController->setPerformanceMode(*performanceMode);
             }
@@ -596,6 +641,21 @@ namespace graphvise
                     " - Export the graph as a PNG image \n";
 
                 ImGui::Text(infoText);
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Controls"))
+            {
+                const auto controlsText =
+                    "Free Camera Mode: \n"
+                    "Move Up : Space Bar \n"
+                    "Move down : Left Shift  \n"
+                    "Move left : A \n"
+                    "Move right : D \n"
+                    "Move forward : W \n"
+                    "Move back : S \n"
+                    "Sprint : Left Alt\n";
+
+                ImGui::Text(controlsText);
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Hotkeys"))

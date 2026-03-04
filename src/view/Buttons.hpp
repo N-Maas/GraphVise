@@ -79,6 +79,7 @@ namespace graphvise
         Texture groupIcon;
         Texture performanceIcon;
         Texture cameraMovementIcon;
+        Texture cameraMovementIcon2;
         Texture lightSourceIcon;
 
         void MainMenuBar();
