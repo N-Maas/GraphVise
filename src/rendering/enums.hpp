@@ -11,7 +11,6 @@ namespace graphvise {
         CENTER_OF_MASS,
         FREE,
         FOCUS_MODE_COUNT_LAST_ITEM, // pattern to keep track of the number of items in the enum, for toggling (all manually available options above this pls)
-        ORIGIN,
         SELECTED_VERTEX
     };
 
