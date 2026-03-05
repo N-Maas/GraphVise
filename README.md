@@ -1,8 +1,50 @@
-# OpenGL Thesis Framework
+# GraphVise
 
-![Test Image 1](teaser_image.jpg)
+![Test Image 1](graph.png)
 
-This is a lightweight C++ project setup for OpenGL projects. If you have any questions or suggestions, please contact me at [max.piochowiak@kit.edu](mailto:max.piochowiak@kit.edu)
+GraphVise is a simple Graph Visualization Tool built in OpenGL. It can take 
+in Graphs in a special .txt format and as a .cnf file. Additionally, another .txt file can be provided to 
+subdivide the graph into Groups. 
+
+## Features
+
+> **Graph Import:** Either .txt in the following format:
+> > v=7, e=7   
+> 0 2   
+> 0 3  
+> 1 6  
+> 3 4  
+> 3 5  
+> 3 6  
+> 5 1
+> 
+> Where v is the number of vertices and e is the number of edges.
+
+> **Graph Export:** A .png of the loaded graph can be exported.
+
+> **Graph Manipulation:** Graphs can be subdivided into groups, which can be colored individually or hidden,
+> the visual size of vertices/edges can be changed.
+
+**General Features**
+> Camera movement:  
+> can be toggled between free movement and rotation around the 
+> center point of the graph. 
+
+> Light Source Behavior:
+> 
+>
+
+> Camera Bookmarks:
+> 
+>
+
+> Egde/Vertex Searches:
+> 
+>  
+
+> Edge/Vertex Clicking:
+> 
+> 
 
 ## Dependencies
 
@@ -13,23 +55,29 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
 * [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library for vector and matrix operations
+* [wembed]()
+* [Boost]()
+* []()
+* []()
 
 ## Installation Instructions
 
-Glad and Imgui are directly included as source files in the `ext/` directory and build at compile time. For the rest of the dependencies, you have to provide the libraries through local installations:
+Glad and Imgui are directly included as source files in the `ext/` directory and build at compile time. 
+Additionally, wembed and platform_folders are provided as fetched content.
+For the rest of the dependencies, you have to provide the libraries through local installations:
 
 ### Ubuntu / Debian / Unix
 
 All libraries can be installed from the package manager. Open a terminal and install
 
-`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev`
+`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev libboost-all-dev`
 
 If you want to configure the CMake project with a GUI application you can optionally add
 
 `sudo apt install cmake-qt-gui`
 
 
-### Windows
+### WindowsGL
 
 ToDo: Install CMake, GLFW, CMake, glm and OpenGL libraries.
 
@@ -51,7 +99,7 @@ make
 
 You can then run the application from the build directory with
 
-`./thesis-framework`
+`./GraphVise`
 
 ### Using an IDE
 
@@ -61,17 +109,7 @@ If you are using Visual Studio you can use the CMake GUI program to create Visua
 
 ## Usage and Development
 
-The project already defines a simple render loop with exemplary GUI.
-You can extend the functionality with own files and shaders.
-Note that when creating new C++ header and source files, you have to add them to the SOURCES and HEADERS variables in the base CMakeLists.txt file and run CMake again to include them in the build.
-Shader files technically don't have to be added since they are not part of the C++ build and instead read and compiled at runtime.
-If you want to rename the project, simply change the title in the project(..) definition at the top of the CMakeLists.txt.
-
-The default project structure renders a simple cube:
-* `main.cpp` initializes the OpenGL window and context and defines the main GLFW render loop and the ImGUI.
-* `camera.cpp` implements a basic spherically controlled camera 
-* `renderer.cpp` initializes (before main loop), renders (during main loop) and cleans up (after main loop) the rendering content.
-* `utils.cpp` offers utility functions, e.g. checking for OpenGL error and loading shaders from files 
+<!-- TODO -->
 
 ## Further notes
 

@@ -33,7 +33,7 @@ namespace graphvise
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     }
 
-    void GUI::loadFrame(int framebufferWidth, int framebufferHeight)
+    void GUI::loadFrame(const int framebufferWidth, const int framebufferHeight)
     {
         // Tell OpenGL a new frame is about to begin
         ImGui_ImplOpenGL3_NewFrame();
@@ -126,9 +126,8 @@ namespace graphvise
             m_showObjectInfo = false;
         }
 
-        if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize))
+        if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
         {
-
             auto graph = GraphSaver::getInstance().getGraph();
 
 
@@ -185,7 +184,6 @@ namespace graphvise
                 {
                     throw std::runtime_error("Invalid object type for current object info popup.");
                 }
-
             }
             ImGui::EndPopup();
         }
