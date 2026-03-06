@@ -3,7 +3,6 @@
 //
 #include "CachingController.hpp"
 
-
 #include <fstream>
 #include <iostream>
 
@@ -16,6 +15,8 @@
 #include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
+#include "../../rendering/renderer.hpp"
+#include "../../rendering/camera.hpp"
 
 namespace graphvise
 {
@@ -111,8 +112,6 @@ namespace graphvise
 
     void CachingController::loadDefaultGraph()
     {
-
-
         loadCachedGraph("../ext/example_graph.bin");
     }
 
@@ -153,6 +152,9 @@ namespace graphvise
             std::cerr << "Standard exception: " << e.what() << std::endl;
         }
 
+        // After loading the graph, adjust camera
+        auto renderer = Renderer::getInstance();
+        renderer->m_camera().scalePositionToGraph();
     }
 
     void CachingController::clearCache()

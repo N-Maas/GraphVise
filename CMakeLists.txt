@@ -39,7 +39,25 @@ add_library(my_lib
         src/controller/Exporting/CachingController.cpp
 )
 
-target_include_directories(my_lib PUBLIC src ext)
+#target_include_directories(my_lib PUBLIC
+ #       src
+  #      ext
+   #  ${CMAKE_CURRENT_SOURCE_DIR}/ext
+#)
+
+target_include_directories(my_lib PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ext
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
+        ext/imgui-filebrowser
+        ${platform_folders_SOURCE_DIR}
+)
+
+target_link_libraries(my_lib PRIVATE
+        glad  # Link against glad library
+        ${Boost_LIBRARIES}
+)
+
 target_link_libraries(my_tests PRIVATE my_lib gtest_main)
 
 include(GoogleTest)
@@ -198,10 +216,6 @@ target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
         ext/imgui-filebrowser
-        ${platform_folders_SOURCE_DIR}
-)
-# IMPORTANT: Also add the same include path to my_lib test library
-target_include_directories(my_lib PRIVATE
         ${platform_folders_SOURCE_DIR}
 )
 

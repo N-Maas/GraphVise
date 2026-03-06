@@ -39,8 +39,10 @@ namespace graphvise {
         const glm::vec3 originCoords = glm::vec3(0.0f, 0.0f, 0.0f);
         mutable glm::mat4 mProjectionMatrix;
 
-        void scalePositionToGraph();
     public:
+        // adjusts the camera position, to a position outside the graph where the whole graph is visible
+        void scalePositionToGraph();
+
         [[nodiscard]] const CameraFocusMode* camera_focus_mode() const {
             return &cameraFocusMode;
         }
