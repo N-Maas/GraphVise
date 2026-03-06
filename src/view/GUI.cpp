@@ -188,63 +188,6 @@ namespace graphvise
             }
             ImGui::End();
         }
-
-        //
-        // ImGui::Begin("Current Objects", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-        // ImGui::BeginTabBar("##CurrentObjTabBar");
-        //
-        // if (ImGui::BeginTabItem("Current Vertex")) {
-        //
-        //     if (m_objectType == 1) {
-        //         const auto& currentVertex = graph.getVertexByID(m_selectedVertexId);
-        //         ImGui::Text("Vertex ID: %d", m_selectedVertexId);
-        //         const glm::vec3 coords = currentVertex.getCoordsVector();
-        //         ImGui::Text("Coords: x: %.2f y: %.2f z: %.2f",
-        //                     coords.x, coords.y, coords.z);
-        //         const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentVertex.getConnectedGroupID());
-        //         const auto groupname = group.getName();
-        //         ImGui::Text("Vertex Group: %s", groupname.c_str());
-        //
-        //
-        //         ImGui::Text("Vertex Color:");
-        //         ImGui::SameLine();
-        //         ImGui::ColorButton("##Vertex color", group.getVec4());
-        //     } else {
-        //         ImGui::Text("No vertex selected.");
-        //     }
-        //     ImGui::EndTabItem();
-        // }
-        // if (ImGui::BeginTabItem("Current Edge")) {
-        //     if (m_objectType == 2) {
-        //         const auto& currentEdge = graph.getEdgeByID(m_selectedEdgeId);
-        //         const auto& vertexIDs = currentEdge.getConnectingVerticesIDs();
-        //         const auto& firstVertex = graph.getVertexByID(vertexIDs.first);
-        //         const auto& secondVertex = graph.getVertexByID(vertexIDs.second);
-        //
-        //         ImGui::Text("Edge ID: %d", m_selectedEdgeId);
-        //         const glm::vec3 coords = firstVertex.getCoordsVector();
-        //         ImGui::Text("Vertex 1 Coords: x: %.2f y: %.2f z: %.2f",
-        //                     coords.x, coords.y, coords.z);
-        //         const glm::vec3 coords2 = secondVertex.getCoordsVector();
-        //         ImGui::Text("Vertex 2 Coords: x: %.2f y: %.2f z: %.2f",
-        //                    coords2.x, coords2.y, coords2.z);
-        //
-        //         const auto group = GraphSaver::getInstance().getGraph().getGroupByID(currentEdge.getConnectedGroupID());
-        //         const auto groupname = group.getName();
-        //         ImGui::Text("Edge Group: %s", groupname.c_str());
-        //
-        //
-        //         ImGui::Text("Edge Color:");
-        //         ImGui::SameLine();
-        //         ImGui::ColorButton("##Edge color", group.getVec4());
-        //     } else {
-        //         ImGui::Text("No edge selected.");
-        //     }
-        //     ImGui::EndTabItem();
-        // }
-        //
-        // ImGui::EndTabBar();
-        // ImGui::End();
     }
 
     void GUI::update()
@@ -267,6 +210,4 @@ namespace graphvise
         m_showObjectInfo = true;
         m_objectType = 2; // object type edge
     }
-
-
 }
