@@ -87,7 +87,7 @@ namespace graphvise {
         static std::shared_ptr<Renderer> getInstance(int framebufferWidth, int framebufferHeight);
 
         // Variables to be changed in the ImGUI windows
-        glm::vec4 backgroundColor = glm::vec4(0.392f, 0.785f, 0.824f, 1.000f);
+        glm::vec4 backgroundColor = glm::vec4(0.0f, 0.234f, 0.314f, 1.000f);
         LightSourceMovementBehaviour lightSourceMovementBehaviour;
         PerformanceMode performanceMode;
         float sphereRadius{};

@@ -36,6 +36,7 @@ add_library(my_lib
         src/model/Graph.cpp
         src/model/Group.cpp
         src/model/Vertex.cpp
+        src/controller/Exporting/CachingController.cpp
 )
 
 target_include_directories(my_lib PUBLIC src ext)

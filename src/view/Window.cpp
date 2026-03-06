@@ -232,7 +232,5 @@ namespace graphvise {
                                    },
 
                                    "Welcome to GraphVise");
-
-
     }
 }
