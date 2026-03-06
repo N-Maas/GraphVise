@@ -119,8 +119,12 @@ namespace graphvise {
 
             double sprintMultiplier = 1;
             if (sprinting) {
-                sprintMultiplier = ZOOM_SPRINT_MULTIPLIER;
+                if (dist > 1) {
+                    sprintMultiplier = 6 * log(dist);
+                }
             }
+
+            std::cout << "Sprinting multiplier: " << sprintMultiplier << std::endl;
 
             dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier;
 
