@@ -75,7 +75,9 @@ namespace graphvise {
 
         void resetFocusPoint() {
             focusPoint = originCoords;
-            lookAtFocus();
+            if (cameraFocusMode == CameraFocusMode::CENTER_OF_MASS) {
+                lookAtFocus();
+            }
         }
 
         float rotation_x;
