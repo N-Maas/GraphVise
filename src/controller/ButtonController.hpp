@@ -37,6 +37,7 @@ namespace graphvise {
         void loadCameraBookmark(CameraBookmark cam);
         void deleteCameraBookmark(size_t bookmarkID);
         void randomizeAllColors();
+        void scaleGraph(float scale);
 
     private:
         Camera& camera;

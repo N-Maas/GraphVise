@@ -275,6 +275,17 @@ namespace graphvise
         for (auto& group : GraphSaver::getInstance().getGraph().getGroups()) {
             randomizeColoring(group.getID());
         }
+    }
 
+    void ButtonController::scaleGraph(float scale) {
+        Graph& graph = GraphSaver::getInstance().getGraph();
+
+        if (scale < 0.01f) {
+            scale = 0.01f;
+        } else if (scale > 100) {
+            scale = 100;
+        }
+
+        graph.scaleGraph(scale);
     }
 }
