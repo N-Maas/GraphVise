@@ -12,14 +12,14 @@ namespace graphvise
 {
     class MovementController {
     public:
-        explicit MovementController() : camera(Renderer::getInstance()->m_camera()){
+        explicit MovementController() : camera(Renderer::getInstance()->m_camera()) {
         }
 
         void moveCamera(glm::vec3 direction, bool sprinting);
 
         void rotateCamera(float pitchChange, float yawChange);
         void zoom(float zoomValue, bool sprinting);
-
+        void updateLightSourcePosition();
     private:
         Camera& camera;
     };
