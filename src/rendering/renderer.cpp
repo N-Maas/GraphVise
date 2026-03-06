@@ -717,7 +717,8 @@ namespace graphvise {
 
     void Renderer::setPerformanceMode(PerformanceMode mode)
     {
-        switch (mode) {
+        performanceMode = mode;
+        switch (performanceMode) {
             case PerformanceMode::PERFORMANCE:
                 mSettings.sphereSubdiv = 1;
                 mSettings.cylinderSegments = 8;
@@ -735,6 +736,8 @@ namespace graphvise {
                 mSettings.cylinderSegments = 16;
                 mSettings.targetFPS = 80;
                 break;
+            default:
+            throw std::invalid_argument("Invalid performance mode");
         }
         // Regenerate geometry
         generateIcosphere(mSettings.sphereSubdiv);

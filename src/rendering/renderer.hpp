@@ -113,10 +113,6 @@ namespace graphvise {
             return &performanceMode;
         }
 
-        void set_performance_mode(PerformanceMode performance_mode) {
-            performanceMode = performance_mode;
-        }
-
         void setCylinderRadius(const float radius) {
             cylinderRadius = radius;
         }

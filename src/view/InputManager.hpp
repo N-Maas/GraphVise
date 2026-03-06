@@ -44,6 +44,16 @@ namespace graphvise
         GUI* gui = nullptr;
 
 
+        int upKey = GLFW_KEY_SPACE;
+        int downKey = GLFW_KEY_LEFT_SHIFT;
+        int leftKey = GLFW_KEY_A;
+        int rightKey = GLFW_KEY_D;
+        int frontKey= GLFW_KEY_W;
+        int backKey = GLFW_KEY_S;
+        int sprintKey = GLFW_KEY_LEFT_ALT;
+
+
+
         struct Hotkey
         {
             std::vector<int> keys;

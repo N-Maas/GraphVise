@@ -36,19 +36,19 @@ namespace graphvise
         glfwPollEvents();
 
 
-        bool sprinting = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS);
+        bool sprinting = (glfwGetKey(window, sprintKey) == GLFW_PRESS);
 
 
         if (!ImGui::GetIO().WantCaptureKeyboard)
         {
             //Moving Camera
             glm::vec3 direction(0, 0, 0);
-            direction.z += (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.z -= (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.x += (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.x -= (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.y += (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) ? 1.0f : 0.0f;
-            direction.y -= (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.z += (glfwGetKey(window, frontKey) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.z -= (glfwGetKey(window, backKey) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.x += (glfwGetKey(window, rightKey) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.x -= (glfwGetKey(window, leftKey) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.y += (glfwGetKey(window, upKey) == GLFW_PRESS) ? 1.0f : 0.0f;
+            direction.y -= (glfwGetKey(window, downKey) == GLFW_PRESS) ? 1.0f : 0.0f;
             movementController.moveCamera(direction, sprinting);
         }
 
@@ -133,7 +133,7 @@ namespace graphvise
 
     void InputManager::handleMouseClick() const
     {
-        if (!mouseButtonPressed)
+        if (!mouseButtonPressed || ImGui::GetIO().WantCaptureMouse)
         {
             return;
         }
