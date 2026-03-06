@@ -68,8 +68,7 @@ namespace graphvise {
 
         const std::vector<Edge>& edges = GraphSaver::getInstance().getGraph().getEdges();
 
-        std::vector<int> vertexNeighborCount;
-        vertexNeighborCount.reserve(vertices.size());
+        std::vector<int> vertexNeighborCount(vertices.size(), 0);
         for (auto edge : edges) {
             vertexNeighborCount[edge.getConnectingVerticesIDs().first]++;
             vertexNeighborCount[edge.getConnectingVerticesIDs().second]++;
@@ -77,7 +76,7 @@ namespace graphvise {
 
         float scaleDist = 1;
         for (auto vertex : vertices) {
-            if (vertexNeighborCount[vertex.getID()] > 0) {
+            if (vertexNeighborCount[vertex.getID()] == 0) {
                 continue;
             }
             glm::vec3 vertexPos = vertex.getCoordsVector();

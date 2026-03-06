@@ -16,6 +16,7 @@
 #include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
+#include "rendering/renderer.hpp"
 
 namespace graphvise
 {
@@ -145,6 +146,7 @@ namespace graphvise
             ia >> newGraph;
             ifs.close();
             GraphSaver::getInstance().setGraph(newGraph);
+            Renderer::getInstance()->m_camera().resetPosition();
             std::cout << "Successfully loaded graph: " << newGraph.getName() << std::endl;
         } catch (const boost::archive::archive_exception& e) {
             std::cerr << "Archive exception: " << e.what() << std::endl;

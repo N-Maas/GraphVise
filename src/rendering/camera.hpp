@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <glm/glm.hpp>
 
 #include "enums.hpp"
@@ -65,6 +66,7 @@ namespace graphvise {
         }
 
         void resetPosition() {
+            std::cout << "Reset Position!" << std::endl;
             position_world_space = DEFAULT_COORDINATES;
             focusPoint = originCoords;
             scalePositionToGraph();
