@@ -154,6 +154,7 @@ namespace graphvise
 
         // After loading the graph, adjust camera
         auto renderer = Renderer::getInstance();
+        renderer->clearInstanceData();
         renderer->m_camera().scalePositionToGraph();
     }
 

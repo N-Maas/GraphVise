@@ -138,6 +138,8 @@ namespace graphvise {
             return mFramebufferSize.y;
         }
 
+        void clearInstanceData();
+
     private:
         //variables for render quality settings
         RenderSettings mSettings;

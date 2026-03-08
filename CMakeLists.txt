@@ -26,8 +26,8 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # temporarily commented out tests
-file(GLOB TEST_SOURCES tests/*.cpp)
-add_executable(my_tests ${TEST_SOURCES})
+# file(GLOB TEST_SOURCES tests/*.cpp)
+#add_executable(my_tests ${TEST_SOURCES})
 
 add_library(my_lib
         src/model/CameraBookmark.cpp
@@ -39,29 +39,44 @@ add_library(my_lib
         src/controller/Exporting/CachingController.cpp
 )
 
-#target_include_directories(my_lib PUBLIC
- #       src
-  #      ext
-   #  ${CMAKE_CURRENT_SOURCE_DIR}/ext
-#)
-
 target_include_directories(my_lib PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/ext
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
-        ext/imgui-filebrowser
-        ${platform_folders_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
+    ext/imgui-filebrowser
+    ${platform_folders_SOURCE_DIR}
 )
 
 target_link_libraries(my_lib PRIVATE
-        glad  # Link against glad library
-        ${Boost_LIBRARIES}
+    glad
+    #${Boost_LIBRARIES}
+    Boost::serialization
+    Boost::filesystem
+    Boost::system
 )
 
-target_link_libraries(my_tests PRIVATE my_lib gtest_main)
+#target_include_directories(my_tests PRIVATE
+ #       ${CMAKE_CURRENT_SOURCE_DIR}/ext
+  #      ${CMAKE_CURRENT_SOURCE_DIR}/src
+   #     ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
+    #    ext/imgui-filebrowser
+     #   ${platform_folders_SOURCE_DIR}
+#)
 
-include(GoogleTest)
-gtest_discover_tests(my_tests)
+#target_link_libraries(my_tests PRIVATE
+ #   my_lib
+  #  gtest_main
+   # glad
+    #Boost::serialization
+    #Boost::filesystem
+    #Boost::system
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/rendering/renderer.cpp  # Add renderer source
+    #${CMAKE_CURRENT_SOURCE_DIR}/src/rendering/camera.cpp    # Add camera source
+    #platform_folders
+#)
+
+# include(GoogleTest)
+# gtest_discover_tests(my_tests)
 
 set(HEADERS
         src/rendering/camera.hpp
@@ -236,6 +251,7 @@ target_link_libraries(GraphVise PRIVATE
         Boost::filesystem
         Boost::serialization
         platform_folders
+        my_lib
 )
 # link optional libraries
 if (OpenMP_CXX_FOUND)

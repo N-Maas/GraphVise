@@ -359,9 +359,18 @@ namespace graphvise {
                 glDisableVertexAttribArray(i);
             }
 
+/*
             // Prepare instance data
             vertexInstanceData.resize(vertices.size()); // positions only
             vertexColorData.resize(vertices.size());    // colors
+
+*/
+            // Only rebuild instance data if it's empty or size doesn't match
+            if (vertexInstanceData.size() != vertices.size()) {
+                // Rebuild instance data
+                vertexInstanceData.resize(vertices.size());
+                vertexColorData.resize(vertices.size());
+            }
             vertexIdData.resize(vertices.size());       // separate ID buffer
 
             for (size_t i = 0; i < vertices.size(); i++) {
@@ -791,6 +800,13 @@ namespace graphvise {
 
         return result;
     }
+
+    void Renderer::clearInstanceData() {
+		// Clear any existing instance data to force regeneration
+		vertexInstanceData.clear();
+		vertexColorData.clear();
+		edgeData.clear();
+	}
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);
