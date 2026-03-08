@@ -783,18 +783,12 @@ namespace graphvise {
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-         // Debug output
-    	std::cout << "Pick at (" << x << ", " << y << ") -> ["
-              << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
-
         if (pixelValues[0] != UINT32_MAX) {
             result.type = PickedObject::Type::VERTEX;
             result.id = pixelValues[0];
-             std::cout << "  → Found VERTEX with ID: " << result.id << std::endl;
         } else if (pixelValues[1] != UINT32_MAX) {
             result.type = PickedObject::Type::EDGE;
             result.id = pixelValues[1];
-            std::cout << "  → Found EDGE with ID: " << result.id << std::endl;
         }
         GL_CHECK_ERROR();
 
