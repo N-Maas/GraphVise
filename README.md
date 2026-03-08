@@ -2,9 +2,9 @@
 
 ![Test Image 1](graph.png)
 
-GraphVise is a simple Graph Visualization Tool built in OpenGL. It can take 
-in Graphs in a special .txt format and as a .cnf file. Additionally, another .txt file can be provided to 
-subdivide the graph into Groups. 
+GraphVise is a simple Graph Visualization Tool built in OpenGL. It takes graphs as input in form 
+of a special .txt format or as a .cnf file. Additionally, another .txt file can be provided to 
+subdivide the graph into groups of the same color. 
 
 ## Features
 
@@ -22,28 +22,28 @@ subdivide the graph into Groups.
 
 > **Graph Export:** A .png of the loaded graph can be exported.
 
-> **Graph Manipulation:** Graphs can be subdivided into groups, which can be colored individually or hidden,
-> the visual size of vertices/edges can be changed.
+> **Graph Manipulation:** Graphs can be subdivided into groups, which can be colored individually or hidden.
+> The visual size of vertices/edges can be changed.
 
 **General Features**
 > Camera movement:  
 > can be toggled between free movement and rotation around the 
 > center point of the graph. 
 
-> Light Source Behavior:
-> 
+> Light Source Behavior:    
+> can be toggled between being connected to the camera position or the center of mass of the graph
 >
 
-> Camera Bookmarks:
-> 
+> Camera Bookmarks:     
+> store current position of camera to go back to later
 >
 
-> Egde/Vertex Searches:
-> 
+> Egde/Vertex Searches:     
+> by typing the edge or vertex id into a search field the user can see the edge or vertex highlighted in the graph
 >  
 
-> Edge/Vertex Clicking:
-> 
+> Edge/Vertex Info:     
+> by clicking on an edge/vertex a window opens containing information about the clicked edge/vertex
 > 
 
 ## Dependencies
@@ -55,9 +55,9 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
 * [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library for vector and matrix operations
-* [wembed]()
-* [Boost]()
-* []()
+* [wembed]() graph embedding library provided by the ITI
+* [Boost]() extending functionality of C++ Standard Library
+* [Eigen3]() C++ template library for linear algebra
 * []()
 
 ## Installation Instructions
