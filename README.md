@@ -28,7 +28,7 @@ subdivide the graph into groups of the same color.
 **General Features**
 > Camera movement:  
 > can be toggled between free movement and rotation around the 
-> center point of the graph. 
+> center point of the graph or a vertex. 
 
 > Light Source Behavior:    
 > can be toggled between being connected to the camera position or the center of mass of the graph
@@ -109,7 +109,8 @@ If you are using Visual Studio you can use the CMake GUI program to create Visua
 
 ## Usage and Development
 
-<!-- TODO -->
+<!-- TODO: -->
+We used Google Tests for testing the backend.
 
 ## Further notes
 
