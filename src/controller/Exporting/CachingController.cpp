@@ -3,6 +3,7 @@
 //
 #include "CachingController.hpp"
 
+
 #include <fstream>
 #include <iostream>
 
@@ -144,6 +145,7 @@ namespace graphvise
             ia >> newGraph;
             ifs.close();
             GraphSaver::getInstance().setGraph(newGraph);
+            Renderer::getInstance()->m_camera().resetPosition();
             std::cout << "Successfully loaded graph: " << newGraph.getName() << std::endl;
         } catch (const boost::archive::archive_exception& e) {
             std::cerr << "Archive exception: " << e.what() << std::endl;
@@ -152,10 +154,6 @@ namespace graphvise
             std::cerr << "Standard exception: " << e.what() << std::endl;
         }
 
-        // After loading the graph, adjust camera
-        auto renderer = Renderer::getInstance();
-        renderer->clearInstanceData();
-        renderer->m_camera().scalePositionToGraph();
     }
 
     void CachingController::clearCache()

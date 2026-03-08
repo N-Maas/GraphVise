@@ -11,10 +11,8 @@
 #define ROTATION_RADIANS_PER_PIXEL 0.003f
 #define MIN_VERTICAL_ANGLE 0.01
 #define ZOOM_BASE_SPEED_MULTIPLIER 0.5
-#define ZOOM_SPRINT_MULTIPLIER 10
+#define ZOOM_SPRINT_MULTIPLIER 6
 #define MIN_DISTANCE 0.3
-
-#define LIGHT_SOURCE_OFFSET glm::vec3(0, 0, 0)
 
 namespace graphvise {
 
@@ -42,10 +40,7 @@ namespace graphvise {
         }
 
         std::shared_ptr<Renderer> renderer = Renderer::getInstance();
-
-        if (*renderer->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
-            Renderer::getInstance()->setLightPos(camera.position_world_space + LIGHT_SOURCE_OFFSET);
-        }
+        updateLightSourcePosition();
     }
 
     //Pitch: Up/Down
@@ -94,6 +89,7 @@ namespace graphvise {
 
             camera.position_world_space = camPos;
             camera.lookAtFocus();
+            updateLightSourcePosition();
         }
     }
 
@@ -119,7 +115,9 @@ namespace graphvise {
 
             double sprintMultiplier = 1;
             if (sprinting) {
-                sprintMultiplier = ZOOM_SPRINT_MULTIPLIER;
+                if (dist > 1) {
+                    sprintMultiplier = ZOOM_SPRINT_MULTIPLIER * log(dist);
+                }
             }
 
             dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier;
@@ -133,6 +131,13 @@ namespace graphvise {
             camPos.z = dist * sin(verticalAngle) * sin(horizontalAngle) + camera.focusPoint.z;
 
             camera.position_world_space = camPos;
+            updateLightSourcePosition();
+        }
+    }
+
+    void MovementController::updateLightSourcePosition() {
+        if (*Renderer::getInstance()->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
+            Renderer::getInstance()->setLightPos(camera.position_world_space);
         }
     }
 }

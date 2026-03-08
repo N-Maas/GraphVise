@@ -107,6 +107,9 @@ namespace graphvise {
 
         void set_light_source_movement_behaviour(LightSourceMovementBehaviour light_source_movement_behaviour) {
             lightSourceMovementBehaviour = light_source_movement_behaviour;
+            if (light_source_movement_behaviour == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
+                lightPos = m_camera().position_world_space;
+            }
         }
 
         [[nodiscard]] const PerformanceMode* performance_mode() const {

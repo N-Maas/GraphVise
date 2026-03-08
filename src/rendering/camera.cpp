@@ -66,8 +66,19 @@ namespace graphvise {
     void Camera::scalePositionToGraph() {
         const std::vector<Vertex>& vertices = GraphSaver::getInstance().getGraph().getVertices();
 
+        const std::vector<Edge>& edges = GraphSaver::getInstance().getGraph().getEdges();
+
+        std::vector<int> vertexNeighborCount(vertices.size(), 0);
+        for (auto edge : edges) {
+            vertexNeighborCount[edge.getConnectingVerticesIDs().first]++;
+            vertexNeighborCount[edge.getConnectingVerticesIDs().second]++;
+        }
+
         float scaleDist = 1;
         for (auto vertex : vertices) {
+            if (vertexNeighborCount[vertex.getID()] == 0) {
+                continue;
+            }
             glm::vec3 vertexPos = vertex.getCoordsVector();
             float currentDist = sqrt(vertexPos.x * vertexPos.x + vertexPos.y * vertexPos.y + vertexPos.z * vertexPos.z);
             if (currentDist > scaleDist) {

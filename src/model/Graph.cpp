@@ -141,6 +141,17 @@ namespace graphvise {
         updateSortedEdges();
     }
 
+    void Graph::scaleGraph(float newScale) {
+        for (auto& vertex : vertices) {
+            glm::vec3 newCoords(0, 0,0);
+            newCoords.x = (newScale / manualScale) * vertex.getCoordsVector().x;
+            newCoords.y = (newScale / manualScale) * vertex.getCoordsVector().y;
+            newCoords.z = (newScale / manualScale) * vertex.getCoordsVector().z;
+            vertex.setCoordsVector(newCoords);
+        }
+        manualScale = newScale;
+    }
+
     ImVec4 Graph::getVertexVec4ByID(std::uint32_t vertexID) {
         ImVec4 vertexVec4 = getGroupByID(getVertexByID(vertexID).getConnectedGroupID()).getVec4();
         float ownTransparency = getVertexByID(vertexID).getOwnTransparency();

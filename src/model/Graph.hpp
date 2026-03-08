@@ -42,6 +42,7 @@ namespace graphvise {
         void deleteAllGroups();
         void deleteCameraBookmark(std::uint32_t  cameraBookmarkID);
         void setGroupTransparency(std::uint32_t groupID, float transparency);
+        void scaleGraph(float newScale);
         [[nodiscard]] ImVec4 getVertexVec4ByID(std::uint32_t vertexID);
         [[nodiscard]] ImVec4 getEdgeVec4ByID(std::uint32_t edgeID);
 
@@ -66,7 +67,7 @@ namespace graphvise {
         }
     private:
         void initRenderingMatrixForEdge(Edge& edge);
-
+        float manualScale = 1;
         std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;

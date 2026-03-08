@@ -19,6 +19,12 @@ namespace graphvise {
         return coordsVector;
     }
 
+    void Vertex::setCoordsVector(glm::vec3 coordsVector) {
+        this->coordsVector.x = coordsVector.x;
+        this->coordsVector.y = coordsVector.y;
+        this->coordsVector.z = coordsVector.z;
+    }
+
     float Vertex::getOwnTransparency() const {
         return ownTransparency.value_or(-1.0f);
     }
