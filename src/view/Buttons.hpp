@@ -88,6 +88,7 @@ namespace graphvise
         void SideBarElement(Texture texture, const char* hoverMsg, const std::function<void(const char* hoverMsg)>& onClickFunction);
 
         void changeObjSize();
+        void scaleGraph();
         void graphSettings();
         void generalSettings();
         void GroupMenu(const char* popUpName);

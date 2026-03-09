@@ -236,6 +236,29 @@ namespace graphvise
         }
     }
 
+    void Buttons::scaleGraph()
+    {
+        static float scale =  1.0f;
+
+       if (ImGui::BeginMenu("Scale Graph"))
+        {
+
+           if (ImGui::DragFloat("##Scale", &scale, 0.001f, 0.01f, 100.0f ))
+            {
+               buttonController->scaleGraph(scale);
+            }
+           {
+
+           }
+
+           ImGui::EndMenu();
+        }
+
+
+
+
+    }
+
     void Buttons::graphSettings()
     {
         if (ImGui::BeginMenu("Graph Settings"))
@@ -245,6 +268,8 @@ namespace graphvise
             importGroupConfiguration();
             ImGui::Separator();
             changeObjSize();
+            ImGui::Separator();
+            scaleGraph();
 
 
             ImGui::EndMenu();
