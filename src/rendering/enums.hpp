@@ -16,7 +16,6 @@ namespace graphvise {
 
     enum class LightSourceMovementBehaviour {
         FIXED_POSITION = 0,
-        ORBIT_AROUND_GRAPH,
         FOLLOW_CAMERA,
         MOVE_BEHAVIOUR_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
