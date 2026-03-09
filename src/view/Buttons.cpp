@@ -696,25 +696,27 @@ namespace graphvise
                 const auto controlsText =
                     "Free Camera Mode: \n"
                     "Move Up : Space Bar \n"
-                    "Move down : Left Shift  \n"
+                    "Move down : Left Control  \n"
                     "Move left : A \n"
                     "Move right : D \n"
                     "Move forward : W \n"
                     "Move back : S \n"
-                    "Sprint : Left Alt\n";
+                    "Sprint : Left Shift\n";
 
                 ImGui::Text(controlsText);
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Hotkeys"))
             {
-                const auto hotkeyText = "- L-CTRL + K : Change Camera Movement Mode \n"
-                    "- L-CTRL + Q : Rotate through Rendering Qualities \n"
-                    "- L-CTRL + L : Toggle Light Source Behavior \n";
+
+                const auto hotkeyText = "- K : Change Camera Movement Mode \n"
+                    "- Q : Rotate through Rendering Qualities \n"
+                    "- L : Toggle Light Source Behavior \n";
 
                 ImGui::Text(hotkeyText);
                 ImGui::EndMenu();
             }
+
             ImGui::EndMenu();
         }
     }

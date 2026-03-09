@@ -45,12 +45,12 @@ namespace graphvise
 
 
         int upKey = GLFW_KEY_SPACE;
-        int downKey = GLFW_KEY_LEFT_SHIFT;
+        int downKey = GLFW_KEY_LEFT_CONTROL;
         int leftKey = GLFW_KEY_A;
         int rightKey = GLFW_KEY_D;
         int frontKey= GLFW_KEY_W;
         int backKey = GLFW_KEY_S;
-        int sprintKey = GLFW_KEY_LEFT_ALT;
+        int sprintKey = GLFW_KEY_LEFT_SHIFT;
 
 
 
@@ -62,9 +62,9 @@ namespace graphvise
         };
 
         std::vector<Hotkey> hotkeys = {
-            {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_Q}, [this]() { buttonController->togglePerformanceMode(); }},
-            {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_L}, [this]() { buttonController->toggleLightSourceMovementBehaviour(); }},
-            {{GLFW_KEY_LEFT_CONTROL, GLFW_KEY_K}, [this]() { buttonController->toggleCameraFocusMode(); }},
+            {{GLFW_KEY_Q}, [this]() { buttonController->togglePerformanceMode(); }},
+            {{GLFW_KEY_L}, [this]() { buttonController->toggleLightSourceMovementBehaviour(); }},
+            {{GLFW_KEY_K}, [this]() { buttonController->toggleCameraFocusMode(); }},
             {
                 {GLFW_KEY_ESCAPE}, []()
                 {
