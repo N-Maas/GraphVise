@@ -149,7 +149,8 @@ namespace graphvise {
             newCoords.z = (newScale / manualScale) * vertex.getCoordsVector().z;
             vertex.setCoordsVector(newCoords);
         }
-        for (auto edge : edges) {
+
+        for (auto& edge : edges) {
             initRenderingMatrixForEdge(edge);
         }
         manualScale = newScale;
