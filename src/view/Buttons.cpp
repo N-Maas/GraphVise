@@ -711,6 +711,7 @@ namespace graphvise
             }
             if (ImGui::BeginMenu("Hotkeys"))
             {
+
                 const auto hotkeyText = "- K : Change Camera Movement Mode \n"
                     "- Q : Rotate through Rendering Qualities \n"
                     "- L : Toggle Light Source Behavior \n";
@@ -718,6 +719,7 @@ namespace graphvise
                 ImGui::Text(hotkeyText);
                 ImGui::EndMenu();
             }
+
             ImGui::EndMenu();
         }
     }
