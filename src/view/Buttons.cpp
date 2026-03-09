@@ -137,9 +137,6 @@ namespace graphvise
             case LightSourceMovementBehaviour::FIXED_POSITION:
                 text = "Fixed Position";
                 break;
-            case LightSourceMovementBehaviour::ORBIT_AROUND_GRAPH:
-                text = "Orbit Around Graph";
-                break;
             case LightSourceMovementBehaviour::FOLLOW_CAMERA:
                 text = "Follow Camera";
                 break;

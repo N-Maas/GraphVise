@@ -107,13 +107,6 @@ Alternatively, you can import the CMakeLists.txt file from the base directory in
 If you are using Visual Studio you can use the CMake GUI program to create Visual Studio project files from the `CMakeLists.txt`.
 
 
-## Usage and Development
-
-<!-- TODO: -->
-We used Google Tests for testing the backend.
-
-## Further notes
-
 ### OpenGL Versions and Profiles
 If you have to use another OpenGL version instead of the 3.3 Core profile or need any extensions, you can create the Glad [online loader generator](https://glad.dav1d.de/) to create a suitable Glad loader.
 Just replace the loader in ext/glad with the new files and recompile the project.
