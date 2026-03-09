@@ -95,7 +95,7 @@ namespace graphvise
                      ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoNavFocus
+                     ImGuiWindowFlags_NoNav
         );
 
         SideBarElement(searchIcon, "Search for Objects",
@@ -153,17 +153,22 @@ namespace graphvise
         }
         ImGui::Spacing();
 
+
         static auto currentCameraIcon = cameraMovementIcon;
+
+        if (*cameraMode == CameraFocusMode::CENTER_OF_MASS)
+        {
+            currentCameraIcon = cameraMovementIcon;
+        }
+        else if (*cameraMode == CameraFocusMode::FREE)
+        {
+            currentCameraIcon = cameraMovementIcon2;
+        }
+
+
         if (ImGui::ImageButton(currentCameraIcon.id, ImVec2(50, 50)))
         {
-            if (currentCameraIcon.id == cameraMovementIcon.id)
-            {
-                currentCameraIcon = cameraMovementIcon2;
-            }
-            else
-            {
-                currentCameraIcon = cameraMovementIcon;
-            }
+
             buttonController->toggleCameraFocusMode();
         }
 
@@ -178,6 +183,9 @@ namespace graphvise
             case CameraFocusMode::FREE:
                 text = "Free";
                 break;
+
+                default:
+                    throw std::runtime_error("Invalid Camera Focus Mode");
             }
 
             if (text.empty())
