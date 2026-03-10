@@ -57,9 +57,6 @@ namespace graphvise
     }
 
 
-
-
-
     //Pitch: Up/Down
     //Yaw: Left/Right
     void MovementController::rotateCamera(float pitchChange, float yawChange)
@@ -162,11 +159,13 @@ namespace graphvise
             {
                 if (dist > 1)
                 {
-                    sprintMultiplier = ZOOM_SPRINT_MULTIPLIER * log(dist);
+                    sprintMultiplier = ZOOM_SPRINT_MULTIPLIER;
                 }
             }
 
-            dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier;
+            float distanceMultiplier = dist > 1.5 ? log(dist) : 0.5;
+
+            dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier * distanceMultiplier;
 
             if (dist < MIN_DISTANCE)
             {
