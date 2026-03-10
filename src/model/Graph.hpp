@@ -1,5 +1,6 @@
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,7 +31,7 @@ namespace graphvise {
                 edges.emplace_back(edges.size(), edge.first, edge.second);
             }
         }
-
+        [[nodiscard]] float getRadius();
         [[nodiscard]] const std::vector<Vertex>& getVertices() const;
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;
@@ -70,15 +71,13 @@ namespace graphvise {
             ar & edges;
             ar & groups;
             ar & cameraBookmarks;
+            ar & radius;
         }
 
-        float getRadius() {
-            return radius * manualScale;
-        }
     private:
         void initRenderingMatrixForEdge(Edge& edge);
         float manualScale = 1;
-        float radius;
+        float radius = 1;
         std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;
