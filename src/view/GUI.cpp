@@ -105,7 +105,7 @@ namespace graphvise
 
     void GUI::currentObjInfo()
     {
-        constexpr char* popupName = "Current Object Info";
+        constexpr const char* popupName = "Current Object Info";
 
         if (m_showObjectInfo)
         {

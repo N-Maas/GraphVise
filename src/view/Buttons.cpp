@@ -36,10 +36,20 @@ namespace graphvise
         randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
         searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
         groupIcon = loadTextureFromFile(ICON_FILE_PATH "Gruppen.png");
-        performanceIcon = loadTextureFromFile(ICON_FILE_PATH "Performance.png");
-        cameraMovementIcon = loadTextureFromFile(ICON_FILE_PATH "CameraMode1.png");
-        cameraMovementIcon2 = loadTextureFromFile(ICON_FILE_PATH "CameraMode2.png");
-        lightSourceIcon = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button.png");
+
+
+        performanceIcon_Balanced = loadTextureFromFile(ICON_FILE_PATH "Performance_Balance.png");
+        performanceIcon_Quality = loadTextureFromFile(ICON_FILE_PATH "Performance_Quality.png");
+        performanceIcon_Performance = loadTextureFromFile(ICON_FILE_PATH "Performance_Performance.png");
+        currentPerformanceMode = performanceIcon_Quality;
+
+        cameraMovementIcon_CenterOfMass = loadTextureFromFile(ICON_FILE_PATH "CameraMode1.png");
+        cameraMovementIcon_Free = loadTextureFromFile(ICON_FILE_PATH "CameraMode2.png");
+        currentCameraIcon = cameraMovementIcon_CenterOfMass;
+
+        lightSourceIcon_Fixed = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button1.png");
+        lightSourceIcon_FollowCamera = loadTextureFromFile(ICON_FILE_PATH "Light Source Switch Button2.png");
+        currentLightSourceIcon = lightSourceIcon_Fixed;
     }
 
     void Buttons::loadButtonFrame(int framebufferWidth, int framebufferHeight)
@@ -47,11 +57,40 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        //  ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
         SideBar();
+
+        switch (*performanceMode)
+        {
+        case PerformanceMode::QUALITY:
+            currentPerformanceMode = performanceIcon_Quality;
+            break;
+        case PerformanceMode::BALANCE:
+            currentPerformanceMode = performanceIcon_Balanced;
+            break;
+        case PerformanceMode::PERFORMANCE:
+            currentPerformanceMode = performanceIcon_Performance;
+            break;
+        }
+
+        switch (*cameraMode)
+        {
+        case CameraFocusMode::CENTER_OF_MASS:
+            currentCameraIcon = cameraMovementIcon_CenterOfMass;
+            break;
+        case CameraFocusMode::FREE:
+            currentCameraIcon = cameraMovementIcon_Free;
+        }
+        switch (*lightSourceMovementBehaviour)
+        {
+        case LightSourceMovementBehaviour::FIXED_POSITION:
+            currentLightSourceIcon = lightSourceIcon_Fixed;
+            break;
+        case LightSourceMovementBehaviour::FOLLOW_CAMERA:
+            currentLightSourceIcon = lightSourceIcon_FollowCamera;
+        }
     }
 
     void Buttons::MainMenuBar()
@@ -70,6 +109,9 @@ namespace graphvise
         ImGui::Separator();
         help();
         ImGui::Separator();
+
+        ImGui::SameLine(1180);
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "Current Graph: %s", saver->getGraph().getName().c_str());
 
         ImGui::EndMainMenuBar();
 
@@ -110,7 +152,7 @@ namespace graphvise
                            GroupMenu(hoverMsg);
                        }));
 
-        SideBarElement(performanceIcon, "Toggle Performance Mode",
+        SideBarElement(currentPerformanceMode, "Toggle Performance Mode",
                        std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
                        {
                            performanceModeToggle(hoverMsg);
@@ -123,7 +165,7 @@ namespace graphvise
                        }));
 
 
-        if (ImGui::ImageButton(lightSourceIcon.id, ImVec2(50, 50)))
+        if (ImGui::ImageButton(currentLightSourceIcon.id, ImVec2(50, 50)))
         {
             buttonController->toggleLightSourceMovementBehaviour();
         }
@@ -151,21 +193,8 @@ namespace graphvise
         ImGui::Spacing();
 
 
-        static auto currentCameraIcon = cameraMovementIcon;
-
-        if (*cameraMode == CameraFocusMode::CENTER_OF_MASS)
-        {
-            currentCameraIcon = cameraMovementIcon;
-        }
-        else if (*cameraMode == CameraFocusMode::FREE)
-        {
-            currentCameraIcon = cameraMovementIcon2;
-        }
-
-
         if (ImGui::ImageButton(currentCameraIcon.id, ImVec2(50, 50)))
         {
-
             buttonController->toggleCameraFocusMode();
         }
 
@@ -181,8 +210,8 @@ namespace graphvise
                 text = "Free";
                 break;
 
-                default:
-                    throw std::runtime_error("Invalid Camera Focus Mode");
+            default:
+                throw std::runtime_error("Invalid Camera Focus Mode");
             }
 
             if (text.empty())
@@ -243,25 +272,19 @@ namespace graphvise
 
     void Buttons::scaleGraph()
     {
-        static float scale =  1.0f;
+        static float scale = 1.0f;
 
-       if (ImGui::BeginMenu("Scale Graph"))
+        if (ImGui::BeginMenu("Scale Graph"))
         {
-
-           if (ImGui::DragFloat("##Scale", &scale, 0.001f, 0.01f, 100.0f ))
+            if (ImGui::DragFloat("##Scale", &scale, 0.001f, 0.01f, 100.0f))
             {
-               buttonController->scaleGraph(scale);
+                buttonController->scaleGraph(scale);
             }
-           {
+            {
+            }
 
-           }
-
-           ImGui::EndMenu();
+            ImGui::EndMenu();
         }
-
-
-
-
     }
 
     void Buttons::graphSettings()
@@ -325,6 +348,12 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
+            if (ImGui::Button("Import Group Config"))
+            {
+                importGroupConfigBrowser.SetTitle("Import Group Config");
+                importGroupConfigBrowser.Open();
+            }
+
             if (ImGui::Button("Randomize All Colors"))
             {
                 buttonController->randomizeAllColors();
@@ -413,7 +442,7 @@ namespace graphvise
 
     void Buttons::performanceModeToggle(const char* popUpName)
     {
-        static const char* modeText[] = {"Quality", "Balance", "Performance"};
+        static const char* modeText[] = {"Performance", "Balance", "Quality"};
 
         if (ImGui::BeginPopup(popUpName,
                               ImGuiWindowFlags_AlwaysAutoResize |
@@ -421,8 +450,8 @@ namespace graphvise
         ))
         {
             if (ImGui::SliderInt("##ModeSlider", (int*)performanceMode,
-                                 static_cast<int>(PerformanceMode::QUALITY),
                                  static_cast<int>(PerformanceMode::PERFORMANCE),
+                                 static_cast<int>(PerformanceMode::QUALITY),
                                  modeText[static_cast<int>(*performanceMode)]))
             {
                 buttonController->setPerformanceMode(*performanceMode);
@@ -679,7 +708,7 @@ namespace graphvise
         {
             if (ImGui::BeginMenu("Info"))
             {
-                const auto infoText = "This is a simple 3D graph viewer. \n"
+                constexpr auto infoText = "This is a simple 3D graph viewer. \n"
                     "The viewer supports the following operations: \n"
                     " - Import graphs from .txt and .cnf files \n"
                     " - Highlight subgraphs \n"
@@ -708,10 +737,10 @@ namespace graphvise
             }
             if (ImGui::BeginMenu("Hotkeys"))
             {
-
                 const auto hotkeyText = "- K : Change Camera Movement Mode \n"
                     "- Q : Rotate through Rendering Qualities \n"
-                    "- L : Toggle Light Source Behavior \n";
+                    "- L : Toggle Light Source Behavior \n"
+                    "- H : Remove Highlighting";
 
                 ImGui::Text(hotkeyText);
                 ImGui::EndMenu();

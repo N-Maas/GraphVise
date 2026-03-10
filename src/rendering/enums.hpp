@@ -21,9 +21,9 @@ namespace graphvise {
     };
 
     enum class PerformanceMode {
-        QUALITY = 0,
+        PERFORMANCE = 0,
         BALANCE,
-        PERFORMANCE,
+        QUALITY,
         PERFORMANCE_MODE_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
 }

@@ -65,13 +65,7 @@ namespace graphvise
             {{GLFW_KEY_Q}, [this]() { buttonController->togglePerformanceMode(); }},
             {{GLFW_KEY_L}, [this]() { buttonController->toggleLightSourceMovementBehaviour(); }},
             {{GLFW_KEY_K}, [this]() { buttonController->toggleCameraFocusMode(); }},
-            {
-                {GLFW_KEY_ESCAPE}, []()
-                {
-                    ImGui::CloseCurrentPopup();
-                }
-            },
-            // {{},},
+            {{GLFW_KEY_H}, [this]() { buttonController->RemoveHighlights(); }},
             // {{},},
             // {{},}
 

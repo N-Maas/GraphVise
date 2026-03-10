@@ -1,5 +1,6 @@
 #ifndef THESIS_FRAMEWORK_GRAPH_HPP
 #define THESIS_FRAMEWORK_GRAPH_HPP
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,14 +18,20 @@ namespace graphvise {
             addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
             vertices.reserve(verticesCoordinates.size());
             edges.reserve(edgesConnectedVerticesIDs.size());
+            float maxDistance = 0;
             for (glm::vec3 coord : verticesCoordinates) {
                 vertices.emplace_back(vertices.size(), coord);
+                float currentDistance = std::sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
+                if (currentDistance > maxDistance) {
+                    maxDistance = currentDistance;
+                }
             }
+            radius = maxDistance;
             for (std::pair edge : edgesConnectedVerticesIDs) {
                 edges.emplace_back(edges.size(), edge.first, edge.second);
             }
         }
-
+        [[nodiscard]] float getRadius();
         [[nodiscard]] const std::vector<Vertex>& getVertices() const;
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;
@@ -64,10 +71,13 @@ namespace graphvise {
             ar & edges;
             ar & groups;
             ar & cameraBookmarks;
+            ar & radius;
         }
+
     private:
         void initRenderingMatrixForEdge(Edge& edge);
         float manualScale = 1;
+        float radius = 1;
         std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;

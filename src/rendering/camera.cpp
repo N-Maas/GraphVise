@@ -110,5 +110,14 @@ namespace graphvise {
         camPos.z = scaleDist * sin(verticalAngle) * sin(horizontalAngle) + focusPoint.z;
 
         position_world_space = camPos;
+        bool newHomePoint = true;
+        for (const CameraBookmark& bookmark : GraphSaver::getInstance().getGraph().getCameraBookmarks()) {
+            if (bookmark.getName() == "Spawn-Point" && bookmark.getCoordsVector() == camPos) {
+                newHomePoint = false;
+            }
+        }
+        if (newHomePoint) {
+            GraphSaver::getInstance().getGraph().addCameraBookmark("Spawn-Point", camPos, 0.0f, 0.0f);
+        }
     }
 }

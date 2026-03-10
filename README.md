@@ -19,6 +19,16 @@ subdivide the graph into groups of the same color.
 > 5 1
 > 
 > Where v is the number of vertices and e is the number of edges.
+> 
+> or a .cnf file in the following format:
+> > p cnf 7 7   
+> 1 -2 0   
+> -1 -2 0   
+> -1 3 0   
+> 3 -4 0   
+> 3 -5 0   
+> 3 -6 0   
+> 5 -1 0
 
 > **Graph Export:** A .png of the loaded graph can be exported.
 
@@ -106,13 +116,6 @@ You can then run the application from the build directory with
 Alternatively, you can import the CMakeLists.txt file from the base directory in an IDE that supports CMake, for example [CLion](https://www.jetbrains.com/de-de/clion/) or [Visual Studio](https://visualstudio.microsoft.com/de/free-developer-offers/).
 If you are using Visual Studio you can use the CMake GUI program to create Visual Studio project files from the `CMakeLists.txt`.
 
-
-## Usage and Development
-
-<!-- TODO: -->
-We used Google Tests for testing the backend.
-
-## Further notes
 
 ### OpenGL Versions and Profiles
 If you have to use another OpenGL version instead of the 3.3 Core profile or need any extensions, you can create the Glad [online loader generator](https://glad.dav1d.de/) to create a suitable Glad loader.
