@@ -163,13 +163,11 @@ namespace graphvise
 
             // Get the picked object (could be vertex, edge, or nothing)
             PickedObject picked = renderer->getObjectAt(fbX, fbY);
-            auto& graph = GraphSaver::getInstance().getGraph();
 
             if (picked.isVertex())
             {
                 try
                 {
-                    auto& vertex = graph.getVertexByID(picked.id);
                     gui->showVertexInfo(picked.id);
                 }
                 catch (const std::exception& e)
@@ -181,7 +179,6 @@ namespace graphvise
             {
                 try
                 {
-                    auto& edge = graph.getEdgeByID(picked.id);
                     gui->showEdgeInfo(picked.id);
                 }
                 catch (const std::exception& e)
