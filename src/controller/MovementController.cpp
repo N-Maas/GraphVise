@@ -14,72 +14,102 @@
 #define ZOOM_SPRINT_MULTIPLIER 6
 #define MIN_DISTANCE 0.3
 
-namespace graphvise {
-
+namespace graphvise
+{
     //Using a 3D vector as direction
     //X Coordinate: Left/Right
     //Y Coordinate: Up/Down
     //Z Coordinate: Forwards/Backwards
-    void MovementController::moveCamera(glm::vec3 direction, bool sprinting) {
-        if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
+    void MovementController::moveCamera(glm::vec3 direction, bool sprinting)
+    {
+        if (*camera.camera_focus_mode() == CameraFocusMode::FREE)
+        {
             static double last_time = 0.0;
-            double now = glfwGetTime();
-            double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
-            auto time_delta = (float)elapsed_time;
+            const double now = glfwGetTime();
+            const double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
+            const auto time_delta = static_cast<float>(elapsed_time);
             last_time = now;
             float step = time_delta * camera.speed;
             step *= sprinting ? SPRINT_INCREASE : 1.0f;
 
-            float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
+            const float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
 
-            camera.position_world_space[0] +=  sin_y * direction.z * step;
-            camera.position_world_space[0] +=  cos_y * direction.x * step;
+            camera.position_world_space[0] += sin_y * direction.z * step;
+            camera.position_world_space[0] += cos_y * direction.x * step;
             camera.position_world_space[2] += -cos_y * direction.z * step;
-            camera.position_world_space[2] +=  sin_y * direction.x * step;
-            camera.position_world_space[1] +=  direction.y * step;
+            camera.position_world_space[2] += sin_y * direction.x * step;
+            camera.position_world_space[1] += direction.y * step;
+        } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
+        {
+            constexpr uint32_t scale = 7;
+            rotateCamera(-(scale * direction.y), -(scale * direction.x));
+            zoom((-direction.z / 2 ), sprinting);
         }
 
-        std::shared_ptr<Renderer> renderer = Renderer::getInstance();
+
         updateLightSourcePosition();
     }
 
+
+
+
+
     //Pitch: Up/Down
     //Yaw: Left/Right
-    void MovementController::rotateCamera(float pitchChange, float yawChange) {
-        if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
-            camera.rotation_x += pitchChange * ROTATION_RADIANS_PER_PIXEL;
-            camera.rotation_y += yawChange * ROTATION_RADIANS_PER_PIXEL;
+    void MovementController::rotateCamera(float pitchChange, float yawChange)
+    {
+        if (*camera.camera_focus_mode() == CameraFocusMode::FREE)
+        {
+            {
+                camera.rotation_x += pitchChange * ROTATION_RADIANS_PER_PIXEL;
+                camera.rotation_y += yawChange * ROTATION_RADIANS_PER_PIXEL;
 
-            if (camera.rotation_x > std::numbers::pi / 2) {
-                camera.rotation_x = std::numbers::pi / 2;
-            } else if (camera.rotation_x < -std::numbers::pi / 2) {
-                camera.rotation_x = -std::numbers::pi / 2;
+                if (camera.rotation_x > std::numbers::pi / 2)
+                {
+                    camera.rotation_x = std::numbers::pi / 2;
+                }
+                else if (camera.rotation_x < -std::numbers::pi / 2)
+                {
+                    camera.rotation_x = -std::numbers::pi / 2;
+                }
             }
-        } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
+        }
+        else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
+        {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
             double dist = glm::length(camPos);
             double verticalAngle = acos(camPos.y / dist);
             double horizontalAngle;
 
-            if (camPos.x > 0) {
+            if (camPos.x > 0)
+            {
                 horizontalAngle = atan(camPos.z / camPos.x);
-            } else if (camPos.x == 0) {
+            }
+            else if (camPos.x == 0)
+            {
                 horizontalAngle = std::numbers::pi / 2;
                 horizontalAngle *= camPos.z < 0 ? -1.0 : 1.0;
                 horizontalAngle = camPos.z == 0 ? 0 : horizontalAngle;
-            } else if (camPos.x < 0 && camPos.z >= 0) {
+            }
+            else if (camPos.x < 0 && camPos.z >= 0)
+            {
                 horizontalAngle = atan(camPos.z / camPos.x) + std::numbers::pi;
-            } else {
+            }
+            else
+            {
                 horizontalAngle = atan(camPos.z / camPos.x) - std::numbers::pi;
             }
 
             horizontalAngle += yawChange * ROTATION_RADIANS_PER_PIXEL;
             verticalAngle += pitchChange * ROTATION_RADIANS_PER_PIXEL;
 
-            if (verticalAngle < MIN_VERTICAL_ANGLE) {
+            if (verticalAngle < MIN_VERTICAL_ANGLE)
+            {
                 verticalAngle = MIN_VERTICAL_ANGLE;
-            } else if (verticalAngle > std::numbers::pi - MIN_VERTICAL_ANGLE) {
+            }
+            else if (verticalAngle > std::numbers::pi - MIN_VERTICAL_ANGLE)
+            {
                 verticalAngle = std::numbers::pi - MIN_VERTICAL_ANGLE;
             }
 
@@ -93,36 +123,47 @@ namespace graphvise {
         }
     }
 
-    void MovementController::zoom(float zoomValue, bool sprinting) {
-        if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
+    void MovementController::zoom(float zoomValue, bool sprinting)
+    {
+        {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
             double dist = glm::length(camPos);
             double verticalAngle = acos(camPos.y / dist);
             double horizontalAngle;
 
-            if (camPos.x > 0) {
+            if (camPos.x > 0)
+            {
                 horizontalAngle = atan(camPos.z / camPos.x);
-            } else if (camPos.x == 0) {
+            }
+            else if (camPos.x == 0)
+            {
                 horizontalAngle = std::numbers::pi / 2;
                 horizontalAngle *= camPos.z < 0 ? -1.0 : 1.0;
                 horizontalAngle = camPos.z == 0 ? 0 : horizontalAngle;
-            } else if (camPos.x < 0 && camPos.z >= 0) {
+            }
+            else if (camPos.x < 0 && camPos.z >= 0)
+            {
                 horizontalAngle = atan(camPos.z / camPos.x) + std::numbers::pi;
-            } else {
+            }
+            else
+            {
                 horizontalAngle = atan(camPos.z / camPos.x) - std::numbers::pi;
             }
 
             double sprintMultiplier = 1;
-            if (sprinting) {
-                if (dist > 1) {
+            if (sprinting)
+            {
+                if (dist > 1)
+                {
                     sprintMultiplier = ZOOM_SPRINT_MULTIPLIER * log(dist);
                 }
             }
 
             dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier;
 
-            if (dist < MIN_DISTANCE) {
+            if (dist < MIN_DISTANCE)
+            {
                 dist = MIN_DISTANCE;
             }
 
@@ -135,8 +176,10 @@ namespace graphvise {
         }
     }
 
-    void MovementController::updateLightSourcePosition() {
-        if (*Renderer::getInstance()->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA) {
+    void MovementController::updateLightSourcePosition()
+    {
+        if (*Renderer::getInstance()->light_source_movement_behaviour() == LightSourceMovementBehaviour::FOLLOW_CAMERA)
+        {
             Renderer::getInstance()->setLightPos(camera.position_world_space);
         }
     }
