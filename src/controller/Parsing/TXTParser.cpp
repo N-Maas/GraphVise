@@ -20,7 +20,7 @@ namespace graphvise {
     [[nodiscard]] std::expected<GraphData, Error> TXTParser::parseFile(std::filesystem::path filePath) {
         std::ifstream fileStream(filePath, std::ios::in);
         if (!fileStream.is_open()) {
-            Error error(ErrorType::FILE_NOT_FOUND);
+            Error error(ErrorType::FILE_NOT_FOUND, filePath.string());
             return std::unexpected(error);
         }
 
@@ -41,7 +41,7 @@ namespace graphvise {
         try {
             vertexCount = std::stoi(matches[1].str());
         }
-        catch (std::invalid_argument& exception) {
+        catch (...) {
             Error error(ErrorType::INVALID_VERTEX_COUNT, headerLine, currentLine);
             return std::unexpected(error);
         }
@@ -50,7 +50,7 @@ namespace graphvise {
         try {
             edgeCount = std::stoi(matches[2].str());
         }
-        catch (std::invalid_argument& exception) {
+        catch (...) {
             Error error(ErrorType::INVALID_EDGE_COUNT, headerLine, currentLine);
             return std::unexpected(error);
         }

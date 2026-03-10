@@ -20,7 +20,7 @@ namespace graphvise {
     std::expected<GraphData, Error> CNFParser::parseFile(std::filesystem::path filePath) {
         std::ifstream fileStream(filePath, std::ios::in);
         if (!fileStream.is_open()) {
-            Error error(ErrorType::FILE_NOT_FOUND);
+            Error error(ErrorType::FILE_NOT_FOUND, filePath.string());
             return std::unexpected(error);
         }
 

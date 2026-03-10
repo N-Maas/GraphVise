@@ -4,6 +4,8 @@
 
 #include "Error.hpp"
 
+#include <format>
+
 namespace graphvise {
     Error::Error(ErrorType type) : errorType(type){
         setErrorMessage();
@@ -47,49 +49,62 @@ namespace graphvise {
                 errorMessage = "The specified edge does not exist.";
                 break;
             case ErrorType::EQUAL_VERTEX_IDS:
-                errorMessage = "The provided vertex IDs are equal.";
+                if (!getLine().has_value()) {
+                    errorMessage = "The provided vertex IDs are equal.";
+                } else {
+                    errorMessage = std::format("A vertex IDs in line {} \"{}\" are equal.", getLine().value(), getMessage().value());
+                }
                 break;
             case ErrorType::VERTEX_ID_OUT_OF_BOUNDS:
-                errorMessage = "One or more vertex IDs are out of bounds.";
+                errorMessage = std::format("The ID \"{}\" is out of bounds.", getMessage().value());
                 break;
             case ErrorType::TOO_MANY_VERTICES_IN_SUBGRAPH:
-                errorMessage = "The subgraph contains too many vertices.";
+                errorMessage = "The provided Subgraph contains more vertices than the currently loaded Graph.";
                 break;
             case ErrorType::INVALID_SUBGRAPH_EDGE:
-                errorMessage = "The subgraph contains an invalid edge.";
+                errorMessage = std::format("The provided edge \"{}\" is not part of the currently loaded Graph.", getMessage().value());
                 break;
             case ErrorType::DUPLICATE_EDGE:
                 errorMessage = "The graph contains a duplicate edge.";
+                errorMessage = std::format("The edge \"{}\" in line {} appears multiple times.", getMessage().value(), getLine().value());
                 break;
             case ErrorType::INVALID_VERTEX_COUNT:
-                errorMessage = "The vertex count is invalid.";
+                errorMessage = std::format("Invalid number of vertices provided in line {} \"{}\"", getLine().value(), getMessage().value());
                 break;
             case ErrorType::INVALID_EDGE_COUNT:
-                errorMessage = "The edge count is invalid.";
+                if (getMessage().has_value() && getLine().has_value()) {
+                    errorMessage = std::format("Invalid number of edges provided in line {} \"{}\" ", getLine().value(), getMessage().value());
+                } else {
+                    errorMessage = "The number of edges does not equal the provided value.";
+                }
                 break;
             case ErrorType::INVALID_FORMATTING:
-                errorMessage = "The file has invalid formatting.";
+                errorMessage = std::format("Line {} \"{}\" has invalid formatting.", getLine().value(), message.value());
                 break;
             case ErrorType::FILE_NOT_FOUND:
-                errorMessage = "The specified file was not found.";
+                errorMessage = std::format("The specified file at {} could not be found.", message.value());
                 break;
             case ErrorType::NOT_A_VERTEX_ID:
-                errorMessage = "The provided ID is not a valid vertex ID.";
+                if (message.has_value() && line.has_value()) {
+                    errorMessage = std::format("The provided ID in line {} \"{}\" is out of bounds.", line.value(), message.value());
+                } else {
+                    errorMessage = "The provided ID is not a valid vertex ID.";
+                }
                 break;
             case ErrorType::INVALID_COLOR_VALUE:
-                errorMessage = "The color value provided is invalid.";
+                errorMessage = std::format("The color value provided in line {} \"{}\" is invalid.", getLine().value(), getMessage().value());
                 break;
             case ErrorType::INVALID_TRANSPARENCY_VALUE:
-                errorMessage = "The transparency value provided is invalid.";
+                errorMessage = std::format("The transparency value provided in line {} \"{}\" is invalid.", getLine().value(), getMessage().value());
                 break;
         case ErrorType::BACKGROUND_THREAD_ALREADY_BUSY:
-                errorMessage = "The background thread is already busy.";
+                errorMessage = "An operation is already running.";
                 break;
             case ErrorType::INVALID_EDGE_ID:
-                errorMessage = "The provided edge ID is invalid.";
+                errorMessage = std::format("The provided edge ID in line {} \"{}\" is invalid.", getLine().value(), getMessage().value());
                 break;
             case ErrorType::INVALID_VERTEX_ID:
-                errorMessage = "The provided vertex ID is invalid.";
+                errorMessage = std::format("The provided vertex ID in line {} \"{}\" is invalid", getLine().value(), getMessage().value());
             break;
         case ErrorType::INVALID_IMPORT_FORMAT:
                 errorMessage = "The provided import format is invalid.";

@@ -13,7 +13,7 @@ namespace graphvise {
     std::expected<std::vector<GroupData>, Error> GroupParser::parseFile(const std::string& filePath) {
         std::ifstream fileStream(filePath, std::ios::in);
         if (!fileStream.is_open()) {
-            Error error(ErrorType::FILE_NOT_FOUND);
+            Error error(ErrorType::FILE_NOT_FOUND, filePath);
             return std::unexpected(error);
         }
 
