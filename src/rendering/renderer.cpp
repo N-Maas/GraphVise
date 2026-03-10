@@ -37,55 +37,92 @@
 namespace graphvise {
 
     Renderer::Renderer()
-    : mFramebufferSize(800, 600),  // Default size
-      mShaderProgram(0),
-      mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
-     mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
-     sphereVAO(0),
-     sphereVBO(0),
-     sphereEBO(0),
-     sphereRadius(STANDARD_SPHERE_RADIUS),
-     cylinderVAO(0),
-      cylinderVBO(0),
-     cylinderEBO(0),
-     cylinderRadius(STANDARD_CYLINDER_RADIUS),
-     mCamera(),
-     lightPos({2.0f, 2.0f, 2.0f}),
-     lightSourceMovementBehaviour(LightSourceMovementBehaviour::FIXED_POSITION),
-     performanceMode(),
-     mF5Pressed(false)
+    : backgroundColor(0.0f, 0.234f, 0.314f, 1.000f)  // First in class after public section
+    , lightSourceMovementBehaviour(LightSourceMovementBehaviour::FIXED_POSITION)
+    , performanceMode(PerformanceMode::BALANCE)  // or whatever default you want
+    , sphereRadius(STANDARD_SPHERE_RADIUS)
+    , cylinderRadius(STANDARD_CYLINDER_RADIUS)
+    , mSettings()  // Default initialize
+    , mFrameTime(0.0f)
+    , mAccumulatedTime(0.0f)
+    , mFrameCounter(0)
+    , mFramebufferSize(800, 600)
+    , mShaderProgram(0)
+    , mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert"))
+    , mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag"))
+    , vertexVAO(0)
+    , vertexVBO(0)
+    , edgeVAO(0)
+    , edgeVBO(0)
+    , sphereVAO(0)
+    , sphereVBO(0)
+    , sphereEBO(0)
+    , cylinderVAO(0)
+    , cylinderVBO(0)
+    , cylinderEBO(0)
+    , mCamera()
+    , lightPos(2.0f, 2.0f, 2.0f)
+    , mF5Pressed(false)
+    , pickingFramebuffer(0)
+    , pickingTexture(0)
+    , colorTexture(0)
+    , vertexInstanceVBO(0)
+    , vertexColorVBO(0)
+    , vertexIdVBO(0)
+    , edgeInstanceVBO(0)
+    , renderingSpheres(true)  // or false, whatever your default is
+    , numShaderInputs(10)
+    , numSphereShaderInputs(5)
     {
-        // Default quality settings
+        // Constructor body
         mSettings.targetFPS = 60;
         mSettings.sphereSubdiv = 2;
         mSettings.cylinderSegments = 12;
     }
 
     Renderer::Renderer(int framebufferWidth, int framebufferHeight)
-        : mFramebufferSize(framebufferWidth, framebufferHeight),
-          mShaderProgram(0),
-          mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert")),
-          mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag")),
-          sphereVAO(0),
-          sphereVBO(0),
-          sphereEBO(0),
-          sphereRadius(STANDARD_SPHERE_RADIUS),
-          cylinderVAO(0),
-          cylinderVBO(0),
-          cylinderEBO(0),
-          cylinderRadius(STANDARD_CYLINDER_RADIUS),
-          mCamera(),
-          lightPos({2.0f, 2.0f, 2.0f}),
-          lightSourceMovementBehaviour(),
-          performanceMode(),
-          mF5Pressed(false)
+    : backgroundColor(0.0f, 0.234f, 0.314f, 1.000f)
+    , lightSourceMovementBehaviour(LightSourceMovementBehaviour::FIXED_POSITION)
+    , performanceMode(PerformanceMode::BALANCE)
+    , sphereRadius(STANDARD_SPHERE_RADIUS)
+    , cylinderRadius(STANDARD_CYLINDER_RADIUS)
+    , mSettings()
+    , mFrameTime(0.0f)
+    , mAccumulatedTime(0.0f)
+    , mFrameCounter(0)
+    , mFramebufferSize(framebufferWidth, framebufferHeight)  // Use parameters
+    , mShaderProgram(0)
+    , mVertexShaderPath(std::string(SHADERS_PATH) + std::string("graph.vert"))
+    , mFragmentShaderPath(std::string(SHADERS_PATH) + std::string("graph_color.frag"))
+    , vertexVAO(0)
+    , vertexVBO(0)
+    , edgeVAO(0)
+    , edgeVBO(0)
+    , sphereVAO(0)
+    , sphereVBO(0)
+    , sphereEBO(0)
+    , cylinderVAO(0)
+    , cylinderVBO(0)
+    , cylinderEBO(0)
+    , mCamera()
+    , lightPos(2.0f, 2.0f, 2.0f)
+    , mF5Pressed(false)
+    , pickingFramebuffer(0)
+    , pickingTexture(0)
+    , colorTexture(0)
+    , vertexInstanceVBO(0)
+    , vertexColorVBO(0)
+    , vertexIdVBO(0)
+    , edgeInstanceVBO(0)
+    , renderingSpheres(true)
+    , numShaderInputs(10)
+    , numSphereShaderInputs(5)
     {
-        // Default quality settings
+        // Constructor body
         mSettings.targetFPS = 60;
         mSettings.sphereSubdiv = 2;
         mSettings.cylinderSegments = 12;
     }
-
 
     Renderer::~Renderer() {
         // Cleanup OpenGL resources
@@ -359,9 +396,18 @@ namespace graphvise {
                 glDisableVertexAttribArray(i);
             }
 
+/*
             // Prepare instance data
             vertexInstanceData.resize(vertices.size()); // positions only
             vertexColorData.resize(vertices.size());    // colors
+
+*/
+            // Only rebuild instance data if it's empty or size doesn't match
+            if (vertexInstanceData.size() != vertices.size()) {
+                // Rebuild instance data
+                vertexInstanceData.resize(vertices.size());
+                vertexColorData.resize(vertices.size());
+            }
             vertexIdData.resize(vertices.size());       // separate ID buffer
 
             for (size_t i = 0; i < vertices.size(); i++) {
@@ -774,23 +820,24 @@ namespace graphvise {
         // Unbind
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-         // Debug output
-    	std::cout << "Pick at (" << x << ", " << y << ") -> ["
-              << pixelValues[0] << ", " << pixelValues[1] << "]" << std::endl;
-
         if (pixelValues[0] != UINT32_MAX) {
             result.type = PickedObject::Type::VERTEX;
             result.id = pixelValues[0];
-             std::cout << "  → Found VERTEX with ID: " << result.id << std::endl;
         } else if (pixelValues[1] != UINT32_MAX) {
             result.type = PickedObject::Type::EDGE;
             result.id = pixelValues[1];
-            std::cout << "  → Found EDGE with ID: " << result.id << std::endl;
         }
         GL_CHECK_ERROR();
 
         return result;
     }
+
+    void Renderer::clearInstanceData() {
+		// Clear any existing instance data to force regeneration
+		vertexInstanceData.clear();
+		vertexColorData.clear();
+		edgeData.clear();
+	}
 
     void RendererSubject::signIn(std::reference_wrapper<RendererObserver> observer) {
         this->observerList.push_back(observer);

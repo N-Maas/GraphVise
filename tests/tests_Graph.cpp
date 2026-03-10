@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "model/GraphSaver.hpp"
+#include "../src/model/GraphSaver.hpp"
 
 using namespace graphvise;
 TEST(GraphTest, CheckGetterAndInitialization) {

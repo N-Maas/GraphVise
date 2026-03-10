@@ -16,16 +16,16 @@
 #include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
-#include "rendering/renderer.hpp"
+#include "../../rendering/renderer.hpp"
+#include "../../rendering/camera.hpp"
 
 namespace graphvise
 {
-
     const std::string CachingController::fileExtension = ".bin";
     const std::filesystem::path CachingController::cacheDir = sago::getCacheDir();
     const std::filesystem::path CachingController::cachePath = cacheDir / "graphVise";
     const std::filesystem::path CachingController::graphCachePath = cachePath / "graphs";
-    const std::filesystem::path CachingController::exampleGraphsPath = "../ext/Example Graphs";
+    const std::filesystem::path CachingController::exampleGraphsPath = "../resources/Example Graphs";
 
     const std::filesystem::path CachingController::dataDir = sago::getDataHome();
     const std::filesystem::path CachingController::settingsFile = dataDir / "GraphVise" / ("settings" + fileExtension);
@@ -39,12 +39,10 @@ namespace graphvise
     void CachingController::cacheCurrentGraph()
     {
         cacheGraph(GraphSaver::getInstance().getGraph());
-
     }
 
-     std::vector<std::filesystem::path> CachingController::getExampleGraphNames()
+    std::vector<std::filesystem::path> CachingController::getExampleGraphNames()
     {
-        std::cout << get_current_dir_name() << std::endl;
 
         std::vector<std::filesystem::path> filenames;
         for (const auto& file : std::filesystem::directory_iterator(exampleGraphsPath))
@@ -57,6 +55,11 @@ namespace graphvise
 
     std::vector<std::filesystem::path> CachingController::getCachedGraphFilenames()
     {
+        if (!std::filesystem::exists(graphCachePath))
+        {
+            std::filesystem::create_directories(graphCachePath);
+        }
+
 
         std::vector<std::filesystem::path> filenames;
         for (const auto& file : std::filesystem::directory_iterator(graphCachePath))
@@ -64,8 +67,8 @@ namespace graphvise
             filenames.push_back(file.path());
         }
         return filenames;
-
     }
+
 
     void CachingController::cacheGraph(const Graph& graph)
     {
@@ -112,8 +115,6 @@ namespace graphvise
 
     void CachingController::loadDefaultGraph()
     {
-
-
         loadCachedGraph("../ext/example_graph.bin");
     }
 
@@ -121,40 +122,35 @@ namespace graphvise
     {
         std::cout << "Loading from" << filename << std::endl;
 
-        if (!std::filesystem::exists(filename)) {
+        if (!std::filesystem::exists(filename))
+        {
             std::cerr << "Error: File does not exist: " << filename << std::endl;
             return;
         }
 
         // Check if file is empty
-        if (std::filesystem::is_empty(filename)) {
+        if (std::filesystem::is_empty(filename))
+        {
             std::cerr << "Error: File is empty: " << filename << std::endl;
             return;
         }
         std::ifstream ifs(filename, std::ios::binary);
 
-        if (!ifs.is_open()) {
+        if (!ifs.is_open())
+        {
             std::cerr << "Error: Could not open file: " << filename << std::endl;
             return;
         }
 
-        try {
 
-            boost::archive::binary_iarchive ia(ifs);
+        boost::archive::binary_iarchive ia(ifs);
 
-            auto newGraph = Graph({},{}, "");
-            ia >> newGraph;
-            ifs.close();
-            GraphSaver::getInstance().setGraph(newGraph);
-            Renderer::getInstance()->m_camera().resetPosition();
-            std::cout << "Successfully loaded graph: " << newGraph.getName() << std::endl;
-        } catch (const boost::archive::archive_exception& e) {
-            std::cerr << "Archive exception: " << e.what() << std::endl;
-            std::cerr << "Error code: " << e.code << std::endl;
-        } catch (const std::exception& e) {
-            std::cerr << "Standard exception: " << e.what() << std::endl;
-        }
-
+        auto newGraph = Graph({}, {}, "");
+        ia >> newGraph;
+        ifs.close();
+        GraphSaver::getInstance().setGraph(newGraph);
+        Renderer::getInstance()->m_camera().resetPosition();
+        std::cout << "Successfully loaded graph: " << newGraph.getName() << std::endl;
     }
 
     void CachingController::clearCache()

@@ -76,7 +76,15 @@ namespace graphvise {
 
     	// set welcome graph
     	GraphSaver::getInstance().setGraph(WelcomeGraph());
+    	GraphSaver::getInstance().getGraph().addGroup("W", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{0, 1, 2, 3, 4}, std::vector<std::uint32_t>{0, 1, 2, 3});
+    	GraphSaver::getInstance().getGraph().addGroup("E-1", ImVec4{255 / 255.0f, 127 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{5, 6, 7, 8, 9, 10}, std::vector<std::uint32_t>{4, 5, 6, 7, 8});
+    	GraphSaver::getInstance().getGraph().addGroup("L", ImVec4{255 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{11, 12, 13}, std::vector<std::uint32_t>{9, 10});
+    	GraphSaver::getInstance().getGraph().addGroup("C", ImVec4{0 / 255.0f, 255 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{14, 15, 16, 17}, std::vector<std::uint32_t>{11, 12, 13});
+    	GraphSaver::getInstance().getGraph().addGroup("O", ImVec4{0 / 255.0f, 0 / 255.0f, 220 / 255.0f, 1.0f}, std::vector<std::uint32_t>{18, 19, 20, 21}, std::vector<std::uint32_t>{14, 15, 16, 17});
+    	GraphSaver::getInstance().getGraph().addGroup("M", ImVec4{75 / 255.0f, 0 / 255.0f, 130 / 255.0f, 1.0f}, std::vector<std::uint32_t>{22, 23, 24, 25, 26}, std::vector<std::uint32_t>{18, 19, 20, 21});
+    	GraphSaver::getInstance().getGraph().addGroup("E-2", ImVec4{148 / 255.0f, 0 / 255.0f, 211 / 255.0f, 1.0f}, std::vector<std::uint32_t>{27, 28, 29, 30, 31, 32}, std::vector<std::uint32_t>{22, 23, 24, 25, 26});
     	renderer->m_camera().position_world_space = glm::vec3(0, 0, 15);
+    	GraphSaver::getInstance().getGraph().addCameraBookmark("Spawn-Point", glm::vec3(0, 0, 15), 0, 0);
 
 
 

@@ -2,7 +2,7 @@
 #include "../src/model/Vertex.hpp"
 #include "../src/model/Graph.hpp"
 #include "../ext/imgui/imgui.h"
-#include "model/GraphSaver.hpp"
+#include "../src/model/GraphSaver.hpp"
 
 using namespace graphvise;
 TEST(VertexTest, CheckGetter) {

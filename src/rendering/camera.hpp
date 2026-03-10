@@ -40,8 +40,10 @@ namespace graphvise {
         const glm::vec3 originCoords = glm::vec3(0.0f, 0.0f, 0.0f);
         mutable glm::mat4 mProjectionMatrix;
 
-        void scalePositionToGraph();
     public:
+        // adjusts the camera position, to a position outside the graph where the whole graph is visible
+        void scalePositionToGraph();
+
         [[nodiscard]] const CameraFocusMode* camera_focus_mode() const {
             return &cameraFocusMode;
         }
@@ -94,8 +96,8 @@ namespace graphvise {
             position_world_space(DEFAULT_COORDINATES),
             rotation_y(0),
             rotation_x(0),
-            near(0.01f),
-            far(1.0e3f),
+            near(0.1f),
+            far(1.0e5f),
             vertical_fov(0.33f*3.1415926536f),
             rotate_camera(false),
             focusPoint(0, 0, 0)

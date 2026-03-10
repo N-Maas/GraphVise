@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include "../ext/imgui/imgui.h"
-#include "model/GraphSaver.hpp"
+#include "../src/model/GraphSaver.hpp"
 
 using namespace graphvise;
 TEST(GraphSaverTest, getSetGraphTest) {

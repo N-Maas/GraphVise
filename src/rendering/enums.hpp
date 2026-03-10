@@ -16,15 +16,14 @@ namespace graphvise {
 
     enum class LightSourceMovementBehaviour {
         FIXED_POSITION = 0,
-        ORBIT_AROUND_GRAPH,
         FOLLOW_CAMERA,
         MOVE_BEHAVIOUR_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
 
     enum class PerformanceMode {
-        QUALITY = 0,
+        PERFORMANCE = 0,
         BALANCE,
-        PERFORMANCE,
+        QUALITY,
         PERFORMANCE_MODE_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
 }

@@ -26,10 +26,6 @@ int main()
 {
     graphvise::Window window = graphvise::Window();
 
-    graphvise::ParserController pc;
-    // pc.parseFile("../Testgraph.txt", graphvise::ParseFormat::TXT);
-    // graphvise::GraphSaver::getInstance().setGraph(pc.getParsedGraph().value());
-
     if (!window.initWindow())
     {
         std::_Exit(1);

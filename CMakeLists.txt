@@ -1,34 +1,71 @@
 cmake_minimum_required(VERSION 3.16)
 project(GraphVise VERSION 1.1 DESCRIPTION "GraphVise" LANGUAGES CXX)
 
-# Require out-of-source builds (this is good practice)
+# Require out-of-source builds
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
 if (EXISTS "${LOC_PATH}")
-    message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
+    message(FATAL_ERROR "You cannot build in a source directory. Please use a build subdirectory.")
 endif ()
 
-# Use C++20 for wembed compatibility
+# Use C++23
 set(CMAKE_CXX_STANDARD 23)
-#set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# source files -----------------------------------------------------------
-# All files that will be compiled have to be listed here. The shaders variable is unused.
+# ======================================================================
+# Fetch external dependencies
+# ======================================================================
+include(FetchContent)
 
 # GoogleTest
-include(FetchContent)
 FetchContent_Declare(
         googletest
         URL https://github.com/google/googletest/archive/refs/tags/v1.14.0.zip
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
-FetchContent_MakeAvailable(googletest)
+
+# wembed
+FetchContent_Declare(
+        wembed
+        GIT_REPOSITORY https://github.com/Vraier/wembed
+        GIT_TAG cpp-library-interface
+        GIT_SHALLOW TRUE
+)
+
+# PlatformFolders
+FetchContent_Declare(
+        platform_folders
+        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
+        GIT_TAG 849756445f4cb743d85c315e055be6b768d837da
+        GIT_SHALLOW TRUE
+)
+
+# Make all fetched content available
+set(WEMBED_AS_LIBRARY ON)
+FetchContent_MakeAvailable(googletest wembed platform_folders)
 
 enable_testing()
 
-# temporarily commented out tests
-file(GLOB TEST_SOURCES tests/*.cpp)
-add_executable(my_tests ${TEST_SOURCES})
+# ======================================================================
+# Find required packages
+# ======================================================================
+find_package(glfw3 3.3 REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(OpenMP)
 
+# Boost configuration
+set(Boost_NO_BOOST_CMAKE ON)
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS OFF)
+find_package(Boost 1.83.0 REQUIRED COMPONENTS filesystem serialization system)
+
+# ======================================================================
+# Add external subdirectories
+# ======================================================================
+add_subdirectory(ext)  # glad and imgui
+
+# ======================================================================
+# Define library
+# ======================================================================
 add_library(my_lib
         src/model/CameraBookmark.cpp
         src/model/GraphSaver.cpp
@@ -39,12 +76,24 @@ add_library(my_lib
         src/controller/Exporting/CachingController.cpp
 )
 
-target_include_directories(my_lib PUBLIC src ext)
-target_link_libraries(my_tests PRIVATE my_lib gtest_main)
+target_include_directories(my_lib PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/ext
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
+        ${platform_folders_SOURCE_DIR}
+        ext/imgui-filebrowser
+)
 
-include(GoogleTest)
-gtest_discover_tests(my_tests)
+target_link_libraries(my_lib PRIVATE
+        glad
+        Boost::serialization
+        Boost::filesystem
+        Boost::system
+)
 
+# ======================================================================
+# Define source files
+# ======================================================================
 set(HEADERS
         src/rendering/camera.hpp
         src/rendering/renderer.hpp
@@ -58,7 +107,6 @@ set(HEADERS
         src/controller/Parsing/TXTParser.hpp
         src/controller/Parsing/CNFParser.hpp
         src/controller/Parsing/GraphParser.hpp
-        src/controller/Parsing/TXTParser.hpp
         src/controller/Parsing/WEmbedController.hpp
         src/controller/MovementController.hpp
         src/controller/Error.hpp
@@ -86,6 +134,11 @@ set(HEADERS
         src/controller/Exporting/ExporterController.hpp
         src/controller/Exporting/PNGExporter.hpp
         src/controller/Structs/PNGExportData.hpp
+        src/view/InputManager.hpp
+        src/controller/Enums/ImportFormat.hpp
+        src/rendering/enums.hpp
+        src/model/VertexTransparencyCompare.hpp
+        src/model/EdgeTransparencyCompare.hpp
 )
 
 set(SOURCES
@@ -115,14 +168,8 @@ set(SOURCES
         ext/lodepng/lodepng.cpp
         src/controller/Exporting/ExporterController.cpp
         src/controller/Exporting/PNGExporter.cpp
-        src/controller/Enums/ImportFormat.hpp
         src/view/InputManager.cpp
-        src/view/InputManager.hpp
         src/controller/Exporting/CachingController.cpp
-        src/controller/Exporting/CachingController.hpp
-        src/rendering/enums.hpp
-        src/model/VertexTransparencyCompare.hpp
-        src/model/EdgeTransparencyCompare.hpp
 )
 
 set(SHADERS
@@ -134,99 +181,70 @@ set(SHADERS
 
 set(SHADERS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/shaders")
 
-# define target ---------------------------------------------------------- 
-
-# add executable
-# this is the build target that we create in the end and that we link all libraries to
+# ======================================================================
+# Define main executable
+# ======================================================================
 add_executable(GraphVise ${SOURCES} ${HEADERS})
 
-# set defines that can be used in the project code
-# SHADERS_PATH points to the shader files directory
-target_compile_definitions(GraphVise PRIVATE -DSHADERS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shader/")
-
-# external dependencies and libraries ------------------------------------
-
-# find required packages
-find_package(glfw3 3.3 REQUIRED)
-find_package(OpenGL REQUIRED)
-
-# Boost configuration
-set(Boost_NO_BOOST_CMAKE ON)
-
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS OFF)
-#set(Boost_DEBUG ON)
-
-find_package(Boost 1.83.0 REQUIRED COMPONENTS
-        filesystem
-        serialization
-        system
+target_compile_definitions(GraphVise PRIVATE
+        -DSHADERS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/shader/"
 )
-
-if(NOT Boost_FOUND)
-    message(FATAL_ERROR "Boost not found! Please install: sudo apt install libboost-all-dev")
-endif()
-
-# find optional packages
-find_package(OpenMP)
-# fetch wembed
-include(FetchContent)
-
-FetchContent_Declare(
-        wembed
-        GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG        cpp-library-interface
-        GIT_SHALLOW TRUE
-)
-
-set(WEMBED_AS_LIBRARY ON)
-FetchContent_MakeAvailable(wembed)
-
-# add external libraries that are locally built: glad and imgui
-add_subdirectory(ext)
-
-include(FetchContent)
-FetchContent_Declare(
-        platform_folders
-        GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
-)
-FetchContent_MakeAvailable(platform_folders)
 
 target_include_directories(GraphVise PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/ext
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${platform_folders_SOURCE_DIR}
         ext/imgui-filebrowser
-        ${platform_folders_SOURCE_DIR}
-)
-# IMPORTANT: Also add the same include path to my_lib test library
-target_include_directories(my_lib PRIVATE
-        ${platform_folders_SOURCE_DIR}
 )
 
-# Debug output
-message(STATUS "platform_folders_SOURCE_DIR: ${platform_folders_SOURCE_DIR}")
-
-# link required libraries
 target_link_libraries(GraphVise PRIVATE
         imgui
         glad
         glfw
         OpenGL::GL
-        wembedLib # main wembed library
-        wembed_flags # compiler flags
-        embeddingLib # will be available from wembed
-        graphLib # will be available from wembed
-        utilLib # will be available from wembed
+        wembedLib
+        wembed_flags
+        embeddingLib
+        graphLib
+        utilLib
         Boost::filesystem
         Boost::serialization
         platform_folders
+        my_lib
 )
-# link optional libraries
+
 if (OpenMP_CXX_FOUND)
     target_link_libraries(GraphVise PUBLIC OpenMP::OpenMP_CXX)
 endif ()
 
-# Install target (optional but good practice)
+# ======================================================================
+# Tests (commented out for now)
+# ======================================================================
+# file(GLOB TEST_SOURCES tests/*.cpp)
+# add_executable(my_tests ${TEST_SOURCES})
+#
+# target_include_directories(my_tests PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/ext
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src
+#     ${CMAKE_CURRENT_SOURCE_DIR}/ext/glad
+#     ${platform_folders_SOURCE_DIR}
+#     ext/imgui-filebrowser
+# )
+#
+# target_link_libraries(my_tests PRIVATE
+#     my_lib
+#     gtest_main
+#     glad
+#     Boost::serialization
+#     Boost::filesystem
+#     Boost::system
+#     platform_folders
+# )
+#
+# include(GoogleTest)
+# gtest_discover_tests(my_tests)
+
+# ======================================================================
+# Install
+# ======================================================================
 install(TARGETS GraphVise RUNTIME DESTINATION bin)

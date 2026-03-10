@@ -6,15 +6,15 @@
 #define THESIS_FRAMEWORK_BUTTONS_HPP
 
 
-//needed for FileBrowser DON'T DELETE
 #include <functional>
 
+//needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
 
-#define ICON_FILE_PATH "../ext/GUIIcons/"
+#define ICON_FILE_PATH "../resources/GUIIcons/"
 
 
 namespace graphvise
@@ -77,10 +77,20 @@ namespace graphvise
         Texture randomize;
         Texture searchIcon;
         Texture groupIcon;
-        Texture performanceIcon;
-        Texture cameraMovementIcon;
-        Texture cameraMovementIcon2;
-        Texture lightSourceIcon;
+
+
+        Texture currentPerformanceMode;
+        Texture performanceIcon_Performance;
+        Texture performanceIcon_Balanced;
+        Texture performanceIcon_Quality;
+
+        Texture currentCameraIcon;
+        Texture cameraMovementIcon_CenterOfMass;
+        Texture cameraMovementIcon_Free;
+
+        Texture currentLightSourceIcon;
+        Texture lightSourceIcon_Fixed;
+        Texture lightSourceIcon_FollowCamera;
 
         void MainMenuBar();
 
@@ -88,6 +98,7 @@ namespace graphvise
         void SideBarElement(Texture texture, const char* hoverMsg, const std::function<void(const char* hoverMsg)>& onClickFunction);
 
         void changeObjSize();
+        void scaleGraph();
         void graphSettings();
         void generalSettings();
         void GroupMenu(const char* popUpName);
