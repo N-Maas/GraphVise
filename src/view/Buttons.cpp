@@ -47,7 +47,6 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        //  ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
@@ -56,6 +55,7 @@ namespace graphvise
 
     void Buttons::MainMenuBar()
     {
+
         // Main Menu Bar at the top of the Window
         ImGui::BeginMainMenuBar();
 
@@ -70,6 +70,9 @@ namespace graphvise
         ImGui::Separator();
         help();
         ImGui::Separator();
+
+        ImGui::SameLine(1180);
+        ImGui::TextColored(ImVec4(1,1,1,1),"Current Graph: %s", saver->getGraph().getName().c_str());
 
         ImGui::EndMainMenuBar();
 

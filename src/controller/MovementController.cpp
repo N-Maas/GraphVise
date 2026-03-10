@@ -125,7 +125,6 @@ namespace graphvise
 
     void MovementController::zoom(float zoomValue, bool sprinting)
     {
-        // if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
         {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
