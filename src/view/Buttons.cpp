@@ -64,7 +64,6 @@ namespace graphvise
 
         switch (*performanceMode)
         {
-
         case PerformanceMode::QUALITY:
             currentPerformanceMode = performanceIcon_Quality;
             break;
@@ -78,26 +77,24 @@ namespace graphvise
 
         switch (*cameraMode)
         {
-
-            case CameraFocusMode::CENTER_OF_MASS:
-                currentCameraIcon = cameraMovementIcon_CenterOfMass;
-                break;
-            case CameraFocusMode::FREE:
-                currentCameraIcon = cameraMovementIcon_Free;
+        case CameraFocusMode::CENTER_OF_MASS:
+            currentCameraIcon = cameraMovementIcon_CenterOfMass;
+            break;
+        case CameraFocusMode::FREE:
+            currentCameraIcon = cameraMovementIcon_Free;
         }
         switch (*lightSourceMovementBehaviour)
         {
-            case LightSourceMovementBehaviour::FIXED_POSITION:
-                currentLightSourceIcon = lightSourceIcon_Fixed;
-                break;
-            case LightSourceMovementBehaviour::FOLLOW_CAMERA:
-                currentLightSourceIcon = lightSourceIcon_FollowCamera;
+        case LightSourceMovementBehaviour::FIXED_POSITION:
+            currentLightSourceIcon = lightSourceIcon_Fixed;
+            break;
+        case LightSourceMovementBehaviour::FOLLOW_CAMERA:
+            currentLightSourceIcon = lightSourceIcon_FollowCamera;
         }
     }
 
     void Buttons::MainMenuBar()
     {
-
         // Main Menu Bar at the top of the Window
         ImGui::BeginMainMenuBar();
 
@@ -114,7 +111,7 @@ namespace graphvise
         ImGui::Separator();
 
         ImGui::SameLine(1180);
-        ImGui::TextColored(ImVec4(1,1,1,1),"Current Graph: %s", saver->getGraph().getName().c_str());
+        ImGui::TextColored(ImVec4(1, 1, 1, 1), "Current Graph: %s", saver->getGraph().getName().c_str());
 
         ImGui::EndMainMenuBar();
 
@@ -196,11 +193,6 @@ namespace graphvise
         ImGui::Spacing();
 
 
-
-
-
-
-
         if (ImGui::ImageButton(currentCameraIcon.id, ImVec2(50, 50)))
         {
             buttonController->toggleCameraFocusMode();
@@ -218,8 +210,8 @@ namespace graphvise
                 text = "Free";
                 break;
 
-                default:
-                    throw std::runtime_error("Invalid Camera Focus Mode");
+            default:
+                throw std::runtime_error("Invalid Camera Focus Mode");
             }
 
             if (text.empty())
@@ -280,25 +272,19 @@ namespace graphvise
 
     void Buttons::scaleGraph()
     {
-        static float scale =  1.0f;
+        static float scale = 1.0f;
 
-       if (ImGui::BeginMenu("Scale Graph"))
+        if (ImGui::BeginMenu("Scale Graph"))
         {
-
-           if (ImGui::DragFloat("##Scale", &scale, 0.001f, 0.01f, 100.0f ))
+            if (ImGui::DragFloat("##Scale", &scale, 0.001f, 0.01f, 100.0f))
             {
-               buttonController->scaleGraph(scale);
+                buttonController->scaleGraph(scale);
             }
-           {
+            {
+            }
 
-           }
-
-           ImGui::EndMenu();
+            ImGui::EndMenu();
         }
-
-
-
-
     }
 
     void Buttons::graphSettings()
@@ -751,10 +737,10 @@ namespace graphvise
             }
             if (ImGui::BeginMenu("Hotkeys"))
             {
-
                 const auto hotkeyText = "- K : Change Camera Movement Mode \n"
                     "- Q : Rotate through Rendering Qualities \n"
-                    "- L : Toggle Light Source Behavior \n";
+                    "- L : Toggle Light Source Behavior \n"
+                    "- H : Remove Highlighting";
 
                 ImGui::Text(hotkeyText);
                 ImGui::EndMenu();

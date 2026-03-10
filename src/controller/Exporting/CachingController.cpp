@@ -43,7 +43,6 @@ namespace graphvise
 
     std::vector<std::filesystem::path> CachingController::getExampleGraphNames()
     {
-        std::cout << get_current_dir_name() << std::endl;
 
         std::vector<std::filesystem::path> filenames;
         for (const auto& file : std::filesystem::directory_iterator(exampleGraphsPath))
