@@ -328,6 +328,12 @@ namespace graphvise
                               ImGuiWindowFlags_NoCollapse
         ))
         {
+            if (ImGui::Button("Import Group Config"))
+            {
+                importGroupConfigBrowser.SetTitle("Import Group Config");
+                importGroupConfigBrowser.Open();
+            }
+
             if (ImGui::Button("Randomize All Colors"))
             {
                 buttonController->randomizeAllColors();
@@ -682,7 +688,7 @@ namespace graphvise
         {
             if (ImGui::BeginMenu("Info"))
             {
-                const auto infoText = "This is a simple 3D graph viewer. \n"
+                constexpr auto infoText = "This is a simple 3D graph viewer. \n"
                     "The viewer supports the following operations: \n"
                     " - Import graphs from .txt and .cnf files \n"
                     " - Highlight subgraphs \n"

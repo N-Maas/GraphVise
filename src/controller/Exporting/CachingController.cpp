@@ -25,7 +25,7 @@ namespace graphvise
     const std::filesystem::path CachingController::cacheDir = sago::getCacheDir();
     const std::filesystem::path CachingController::cachePath = cacheDir / "graphVise";
     const std::filesystem::path CachingController::graphCachePath = cachePath / "graphs";
-    const std::filesystem::path CachingController::exampleGraphsPath = "../ext/Example Graphs";
+    const std::filesystem::path CachingController::exampleGraphsPath = "../resources/Example Graphs";
 
     const std::filesystem::path CachingController::dataDir = sago::getDataHome();
     const std::filesystem::path CachingController::settingsFile = dataDir / "GraphVise" / ("settings" + fileExtension);

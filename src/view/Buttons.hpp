@@ -6,15 +6,15 @@
 #define THESIS_FRAMEWORK_BUTTONS_HPP
 
 
-//needed for FileBrowser DON'T DELETE
 #include <functional>
 
+//needed for FileBrowser DON'T DELETE
 #include "imgui/imgui.h"
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
 
-#define ICON_FILE_PATH "../ext/GUIIcons/"
+#define ICON_FILE_PATH "../resources/GUIIcons/"
 
 
 namespace graphvise
