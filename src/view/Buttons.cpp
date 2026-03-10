@@ -353,7 +353,7 @@ namespace graphvise
                 importGroupConfigBrowser.SetTitle("Import Group Config");
                 importGroupConfigBrowser.Open();
             }
-
+            ImGui::SameLine();
             if (ImGui::Button("Randomize All Colors"))
             {
                 buttonController->randomizeAllColors();
@@ -366,8 +366,8 @@ namespace graphvise
                     {
                         ImGui::Text("Group ID: %d", group.getID());
                         ImGui::SameLine();
-                        ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                        ImGui::SameLine();
+                        //ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
+                        //ImGui::SameLine();
 
                         randomizeColoring(group.getID());
                         changeColoring(group.getID());
@@ -377,6 +377,10 @@ namespace graphvise
                 }
             }
             ImGui::EndPopup();
+        } else {
+            for (const auto& group : *activeGroups) {
+                groupColors[group.getID()].second = groupColors[group.getID()].first;
+            }
         }
     }
 
@@ -394,6 +398,8 @@ namespace graphvise
             transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
         }
 
+        ImGui::Text("Transparency:");
+        ImGui::SameLine();
         if (ImGui::SliderFloat(std::format("##Transparency##{}", groupID).c_str(), &transparency, 0.0f, 1.0f))
         {
             if (transparency < 0.0f)
@@ -491,17 +497,18 @@ namespace graphvise
         {
             buttonController->changeColoring(groupID, new_color);
         }
+        ImGui::SameLine();
         if (ImGui::Button(std::format("Revert##{}", groupID).c_str()))
         {
             buttonController->changeColoring(groupID, old_color);
             new_color = old_color;
         }
-        ImGui::SameLine();
-        if (ImGui::Button(std::format("Apply##{}", groupID).c_str()))
-        {
-            buttonController->changeColoring(groupID, new_color);
-            old_color = new_color;
-        }
+        //ImGui::SameLine();
+        // if (ImGui::Button(std::format("Apply##{}", groupID).c_str()))
+        // {
+        //     buttonController->changeColoring(groupID, new_color);
+        //     old_color = new_color;
+        // }
     }
 
     void Buttons::findVertex()

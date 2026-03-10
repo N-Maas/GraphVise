@@ -112,7 +112,7 @@ namespace graphvise {
         position_world_space = camPos;
         bool newHomePoint = true;
         for (const CameraBookmark& bookmark : GraphSaver::getInstance().getGraph().getCameraBookmarks()) {
-            if (bookmark.getName() == "Spawn-Point" && bookmark.getCoordsVector() == camPos) {
+            if (bookmark.getName() == "Spawn-Point" || bookmark.getCoordsVector() == camPos) {
                 newHomePoint = false;
             }
         }
