@@ -17,9 +17,15 @@ namespace graphvise {
             addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, std::vector<std::uint32_t>{});
             vertices.reserve(verticesCoordinates.size());
             edges.reserve(edgesConnectedVerticesIDs.size());
+            float maxDistance = 0;
             for (glm::vec3 coord : verticesCoordinates) {
                 vertices.emplace_back(vertices.size(), coord);
+                float currentDistance = std::sqrt(coord.x * coord.x + coord.y * coord.y + coord.z * coord.z);
+                if (currentDistance > maxDistance) {
+                    maxDistance = currentDistance;
+                }
             }
+            radius = maxDistance;
             for (std::pair edge : edgesConnectedVerticesIDs) {
                 edges.emplace_back(edges.size(), edge.first, edge.second);
             }
@@ -65,9 +71,14 @@ namespace graphvise {
             ar & groups;
             ar & cameraBookmarks;
         }
+
+        float getRadius() {
+            return radius * manualScale;
+        }
     private:
         void initRenderingMatrixForEdge(Edge& edge);
         float manualScale = 1;
+        float radius;
         std::string name;
         std::vector<Vertex> vertices;
         std::vector<Vertex*> verticesSortedByTransparency;

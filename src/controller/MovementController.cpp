@@ -5,14 +5,18 @@
 #include "MovementController.hpp"
 
 #include <GLFW/glfw3.h>
-#include "../rendering/enums.hpp"
 
-#define SPRINT_INCREASE 10
+#include <cmath>
+#include "../rendering/enums.hpp"
+#include "model/GraphSaver.hpp"
+
+#define SPRINT_INCREASE 5
 #define ROTATION_RADIANS_PER_PIXEL 0.003f
-#define MIN_VERTICAL_ANGLE 0.01
-#define ZOOM_BASE_SPEED_MULTIPLIER 0.5
+#define MIN_VERTICAL_ANGLE 0.01f
+#define ZOOM_BASE_SPEED_MULTIPLIER 0.5f
 #define ZOOM_SPRINT_MULTIPLIER 6
-#define MIN_DISTANCE 0.3
+#define MIN_DISTANCE 0.3f
+#define DEFAULT_SPEED 2.0f
 
 namespace graphvise {
 
@@ -27,8 +31,10 @@ namespace graphvise {
             double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
             auto time_delta = (float)elapsed_time;
             last_time = now;
-            float step = time_delta * camera.speed;
-            step *= sprinting ? SPRINT_INCREASE : 1.0f;
+            float step = time_delta * DEFAULT_SPEED;
+            float graphRadius = GraphSaver::getInstance().getGraph().getRadius();
+            step *= sprinting ? SPRINT_INCREASE * std::log(graphRadius) : 1.0f;
+            std::cout << step << " " << graphRadius << std::endl;
 
             float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
 

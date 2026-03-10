@@ -85,8 +85,6 @@ namespace graphvise {
         float near, far;
         // The vertical field of view (top to bottom) in radians
         float vertical_fov;
-        // The default speed of this camera in meters per second when it moves along a single axis
-        float speed;
         // 1 iff mouse movements are currently used to rotate the camera
         bool rotate_camera;
 
@@ -99,7 +97,6 @@ namespace graphvise {
             near(0.01f),
             far(1.0e3f),
             vertical_fov(0.33f*3.1415926536f),
-            speed(2.0f),
             rotate_camera(false),
             focusPoint(0, 0, 0)
         {
