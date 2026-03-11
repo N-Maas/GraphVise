@@ -47,7 +47,7 @@ namespace graphvise
 
         bool addBookmarkWindow = false;
 
-        graphvise::ImportFormat importFormat = graphvise::ImportFormat::TXT;
+        ImportFormat importFormat = ImportFormat::TXT;
         ExportFormat exportFormat = ExportFormat::PNG;
 
         GraphSaver *saver = &GraphSaver::getInstance();
@@ -59,7 +59,7 @@ namespace graphvise
         const CameraFocusMode* cameraMode = Renderer::getInstance().get()->m_camera().camera_focus_mode();
         const LightSourceMovementBehaviour* lightSourceMovementBehaviour = Renderer::getInstance().get()->light_source_movement_behaviour();
 
-        std::vector<std::pair<ImVec4,ImVec4>> groupColors = std::vector<std::pair<ImVec4,ImVec4>>(16);
+        std::vector<ImVec4> colorBuffer = std::vector<ImVec4>(16);
 
         std::vector<char> bookmarkName = std::vector<char>(16);
 
@@ -109,7 +109,7 @@ namespace graphvise
         void findObject(const char* popUpName);
         void performanceModeToggle(const char* popUpName);
         void randomizeColoring(uint32_t groupID) const;
-        void changeColoring(uint32_t groupID);
+        void changeColoring(uint32_t groupID) const;
         void findVertex();
         void findEdge();
         void highlightSubgraph();

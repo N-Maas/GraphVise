@@ -36,7 +36,8 @@ namespace graphvise
             float step = time_delta * DEFAULT_SPEED;
             float graphRadius = GraphSaver::getInstance().getGraph().getRadius();
             step *= sprinting ? SPRINT_INCREASE * std::log(graphRadius) : 1.0f;
-            std::cout << step << " " << graphRadius << std::endl;
+
+            // std::cout << step << " " << graphRadius << std::endl;
 
             const float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
 

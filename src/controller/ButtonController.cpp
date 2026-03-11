@@ -130,8 +130,8 @@ namespace graphvise
             return;
         }
 
+
         uint32_t edgeID;
-        //todo: remove try/catch, check val manually
         try
         {
             edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);

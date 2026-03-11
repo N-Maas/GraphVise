@@ -85,9 +85,12 @@ namespace graphvise
 
         if (!ImGui::GetIO().WantCaptureMouse)
         {
-            movementController.zoom(- scrollYOffset, sprinting);
-            scrollYOffset = 0;
+            movementController.zoom(static_cast<float>(-scrollYOffset), sprinting);
         }
+
+        ImGui::GetIO().MouseWheel = static_cast<float>(scrollYOffset/4.0f);
+        scrollYOffset = 0;
+
         handleMouseClick();
 
         processHotkeys();
