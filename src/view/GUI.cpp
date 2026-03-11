@@ -152,10 +152,6 @@ namespace graphvise
 
             case ObjType::EDGE:
                 {
-                    // SAFETY CHECK: Verify edge ID is valid
-                    if (m_selectedEdgeId >= edges.size()) {
-                        break;
-                    }
                     if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
                     {
                     ImGui::Text("Current Edge: ");

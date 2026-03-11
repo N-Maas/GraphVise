@@ -290,9 +290,11 @@ namespace graphvise {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // Clear to UINT32_MAX (0xFFFFFFFF)
-        GLuint clearValue = 0xFFFFFFFF;
-        glClearBufferuiv(GL_COLOR, 1, &clearValue);  // Clear attachment 1
+
+        constexpr GLuint clearValue[] = {UINT32_MAX, UINT32_MAX};
+        glClearBufferuiv(GL_COLOR, 1, clearValue);  // Clear attachment 1
         glClear(GL_DEPTH_BUFFER_BIT);
 
         // Enable depth testing for picking pass
@@ -506,10 +508,10 @@ namespace graphvise {
 
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
             // Draw all cylinders with one call
-            glBindVertexArray(cylinderVAO);
-            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
-                                   GL_UNSIGNED_INT, 0, edges.size());
-            GL_CHECK_ERROR();
+            // glBindVertexArray(cylinderVAO);
+            // glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
+            //                        GL_UNSIGNED_INT, 0, edges.size());
+            // GL_CHECK_ERROR();
             }
 
         glBindVertexArray(0);
