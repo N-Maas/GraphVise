@@ -27,9 +27,9 @@ namespace graphvise
 
         void showVertexInfo(uint32_t vertexId);
         void showEdgeInfo(uint32_t edgeId);
+        void resetObjInfo();
 
         void clearSelection() {
-            m_showObjectInfo = false;
             m_selectedVertexId = UINT32_MAX;
             m_selectedEdgeId = UINT32_MAX;
             m_objectType = ObjType::NONE;
@@ -44,7 +44,6 @@ namespace graphvise
 
         std::shared_ptr<ButtonController> buttonController;
         // for vertex picking
-        bool m_showObjectInfo = false;
         uint32_t m_selectedVertexId = UINT32_MAX;
         uint32_t m_selectedEdgeId = UINT32_MAX;
         glm::vec2 m_popupPosition;
@@ -52,7 +51,7 @@ namespace graphvise
         PickedObject m_pickedObject;  // Store the picked object
 
         void errorPopup();
-        void currentObjInfo();
+        void currentObjInfo(int framebufferWidth, int framebufferHeight);
         void update() override;
     };
 }
