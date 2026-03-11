@@ -25,13 +25,6 @@
 #include <glm/ext/matrix_transform.hpp>
 
 #include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
-#include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
 
 namespace graphvise {
@@ -860,10 +853,10 @@ namespace graphvise {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         if (pixelValues[0] != UINT32_MAX) {
-            result.type = PickedObject::Type::VERTEX;
+            result.type = ObjType::VERTEX;
             result.id = pixelValues[0];
         } else if (pixelValues[1] != UINT32_MAX) {
-            result.type = PickedObject::Type::EDGE;
+            result.type = ObjType::EDGE;
             result.id = pixelValues[1];
         }
         GL_CHECK_ERROR();

@@ -122,7 +122,7 @@ namespace graphvise
 
             switch (m_objectType)
             {
-            case 1:
+            case ObjType::VERTEX:
                 {
                     // SAFETY CHECK: Verify vertex ID is valid
                     if (m_selectedVertexId >= vertices.size()) {
@@ -150,8 +150,7 @@ namespace graphvise
                     break;
                 }
 
-
-            case 2:
+            case ObjType::EDGE:
                 {
                     // SAFETY CHECK: Verify edge ID is valid
                     if (m_selectedEdgeId >= edges.size()) {
@@ -201,19 +200,19 @@ namespace graphvise
         currentError = ErrorCollector::getInstance().getCurrentError();
     }
 
-    void GUI::showVertexInfo(uint32_t vertexId)
+    void GUI::showVertexInfo(const uint32_t vertexId)
     {
         m_selectedVertexId = vertexId;
         m_selectedEdgeId = UINT32_MAX;
         m_showObjectInfo = true;
-        m_objectType = 1; // object type vertex
+        m_objectType = ObjType::VERTEX;
     }
 
-    void GUI::showEdgeInfo(uint32_t edgeId)
+    void GUI::showEdgeInfo(const uint32_t edgeId)
     {
         m_selectedVertexId = UINT32_MAX;
         m_selectedEdgeId = edgeId;
         m_showObjectInfo = true;
-        m_objectType = 2; // object type edge
+        m_objectType = ObjType::EDGE;
     }
 }

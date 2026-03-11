@@ -26,4 +26,10 @@ namespace graphvise {
         QUALITY,
         PERFORMANCE_MODE_COUNT_LAST_ITEM // pattern to keep track of the number of items in the enum, for toggling
     };
+
+    enum class ObjType {
+        NONE,
+        VERTEX,
+        EDGE
+    };
 }
