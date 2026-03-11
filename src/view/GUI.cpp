@@ -114,11 +114,12 @@ namespace graphvise
             m_showObjectInfo = false;
         }
 
+        auto graph = GraphSaver::getInstance().getGraph();
+        const auto& vertices = graph.getVertices();
+        const auto& edges = graph.getEdges();
+
         if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
         {
-            auto graph = GraphSaver::getInstance().getGraph();
-            const auto& vertices = graph.getVertices();
-            const auto& edges = graph.getEdges();
 
             switch (m_objectType)
             {
@@ -126,7 +127,6 @@ namespace graphvise
                 {
                     // SAFETY CHECK: Verify vertex ID is valid
                     if (m_selectedVertexId >= vertices.size()) {
-                       ImGui::Text("Selected vertex no longer exists");
                        break;
                     }
 
@@ -150,9 +150,8 @@ namespace graphvise
 
             case 2:
                 {
-                     // SAFETY CHECK: Verify edge ID is valid
+                    // SAFETY CHECK: Verify edge ID is valid
                     if (m_selectedEdgeId >= edges.size()) {
-                        ImGui::Text("Selected edge no longer exists");
                         break;
                     }
                     ImGui::Text("Current Edge: ");

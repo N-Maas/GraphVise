@@ -148,7 +148,7 @@ namespace graphvise
 
             glfwGetCursorPos(window, &xpos, &ypos);
 
-            // Convert coordinates (keep this - it's needed for picking)
+            // Convert coordinates, needed for picking
             int fbWidth, fbHeight;
             glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
 
