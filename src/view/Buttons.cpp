@@ -59,7 +59,6 @@ namespace graphvise
         this->framebufferWidth = framebufferWidth;
         this->framebufferHeight = framebufferHeight;
 
-        ImGui::ShowDemoWindow();
 
         MainMenuBar();
 
