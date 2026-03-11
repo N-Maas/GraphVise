@@ -24,10 +24,7 @@
 
 int main()
 {
-    std::cout << "Program starting..." << std::endl;
     graphvise::Window window = graphvise::Window();
-
-    graphvise::ParserController pc;
 
     if (!window.initWindow())
     {

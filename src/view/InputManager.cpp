@@ -30,7 +30,6 @@ namespace graphvise
 
         glfwSetScrollCallback(this->window, scrollCallback);
         glfwSetMouseButtonCallback(this->window, mouseButtonCallback);
-
     }
 
     void InputManager::processInput()
@@ -39,7 +38,8 @@ namespace graphvise
 
         glfwPollEvents();
 
-        bool sprinting = (glfwGetKey(window, sprintKey) == GLFW_PRESS);
+
+        const bool sprinting = (glfwGetKey(window, sprintKey) == GLFW_PRESS);
 
 
         if (!ImGui::GetIO().WantCaptureKeyboard)
@@ -85,7 +85,7 @@ namespace graphvise
 
         if (!ImGui::GetIO().WantCaptureMouse)
         {
-            movementController.zoom(-scrollYOffset, sprinting);
+            movementController.zoom(- scrollYOffset, sprinting);
             scrollYOffset = 0;
         }
         handleMouseClick();
@@ -124,7 +124,6 @@ namespace graphvise
         scrollYOffset = yoffset;
     }
 
-    // Implementation in Window.cpp:
     void InputManager::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
         mouseButtonPressed = true;
@@ -143,7 +142,7 @@ namespace graphvise
 
         if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
         {
-            auto renderer = Renderer::getInstance();
+            const auto renderer = Renderer::getInstance();
 
             double xpos, ypos;
 
@@ -162,13 +161,11 @@ namespace graphvise
 
             // Get the picked object (could be vertex, edge, or nothing)
             PickedObject picked = renderer->getObjectAt(fbX, fbY);
-            auto& graph = GraphSaver::getInstance().getGraph();
 
             if (picked.isVertex())
             {
                 try
                 {
-                    auto& vertex = graph.getVertexByID(picked.id);
                     gui->showVertexInfo(picked.id);
                 }
                 catch (const std::exception& e)
@@ -180,7 +177,6 @@ namespace graphvise
             {
                 try
                 {
-                    auto& edge = graph.getEdgeByID(picked.id);
                     gui->showEdgeInfo(picked.id);
                 }
                 catch (const std::exception& e)

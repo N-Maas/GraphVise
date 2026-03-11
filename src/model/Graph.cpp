@@ -43,6 +43,10 @@ namespace graphvise {
         return cameraBookmarks.at(ID);
     }
 
+    float Graph::getRadius() {
+        return radius * manualScale;
+    }
+
     std::uint32_t Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
         if (firstVertexID == secondVertexID) {
             throw std::out_of_range("An edge requires two different nodes.");

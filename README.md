@@ -19,6 +19,16 @@ subdivide the graph into groups of the same color.
 > 5 1
 > 
 > Where v is the number of vertices and e is the number of edges.
+> 
+> or a .cnf file in the following format:
+> > p cnf 7 7   
+> 1 -2 0   
+> -1 -2 0   
+> -1 3 0   
+> 3 -4 0   
+> 3 -5 0   
+> 3 -6 0   
+> 5 -1 0
 
 > **Graph Export:** A .png of the loaded graph can be exported.
 
