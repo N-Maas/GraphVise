@@ -508,10 +508,10 @@ namespace graphvise {
 
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
             // Draw all cylinders with one call
-            // glBindVertexArray(cylinderVAO);
-            // glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
-            //                        GL_UNSIGNED_INT, 0, edges.size());
-            // GL_CHECK_ERROR();
+            glBindVertexArray(cylinderVAO);
+            glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
+                                   GL_UNSIGNED_INT, 0, edges.size());
+            GL_CHECK_ERROR();
             }
 
         glBindVertexArray(0);
