@@ -46,11 +46,11 @@ namespace graphvise {
     //representing the picked object
     struct PickedObject {
         uint32_t id = 0;                    // The ID (vertex ID or edge ID)
-        enum class Type { NONE, VERTEX, EDGE } type = Type::NONE;
+        ObjType type = ObjType::NONE;
 
-        bool isValid() const { return type != Type::NONE; }
-        bool isVertex() const { return type == Type::VERTEX; }
-        bool isEdge() const { return type == Type::EDGE; }
+        bool isValid() const { return type != ObjType::NONE; }
+        bool isVertex() const { return type == ObjType::VERTEX; }
+        bool isEdge() const { return type == ObjType::EDGE; }
     };
 
     class Renderer : public RendererSubject {

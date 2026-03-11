@@ -32,7 +32,7 @@ namespace graphvise
             m_showObjectInfo = false;
             m_selectedVertexId = UINT32_MAX;
             m_selectedEdgeId = UINT32_MAX;
-            m_objectType = 0;
+            m_objectType = ObjType::NONE;
         }
 
         GUI* get() { return this; }
@@ -48,7 +48,7 @@ namespace graphvise
         uint32_t m_selectedVertexId = UINT32_MAX;
         uint32_t m_selectedEdgeId = UINT32_MAX;
         glm::vec2 m_popupPosition;
-        uint32_t m_objectType = 0;  // 0=none, 1=vertex, 2=edge
+        ObjType m_objectType = ObjType::NONE;  // 0=none, 1=vertex, 2=edge
         PickedObject m_pickedObject;  // Store the picked object
 
         void errorPopup();
