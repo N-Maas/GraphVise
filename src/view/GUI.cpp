@@ -118,8 +118,7 @@ namespace graphvise
         const auto& vertices = graph.getVertices();
         const auto& edges = graph.getEdges();
 
-        if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
-        {
+
 
             switch (m_objectType)
             {
@@ -129,7 +128,8 @@ namespace graphvise
                     if (m_selectedVertexId >= vertices.size()) {
                        break;
                     }
-
+                    if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
+                   {
                     ImGui::Text("Current Vertex");
                     const auto& currentVertex = graph.getVertexByID(m_selectedVertexId);
                     ImGui::Text("Vertex ID: %d", m_selectedVertexId);
@@ -145,8 +145,11 @@ namespace graphvise
                     ImGui::Text("Vertex Color:");
                     ImGui::SameLine();
                     ImGui::ColorButton("##Vertex color", group.getVec4());
+                    ImGui::EndPopup();
+                    }
                     break;
                 }
+
 
             case 2:
                 {
@@ -154,6 +157,8 @@ namespace graphvise
                     if (m_selectedEdgeId >= edges.size()) {
                         break;
                     }
+                    if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
+                    {
                     ImGui::Text("Current Edge: ");
                     const auto& currentEdge = graph.getEdgeByID(m_selectedEdgeId);
                     const auto& [fst, snd] = currentEdge.getConnectingVerticesIDs();
@@ -177,6 +182,8 @@ namespace graphvise
                     ImGui::Text("Edge Color:");
                     ImGui::SameLine();
                     ImGui::ColorButton("##Edge color", group.getVec4());
+                    ImGui::EndPopup();
+                    }
                     break;
                 }
             default:
@@ -184,8 +191,8 @@ namespace graphvise
                     break;
                 }
             }
-            ImGui::EndPopup();
-        }
+
+
     }
 
     void GUI::update()
