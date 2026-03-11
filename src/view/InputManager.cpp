@@ -186,6 +186,8 @@ namespace graphvise
                 {
                     // leave this empty so as not to show an error when no object is picked while clicking
                 }
+            } else {
+                gui->resetObjInfo();
             }
         }
         mouseButtonPressed = false;
