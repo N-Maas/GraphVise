@@ -21,12 +21,16 @@ namespace graphvise
     void InputManager::initInputManager(GLFWwindow* window, GUI* gui,
                                         const std::shared_ptr<ButtonController>& buttonController)
     {
+        glfwPollEvents();
         this->window = window;
         this->gui = gui;
         this->buttonController = buttonController;
 
+        glfwSetWindowUserPointer(window, this);
+
         glfwSetScrollCallback(this->window, scrollCallback);
         glfwSetMouseButtonCallback(this->window, mouseButtonCallback);
+
     }
 
     void InputManager::processInput()
@@ -34,7 +38,6 @@ namespace graphvise
         // Take care of all GLFW events
 
         glfwPollEvents();
-
 
         bool sprinting = (glfwGetKey(window, sprintKey) == GLFW_PRESS);
 

@@ -151,6 +151,15 @@ namespace graphvise
         ifs.close();
         GraphSaver::getInstance().setGraph(newGraph);
         Renderer::getInstance()->m_camera().resetPosition();
+
+        // clear vertex/edge picking
+        if (auto controller = getButtonController()) {
+        controller->clearSelection();
+        }
+        // Notify renderer
+        auto renderer = Renderer::getInstance();
+        renderer->clearInstanceData();
+
         std::cout << "Successfully loaded graph: " << newGraph.getName() << std::endl;
     }
 
@@ -162,5 +171,10 @@ namespace graphvise
     std::filesystem::path CachingController::getGraphCacheDir()
     {
         return graphCachePath;
+    }
+
+    void CachingController::setButtonController(std::shared_ptr<ButtonController> controller)
+    {
+        getButtonController() = controller;
     }
 }

@@ -5,15 +5,17 @@
 #ifndef THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 #define THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 
-
 #include "ThreadController.hpp"
 #include "../rendering/renderer.hpp"
 #include "../rendering/camera.hpp"
+
 #include "Enums/ExportFormat.hpp"
 #include "Enums/ImportFormat.hpp"
 #include "imgui/imgui.h"
 
 namespace graphvise {
+    class GUI;
+
     class ButtonController {
     public:
         explicit ButtonController(const std::shared_ptr<Renderer>& renderer);
@@ -38,11 +40,14 @@ namespace graphvise {
         void deleteCameraBookmark(size_t bookmarkID);
         void randomizeAllColors();
         void scaleGraph(float scale);
+        void setGUI(std::shared_ptr<GUI> gui);
+        void clearSelection(); // clear edge/vertex picking
 
     private:
         Camera& camera;
         std::shared_ptr<Renderer> renderer;
         ThreadController threadController;
+        std::weak_ptr<GUI> m_gui; // GUI owns the ButtonController
     };
 }
 

@@ -14,6 +14,8 @@
 
 namespace graphvise
 {
+    class ButtonController;
+
     class GUI : public ErrorCollectorObserver
     {
     public:
@@ -26,18 +28,27 @@ namespace graphvise
         void showVertexInfo(uint32_t vertexId);
         void showEdgeInfo(uint32_t edgeId);
 
+        void clearSelection() {
+            m_showObjectInfo = false;
+            m_selectedVertexId = UINT32_MAX;
+            m_selectedEdgeId = UINT32_MAX;
+            m_objectType = 0;
+        }
+
+        GUI* get() { return this; }
     private:
         double fps = 0.0;
         Buttons buttons;
         bool errorAvailable;
         std::optional<Error> currentError = std::nullopt;
 
+        std::shared_ptr<ButtonController> buttonController;
         // for vertex picking
-        bool m_showObjectInfo;
-        uint32_t m_selectedVertexId;
-        uint32_t m_selectedEdgeId;
+        bool m_showObjectInfo = false;
+        uint32_t m_selectedVertexId = UINT32_MAX;
+        uint32_t m_selectedEdgeId = UINT32_MAX;
         glm::vec2 m_popupPosition;
-        uint32_t m_objectType;
+        uint32_t m_objectType = 0;  // 0=none, 1=vertex, 2=edge
         PickedObject m_pickedObject;  // Store the picked object
 
         void errorPopup();

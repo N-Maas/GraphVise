@@ -10,6 +10,7 @@
 //#include "platform_folders.h"
 #include <sago/platform_folders.h>
 #include "model/Graph.hpp"
+#include "controller/ButtonController.hpp"
 
 namespace graphvise
 {
@@ -29,6 +30,7 @@ namespace graphvise
         static void loadCachedGraph(const std::filesystem::path& filename);
         static void clearCache();
         static std::filesystem::path getGraphCacheDir();
+        static void setButtonController(std::shared_ptr<ButtonController> controller);
 
     private:
         static const std::string fileExtension;
@@ -39,7 +41,10 @@ namespace graphvise
         static const std::filesystem::path settingsFile;
         static const std::string defaultCacheFilename;
         static const std::filesystem::path exampleGraphsPath;
-
+        static std::shared_ptr<ButtonController>& getButtonController() {
+            static std::shared_ptr<ButtonController> instance;
+            return instance;
+        }
     };
 }
 

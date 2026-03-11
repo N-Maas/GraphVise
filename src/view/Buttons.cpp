@@ -28,9 +28,7 @@ namespace graphvise
     {
         importGroupConfigBrowser.SetTypeFilters(allowedGroupInfoFormat);
         highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
-
         exportGraphBrowser.SetTypeFilters(allowedExportFormat);
-
 
         cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
         randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
@@ -586,13 +584,6 @@ namespace graphvise
                 exportGraphBrowser.SetInputName("graph.png");
                 exportGraphBrowser.Open();
             }
-            // if (ImGui::MenuItem("Export as JPG"))
-            // {
-            //
-            //     exportGraphBrowser.SetInputName("graph.jpg");
-            //     exportGraphBrowser.Open();
-            //
-            // }
 
             ImGui::EndMenu();
         }

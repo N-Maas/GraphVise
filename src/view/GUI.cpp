@@ -31,6 +31,7 @@ namespace graphvise
         buttons.initButtons();
 
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
     }
 
     void GUI::loadFrame(const int framebufferWidth, const int framebufferHeight)
@@ -129,12 +130,19 @@ namespace graphvise
         if (ImGui::BeginPopup(popupName, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav))
         {
             auto graph = GraphSaver::getInstance().getGraph();
-
+            const auto& vertices = graph.getVertices();
+            const auto& edges = graph.getEdges();
 
             switch (m_objectType)
             {
             case 1:
                 {
+                    // SAFETY CHECK: Verify vertex ID is valid
+                    if (m_selectedVertexId >= vertices.size()) {
+                       ImGui::Text("Selected vertex no longer exists");
+                       break;
+                    }
+
                     ImGui::Text("Current Vertex");
                     const auto& currentVertex = graph.getVertexByID(m_selectedVertexId);
                     ImGui::Text("Vertex ID: %d", m_selectedVertexId);
@@ -155,6 +163,11 @@ namespace graphvise
 
             case 2:
                 {
+                     // SAFETY CHECK: Verify edge ID is valid
+                    if (m_selectedEdgeId >= edges.size()) {
+                        ImGui::Text("Selected edge no longer exists");
+                        break;
+                    }
                     ImGui::Text("Current Edge: ");
                     const auto& currentEdge = graph.getEdgeByID(m_selectedEdgeId);
                     const auto& [fst, snd] = currentEdge.getConnectingVerticesIDs();
@@ -182,7 +195,7 @@ namespace graphvise
                 }
             default:
                 {
-                    throw std::runtime_error("Invalid object type for current object info popup.");
+                    break;
                 }
             }
             ImGui::EndPopup();
@@ -191,7 +204,6 @@ namespace graphvise
 
     void GUI::update()
     {
-        std::cout << "updated" << std::endl;
         errorAvailable = true;
         currentError = ErrorCollector::getInstance().getCurrentError();
     }

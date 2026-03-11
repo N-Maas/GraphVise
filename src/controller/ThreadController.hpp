@@ -15,6 +15,7 @@ namespace graphvise {
     class ThreadController : public RendererObserver {
     public:
         explicit ThreadController(RendererSubject& renderer);
+        ~ThreadController() override;
         bool notifyBackgroundThread(ThreadOperation threadOperation);
         static bool backGroundThreadBusy();
         void update() override;

@@ -17,6 +17,13 @@
 
 
 namespace graphvise {
+    Window::Window()
+        : renderer(Renderer::getInstance())
+        , buttonController(std::make_shared<ButtonController>(renderer))
+        , gui(nullptr) // Start with null, will create in initWindow
+    {
+    }
+
     bool Window::initWindow() {
 		// If OpenMP is installed we can use it for parallelization
 		utils::printOpenMPVersion();
@@ -39,23 +46,14 @@ namespace graphvise {
         const auto defaultHeight = currentRes.height;
 
         window = glfwCreateWindow(defaultWidth, defaultHeight, windowTitle.c_str(), nullptr, nullptr);
-        // Error check if the window fails to create
 
         glfwSetWindowSizeLimits(window, 0, 640, GLFW_DONT_CARE, GLFW_DONT_CARE);
-
-        if (window == nullptr)
-        {
-            std::cout << "Failed to create GLFW window" << std::endl;
-            glfwTerminate();
-            return false;
-        }
 
 		// Introduce the window into the current context
 		glfwMakeContextCurrent(window);
 
         //Load GLAD so it configures OpenGL
         gladLoadGL();
-
         // enable depth testing for rendering
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
@@ -76,22 +74,27 @@ namespace graphvise {
 
     	// set welcome graph
     	GraphSaver::getInstance().setGraph(WelcomeGraph());
+
     	renderer->m_camera().position_world_space = glm::vec3(0, 0, 15);
-
-
 
         // Create the renderer object
         renderer->resize(framebufferWidth, framebufferHeight);
-
         renderer->init();
 
-        ErrorCollector::getInstance().signIn(gui);
+        buttonController = std::make_shared<ButtonController>(renderer);
 
-        gui.initGUI(window);
+        gui = std::make_shared<GUI>(buttonController);        // Create GUI with buttonController
 
-    	inputManager.initInputManager(window, &gui, buttonController);
+        ErrorCollector::getInstance().signIn(std::ref(*gui));
+        gui->initGUI(window);
+        buttonController->setGUI(gui);
+        CachingController::setButtonController(buttonController);
 
-    	return true;
+    	inputManager.initInputManager(window, gui.get(), buttonController);
+        std::cout.flush();  // Force output
+  volatile bool success = true;
+    return success;
+    	//return true;
 
     }
 
@@ -125,7 +128,7 @@ namespace graphvise {
     		GL_CHECK_ERROR();
 
     		//load GUI
-    		gui.loadFrame(framebufferWidth, framebufferHeight);
+    		gui->loadFrame(framebufferWidth, framebufferHeight);
 
     		inputManager.processInput();
 
@@ -142,7 +145,7 @@ namespace graphvise {
     		{
     			assert(0 < frameCount);
 
-    			gui.setFps(frameCount / accumulatedTime);
+    			gui->setFps(frameCount / accumulatedTime);
 
     			accumulatedTime = 0.0;
     			frameCount = 0;
@@ -151,7 +154,7 @@ namespace graphvise {
 
     	CachingController::cacheCurrentGraph();
 
-    	gui.shutdownGUI();
+    	gui->shutdownGUI();
 
     	// Renderer cleanup
     	renderer->shutdown();

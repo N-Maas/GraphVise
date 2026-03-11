@@ -143,5 +143,18 @@ namespace graphvise {
         }
     }
 
+    ThreadController::~ThreadController() {
+        // Unregister from renderer
+        auto rendererInstance = Renderer::getInstance();
+        if (rendererInstance) {
+            rendererInstance->signOut(std::ref(*this));
+        }
+
+        // Clean up any background threads
+        if (backgroundThread.joinable()) {
+            backgroundThread.join();
+        }
+    }
+
     RendererObserver::~RendererObserver() = default;
 }

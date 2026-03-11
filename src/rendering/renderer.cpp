@@ -383,6 +383,11 @@ namespace graphvise {
 
         // ===== RENDER SPHERES (instanced) =====
         if (!vertices.empty()) {
+            // SAFETY CHECK: Make sure vertices vector is valid
+            if (vertices.size() == 0) {
+                std::cerr << "ERROR: vertices vector is empty but size check passed?" << std::endl;
+                return;
+            }
             // Force reset vertex attribute state
             glBindVertexArray(0);  // Unbind any VAO
             glBindVertexArray(sphereVAO);  // Rebind sphere VAO
@@ -396,12 +401,6 @@ namespace graphvise {
                 glDisableVertexAttribArray(i);
             }
 
-/*
-            // Prepare instance data
-            vertexInstanceData.resize(vertices.size()); // positions only
-            vertexColorData.resize(vertices.size());    // colors
-
-*/
             // Only rebuild instance data if it's empty or size doesn't match
             if (vertexInstanceData.size() != vertices.size()) {
                 // Rebuild instance data
@@ -412,23 +411,54 @@ namespace graphvise {
 
             for (size_t i = 0; i < vertices.size(); i++) {
                 const Vertex* vertex = vertices[i];
+                if (!vertex) {
+                std::cerr << "ERROR: Null vertex pointer at index " << i << std::endl;
+                continue;
+                }
                 glm::vec3 pos = vertex->getCoordsVector();
+                // SAFETY CHECK: Check for NaN or invalid values
+                if (std::isnan(pos.x) || std::isnan(pos.y) || std::isnan(pos.z)) {
+                   std::cerr << "WARNING: Vertex " << i << " has NaN position" << std::endl;
+                   pos = glm::vec3(0.0f);
+                }
+
                 auto group = graph.getGroupByID(vertex->getConnectedGroupID());
                 glm::vec4 color = group.getVec4();
                 uint32_t id = vertex->getID();
+                float idAsFloat;
+
+                // SAFETY CHECK: This memcpy is line 478 - ensure id is valid
+                memcpy(&idAsFloat, &id, sizeof(uint32_t));
 
                 vertexInstanceData[i] = glm::vec3(pos.x, pos.y, pos.z);
                 vertexColorData[i] = color;
                 vertexIdData[i] = id;
             }
+            // SAFETY CHECK: Verify buffers exist before uploading
+            if (vertexInstanceVBO == 0 || vertexColorVBO == 0) {
+                std::cerr << "ERROR: Vertex VBOs not initialized!" << std::endl;
+                return;
+            }
+
             // Upload instance data
             glBindBuffer(GL_ARRAY_BUFFER, vertexInstanceVBO);
             glBufferData(GL_ARRAY_BUFFER, vertexInstanceData.size() * sizeof(glm::vec3),
                         vertexInstanceData.data(), GL_DYNAMIC_DRAW);
 
+            // Check for OpenGL errors after upload
+            GLenum err = glGetError();
+            if (err != GL_NO_ERROR) {
+                std::cerr << "OpenGL error after vertex instance upload: " << err << std::endl;
+            }
+
             glBindBuffer(GL_ARRAY_BUFFER, vertexColorVBO);
             glBufferData(GL_ARRAY_BUFFER, vertexColorData.size() * sizeof(glm::vec4),
                         vertexColorData.data(), GL_DYNAMIC_DRAW);
+
+            err = glGetError();
+            if (err != GL_NO_ERROR) {
+                std::cerr << "OpenGL error after vertex color upload: " << err << std::endl;
+            }
 
             // Upload ID buffer
             glBindBuffer(GL_ARRAY_BUFFER, vertexIdVBO);
@@ -439,7 +469,16 @@ namespace graphvise {
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 1);
 
             glBindVertexArray(sphereVAO);
+            // SAFETY CHECK: Verify sphere indices are valid
+            if (sphereIndices.empty()) {
+                std::cerr << "ERROR: sphereIndices is empty!" << std::endl;
+                return;
+            }
             glDrawElementsInstanced(GL_TRIANGLES, sphereIndices.size(), GL_UNSIGNED_INT, 0, vertices.size());
+            err = glGetError();
+            if (err != GL_NO_ERROR) {
+               std::cerr << "OpenGL error after sphere draw: " << err << std::endl;
+                }
             GL_CHECK_ERROR();
         }
         GL_CHECK_ERROR();

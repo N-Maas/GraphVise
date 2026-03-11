@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <utility>
 #include "model/GraphSaver.hpp"
+#include "rendering/renderer.hpp"
 
 namespace graphvise {
 void ParserController::parseFile(std::filesystem::path filePath, ParseFormat format) {
@@ -88,6 +89,10 @@ void ParserController::parseFile(std::filesystem::path filePath, ParseFormat for
             setParsedGraph(embeddedGraph);
             break;
         }
+
+        // Notify renderer
+        auto renderer = Renderer::getInstance();
+        renderer->clearInstanceData();
     }
 }
 

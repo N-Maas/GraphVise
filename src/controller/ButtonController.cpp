@@ -12,6 +12,7 @@
 #include "ErrorCollector.hpp"
 #include "Enums/ImportFormat.hpp"
 #include "model/GraphSaver.hpp"
+#include "../view/GUI.hpp"
 
 #define MAX_COLOR_VALUE 1.0f
 
@@ -287,5 +288,14 @@ namespace graphvise
         }
 
         graph.scaleGraph(scale);
+    }
+
+    void ButtonController::clearSelection() {
+        if (auto gui = m_gui.lock()) {
+            gui->clearSelection();
+        }
+    }
+    void ButtonController::setGUI(std::shared_ptr<GUI> gui) {
+        m_gui = gui;
     }
 }

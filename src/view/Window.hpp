@@ -15,14 +15,14 @@ namespace graphvise
     class Window
     {
     public:
-
+        Window();
         bool initWindow();
 
         void startApplicationLoop();
 
     private:
 
-        std::shared_ptr<Renderer> renderer = Renderer::getInstance();
+        std::shared_ptr<Renderer> renderer;
         static Graph WelcomeGraph();
 
 
@@ -30,8 +30,8 @@ namespace graphvise
         int framebufferWidth = 0, framebufferHeight = 0;
 
 
-        std::shared_ptr<ButtonController> buttonController = std::make_shared<ButtonController>(renderer);
-        GUI gui = GUI(buttonController);
+        std::shared_ptr<ButtonController> buttonController;
+        std::shared_ptr<GUI> gui;
         InputManager inputManager;
 
         struct Resolution

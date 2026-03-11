@@ -13,12 +13,15 @@
 #include "imfilebrowser.h"
 #include "controller/ButtonController.hpp"
 #include "model/GraphSaver.hpp"
+#include "../controller/Enums/ImportFormat.hpp"
 
 #define ICON_FILE_PATH "../ext/GUIIcons/"
 
 
 namespace graphvise
 {
+    class ButtonController;
+
     struct Texture
     {
         ImTextureID id = nullptr;
@@ -44,7 +47,7 @@ namespace graphvise
 
         bool addBookmarkWindow = false;
 
-        ImportFormat importFormat = ImportFormat::TXT;
+        graphvise::ImportFormat importFormat = graphvise::ImportFormat::TXT;
         ExportFormat exportFormat = ExportFormat::PNG;
 
         GraphSaver *saver = &GraphSaver::getInstance();
