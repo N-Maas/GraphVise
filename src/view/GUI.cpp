@@ -118,7 +118,13 @@ namespace graphvise
                     ImGui::PushStyleColor(ImGuiCol_TitleBg, IM_COL32(10, 65, 110, 255));
                     ImGui::SetNextWindowPos({(static_cast<float>(framebufferWidth) / 2 - 210),(static_cast<float>(framebufferHeight) - 125)});
                     ImGui::SetNextWindowSize({420, 120});
-                    if (ImGui::Begin(popupName, nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNavFocus)) {
+                    if (ImGui::Begin(popupName, nullptr,
+                        ImGuiWindowFlags_AlwaysAutoResize |
+                        ImGuiWindowFlags_NoCollapse |
+                        ImGuiWindowFlags_NoScrollbar |
+                        ImGuiWindowFlags_NoInputs |
+                        ImGuiWindowFlags_NoNavFocus))
+                        {
                         const auto& currentVertex = graph.getVertexByID(m_selectedVertexId);
                         ImGui::Text("Current Vertex ID: %d", m_selectedVertexId);
                         const glm::vec3 coords = currentVertex.getCoordsVector();
