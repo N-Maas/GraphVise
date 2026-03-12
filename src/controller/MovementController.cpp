@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include <cmath>
-#include "../rendering/enums.hpp"
+#include "../rendering/Enums.hpp"
 #include "model/GraphSaver.hpp"
 
 #define SPRINT_INCREASE 5

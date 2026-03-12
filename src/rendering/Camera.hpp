@@ -20,7 +20,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "enums.hpp"
+#include "Enums.hpp"
 
 #define DEFAULT_COORDINATES glm::vec3(0, 0, 5)
 

@@ -13,7 +13,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "./renderer.hpp"
+#include "./Renderer.hpp"
 #include "../utils.hpp"
 #include "../model/Graph.hpp"
 #include "../model/Vertex.hpp"

@@ -24,7 +24,7 @@
 #include <memory>
 #include <glm/ext/matrix_clip_space.hpp>
 #include "RendererSubject.hpp"
-#include "camera.hpp"
+#include "Camera.hpp"
 #include "../controller/RendererObserver.hpp"
 
 #define STANDARD_SPHERE_RADIUS 0.05f

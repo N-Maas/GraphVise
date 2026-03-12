@@ -6,8 +6,8 @@
 #define THESIS_FRAMEWORK_BUTTONCONTROLLER_HPP
 
 #include "ThreadController.hpp"
-#include "../rendering/renderer.hpp"
-#include "../rendering/camera.hpp"
+#include "../rendering/Renderer.hpp"
+#include "../rendering/Camera.hpp"
 
 #include "Enums/ExportFormat.hpp"
 #include "Enums/ImportFormat.hpp"

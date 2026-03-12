@@ -95,9 +95,9 @@ target_link_libraries(my_lib PRIVATE
 # Define source files
 # ======================================================================
 set(HEADERS
-        src/rendering/camera.hpp
-        src/rendering/renderer.hpp
-        src/rendering/enums.hpp
+        src/rendering/Camera.hpp
+        src/rendering/Renderer.hpp
+        src/rendering/Enums.hpp
         src/utils.hpp
         src/rendering/RendererSubject.hpp
         src/controller/RendererObserver.hpp
@@ -136,15 +136,15 @@ set(HEADERS
         src/controller/Structs/PNGExportData.hpp
         src/view/InputManager.hpp
         src/controller/Enums/ImportFormat.hpp
-        src/rendering/enums.hpp
+        src/rendering/Enums.hpp
         src/model/VertexTransparencyCompare.hpp
         src/model/EdgeTransparencyCompare.hpp
 )
 
 set(SOURCES
-        src/rendering/camera.cpp
+        src/rendering/Camera.cpp
         src/main.cpp
-        src/rendering/renderer.cpp
+        src/rendering/Renderer.cpp
         src/utils.cpp
         src/view/Window.cpp
         src/controller/ButtonController.cpp

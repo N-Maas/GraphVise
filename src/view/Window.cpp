@@ -3,7 +3,7 @@
 //
 
 #include "../utils.hpp"
-#include "../rendering/renderer.hpp"
+#include "../rendering/Renderer.hpp"
 #include "Window.hpp"
 
 #include "imgui/imgui.h"

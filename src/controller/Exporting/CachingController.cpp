@@ -16,8 +16,8 @@
 #include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
-#include "../../rendering/renderer.hpp"
-#include "../../rendering/camera.hpp"
+#include "../../rendering/Renderer.hpp"
+#include "../../rendering/Camera.hpp"
 
 namespace graphvise
 {

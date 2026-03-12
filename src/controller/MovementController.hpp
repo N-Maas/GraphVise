@@ -5,8 +5,8 @@
 #ifndef THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
 #define THESIS_FRAMEWORK_MOVEMENTCONTROLLER_HPP
 
-#include "../rendering/camera.hpp"
-#include "rendering/renderer.hpp"
+#include "../rendering/Camera.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace graphvise
 {

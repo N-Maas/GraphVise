@@ -10,7 +10,7 @@
 
 #include "ErrorCollector.hpp"
 #include "model/GraphSaver.hpp"
-#include "rendering/renderer.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace graphvise {
 

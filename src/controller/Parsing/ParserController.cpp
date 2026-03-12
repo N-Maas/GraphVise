@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 #include "model/GraphSaver.hpp"
-#include "rendering/renderer.hpp"
+#include "rendering/Renderer.hpp"
 
 namespace graphvise {
 void ParserController::parseFile(std::filesystem::path filePath, ParseFormat format) {

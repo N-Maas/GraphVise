@@ -16,7 +16,7 @@
 // https://github.com/MomentsInGraphics/vulkan_renderer/
 
 
-#include "./camera.hpp"
+#include "./Camera.hpp"
 
 #include <iostream>
 #include <glm/gtx/transform.hpp>
