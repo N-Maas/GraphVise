@@ -47,7 +47,8 @@ namespace graphvise
         {
             ImGui::SetNextWindowPos(ImVec2(0, framebufferHeight), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
             ImGui::Begin("##Loading window", nullptr,
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar |
+                         ImGuiWindowFlags_AlwaysAutoResize |
+                         ImGuiWindowFlags_NoTitleBar |
                          ImGuiWindowFlags_NoCollapse
             );
             ImGui::Text("Loading...");
