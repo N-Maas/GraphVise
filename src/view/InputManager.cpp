@@ -55,39 +55,43 @@ namespace graphvise
             movementController.moveCamera(direction, sprinting);
         }
 
-        //Rotating Camera
-        static float lastMousePosition[2];
-        static double currentMousePositionDouble[2];
-        glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
-        float currentMousePositionFloat[2] = {
-            static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1])
-        };
-
-
-        static bool rotatingCamera = false;
-        int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
-        if (!rotatingCamera && rightMouseState == GLFW_PRESS)
-        {
-            rotatingCamera = true;
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera)
-        {
-            float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
-            float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
-            movementController.rotateCamera(pitchChange, yawChange);
-            std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
-        }
-        if (rotatingCamera && rightMouseState == GLFW_RELEASE)
-        {
-            rotatingCamera = false;
-        }
-
         if (!ImGui::GetIO().WantCaptureMouse)
         {
-            movementController.zoom(- scrollYOffset, sprinting);
-            scrollYOffset = 0;
+            //Rotating Camera
+            static float lastMousePosition[2];
+            static double currentMousePositionDouble[2];
+            glfwGetCursorPos(window, &currentMousePositionDouble[0], &currentMousePositionDouble[1]);
+            float currentMousePositionFloat[2] = {
+                static_cast<float>(currentMousePositionDouble[0]), static_cast<float>(currentMousePositionDouble[1])
+            };
+
+
+            static bool rotatingCamera = false;
+            const int rightMouseState = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+            if (!rotatingCamera && rightMouseState == GLFW_PRESS)
+            {
+                rotatingCamera = true;
+                std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+            }
+            if (rotatingCamera)
+            {
+                float yawChange = currentMousePositionFloat[0] - lastMousePosition[0];
+                float pitchChange = lastMousePosition[1] - currentMousePositionFloat[1];
+                movementController.rotateCamera(pitchChange, yawChange);
+                std::ranges::copy(currentMousePositionFloat, std::begin(lastMousePosition));
+            }
+            if (rotatingCamera && rightMouseState == GLFW_RELEASE)
+            {
+                rotatingCamera = false;
+            }
+
+            movementController.zoom(static_cast<float>(-scrollYOffset), sprinting);
+
         }
+
+        ImGui::GetIO().MouseWheel = static_cast<float>(scrollYOffset/4.0f);
+        scrollYOffset = 0;
+
         handleMouseClick();
 
         processHotkeys();
@@ -183,6 +187,8 @@ namespace graphvise
                 {
                     // leave this empty so as not to show an error when no object is picked while clicking
                 }
+            } else {
+                gui->resetObjInfo();
             }
         }
         mouseButtonPressed = false;

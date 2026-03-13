@@ -26,10 +26,14 @@ namespace graphvise
 
     void Buttons::initButtons()
     {
+
+        // Initialize file browsers with allowed formats
         importGroupConfigBrowser.SetTypeFilters(allowedGroupInfoFormat);
         highlightSubgraphBrowser.SetTypeFilters(allowedGroupInfoFormat);
         exportGraphBrowser.SetTypeFilters(allowedExportFormat);
 
+
+        // Load icons for buttons
         cameraBookmarkIcon = loadTextureFromFile(ICON_FILE_PATH "bookmark.png");
         randomize = loadTextureFromFile(ICON_FILE_PATH "Randomize Color button.png");
         searchIcon = loadTextureFromFile(ICON_FILE_PATH "Suche.png");
@@ -71,6 +75,8 @@ namespace graphvise
         case PerformanceMode::PERFORMANCE:
             currentPerformanceMode = performanceIcon_Performance;
             break;
+            default:
+            throw std::runtime_error("Invalid Performance Mode");
         }
 
         switch (*cameraMode)
@@ -80,6 +86,9 @@ namespace graphvise
             break;
         case CameraFocusMode::FREE:
             currentCameraIcon = cameraMovementIcon_Free;
+			break;
+            default:
+            break;
         }
         switch (*lightSourceMovementBehaviour)
         {
@@ -88,6 +97,9 @@ namespace graphvise
             break;
         case LightSourceMovementBehaviour::FOLLOW_CAMERA:
             currentLightSourceIcon = lightSourceIcon_FollowCamera;
+			break;
+            default:
+            throw std::runtime_error("Invalid Light Source Movement Mode");
         }
     }
 
@@ -343,7 +355,8 @@ namespace graphvise
         ImGui::SetNextWindowSizeConstraints({260, 300}, {MAXFLOAT, 300});
         if (ImGui::BeginPopup(popUpName,
                               ImGuiWindowFlags_AlwaysAutoResize |
-                              ImGuiWindowFlags_NoCollapse
+                              ImGuiWindowFlags_NoCollapse |
+                              ImGuiWindowFlags_AlwaysVerticalScrollbar
         ))
         {
             if (ImGui::Button("Import Group Config"))
@@ -364,7 +377,6 @@ namespace graphvise
                     {
                         ImGui::Text("Group ID: %d", group.getID());
                         ImGui::SameLine();
-
                         randomizeColoring(group.getID());
                         changeColoring(group.getID());
 
@@ -375,24 +387,17 @@ namespace graphvise
             ImGui::EndPopup();
         } else {
             for (const auto& group : *activeGroups) {
-                groupColors[group.getID()].second = groupColors[group.getID()].first;
+
+                colorBuffer[group.getID()] = group.getVec4();
+
             }
         }
     }
 
     void Buttons::ChangeTransparency(uint32_t groupID)
     {
-        if (groupID >= groupColors.size())
-        {
-            groupColors.resize(groupColors.size() * 2);
-        }
+        float transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
 
-        float& transparency = groupColors[groupID].first.w;
-
-        if (transparency == 0.0f)
-        {
-            transparency = saver->getGraph().getGroupByID(groupID).getVec4().w;
-        }
 
         ImGui::Text("Transparency:");
         ImGui::SameLine();
@@ -414,7 +419,7 @@ namespace graphvise
     {
         if (ImGui::BeginPopup(popUpName,
                               ImGuiWindowFlags_AlwaysAutoResize |
-                              ImGuiWindowFlags_NoCollapse))
+                              ImGuiWindowFlags_NoCollapse ))
         {
             if (ImGui::Button("Remove Highlighting"))
             {
@@ -472,32 +477,26 @@ namespace graphvise
         }
     }
 
-    void Buttons::changeColoring(uint32_t groupID)
+    void Buttons::changeColoring(uint32_t groupID) const
     {
-        if (groupID >= groupColors.size())
-        {
-            groupColors.resize(groupColors.size() * 2);
-        }
+        ImVec4 current_color = saver->getGraph().getGroupByID(groupID).getVec4();
+        const ImVec4 *colorBuf = &colorBuffer.at(groupID);
 
-        ImVec4& new_color = groupColors[groupID].first;
-        ImVec4& old_color = groupColors[groupID].second;
 
-        if (new_color.x == 0 && new_color.y == 0 && new_color.z == 0 && new_color.w == 0)
+        if (colorBuf->x == 0 && colorBuf->y == 0 && colorBuf->z == 0 && colorBuf->w == 0)
         {
-            new_color = saver->getGraph().getGroupByID(groupID).getVec4();
-            old_color = new_color;
+            current_color = colorBuffer[groupID];
         }
 
 
-        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &new_color.x))
+        if (ImGui::ColorEdit3(std::format("##Change Color Edit{}", groupID).c_str(), &current_color.x))
         {
-            buttonController->changeColoring(groupID, new_color);
+            buttonController->changeColoring(groupID, current_color);
         }
         ImGui::SameLine();
         if (ImGui::Button(std::format("Revert##{}", groupID).c_str()))
         {
-            buttonController->changeColoring(groupID, old_color);
-            new_color = old_color;
+            buttonController->changeColoring(groupID, *colorBuf);
         }
     }
 

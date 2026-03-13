@@ -287,9 +287,11 @@ namespace graphvise {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
         // Clear to UINT32_MAX (0xFFFFFFFF)
-        GLuint clearValue = 0xFFFFFFFF;
-        glClearBufferuiv(GL_COLOR, 1, &clearValue);  // Clear attachment 1
+
+        constexpr GLuint clearValue[] = {UINT32_MAX, UINT32_MAX};
+        glClearBufferuiv(GL_COLOR, 1, clearValue);  // Clear attachment 1
         glClear(GL_DEPTH_BUFFER_BIT);
 
         // Enable depth testing for picking pass
@@ -411,8 +413,8 @@ namespace graphvise {
                    pos = glm::vec3(0.0f);
                 }
 
-                auto group = graph.getGroupByID(vertex->getConnectedGroupID());
-                glm::vec4 color = group.getVec4();
+                const auto *group = &graph.getGroupByID(vertex->getConnectedGroupID());
+                glm::vec4 color = group->getVec4();
                 uint32_t id = vertex->getID();
                 float idAsFloat;
 
@@ -484,21 +486,21 @@ namespace graphvise {
                 glEnableVertexAttribArray(i);
             }
             // Prepare instance data
-            std::vector<EdgeInstanceData> edgeData(edges.size());
+            std::vector<EdgeInstanceData> edgeInstanceData(edges.size());
 
             for (size_t i = 0; i < edges.size(); i++) {
                 const Edge* edge = edges[i];
-                auto group = graph.getGroupByID(edge->getConnectedGroupID());
+                const auto *group = &graph.getGroupByID(edge->getConnectedGroupID());
 
-                edgeData[i].matrix = edge->getMatrix();  // Already has translation + rotation
-                edgeData[i].color = group.getVec4();
-                edgeData[i].id = edge->getID();
+                edgeInstanceData[i].matrix = edge->getMatrix();  // Already has translation + rotation
+                edgeInstanceData[i].color = group->getVec4();
+                edgeInstanceData[i].id = edge->getID();
             }
 
             // Upload all data in one buffer, interleaved data
             glBindBuffer(GL_ARRAY_BUFFER, edgeInstanceVBO);
-            glBufferData(GL_ARRAY_BUFFER, edgeData.size() * sizeof(EdgeInstanceData),
-                         edgeData.data(), GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, edgeInstanceData.size() * sizeof(EdgeInstanceData),
+                         edgeInstanceData.data(), GL_DYNAMIC_DRAW);
 
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
             // Draw all cylinders with one call
