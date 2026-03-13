@@ -96,7 +96,7 @@ namespace graphvise {
             position_world_space(DEFAULT_COORDINATES),
             rotation_y(0),
             rotation_x(0),
-            near(0.1f),
+            near(0.01f),
             far(1.0e5f),
             vertical_fov(0.33f*3.1415926536f),
             rotate_camera(false),
