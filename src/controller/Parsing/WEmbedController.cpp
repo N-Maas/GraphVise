@@ -29,12 +29,20 @@ namespace graphvise {
             vertexCoordinates.emplace_back(coord[0], coord[1], coord[2]);
         }
 
+        int numberOfIgnoredVertices = 0;
         glm::vec3 average(0, 0, 0);
-        for (auto vertex : vertexCoordinates) {
-            average.x += vertex.x / vertexCoordinates.size();
-            average.y += vertex.y / vertexCoordinates.size();
-            average.z += vertex.z / vertexCoordinates.size();
+        for (int vertexID = 0; vertexID < vertexCoordinates.size(); vertexID++) {
+            if (neighborhoodMap[vertexID].size() == 0) {
+                numberOfIgnoredVertices++;
+                continue;
+            }
+            average.x += vertexCoordinates[vertexID].x;
+            average.y += vertexCoordinates[vertexID].y;
+            average.z += vertexCoordinates[vertexID].z;
         }
+        average.x /= vertexCoordinates.size() - numberOfIgnoredVertices;
+        average.y /= vertexCoordinates.size() - numberOfIgnoredVertices;
+        average.z /= vertexCoordinates.size() - numberOfIgnoredVertices;
 
         //Max Scale amount is based on 10th root of vertex count and edge count
         float maxEdgeScale = 5 * pow(graphData.edges.size(), static_cast<float>(1)/10);

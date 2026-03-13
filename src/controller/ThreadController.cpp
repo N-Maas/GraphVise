@@ -109,6 +109,9 @@ namespace graphvise {
             std::unique_lock lock(mutex);
             conditionVariable.wait(lock, [] { return threadOperation.has_value() && !operationDone; });
             //Received new operation
+            time_t timestamp;
+            time(&timestamp);
+            std::cout << "Received new operation at: " << ctime(&timestamp);
             ThreadOperation& operation = threadOperation.value();
 
             switch (operation.requestedOperation) {
@@ -140,6 +143,8 @@ namespace graphvise {
                     break;
                 }
             }
+            time(&timestamp);
+            std::cout << "Finished operation at: " << ctime(&timestamp);
         }
     }
 
