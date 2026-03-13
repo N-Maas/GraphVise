@@ -65,10 +65,9 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
 * [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library for vector and matrix operations
-* [wembed]() graph embedding library provided by the ITI
+* [wembed]() graph embedding library
 * [Boost]() extending functionality of C++ Standard Library
 * [Eigen3]() C++ template library for linear algebra
-* []()
 
 ## Installation Instructions
 
@@ -80,7 +79,7 @@ For the rest of the dependencies, you have to provide the libraries through loca
 
 All libraries can be installed from the package manager. Open a terminal and install
 
-`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev libboost-all-dev`
+`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev libboost-all-dev libeigen3-dev`
 
 If you want to configure the CMake project with a GUI application you can optionally add
 
@@ -89,7 +88,7 @@ If you want to configure the CMake project with a GUI application you can option
 
 ### WindowsGL
 
-ToDo: Install CMake, GLFW, CMake, glm and OpenGL libraries.
+ToDo: Install CMake, GLFW, CMake, glm, boost, Eigen3 and OpenGL libraries.
 
 
 ## Build Instructions
@@ -113,7 +112,7 @@ You can then run the application from the build directory with
 
 ### Using an IDE
 
-Alternatively, you can import the CMakeLists.txt file from the base directory in an IDE that supports CMake, for example [CLion](https://www.jetbrains.com/de-de/clion/) or [Visual Studio](https://visualstudio.microsoft.com/de/free-developer-offers/).
+You can import the CMakeLists.txt file from the base directory in an IDE that supports CMake, for example [CLion](https://www.jetbrains.com/de-de/clion/) or [Visual Studio](https://visualstudio.microsoft.com/de/free-developer-offers/).
 If you are using Visual Studio you can use the CMake GUI program to create Visual Studio project files from the `CMakeLists.txt`.
 
 
