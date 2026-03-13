@@ -42,12 +42,20 @@ namespace graphvise {
         void scaleGraph(float scale);
         void setGUI(std::shared_ptr<GUI> gui);
         void clearSelection(); // clear edge/vertex picking
+        static void setInstance(std::shared_ptr<ButtonController> instance) {
+            s_instance = instance;
+        }
+
+        static std::shared_ptr<ButtonController> getInstance() {
+            return s_instance.lock();  // Return weak_ptr as shared_ptr
+        }
 
     private:
         Camera& camera;
         std::shared_ptr<Renderer> renderer;
         ThreadController threadController;
         std::weak_ptr<GUI> m_gui; // GUI owns the ButtonController
+        static std::weak_ptr<ButtonController> s_instance;
     };
 }
 

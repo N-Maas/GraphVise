@@ -10,6 +10,9 @@
 #include <set>
 #include <sstream>
 
+#include "../../rendering/Renderer.hpp"
+#include "../../controller/ButtonController.hpp"
+
 #define HEADER_REGEX "p\\s+cnf\\s+(\\d+)\\s+(\\d+)\\s*"
 #define EMPTY_LINE_REGEX "\\s*"
 #define CLAUSE_REGEX "(-?[1-9]\\d*)(\\s-?[1-9]\\d*)*\\s0"
@@ -136,6 +139,16 @@ namespace graphvise {
         auto name = filePath.stem().string();
 
         GraphData graphData(variableCount, edges, name);
+
+        // clear vertex/edge picking
+        if (auto controller = ButtonController::getInstance()) {
+            controller->clearSelection();
+        }
+        // Notify renderer and clear instance rendering buffers
+        auto renderer = Renderer::getInstance();
+        renderer->clearInstanceData();
+
         return graphData;
     }
+
 }

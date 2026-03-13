@@ -97,6 +97,7 @@ namespace graphvise {
         renderer->init();
 
         buttonController = std::make_shared<ButtonController>(renderer);
+    	ButtonController::setInstance(buttonController);
 
         gui = std::make_shared<GUI>(buttonController);        // Create GUI with buttonController
 

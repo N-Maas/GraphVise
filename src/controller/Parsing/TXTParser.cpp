@@ -11,6 +11,8 @@
 #include <vector>
 
 #include "controller/Error.hpp"
+#include "../../rendering/Renderer.hpp"
+#include "../../controller/ButtonController.hpp"
 
 #define HEADER_REGEX "\\s*v\\s*=\\s*(\\d+)\\s*,\\s*e\\s*=\\s*(\\d+)\\s*"
 #define EDGE_REGEX "\\s*(\\d+)\\s+(\\d+)\\s*"
@@ -130,6 +132,14 @@ namespace graphvise {
         auto name = filePath.stem().string();
 
         GraphData graphData(vertexCount, edges, name);
+
+		// clear vertex/edge picking
+        if (auto controller = ButtonController::getInstance()) {
+            controller->clearSelection();
+        }
+        // Notify renderer and clear instance rendering buffers
+        auto renderer = Renderer::getInstance();
+        renderer->clearInstanceData();
 
         return graphData ;
     }

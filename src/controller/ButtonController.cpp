@@ -16,8 +16,12 @@
 
 #define MAX_COLOR_VALUE 1.0f
 
+
+
 namespace graphvise
 {
+    std::weak_ptr<ButtonController> ButtonController::s_instance;
+
     ButtonController::ButtonController(const std::shared_ptr<Renderer>& renderer) : camera(renderer->m_camera()),
                                                                              renderer(renderer),
                                                                              threadController(*renderer)
