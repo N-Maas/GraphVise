@@ -413,8 +413,7 @@ namespace graphvise {
                    pos = glm::vec3(0.0f);
                 }
 
-                const auto *group = &graph.getGroupByID(vertex->getConnectedGroupID());
-                glm::vec4 color = group->getVec4();
+                glm::vec4 color = graph.getVertexVec4ByID(vertex->getID());
                 uint32_t id = vertex->getID();
                 float idAsFloat;
 
@@ -490,10 +489,9 @@ namespace graphvise {
 
             for (size_t i = 0; i < edges.size(); i++) {
                 const Edge* edge = edges[i];
-                const auto *group = &graph.getGroupByID(edge->getConnectedGroupID());
 
                 edgeInstanceData[i].matrix = edge->getMatrix();  // Already has translation + rotation
-                edgeInstanceData[i].color = group->getVec4();
+                edgeInstanceData[i].color = graph.getEdgeVec4ByID(edge->getID());
                 edgeInstanceData[i].id = edge->getID();
             }
 
