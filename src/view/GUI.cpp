@@ -4,8 +4,6 @@
 
 #include "GUI.hpp"
 
-#include <iostream>
-
 #include "controller/ErrorCollector.hpp"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"

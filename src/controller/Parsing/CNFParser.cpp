@@ -5,7 +5,6 @@
 #include "CNFParser.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <regex>
 #include <set>
 #include <sstream>

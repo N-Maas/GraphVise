@@ -7,7 +7,6 @@
 
 #include <filesystem>
 
-//#include "platform_folders.h"
 #include <sago/platform_folders.h>
 #include "model/Graph.hpp"
 #include "controller/ButtonController.hpp"

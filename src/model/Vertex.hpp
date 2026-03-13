@@ -1,6 +1,5 @@
 #ifndef THESIS_FRAMEWORK_VERTEX_HPP
 #define THESIS_FRAMEWORK_VERTEX_HPP
-#include <optional>
 #include <boost/optional/optional.hpp>
 
 #include "imgui/imgui.h"

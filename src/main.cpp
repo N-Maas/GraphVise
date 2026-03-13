@@ -15,12 +15,7 @@
 
 
 #include <iostream>
-
-#include "controller/Parsing/ParserController.hpp"
-#include "model/GraphSaver.hpp"
 #include "view/Window.hpp"
-
-#include <filesystem>
 
 int main()
 {

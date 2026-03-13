@@ -4,7 +4,6 @@
 
 #ifndef THESIS_FRAMEWORK_GRAPHDATA_HPP
 #define THESIS_FRAMEWORK_GRAPHDATA_HPP
-#include <cstdint>
 #include <vector>
 
 namespace graphvise {

@@ -6,7 +6,6 @@
 #define THESIS_FRAMEWORK_CNFPARSER_HPP
 #include <expected>
 #include <filesystem>
-#include <string>
 
 #include "GraphParser.hpp"
 #include "../Structs/GraphData.hpp"

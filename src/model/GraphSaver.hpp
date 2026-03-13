@@ -1,5 +1,7 @@
 #ifndef THESIS_FRAMEWORK_GRAPHSAVER_HPP
 #define THESIS_FRAMEWORK_GRAPHSAVER_HPP
+#include <optional>
+
 #include "Graph.hpp"
 
 namespace graphvise {

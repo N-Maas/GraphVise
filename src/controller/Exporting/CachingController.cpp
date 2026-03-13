@@ -9,11 +9,9 @@
 
 
 #include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/serialization/optional.hpp>
 
 #include "model/GraphSaver.hpp"
 #include "../../rendering/Renderer.hpp"

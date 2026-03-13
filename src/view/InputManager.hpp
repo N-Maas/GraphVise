@@ -6,7 +6,6 @@
 #define GRAPHVISE_INPUTMANAGER_HPP
 
 #include <functional>
-#include <utility>
 
 #include "GUI.hpp"
 #include "controller/ButtonController.hpp"

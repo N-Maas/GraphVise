@@ -4,7 +4,6 @@
 
 #ifndef THESIS_FRAMEWORK_ERRORCOLLECTOR_HPP
 #define THESIS_FRAMEWORK_ERRORCOLLECTOR_HPP
-#include <memory>
 
 #include "Error.hpp"
 #include "ErrorCollectorSubject.hpp"

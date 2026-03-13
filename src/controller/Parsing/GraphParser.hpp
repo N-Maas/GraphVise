@@ -4,7 +4,6 @@
 
 #ifndef THESIS_FRAMEWORK_GRAPHPARSER_HPP
 #define THESIS_FRAMEWORK_GRAPHPARSER_HPP
-#include <string>
 
 #include "../Structs/GraphData.hpp"
 #include "controller/Error.hpp"

@@ -6,7 +6,6 @@
 #define THESIS_FRAMEWORK_PARSERCONTROLLER_HPP
 #include <filesystem>
 #include <mutex>
-#include <string>
 #include <utility>
 
 #include "CNFParser.hpp"
