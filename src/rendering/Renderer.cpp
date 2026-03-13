@@ -266,9 +266,6 @@ namespace graphvise {
      * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
     void Renderer::loadShaders() {
-        //std::cout << "=== DEBUG: Reloading Shaders ===" << std::endl;
-        //std::cout << "Vertex shader path: " << mVertexShaderPath << std::endl;
-        //std::cout << "Fragment shader path: " << mFragmentShaderPath << std::endl;
         // Create shader program object and get its reference
         GLuint newProgram = utils::createShaderProgramFromFile(mVertexShaderPath, mFragmentShaderPath);
         if (newProgram != 0)
@@ -328,7 +325,6 @@ namespace graphvise {
 
     // rendering Graph
     void Renderer::render() {
-        //std::cout << "DEBUG: Renderer::render() called!" << std::endl;
         // Check that instance VBOs are initialized
         if (vertexInstanceVBO == 0 || vertexColorVBO == 0 ||
             edgeInstanceVBO == 0 ) {
@@ -538,8 +534,6 @@ namespace graphvise {
             std::cerr << "Invalid resize dimensions!" << std::endl;
             return;
         }
-        //std::cout << "Renderer::resize(" << framebufferWidth << ", " << framebufferHeight << ")" << std::endl;
-
         // Update stored size
         mFramebufferSize.x = framebufferWidth;
         mFramebufferSize.y = framebufferHeight;
@@ -820,9 +814,6 @@ namespace graphvise {
         // Regenerate geometry
         generateIcosphere(mSettings.sphereSubdiv);
         generateCylinder(mSettings.cylinderSegments);
-
-        // Reinitialize resources with new settings
-        //init();
     }
 
     void Renderer::setTargetFPS(int fps)
@@ -836,7 +827,6 @@ namespace graphvise {
         // Make sure coordinates are within framebuffer
         if (x < 0 || x >= mFramebufferSize.x ||
             y < 0 || y >= mFramebufferSize.y) {
-            std::cout << "Pick: Coordinates out of range: (" << x << ", " << y << ")" << std::endl;
             return result;  // No vertex
             }
 

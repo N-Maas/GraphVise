@@ -7,7 +7,6 @@
 #include <memory>
 #include <utility>
 
-//#include "Rand.hpp" //wembed/src/utilLib/include/Rand.hpp todo include produces an error in every form
 
 namespace graphvise {
     ErrorCollector ErrorCollector::instance;

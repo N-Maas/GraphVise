@@ -364,8 +364,6 @@ namespace graphvise
                     {
                         ImGui::Text("Group ID: %d", group.getID());
                         ImGui::SameLine();
-                        //ImGui::ColorButton(std::format("Group Color##{}", group.getID()).c_str(), group.getVec4());
-                        //ImGui::SameLine();
 
                         randomizeColoring(group.getID());
                         changeColoring(group.getID());
@@ -501,12 +499,6 @@ namespace graphvise
             buttonController->changeColoring(groupID, old_color);
             new_color = old_color;
         }
-        //ImGui::SameLine();
-        // if (ImGui::Button(std::format("Apply##{}", groupID).c_str()))
-        // {
-        //     buttonController->changeColoring(groupID, new_color);
-        //     old_color = new_color;
-        // }
     }
 
     void Buttons::findVertex()
