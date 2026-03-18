@@ -13,5 +13,4 @@ struct EdgeTransparencyCompare {
         return firstEdge->getID() < secondEdge->getID();
     }
 };
-
 #endif

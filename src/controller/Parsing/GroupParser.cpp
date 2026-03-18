@@ -109,9 +109,9 @@ namespace graphvise {
                     Error error(ErrorType::INVALID_EDGE_ID, line, currentLine);
                     return std::unexpected(error);
                 }
-                try {
-                    currentGroupData.edges.emplace_back(GraphSaver::getInstance().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID));
-                } catch (const std::out_of_range& exception) {
+                currentGroupData.edges.emplace_back(GraphSaver::getInstance().getGraph().getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID));
+                if (currentGroupData.edges.back() == -1) {
+                    currentGroupData.edges.pop_back();
                     Error error(ErrorType::INVALID_EDGE_ID, line, currentLine);
                     return std::unexpected(error);
                 }

@@ -4,15 +4,11 @@
 #include <glm/vec3.hpp>
 #include <utility>
 
-namespace graphvise
-{
-    class CameraBookmark
-    {
+namespace graphvise {
+    class CameraBookmark {
     public:
         explicit CameraBookmark(std::string name, const glm::vec3& coords, const float pitch, const float yaw)
-            : name(std::move(name)), coordsVector(coords), pitch(pitch), yaw(yaw)
-        {
-        }
+            : name(std::move(name)), coordsVector(coords), pitch(pitch), yaw(yaw) {}
         CameraBookmark(){}
 
         [[nodiscard]] const std::string& getName() const;
@@ -39,5 +35,4 @@ namespace graphvise
         float yaw;
     };
 }
-
 #endif

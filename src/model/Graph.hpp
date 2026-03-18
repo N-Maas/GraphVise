@@ -31,7 +31,7 @@ namespace graphvise {
                 edges.emplace_back(edges.size(), edge.first, edge.second);
             }
         }
-        [[nodiscard]] float getRadius();
+        [[nodiscard]] float getRadius() const;
         [[nodiscard]] const std::vector<Vertex>& getVertices() const;
         [[nodiscard]] const std::vector<Edge>& getEdges() const;
         [[nodiscard]] const std::vector<Group>& getGroups() const;

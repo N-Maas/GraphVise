@@ -1,5 +1,4 @@
 #include "Vertex.hpp"
-#include <stdexcept>
 #include "GraphSaver.hpp"
 
 namespace graphvise {
@@ -19,10 +18,10 @@ namespace graphvise {
         return coordsVector;
     }
 
-    void Vertex::setCoordsVector(glm::vec3 coordsVector) {
-        this->coordsVector.x = coordsVector.x;
-        this->coordsVector.y = coordsVector.y;
-        this->coordsVector.z = coordsVector.z;
+    void Vertex::setCoordsVector(glm::vec3 newCoordsVector) {
+        this->coordsVector.x = newCoordsVector.x;
+        this->coordsVector.y = newCoordsVector.y;
+        this->coordsVector.z = newCoordsVector.z;
     }
 
     float Vertex::getOwnTransparency() const {
@@ -32,9 +31,7 @@ namespace graphvise {
     void Vertex::setOwnTransparency(float transparency) {
         if (transparency >= 0.0f && transparency <= 1.0f) {
             ownTransparency = transparency;
-            return;
         }
-        throw std::out_of_range("Transparency must be between 0 and 1");
     }
 
     void Vertex::deleteOwnTransparency() {

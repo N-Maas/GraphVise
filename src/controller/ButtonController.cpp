@@ -135,12 +135,8 @@ namespace graphvise
 
 
         uint32_t edgeID;
-        try
-        {
-            edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
-        }
-        catch (std::out_of_range& e)
-        {
+        edgeID = graph.getEdgeIDByConnectingVerticesIDs(firstVertexID, secondVertexID);
+        if (edgeID == -1) {
             ErrorCollector::getInstance().collectError(Error(ErrorType::EDGE_DOES_NOT_EXIST));
             return;
         }

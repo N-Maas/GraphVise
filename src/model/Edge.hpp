@@ -1,16 +1,13 @@
 #ifndef THESIS_FRAMEWORK_EDGE_HPP
 #define THESIS_FRAMEWORK_EDGE_HPP
-
 #include <boost/optional/optional.hpp>
-
 #include "imgui/imgui.h"
 
 namespace graphvise {
     class Edge {
     public:
         explicit Edge(const std::uint32_t edgeID, const std::uint32_t firstVertexID, const std::uint32_t secondVertexID)
-            : edgeID(edgeID), connectedGroupID(1), connectingVerticesIDs(firstVertexID, secondVertexID)  {
-        }
+            : edgeID(edgeID), connectedGroupID(1), connectingVerticesIDs(firstVertexID, secondVertexID)  {}
         Edge(){}
 
         [[nodiscard]] std::uint32_t getID() const;
@@ -22,9 +19,9 @@ namespace graphvise {
         void deleteOwnTransparency();
 
         void setLength(float length);
-        float getLength() const;
+        [[nodiscard]] float getLength() const;
         void setMatrix(const glm::mat4& matrix);
-        const glm::mat4& getMatrix() const;
+        [[nodiscard]] const glm::mat4& getMatrix() const;
 
 
         template <class Archive>

@@ -13,5 +13,4 @@ struct VertexTransparencyCompare {
         return firstVertex->getID() < secondVertex->getID();
     }
 };
-
 #endif

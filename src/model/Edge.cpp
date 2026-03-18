@@ -1,5 +1,4 @@
 #include "Edge.hpp"
-#include <stdexcept>
 #include "GraphSaver.hpp"
 
 namespace graphvise {
@@ -26,9 +25,7 @@ namespace graphvise {
     void Edge::setOwnTransparency(float transparency) {
         if (transparency >= 0.0f && transparency <= 1.0f) {
             ownTransparency = transparency;
-            return;
         }
-        throw std::out_of_range("Transparency must be between 0 and 1");
     }
 
     void Edge::deleteOwnTransparency() {
@@ -46,7 +43,7 @@ namespace graphvise {
     }
 
     void Edge::setMatrix(const glm::mat4& newMatrix) {
-        this->matrix = std::move(newMatrix);
+        this->matrix = newMatrix;
     }
 
     const glm::mat4 &Edge::getMatrix() const {

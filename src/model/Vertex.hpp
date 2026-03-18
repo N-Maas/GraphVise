@@ -1,20 +1,13 @@
 #ifndef THESIS_FRAMEWORK_VERTEX_HPP
 #define THESIS_FRAMEWORK_VERTEX_HPP
 #include <boost/optional/optional.hpp>
-
 #include "imgui/imgui.h"
 
-
-namespace graphvise
-{
-    class Vertex
-    {
+namespace graphvise {
+    class Vertex {
     public:
         explicit Vertex(const std::uint32_t vertexID, const glm::vec3& coords)
-            : vertexID(vertexID), connectedGroupID(0),
-              coordsVector(coords)
-        {
-        }
+            : vertexID(vertexID), connectedGroupID(0), coordsVector(coords) {}
         Vertex(){}
 
         [[nodiscard]] std::uint32_t getID() const;

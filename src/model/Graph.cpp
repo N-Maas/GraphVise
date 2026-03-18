@@ -1,13 +1,11 @@
 #include "Graph.hpp"
 #include <algorithm>
-#include <iostream>
-#include <stdexcept>
+#include <numeric>
 #include <glm/ext/matrix_transform.hpp>
 #include "EdgeTransparencyCompare.hpp"
 #include "VertexTransparencyCompare.hpp"
 #include <glm/gtc/quaternion.hpp>   //used for rotation of edge calculation
 #include <glm/gtx/quaternion.hpp>
-
 #include "controller/ErrorCollector.hpp"
 
 namespace graphvise {
@@ -43,13 +41,13 @@ namespace graphvise {
         return cameraBookmarks.at(ID);
     }
 
-    float Graph::getRadius() {
+    float Graph::getRadius() const {
         return radius * manualScale;
     }
 
     std::uint32_t Graph::getEdgeIDByConnectingVerticesIDs(const std::uint32_t firstVertexID, const std::uint32_t secondVertexID) const {
         if (firstVertexID == secondVertexID) {
-            throw std::out_of_range("An edge requires two different nodes.");
+            return -1;
         }
         for (const Edge& edge : edges) {
             std::pair<std::uint32_t, std::uint32_t> connectingVerticesIDs = edge.getConnectingVerticesIDs();
@@ -59,11 +57,11 @@ namespace graphvise {
                 }
             }
         }
-        throw std::out_of_range("There is no edge between the specified nodes.");
+        return -1;
     }
 
-    void Graph::addGroup(const std::string& name, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
-        groups.emplace_back(groups.size(), name, groupVec4);
+    void Graph::addGroup(const std::string& groupName, const ImVec4& groupVec4, const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
+        groups.emplace_back(groups.size(), groupName, groupVec4);
         const std::size_t groupID = groups.size() - 1;
         if (!verticesIDs.empty()) {
             for (const std::uint32_t ID : verticesIDs) {
@@ -79,8 +77,8 @@ namespace graphvise {
         }
     }
 
-    void Graph::addCameraBookmark(const std::string& name, const glm::vec3& coords, float pitch, float yaw) {
-        cameraBookmarks.emplace_back(name, coords, pitch, yaw);
+    void Graph::addCameraBookmark(const std::string& bookmarkName, const glm::vec3& coords, float pitch, float yaw) {
+        cameraBookmarks.emplace_back(bookmarkName, coords, pitch, yaw);
     }
 
     void Graph::highlightByID(const std::vector<std::uint32_t>& verticesIDs, const std::vector<std::uint32_t>& edgesIDs) {
@@ -91,6 +89,7 @@ namespace graphvise {
                 vertex.setOwnTransparency(1.0f);
             }
         }
+        updateSortedVertices();
         for (Edge& edge : edges) {
             if (std::ranges::find(edgesIDs, edge.getID()) == edgesIDs.end()) {
                 edge.setOwnTransparency(0.2f);
@@ -98,7 +97,6 @@ namespace graphvise {
                 edge.setOwnTransparency(1.0f);
             }
         }
-        updateSortedVertices();
         updateSortedEdges();
     }
 
@@ -106,23 +104,19 @@ namespace graphvise {
         for (Vertex& vertex : vertices) {
             vertex.deleteOwnTransparency();
         }
+        updateSortedVertices();
         for (Edge& edge : edges) {
             edge.deleteOwnTransparency();
         }
-        updateSortedVertices();
         updateSortedEdges();
     }
 
     void Graph::deleteAllGroups() {
         groups.clear();
-        std::vector<std::uint32_t> verticesIDs;
-        std::vector<std::uint32_t> edgesIDs;
-        for (Vertex& vertex : vertices) {
-            verticesIDs.push_back(vertex.getID());
-        }
-        for (Edge& edge : edges) {
-            edgesIDs.push_back(edge.getID());
-        }
+        std::vector<std::uint32_t> verticesIDs(vertices.size());
+        std::iota(verticesIDs.begin(), verticesIDs.end(), 0);
+        std::vector<std::uint32_t> edgesIDs(edges.size());
+        std::iota(edgesIDs.begin(), edgesIDs.end(), 0);
         addGroup("Default-VertexGroup", ImVec4{255 / 255.0f, 0 / 255.0f, 0 / 255.0f, 1.0f}, verticesIDs, std::vector<std::uint32_t>{});
         addGroup("Default-EdgeGroup", ImVec4{255 / 255.0f, 155 / 255.0f, 0 / 255.0f, 1.0f}, std::vector<std::uint32_t>{}, edgesIDs);
     }
@@ -130,17 +124,11 @@ namespace graphvise {
     void Graph::deleteCameraBookmark(const std::uint32_t cameraBookmarkID) {
         if (cameraBookmarkID < cameraBookmarks.size()) {
             cameraBookmarks.erase(cameraBookmarks.begin() + cameraBookmarkID);
-        } else {
-            throw std::out_of_range("A camera bookmark with ID " + std::to_string(cameraBookmarkID) + " does not exist.");
         }
     }
 
     void Graph::setGroupTransparency(const std::uint32_t groupID, const float transparency){
-        try {
-            groups.at(groupID).setTransparency(transparency);
-        } catch (std::out_of_range& e) {
-            throw std::out_of_range("Group transparency is out of range [0,1]");
-        }
+        groups.at(groupID).setTransparency(transparency);
         updateSortedVertices();
         updateSortedEdges();
     }
@@ -153,7 +141,6 @@ namespace graphvise {
             newCoords.z = (newScale / manualScale) * vertex.getCoordsVector().z;
             vertex.setCoordsVector(newCoords);
         }
-
         for (auto& edge : edges) {
             initRenderingMatrixForEdge(edge);
         }
@@ -187,11 +174,11 @@ namespace graphvise {
     }
 
 
-    const std::vector<Vertex *> &Graph::getVerticesSortedByTransparency() const{
+    const std::vector<Vertex*> &Graph::getVerticesSortedByTransparency() const{
         return verticesSortedByTransparency;
     }
 
-    const std::vector<Edge *> &Graph::getEdgesSortedByTransparency() const{
+    const std::vector<Edge*> &Graph::getEdgesSortedByTransparency() const{
         return edgesSortedByTransparency;
     }
 
@@ -205,7 +192,6 @@ namespace graphvise {
         float length = glm::length(direction);
         edge.setLength(length);
 
-        // Create model matrix
         glm::mat4 model = glm::mat4(1.0f);
 
         // STEP 1: Translate to the midpoint between the two vertices
@@ -216,7 +202,6 @@ namespace graphvise {
         if (length > 0.001f) {
             glm::vec3 up = glm::vec3(0, 1, 0);
             glm::vec3 normalizedDir = direction / length;
-
             glm::quat rotation;
             if (glm::length(glm::cross(up, normalizedDir)) < 0.001f) {
                 // Direction is parallel to up - use identity quaternion
@@ -235,7 +220,6 @@ namespace graphvise {
         }
         // STEP 3: Scale the Y axis by length
         model = glm::scale(model, glm::vec3(1.0f, length, 1.0f));
-
         edge.setMatrix(model);
     }
 
