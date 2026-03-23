@@ -5,7 +5,7 @@
 #include "model/GraphSaver.hpp"
 
 #define HEADER_REGEX "\\s*Group\\s+([A-Za-z0-9_.-]+)\\s*(?:(\\d+)\\s*(?:(\\d+)\\s+(\\d+)\\s*(\\d+)?)?)?\\s*"
-#define NODE_REGEX "(\\d+)"
+#define NODE_REGEX "(\\d+)\\s*"
 #define EDGE_REGEX "\\s*(\\d+)\\s+(\\d+)\\s*"
 #define EMPTY_LINE_REGEX "\\s*"
 
