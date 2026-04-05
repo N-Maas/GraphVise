@@ -16,6 +16,7 @@
 #include "model/GraphSaver.hpp"
 #include "../../rendering/Renderer.hpp"
 #include "../../rendering/Camera.hpp"
+#include "controller/ErrorCollector.hpp"
 
 namespace graphvise
 {
@@ -41,7 +42,6 @@ namespace graphvise
 
     std::vector<std::filesystem::path> CachingController::getExampleGraphNames()
     {
-
         std::vector<std::filesystem::path> filenames;
         for (const auto& file : std::filesystem::directory_iterator(exampleGraphsPath))
         {
@@ -140,18 +140,25 @@ namespace graphvise
             return;
         }
 
-
-        boost::archive::binary_iarchive ia(ifs);
-
-        auto newGraph = Graph({}, {}, "");
-        ia >> newGraph;
-        ifs.close();
+        Graph newGraph = Graph({}, {}, "");
+        try
+        {
+            boost::archive::binary_iarchive ia(ifs);
+            ia >> newGraph;
+            ifs.close();
+        }
+        catch (std::exception& e)
+        {
+            ErrorCollector::getInstance().collectError(Error(ErrorType::FILE_CORRUPTED, filename.string()));
+            return;
+        }
         GraphSaver::getInstance().setGraph(newGraph);
         Renderer::getInstance()->m_camera().resetPosition();
 
         // clear vertex/edge picking
-        if (auto controller = getButtonController()) {
-        controller->clearSelection();
+        if (auto controller = getButtonController())
+        {
+            controller->clearSelection();
         }
         // Notify renderer
         auto renderer = Renderer::getInstance();
