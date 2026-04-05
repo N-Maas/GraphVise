@@ -48,9 +48,11 @@ namespace graphvise
             camera.position_world_space[1] += direction.y * step;
         } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
         {
+            
             constexpr uint32_t scale = 7;
             rotateCamera(-(scale * direction.y), -(scale * direction.x));
             zoom((-direction.z / 2 ), sprinting);
+            
         }
 
 
@@ -129,7 +131,7 @@ namespace graphvise
 
     void MovementController::zoom(float zoomValue, bool sprinting)
     {
-        {
+        if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
             double dist = glm::length(camPos);
@@ -179,6 +181,12 @@ namespace graphvise
 
             camera.position_world_space = camPos;
             updateLightSourcePosition();
+        } else if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
+
+
+            moveCamera(glm::vec3(0, 0, zoomValue * 500), sprinting);
+
+            
         }
     }
 
