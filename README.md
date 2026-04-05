@@ -65,9 +65,9 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [Dear Imgui](https://github.com/ocornut/imgui) for the graphical user interface (GUI)
 * [OpenGL](https://www.opengl.org) as the graphics API
 * [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library for vector and matrix operations
-* [wembed]() graph embedding library
-* [Boost]() extending functionality of C++ Standard Library
-* [Eigen3]() C++ template library for linear algebra
+* [wembed](https://github.com/Vraier/wembed) graph embedding library
+* [Boost](https://github.com/boostorg/boost) extending functionality of C++ Standard Library
+* [Eigen3](https://github.com/rolk/eigen3) C++ template library for linear algebra
 
 ## Installation Instructions
 

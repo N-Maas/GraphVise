@@ -35,7 +35,7 @@ FetchContent_Declare(
 FetchContent_Declare(
         platform_folders
         GIT_REPOSITORY https://github.com/sago007/PlatformFolders.git
-        GIT_TAG 849756445f4cb743d85c315e055be6b768d837da
+        GIT_TAG f2625faed48bc891eb624187f8a0e4a1d1cd6ad6
         GIT_SHALLOW TRUE
 )
 
