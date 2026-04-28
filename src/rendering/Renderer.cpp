@@ -201,10 +201,13 @@ namespace graphvise {
 
         // Create picking framebuffer
         createPickingFramebuffer();
+        //init line buffer
+        createLineBuffer();
 
         //for rendering transparent objects
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquation(GL_FUNC_ADD);
 
         GL_CHECK_ERROR();
     }
@@ -262,6 +265,43 @@ namespace graphvise {
         GL_CHECK_ERROR();
     }
 
+    // creates Line buffer
+    void Renderer::createLineBuffer() {
+        if (edgeLineVAO == 0) {
+        glGenVertexArrays(1, &edgeLineVAO);
+        glGenBuffers(1, &edgeLineVBO);
+        GL_CHECK_ERROR();
+    	}
+
+    	   // Bind VAO
+    	glBindVertexArray(edgeLineVAO);
+    	GL_CHECK_ERROR();
+
+		// Bind VBO
+		glBindBuffer(GL_ARRAY_BUFFER, edgeLineVBO);
+		GL_CHECK_ERROR();
+
+
+        GLsizei stride = sizeof(LineVertexData);
+
+	//position
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, posX));
+	glEnableVertexAttribArray(0);
+	// Normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, normX));
+	glEnableVertexAttribArray(1);
+	 // Color attribute
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, colorR));
+	glEnableVertexAttribArray(2);
+	// Edge ID attribute
+	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(LineVertexData), (void*)offsetof(LineVertexData, edgeId));
+	glEnableVertexAttribArray(3);
+	GL_CHECK_ERROR();
+
+		glBindVertexArray(0);
+		GL_CHECK_ERROR();
+    }
+
     /**
      * Reloads the shaders from the file paths and compiles a new shader program to use.
      */
@@ -287,15 +327,14 @@ namespace graphvise {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
         // Clear to UINT32_MAX (0xFFFFFFFF)
-
         constexpr GLuint clearValue[] = {UINT32_MAX, UINT32_MAX};
         glClearBufferuiv(GL_COLOR, 1, clearValue);  // Clear attachment 1
         glClear(GL_DEPTH_BUFFER_BIT);
 
         // Enable depth testing for picking pass
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_MULTISAMPLE);
 
         // Render with picking shader (same shader, it already outputs ID to location 1)
         if (mShaderProgram != 0) {
@@ -356,6 +395,7 @@ namespace graphvise {
         GLuint sphereRadiusLoc = glGetUniformLocation(mShaderProgram, "sphereRadius");
         GLuint cylinderRadiusLoc = glGetUniformLocation(mShaderProgram, "cylinderRadius");
         GLuint renderingSpheresLoc = glGetUniformLocation(mShaderProgram, "renderingSpheres");
+        GLuint renderingLinesLoc = glGetUniformLocation(mShaderProgram, "renderingLines");
 
         // Set lighting (use same light as cube)
         if (lightPosLoc != -1) {
@@ -379,6 +419,7 @@ namespace graphvise {
                 std::cerr << "ERROR: vertices vector is empty but size check passed?" << std::endl;
                 return;
             }
+
             // Force reset vertex attribute state
             glBindVertexArray(0);  // Unbind any VAO
             glBindVertexArray(sphereVAO);  // Rebind sphere VAO
@@ -457,6 +498,7 @@ namespace graphvise {
 
             // Draw all spheres with one call
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 1);
+            if (renderingLinesLoc != -1) glUniform1i(renderingLinesLoc, 0);
 
             glBindVertexArray(sphereVAO);
             // SAFETY CHECK: Verify sphere indices are valid
@@ -473,6 +515,7 @@ namespace graphvise {
         }
         GL_CHECK_ERROR();
 
+        if(mSettings.useCylindersForEdges) {
 
         // ===== RENDER CYLINDERS (instanced) =====
         if (!edges.empty()) {
@@ -501,6 +544,7 @@ namespace graphvise {
                          edgeInstanceData.data(), GL_DYNAMIC_DRAW);
 
             if (renderingSpheresLoc != -1) glUniform1i(renderingSpheresLoc, 0);
+            if (renderingLinesLoc != -1) glUniform1i(renderingLinesLoc, 0);
             // Draw all cylinders with one call
             glBindVertexArray(cylinderVAO);
             glDrawElementsInstanced(GL_TRIANGLES, cylinderIndices.size(),
@@ -510,6 +554,9 @@ namespace graphvise {
 
         glBindVertexArray(0);
         GL_CHECK_ERROR();
+        } else {
+            renderEdgesAsLines(mvp);
+        }
     }
 
     /**
@@ -794,19 +841,19 @@ namespace graphvise {
             case PerformanceMode::PERFORMANCE:
                 mSettings.sphereSubdiv = 1;
                 mSettings.cylinderSegments = 8;
-                mSettings.targetFPS = 30;
+                mSettings.useCylindersForEdges = false;
                 break;
 
             case PerformanceMode::BALANCE:
                 mSettings.sphereSubdiv = 2;
                 mSettings.cylinderSegments = 12;
-                mSettings.targetFPS = 60;
+                mSettings.useCylindersForEdges = true;
                 break;
 
             case PerformanceMode::QUALITY:
                 mSettings.sphereSubdiv = 3;
                 mSettings.cylinderSegments = 16;
-                mSettings.targetFPS = 80;
+                mSettings.useCylindersForEdges = true;
                 break;
             default:
             throw std::invalid_argument("Invalid performance mode");
@@ -853,6 +900,143 @@ namespace graphvise {
 
         return result;
     }
+
+    void Renderer::renderEdgesAsLines(const glm::mat4& mvp) {
+    // Initialize line shader if not done
+
+    if (mLineShaderProgram == 0) {
+        mLineShaderProgram = utils::createShaderProgramFromFile(
+            std::string(SHADERS_PATH) + "lines.vert",
+            std::string(SHADERS_PATH) + "lines_color.frag"
+        );
+    }
+
+  	if (mLineShaderProgram == 0) {
+        std::cerr << "ERROR: Failed to create line shader program!" << std::endl;
+    } else {
+        //std::cout << "Line shader program created: " << mLineShaderProgram << std::endl;
+    }
+
+    // Initialize VAO if needed
+    if (edgeLineVAO == 0) {
+        glGenVertexArrays(1, &edgeLineVAO);
+        glGenBuffers(1, &edgeLineVBO);
+
+        glBindVertexArray(edgeLineVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, edgeLineVBO);
+
+        GLsizei stride = sizeof(LineVertexData);
+
+ 	// Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, posX));
+	glEnableVertexAttribArray(0);
+	// Normal attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, normX));
+	glEnableVertexAttribArray(1);
+	 // Color attribute
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexData), (void*)offsetof(LineVertexData, colorR));
+	glEnableVertexAttribArray(2);
+	// Edge ID attribute
+	glVertexAttribIPointer(3, 1, GL_UNSIGNED_INT, sizeof(LineVertexData), (void*)offsetof(LineVertexData, edgeId));
+	glEnableVertexAttribArray(3);
+
+        glBindVertexArray(0);
+        GL_CHECK_ERROR();
+
+    }
+
+    updateEdgeLineBuffer();
+
+    if (edgeCount > 0) {
+        glDisable(GL_DEPTH_TEST);
+
+        // Use line shader
+        glUseProgram(mLineShaderProgram);
+
+        //setting line width
+        glLineWidth(2*cylinderRadius);
+
+        // Set MVP uniform
+        GLint mvpLoc = glGetUniformLocation(mLineShaderProgram, "mvp");
+        if (mvpLoc != -1) {
+            glUniformMatrix4fv(mvpLoc, 1, false, &mvp[0][0]);
+        }
+
+        // Bind VAO and draw ONCE
+        glBindVertexArray(edgeLineVAO);
+
+        // Verify buffer is bound BEFORE drawing
+        GLint boundVBO;
+        glGetVertexAttribiv(0, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &boundVBO);
+
+        if (boundVBO == 0) {
+            std::cerr << "ERROR: No VBO bound to attribute 0!" << std::endl;
+        }
+
+        // Single draw call
+        glDrawArrays(GL_LINES, 0, edgeCount * 2);
+
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR) {
+            std::cerr << "OpenGL error during glDrawArrays: " << err << std::endl;
+        }
+
+        glBindVertexArray(0);
+
+        //std::cout << "Drew " << (edgeCount * 2) << " vertices" << std::endl;
+
+        glEnable(GL_DEPTH_TEST);
+
+        GL_CHECK_ERROR();
+    } else {
+        std::cout << "No edges to render as lines" << std::endl;
+    }
+}
+
+void Renderer::updateEdgeLineBuffer() {
+    Graph& graph = GraphSaver::getInstance().getGraph();
+    std::vector<Edge*> edges = graph.getEdgesSortedByTransparency();
+
+    if (edges.empty()) {
+        edgeCount = 0;
+        return;
+    }
+
+    std::vector<LineVertexData> lineVertices;
+    lineVertices.reserve(edges.size() * 2);
+
+    for (const auto& edge : edges) {
+        int fromIdx = edge->getConnectingVerticesIDs().first;
+        int toIdx = edge->getConnectingVerticesIDs().second;
+
+        if (fromIdx < graph.getVertices().size() && toIdx < graph.getVertices().size()) {
+            glm::vec3 fromPos = graph.getVertexByID(fromIdx).getCoordsVector();
+            glm::vec3 toPos = graph.getVertexByID(toIdx).getCoordsVector();
+            glm::vec4 color = graph.getEdgeVec4ByID(edge->getID());
+            glm::vec3 normal(0.0f, 1.0f, 0.0f);
+            uint32_t edgeId = edge->getID();
+
+            lineVertices.emplace_back(fromPos, normal, color, (float)edgeId);
+            lineVertices.emplace_back(toPos, normal, color, (float)edgeId);
+        }
+    }
+
+    edgeCount = lineVertices.size() / 2;
+
+    size_t totalBytes = lineVertices.size() * sizeof(LineVertexData);
+
+    // update vbos' data
+    if (edgeLineVBO == 0) {
+        std::cerr << "ERROR: edgeLineVBO is 0, cannot upload!" << std::endl;
+        return;
+    }
+
+    // Bind and update buffer data (no delete/recreate)
+    glBindBuffer(GL_ARRAY_BUFFER, edgeLineVBO);
+    glBufferData(GL_ARRAY_BUFFER, totalBytes, lineVertices.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
 
     void Renderer::clearInstanceData() {
 		// Clear any existing instance data to force regeneration

@@ -41,7 +41,32 @@ namespace graphvise {
         int targetFPS = 60;           // Target frames per second
         int sphereSubdiv = 2;         // Sphere subdivisions
         int cylinderSegments = 12;    // Cylinder segments
-    };
+        bool useCylindersForEdges = true; //
+	};
+
+struct LineVertexData {
+    float posX, posY, posZ;
+    float normX, normY, normZ;
+    float colorR, colorG, colorB, colorA;
+    uint32_t edgeId;
+
+    LineVertexData() : posX(0), posY(0), posZ(0),
+                       normX(0), normY(0), normZ(0),
+                       colorR(0), colorG(0), colorB(0), colorA(0),
+                       edgeId(0) {}
+
+    LineVertexData(const glm::vec3& pos, const glm::vec3& norm,
+                   const glm::vec4& color, uint32_t id)
+        : posX(pos.x), posY(pos.y), posZ(pos.z),
+          normX(norm.x), normY(norm.y), normZ(norm.z),
+          colorR(color.r), colorG(color.g), colorB(color.b), colorA(color.a),
+          edgeId(id) {}
+};
+
+static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 bytes");
+
+    // Verify size at compile time
+    static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 bytes");
 
     //representing the picked object
     struct PickedObject {
@@ -143,6 +168,12 @@ namespace graphvise {
 
         void clearInstanceData();
 
+        void renderEdgesAsLines(const glm::mat4& mvp);
+        void updateEdgeLineBuffer();
+
+        // Performance mode settings
+        bool m_useCylindersForEdges = true;  // Default to cylinders
+
     private:
         //variables for render quality settings
         RenderSettings mSettings;
@@ -169,6 +200,7 @@ namespace graphvise {
         const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
 
         GLuint mShaderProgram;
+        GLuint mLineShaderProgram;
         // Path to shader source files
         std::string mVertexShaderPath;
         std::string mFragmentShaderPath;
@@ -192,6 +224,7 @@ namespace graphvise {
         void generateCylinder(int segments = 16);
         void renderCylinder(const glm::vec3 & start, const glm::vec3 & end, float radius, const glm::vec4 & color, const glm::mat4 & viewProj, uint32_t
                             edgeId) const;
+        void createLineBuffer();
 
         Camera mCamera;
         glm::vec3 lightPos;
@@ -208,6 +241,7 @@ namespace graphvise {
         std::vector<glm::vec4> vertexColorData;     // rgba colors
         std::vector<uint32_t> vertexIdData;
         std::vector<glm::vec3> edgeData;    // xyz=start, w=radius, then xyz=end, w=id
+        std::vector<LineVertexData> lineVertices;
         GLuint vertexInstanceVBO;
         GLuint vertexColorVBO;
         GLuint vertexIdVBO;
@@ -216,5 +250,10 @@ namespace graphvise {
         std::vector<EdgeInstanceData> edgeInterleavedData;
         uint8_t numShaderInputs = 10;
         uint8_t numSphereShaderInputs = 5;
+        GLuint edgeLineVBO; //line rendering buffers
+        GLuint edgeLineVAO;
+        size_t edgeCount;
+
+        GLuint createShaderProgramFromFile(const std::string vertexPath, const std::string fragmentPath);
     };
 }
