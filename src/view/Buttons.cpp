@@ -12,7 +12,6 @@
 
 #include <functional>
 #include <utility>
-
 #include "stb_image.h"
 #include "controller/Exporting/CachingController.hpp"
 #include "imgui/imgui_internal.h"
@@ -162,7 +161,7 @@ namespace graphvise
                            GroupMenu(hoverMsg);
                        }));
 
-        SideBarElement(currentPerformanceMode, "Toggle Performance Mode",
+        SideBarElement(currentPerformanceMode, "Toggle Performance Mode (Q)",
                        std::function<void(const char* hoverMsg)>([this](const char* hoverMsg)
                        {
                            performanceModeToggle(hoverMsg);
@@ -198,7 +197,7 @@ namespace graphvise
                 throw std::runtime_error("Invalid Light Source Movement Behaviour");
             }
 
-            ImGui::SetTooltip("Toggle Light Source, Current: %s", text.c_str());
+            ImGui::SetTooltip("Toggle Light Source (L), Current: %s", text.c_str());
         }
         ImGui::Spacing();
 
@@ -230,7 +229,7 @@ namespace graphvise
             }
 
 
-            ImGui::SetTooltip("Toggle Camera Movement, Current: %s", text.c_str());
+            ImGui::SetTooltip("Toggle Camera Movement (K), Current: %s", text.c_str());
         }
 
 
@@ -261,8 +260,8 @@ namespace graphvise
 
     void Buttons::changeObjSize()
     {
-        static float cylRadPreCalc = sqrt(renderer->cylinderRadius);
-        static float sphereRadPreCalc = sqrt(renderer->sphereRadius);
+        float cylRadPreCalc = sqrt(renderer->cylinderRadius);
+        float sphereRadPreCalc = sqrt(renderer->sphereRadius);
 
         if (ImGui::BeginMenu("Object Size"))
         {
@@ -421,7 +420,7 @@ namespace graphvise
                               ImGuiWindowFlags_AlwaysAutoResize |
                               ImGuiWindowFlags_NoCollapse ))
         {
-            if (ImGui::Button("Remove Highlighting"))
+            if (ImGui::Button("Remove Highlighting (H)"))
             {
                 buttonController->RemoveHighlights();
             }
@@ -450,6 +449,7 @@ namespace graphvise
     void Buttons::performanceModeToggle(const char* popUpName)
     {
         static const char* modeText[] = {"Performance", "Balance", "Quality"};
+        static bool is_toggled = false;
 
         if (ImGui::BeginPopup(popUpName,
                               ImGuiWindowFlags_AlwaysAutoResize |
@@ -462,6 +462,9 @@ namespace graphvise
                                  modeText[static_cast<int>(*performanceMode)]))
             {
                 buttonController->setPerformanceMode(*performanceMode);
+            }
+            if (ImGui::Checkbox("Use lines to represent edges", &is_toggled)) {
+                Renderer::getInstance()->setUseCylindersForEdges(!is_toggled);
             }
 
             ImGui::EndPopup();

@@ -841,19 +841,16 @@ namespace graphvise {
             case PerformanceMode::PERFORMANCE:
                 mSettings.sphereSubdiv = 1;
                 mSettings.cylinderSegments = 8;
-                mSettings.useCylindersForEdges = false;
                 break;
 
             case PerformanceMode::BALANCE:
                 mSettings.sphereSubdiv = 2;
                 mSettings.cylinderSegments = 12;
-                mSettings.useCylindersForEdges = true;
                 break;
 
             case PerformanceMode::QUALITY:
                 mSettings.sphereSubdiv = 3;
                 mSettings.cylinderSegments = 16;
-                mSettings.useCylindersForEdges = true;
                 break;
             default:
             throw std::invalid_argument("Invalid performance mode");

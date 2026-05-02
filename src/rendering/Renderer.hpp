@@ -41,7 +41,7 @@ namespace graphvise {
         int targetFPS = 60;           // Target frames per second
         int sphereSubdiv = 2;         // Sphere subdivisions
         int cylinderSegments = 12;    // Cylinder segments
-        bool useCylindersForEdges = true; //
+        bool useCylindersForEdges = true;
 	};
 
 struct LineVertexData {
@@ -170,9 +170,9 @@ static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 byte
 
         void renderEdgesAsLines(const glm::mat4& mvp);
         void updateEdgeLineBuffer();
-
-        // Performance mode settings
-        bool m_useCylindersForEdges = true;  // Default to cylinders
+        void setUseCylindersForEdges(bool boolean) {
+            mSettings.useCylindersForEdges = boolean;
+        }
 
     private:
         //variables for render quality settings
