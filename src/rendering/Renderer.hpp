@@ -62,9 +62,6 @@ struct LineVertexData {
           colorR(color.r), colorG(color.g), colorB(color.b), colorA(color.a),
           edgeId(id) {}
 };
-
-static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 bytes");
-
     // Verify size at compile time
     static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 bytes");
 
@@ -173,7 +170,7 @@ static_assert(sizeof(LineVertexData) == 44, "LineVertexData size must be 44 byte
         void setUseCylindersForEdges(bool boolean) {
             mSettings.useCylindersForEdges = boolean;
         }
-
+ 		
     private:
         //variables for render quality settings
         RenderSettings mSettings;
