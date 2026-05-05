@@ -22,6 +22,8 @@ namespace graphvise {
         }
         graph = new_graph;
         graph.value().initThisGraph();
+        Renderer::getInstance()->setCylinderRadius(0.03f);
+        Renderer::getInstance()->setSphereRadius(0.05f);
         CachingController::cacheCurrentGraph();
     }
 }
