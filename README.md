@@ -33,7 +33,17 @@ subdivide the graph into groups of the same color.
 > **Graph Export:** A .png of the loaded graph can be exported.
 
 > **Graph Manipulation:** Graphs can be subdivided into groups, which can be colored individually or hidden.
-> The visual size of vertices/edges can be changed.
+> To do that, you need to upload one .txt file. This file must specify all the desired groups. The following format applies when defining a group (without () and {}):
+> > Group {name} ({color-r} {color-g} {color-b}) {transparency}   
+> > 0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Vertex with ID 0   
+> > 2 3 &nbsp;&nbsp;&nbsp;&nbsp; //Edge between the vertices with IDs 2 and 3   
+> > 3   
+> > 0 1
+> 
+> In this format, the color value (rgb) and transparency are optional. If these are not specified, default values are used. To define multiple groups, simply repeat this format in the .txt file and separate the entries with a blank line.
+> All vertices and edges that are not included in the specified groups remain in their default groups.
+>    
+> The visual size of vertices/edges can be changed in the "Graph Settings".
 
 **General Features**
 > Camera movement:  
