@@ -40,12 +40,25 @@ namespace graphvise
             // std::cout << step << " " << graphRadius << std::endl;
 
             const float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
+            const float cos_x = cosf(camera.rotation_x), sin_x = sinf(camera.rotation_x);
 
-            camera.position_world_space[0] += sin_y * direction.z * step;
+            // Since the camera can't rotate along the z axis, left/right movement is always
+            // along the x-z plane and up/down movement is always along the y-z plane.
+            // However, forward/backward movement can point in any direction -> spherical coordinates tranformation
+
+            // left / right
             camera.position_world_space[0] += cos_y * direction.x * step;
-            camera.position_world_space[2] += -cos_y * direction.z * step;
             camera.position_world_space[2] += sin_y * direction.x * step;
-            camera.position_world_space[1] += direction.y * step;
+
+            // up / down
+            camera.position_world_space[1] += cos_x * direction.y * step;
+            camera.position_world_space[2] += sin_x * direction.y * step;
+
+            // forward / backward
+            camera.position_world_space[0] += cos_x * sin_y * direction.z * step;
+            camera.position_world_space[1] += sin_x * direction.z * step;
+            camera.position_world_space[2] += -cos_x * cos_y * direction.z * step;
+
         } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
         {
             
