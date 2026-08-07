@@ -78,6 +78,7 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [wembed](https://github.com/Vraier/wembed) graph embedding library
 * [Boost](https://github.com/boostorg/boost) extending functionality of C++ Standard Library
 * [Eigen3](https://github.com/rolk/eigen3) C++ template library for linear algebra
+* [LodePNG](https://github.com/lvandeve/lodepng) PNG Encoder and Decoder
 
 ## Installation Instructions
 
