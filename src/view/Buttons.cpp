@@ -13,6 +13,7 @@
 #include <functional>
 #include <utility>
 #include "stb_image.h"
+#include "controller/MovementController.hpp"
 #include "controller/Exporting/CachingController.hpp"
 #include "imgui/imgui_internal.h"
 
@@ -339,6 +340,20 @@ namespace graphvise
             {
                 ImGui::ColorEdit3("##Background Color", &renderer->backgroundColor.x);
 
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Camera Options")) {
+                static float cameraFreeRoamSpeed = 1.0f;
+                if (ImGui::DragFloat("Camera Free Roam Speed", &cameraFreeRoamSpeed, 0.1f, 0.1f, 500.0f))
+                {
+                    renderer->m_camera().freeRoamSpeedMultiplier = cameraFreeRoamSpeed;
+                }
+                static float cameraZoomSpeed = 1.0f;
+                if (ImGui::DragFloat("Camera Zoom Speed", &cameraZoomSpeed, 0.1f, 0.1f, 500.0f))
+                {
+                    renderer->m_camera().zoomSpeedMultiplier = cameraZoomSpeed;
+                }
                 ImGui::EndMenu();
             }
 

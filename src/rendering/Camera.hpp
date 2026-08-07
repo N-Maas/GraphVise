@@ -90,6 +90,9 @@ namespace graphvise {
         // 1 iff mouse movements are currently used to rotate the camera
         bool rotate_camera;
 
+        float freeRoamSpeedMultiplier;
+        float zoomSpeedMultiplier;
+
         glm::vec3 focusPoint;
 
         Camera() :
@@ -100,6 +103,8 @@ namespace graphvise {
             far(1.0e5f),
             vertical_fov(0.33f*3.1415926536f),
             rotate_camera(false),
+            freeRoamSpeedMultiplier(1.0f),
+            zoomSpeedMultiplier(1.0f),
             focusPoint(0, 0, 0)
         {
             set_camera_focus_mode(CameraFocusMode::CENTER_OF_MASS);

@@ -26,6 +26,7 @@ namespace graphvise
     //Z Coordinate: Forwards/Backwards
     void MovementController::moveCamera(glm::vec3 direction, bool sprinting)
     {
+        float cameraFreeRoamSpeed = camera.freeRoamSpeedMultiplier;
         if (*camera.camera_focus_mode() == CameraFocusMode::FREE)
         {
             static double last_time = 0.0;
@@ -33,7 +34,7 @@ namespace graphvise
             const double elapsed_time = (last_time == 0.0) ? 0.0 : (now - last_time);
             const auto time_delta = static_cast<float>(elapsed_time);
             last_time = now;
-            float step = time_delta * DEFAULT_SPEED;
+            float step = time_delta * DEFAULT_SPEED * cameraFreeRoamSpeed;
             float graphRadius = GraphSaver::getInstance().getGraph().getRadius();
             step *= sprinting ? SPRINT_INCREASE * std::log(graphRadius) : 1.0f;
 
@@ -61,13 +62,10 @@ namespace graphvise
 
         } else if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS)
         {
-            
             constexpr uint32_t scale = 7;
             rotateCamera(-(scale * direction.y), -(scale * direction.x));
             zoom((-direction.z / 2 ), sprinting);
-            
         }
-
 
         updateLightSourcePosition();
     }
@@ -142,8 +140,9 @@ namespace graphvise
         }
     }
 
-    void MovementController::zoom(float zoomValue, bool sprinting)
+    void MovementController::zoom(float zoomValue, bool isSprinting)
     {
+        float zoomSpeedMultiplier = camera.zoomSpeedMultiplier;
         if (*camera.camera_focus_mode() == CameraFocusMode::CENTER_OF_MASS) {
             glm::vec3 camPos = camera.position_world_space - camera.focusPoint;
 
@@ -171,7 +170,7 @@ namespace graphvise
             }
 
             double sprintMultiplier = 1;
-            if (sprinting)
+            if (isSprinting)
             {
                 if (dist > 1)
                 {
@@ -181,7 +180,7 @@ namespace graphvise
 
             float distanceMultiplier = dist > 1.5 ? log(dist) : 0.5;
 
-            dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier * distanceMultiplier;
+            dist += zoomValue * ZOOM_BASE_SPEED_MULTIPLIER * sprintMultiplier * distanceMultiplier * zoomSpeedMultiplier;
 
             if (dist < MIN_DISTANCE)
             {
@@ -195,11 +194,14 @@ namespace graphvise
             camera.position_world_space = camPos;
             updateLightSourcePosition();
         } else if (*camera.camera_focus_mode() == CameraFocusMode::FREE) {
-
-
-            moveCamera(glm::vec3(0, 0, zoomValue * 500), sprinting);
-
-            
+            //moveCamera(glm::vec3(0, 0, zoomValue * 500), isSprinting);
+            const float cos_y = cosf(camera.rotation_y), sin_y = sinf(camera.rotation_y);
+            const float cos_x = cosf(camera.rotation_x), sin_x = sinf(camera.rotation_x);
+            const float graphRadius = GraphSaver::getInstance().getGraph().getRadius();
+            const float newZoomValue = -zoomValue * zoomSpeedMultiplier * (isSprinting ? SPRINT_INCREASE * std::log(graphRadius) : 1.0f);
+            camera.position_world_space[0] += cos_x * sin_y * newZoomValue;
+            camera.position_world_space[1] += sin_x * newZoomValue;
+            camera.position_world_space[2] += -cos_x * cos_y * newZoomValue;
         }
     }
 
