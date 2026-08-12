@@ -197,7 +197,7 @@ struct LineVertexData {
         const glm::vec3 centerCoordinates = glm::vec3(0.0f, 0.0f, 0.0f);
 
         GLuint mShaderProgram;
-        GLuint mLineShaderProgram;
+        GLuint mLineShaderProgram = 0;
         // Path to shader source files
         std::string mVertexShaderPath;
         std::string mFragmentShaderPath;
@@ -247,8 +247,8 @@ struct LineVertexData {
         std::vector<EdgeInstanceData> edgeInterleavedData;
         uint8_t numShaderInputs = 10;
         uint8_t numSphereShaderInputs = 5;
-        GLuint edgeLineVBO; //line rendering buffers
-        GLuint edgeLineVAO;
+        GLuint edgeLineVBO = 0; //line rendering buffers
+        GLuint edgeLineVAO = 0;
         size_t edgeCount;
 
         GLuint createShaderProgramFromFile(const std::string vertexPath, const std::string fragmentPath);

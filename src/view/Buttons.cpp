@@ -478,7 +478,7 @@ namespace graphvise
             {
                 buttonController->setPerformanceMode(*performanceMode);
             }
-            if (ImGui::Checkbox("Use lines to represent edges", &is_toggled)) {
+            if (ImGui::Checkbox("Use Line-Rendering", &is_toggled)) {
                 Renderer::getInstance()->setUseCylindersForEdges(!is_toggled);
             }
 
@@ -550,7 +550,7 @@ namespace graphvise
 
     void Buttons::importGraph()
     {
-        if (ImGui::BeginMenu("import Graph"))
+        if (ImGui::BeginMenu("Import Graph"))
         {
             if (ImGui::MenuItem("Import as TXT"))
             {
@@ -667,12 +667,12 @@ namespace graphvise
                 auto& bookmark = bookmarks[bookmarkID];
 
                 ImGui::Text(bookmark.getName().c_str());
-                if (ImGui::Button(std::format("Load Bookmark##{}", bookmarkID).c_str()))
+                if (ImGui::Button(std::format("Load##{}", bookmarkID).c_str()))
                 {
                     buttonController->loadCameraBookmark(bookmark);
                 }
                 ImGui::SameLine();
-                if (ImGui::Button(std::format("Delete Bookmark##{}", bookmarkID).c_str()))
+                if (ImGui::Button(std::format("Delete##{}", bookmarkID).c_str()))
                 {
                     buttonController->deleteCameraBookmark(bookmarkID);
                 }
