@@ -77,7 +77,6 @@ The project is defined using [CMake](https://cmake.org/) and uses
 * [glm](https://github.com/g-truc/glm) as OpenGL Mathematics library for vector and matrix operations
 * [wembed](https://github.com/Vraier/wembed) graph embedding library
 * [Boost](https://github.com/boostorg/boost) extending functionality of C++ Standard Library
-* [Eigen3](https://github.com/rolk/eigen3) C++ template library for linear algebra
 * [LodePNG](https://github.com/lvandeve/lodepng) PNG Encoder and Decoder
 
 ## Installation Instructions
@@ -90,7 +89,7 @@ For the rest of the dependencies, you have to provide the libraries through loca
 
 All libraries can be installed from the package manager. Open a terminal and install
 
-`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev libboost-all-dev libeigen3-dev`
+`sudo apt install build-essential cmake libgl1-mesa-dev libglfw3-dev libglm-dev libboost-all-dev`
 
 If you want to configure the CMake project with a GUI application you can optionally add
 
@@ -99,7 +98,7 @@ If you want to configure the CMake project with a GUI application you can option
 
 ### WindowsGL
 
-ToDo: Install CMake, GLFW, CMake, glm, boost, Eigen3 and OpenGL libraries.
+ToDo: Install CMake, GLFW, CMake, glm, boost and OpenGL libraries.
 
 
 ## Build Instructions

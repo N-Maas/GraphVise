@@ -27,7 +27,7 @@ FetchContent_Declare(
 FetchContent_Declare(
         wembed
         GIT_REPOSITORY https://github.com/Vraier/wembed
-        GIT_TAG cpp-library-interface
+        GIT_TAG v0.2.0
         GIT_SHALLOW TRUE
 )
 
@@ -40,7 +40,10 @@ FetchContent_Declare(
 )
 
 # Make all fetched content available
-set(WEMBED_AS_LIBRARY ON)
+# Build wembed without the sprk spatial index, which needs a Rust toolchain. wembed falls back to its
+# bundled KD-tree (select it with indexType = IndexKdTree). Set this to ON if cargo >= 1.88 is available,
+# sprk is the faster index.
+set(WEMBED_USE_SPRK OFF)
 FetchContent_MakeAvailable(googletest wembed platform_folders)
 
 enable_testing()
@@ -202,11 +205,7 @@ target_link_libraries(GraphVise PRIVATE
         glad
         glfw
         OpenGL::GL
-        wembedLib
-        wembed_flags
-        embeddingLib
-        graphLib
-        utilLib
+        wembed::wembed
         Boost::filesystem
         Boost::serialization
         platform_folders
