@@ -139,6 +139,7 @@ namespace graphvise
                         ImGui::ColorButton("##Vertex color", group.getVec4());
                     }
                     ImGui::End();
+                    ImGui::PopStyleColor(2);
                     break;
                 }
 
@@ -173,6 +174,7 @@ namespace graphvise
                         ImGui::ColorButton("##Edge color", group.getVec4());
                     }
                     ImGui::End();
+                    ImGui::PopStyleColor(2);
                     break;
                 }
                 default: {
